@@ -1,0 +1,186 @@
+<mat-dialog-content  id="ModalFix">
+  <div class="jumtron" *ngIf="ordenESService.formData!=null">
+    <div class="row justify-content-center">
+      <div id="contPrint1" class="col-12">
+        <h1 class="display-4 text-center">Orden de {{ordenESService.formData.tipoOrden}}</h1>
+      </div>
+    </div>
+  </div>
+  <form #formOrden="ngForm" autocomplete="off" *ngIf="ordenESService.formData!=null">
+    <div class="container-fluid">
+      <div id="content" #content class="row mInCajaPadre">
+        <div class="col-12 mInCajaHijaOrden" style="padding-top: 0px;">
+          <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 cDividida">
+              <div class="row">
+                <strong>Datos de la Orden</strong>
+              </div>
+              <div class="row">
+                <div id="contFila1Col1" *ngIf="ordenESService.formData.tipoOrden=='Salida'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Salida de:</strong> {{ordenESService.formData.planta}}
+                </div>
+                <div id="contFila1Col1" *ngIf="ordenESService.formData.tipoOrden!='Salida'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Entrada a:</strong> {{ordenESService.formData.planta}}
+                </div>
+                <div id="contFila1Col2" class="col-12 col-sm-12 col-md-6">
+                  <strong>Documentación {{ordenESService.formData.numDocumentacion}}</strong>
+                </div>
+                <div id="contFila2Col1" *ngIf="ordenESService.formData.tipoOrden!='Salida'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Fecha Ingreso:</strong> {{ordenESService.formData.fechaRegistro}}
+                </div>
+                <div id="contFila2Col1" *ngIf="ordenESService.formData.tipoOrden=='Salida'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Fecha Salida:</strong> {{ordenESService.formData.fechaRegistro}}
+                </div>
+                <div id="contFila2Col2" class="col-12 col-sm-12 col-md-6">
+                  <strong>Hora de Registro:</strong> {{ordenESService.formData.horaRegistro}}
+                </div>
+                <div id="contFila3Col1" *ngIf="ordenESService.formData.tipoOrden=='Entrada'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Lugar de Procedencia:</strong> {{ordenESService.formData.destinoProcedencia}}
+                </div>
+                <div id="contFila3Col1" *ngIf="ordenESService.formData.tipoOrden=='Salida'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Lugar de Destino:</strong> {{ordenESService.formData.destinoProcedencia}}
+                </div>
+                <div id="contFila3Col1" *ngIf="ordenESService.formData.tipoOrden=='Materia Prima'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Suministrado por:</strong> {{ordenESService.formData.destinoProcedencia}}
+                </div>
+
+                <div id="contFila3Col2" *ngIf="ordenESService.formData.tipoOrden!='Salida'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Responsable de Entrada:</strong> {{ordenESService.formData.responsableES}}
+                </div>
+                <div id="contFila3Col2" *ngIf="ordenESService.formData.tipoOrden=='Salida'"
+                  class="col-12 col-sm-12 col-md-6">
+                  <strong>Responsable de Salida:</strong> {{ordenESService.formData.responsableES}}
+                </div>
+                <div id="contFila4Col1" class="col-12 col-sm-12 col-md-6">
+                  <strong>Usuario del Guardia:</strong> {{ordenESService.formData.guardiaCargoUser}}
+                </div>
+                <div id="contFila4Col2" class="col-12 col-sm-12 col-md-6">
+                  <strong>Estado de la Orden:</strong> {{ordenESService.formData.estadoProceso}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 col-sm-12 col-md-6 encabezado" *ngIf="ordenESService.formData.persona!=null">Datos de la
+              persona
+              <div class="cDividida">
+                <div class="row">
+                  <div id="contFila5Col1" class="col-12">
+                    <strong>Cédula:</strong> {{ordenESService.formData.persona.cedula}}
+                  </div>
+                  <div id="contFila6Col1" class="col-12">
+                    <strong>Nombre:</strong> {{ordenESService.formData.persona.nombreP}}
+                  </div>
+                  <div id="contFila7Col1" class="col-12">
+                    <strong>Tipo de Persona:</strong> {{ordenESService.formData.persona.tipoPersona}}
+                  </div>
+                  <div id="contFila8Col1" class="col-12">
+                    <strong>Empresa:</strong> {{ordenESService.formData.persona.empresa}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 encabezado" *ngIf="ordenESService.formData.carro!=null">Datos del
+              vehículo
+              <div class="cDividida">
+                <div class="row">
+                  <div id="contFila5Col2" class="col-12">
+                    <strong>Número de Placa:</strong> {{ordenESService.formData.carro.numMatricula}}
+                  </div>
+                  <div id="contFila6Col2" class="col-12">
+                    <strong>Marca:</strong> {{ordenESService.formData.carro.marca}}
+                  </div>
+                  <div id="contFila7Col2" class="col-12">
+                    <strong>Color:</strong> {{ordenESService.formData.carro.colorCarro}}
+                  </div>
+                  <div id="contFila8Col2" *ngIf="ordenESService.formData.choferId!=null" class="col-12">
+                    <strong>Propietario:</strong> {{ordenESService.formData.carro.propietario}}
+                  </div>
+                  <div id="contFila9Col2" *ngIf="ordenESService.formData.choferId==null" class="col-12">
+                    <strong>Tipo de Vehículo:</strong> Privado
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row" *ngIf="okArchivos">
+            <div class="col-12" id="utilitarioI">
+              <h5>Galería</h5>
+              <div class="row justify-content-center mb-3 mx-3 cardGalery">
+                <ngx-gallery [options]="galleryOptions" [images]="galleryImages" #gallery></ngx-gallery>
+              </div>
+            </div> 
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-headerModal">
+                  <h5>Lista Productos</h5>
+                </div>
+                <div>
+                  <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                    <table class="table">
+                      <thead>
+                        <tr class="text-center">
+                          <th scope="col" [ngStyle]="{'width:30%':verificadorCheack,'width:35%':!verificadorCheack }">
+                            {{ordenESService.formData.tipoOrden=='Materia Prima' ? 'Material' : 'Producto'}}
+                          </th>
+                          <th scope="col" [ngStyle]="{'width:10%':verificadorCheack,'width:15%':!verificadorCheack }">Cantidad</th>
+                          <th scope="col" [ngStyle]="{'width:20%':verificadorCheack,'width:25%':!verificadorCheack }">Observación</th>
+                          <th scope="col" style="width:5%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                            Retorna</th>
+                          <th scope="col" [ngStyle]="{'width:15%':verificadorCheack,'width:20%':!verificadorCheack }">Estado</th>
+                          <th scope="col" [ngStyle]="{'width:20%':verificadorCheack}" *ngIf="verificadorCheack">
+                            Verificador</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let datoListP of ordenESService.formData.listArticulosO; let indiceNewP=index"
+                          [ngClass]="{'filaPar':(((indiceNewP+1)%2)==0)}">
+                          <td>{{datoListP.producto?.nombre}}{{datoListP.inventario?.nombre}}</td>
+                          <td class="text-center">{{datoListP.cantidad}}</td>
+                          <td>{{datoListP.observacion}}</td>
+                          <td *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'"
+                            class="justify-content-center text-center">
+                            <div *ngIf="datoListP.retorna">Si</div>
+                            <div *ngIf="!datoListP.retorna">No</div>
+                          </td>
+                          <td class="text-center" >{{datoListP.estadoProducto}}</td>
+                          <td *ngIf="verificadorCheack">{{datoListP.responsableVerificador}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row boxForm justify-content-around mt-1 mt-sm-2 mb-1 mb-sm-2">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-4 mb-2 ">
+              <a [routerLink] class="btn bttn-Primario btn-block" (click)="onConvertPdf()">
+                <fa-icon [icon]="faprint"></fa-icon> Descargar PDF</a>
+            </div>
+            <div class="col-12 col-sm-10 col-md-8 col-lg-4 mb-2">
+              <a [routerLink] class="btn bttn-Primario btn-block" onclick="document.getElementById('newFiles').click()">
+                <fa-icon [icon]="faFileUpload"></fa-icon> Subir Archivos</a>
+                <input type="file" id="newFiles" class="d-none" style="color: transparent" accept="image/png, image/jpeg"
+                (change)="onNewFiles($event.target.files)" multiple>
+            </div>
+            <div class="col-12 col-sm-10 col-md-8 col-lg-4">
+              <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>

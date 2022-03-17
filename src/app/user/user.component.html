@@ -1,0 +1,49 @@
+<div class="fondoLogin"></div>
+<div class="container">
+  <div class="boxUser">
+    <h2 *ngIf="!modoActualizar">Inicio de Sessión</h2>
+    <h2 *ngIf="modoActualizar">Actualizar Contraseña</h2>
+    <form #form='ngForm' class="mb-4" autocomplete="off" (submit)="onSubmit()" *ngIf="userService.formData">
+      <div class="form-group inputBox">
+        <input class="form-control" #UserName="ngModel" name="UserName" [(ngModel)]="userService.formData.UserName"
+          maxlength="20" required>
+        <label class="normal">Usuario</label>
+        <label class="error" *ngIf="UserName.touched && UserName.errors?.required">Campo Requerido</label>
+      </div>
+      <div class="form-group inputBox" *ngIf="!modoActualizar">
+        <input type="password" class="form-control" #PasswordHash="ngModel" name="PasswordHash"
+          [(ngModel)]="userService.formData.PasswordHash" maxlength="20" minlength="4" required>
+        <label class="normal">Contraseña</label>
+        <label class="error" *ngIf="PasswordHash.touched && PasswordHash.errors?.required">Campo Requerido</label>
+        <label class="error" *ngIf="PasswordHash.touched && PasswordHash.errors?.minlength"> Mínimo 4 caracteres</label>
+      </div>
+      <div class="form-group inputBox" *ngIf="modoActualizar">
+        <input class="form-control" type="password" #PasswordHash="ngModel" name="PasswordHash"
+          [(ngModel)]="userService.formData.PasswordHash" maxlength="20" minlength="4" required
+          (ngModelChange)="onConfirmarPass(form)">
+        <label class="normal">Nueva Contraseña</label>
+        <label class="error" *ngIf="PasswordHash.touched && PasswordHash.errors?.required">Campo Requerido</label>
+        <label class="error" *ngIf="PasswordHash.touched && PasswordHash.errors?.minlength">Mínimo 4 caracteres</label>
+      </div>
+      <div class="form-group inputBox" *ngIf="modoActualizar">
+        <input class="form-control" type="password" #ConfirmPassword="ngModel" name="ConfirmPassword"
+          [(ngModel)]="userService.formData.ConfirmPassword" maxlength="20" minlength="4" required
+          (ngModelChange)="onConfirmarPass(form)">
+        <label class="normal">Confirmar Contraseña</label>
+        <label class="error" *ngIf="ConfirmPassword.touched && ConfirmPassword.errors?.minlength"> Mínimo 4
+          caracteres</label>
+        <label class="error" *ngIf="ConfirmPassword.dirty && ConfirmPassword.errors?.incorrect">No coinciden las
+          contraseñas</label>
+        <label class="error" *ngIf="ConfirmPassword.touched && ConfirmPassword.errors?.incompleta">No coinciden las
+          contraseñas</label>
+      </div>
+      <div class="form-group inputBox" *ngIf="!modoActualizar">
+        <a (click)="onChangePass()">Has olvidado la contraseña?</a>
+      </div>
+      <div class="pt-3">
+        <button class="btn btn-info btn-block" type="submit" [disabled]="form.invalid"><i
+            class="fas fa-sign-in-alt"></i>{{modoActualizar ? 'Actualizar' : 'Ingresar'}} </button>
+      </div>
+    </form>
+  </div>
+</div>

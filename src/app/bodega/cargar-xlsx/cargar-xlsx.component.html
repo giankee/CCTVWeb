@@ -1,0 +1,95 @@
+<mat-dialog-content id="ModalFix">
+  <div class="jumtron" *ngIf="productosMostrar!=null">
+    <div class="row justify-content-center">
+      <div id="contPrint1" class="col-12">
+        <h1 class="display-4 text-center">Extracción de datos</h1>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div id="ordenarS" class="card-header d-flex justify-content-between">
+          <h5><a class="text-dark2">Lista Productos Recopilados</a></h5>
+        </div>
+        <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th style="width: 10%;">Check</th>
+                <th style="width: 15%;">Código</th>
+                <th style="width: 25%;">Descripción</th>
+                <th style="width: 25%;">Proveedor</th>
+                <th style="width: 10%;">Precio</th>
+                <th style="width: 15%;">Bodegas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="productosMostrar.length==0">
+                <td class="font-italic text-center" colspan="4">
+                  No existen productos recopilados
+                </td>
+              </tr>
+              <tr
+                *ngFor="let datoP of productosMostrar| slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                <td>
+                  <div class="form-check">
+                    <mat-checkbox id="isCheckInv{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
+                      name="inCheack{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
+                      #inCheack{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}="ngModel"
+                      color="primary"
+                      [(ngModel)]="productosMostrar[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].disBttnInput"
+                      [disabled]="productosMostrar[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].disBttnInput==2">
+                    </mat-checkbox>
+                  </div>
+                </td>
+                <td><strong>{{datoP.codigo}}</strong></td>
+                <td>{{datoP.nombre}}</td>
+                <td>{{datoP.proveedor}}</td>
+                <td>{{datoP.precioStandar}}</td>
+                <td>
+                  <div *ngFor="let datoItems of datoP.listBodegaProducto">
+                    <ul id="utilitarioI">
+                      <li>{{datoItems.nombreBodega}} -- Stock:{{datoItems.disponibilidad}}</li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="paginationPadre mt-2" *ngIf="productosMostrar!=null">
+          <nav>
+            <ul class="pagination justify-content-center">
+              <li class="page-item">
+                <select class="form-control" (change)="onUpdateSelect($event.target)">
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="300">300</option>
+                </select>
+              </li>
+              <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+              <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+              <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row boxForm justify-content-around mt-1 mt-sm-2 mb-1 mb-sm-2">
+    <div class="col-12 col-sm-9 col-md-6 col-lg-4 mb-2 ">
+      <a [routerLink] class="btn bttn-Primario btn-block" (click)="onSubmit()"> Guardar</a>
+    </div>
+    <div class="col-12 col-sm-9 col-md-6 col-lg-4">
+      <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
+    </div>
+  </div>
+</mat-dialog-content>

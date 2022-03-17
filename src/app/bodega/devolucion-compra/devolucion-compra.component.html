@@ -1,0 +1,147 @@
+<form #formOrdenC="ngForm" autocomplete="off" (submit)="onSubmit(formOrdenC)">
+  <div class="row">
+    <div class="col-8">
+      <h4 class="text-center">Buscar Compra para Devolución</h4>
+    </div>
+    <div class="col-4">
+      <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
+        [(ngModel)]="ordenECService.formData.fechaRegistroBodega" min="2020-01-01" max="{{fechaHoy.strFecha}}">
+    </div>
+  </div>
+  <div class="row boxForm mt-2">
+    <div class="col-12 col-md-6"
+      [ngClass]="{'col-lg-5':conexcionService.UserR.rolAsignado != 'gpv-o','col-lg-4':conexcionService.UserR.rolAsignado == 'gpv-o'}">
+      <div class="form-group">
+        <div class="title ml-2">
+          <strong class="ml-3">Proveedor:</strong>
+        </div>
+        <div id="inputSearchP">
+          <div class="wrapper">
+            <div class="limit-width">
+              <input name="proveedor" #proveedor="ngModel" [(ngModel)]="selectProveedor.proveedor"
+                (ngModelChange)="onBListProgProveedor($event.toUpperCase())" maxlength="255" placeholder="Proveedor"
+                class="form-control" [ngClass]="{'loading':ordenECService.formData.spinnerLoadingP}" required>
+              <div class="results" *ngIf="ordenECService.formData.showSearchSelect">
+                <ul>
+                  <li *ngFor="let data of listProveedoresFiltros$ | async">
+                    <a (click)="onChooseProveedor(data)" class="name">{{data.proveedor}}</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6"
+      [ngClass]="{'col-lg-5':conexcionService.UserR.rolAsignado != 'gpv-o','col-lg-3':conexcionService.UserR.rolAsignado == 'gpv-o'}">
+      <div class="form-group">
+        <div class="title ml-2">
+          <strong class="ml-3">Factura:</strong>
+        </div>
+        <input name="factura" #factura="ngModel" type="number" [(ngModel)]="ordenECService.formData.factura"
+          onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+          class="form-control" placeholder="Solo Número" matTooltip="Campo Obligatorio*" [datoAutoFocus]="autoFocus"
+          matTooltipPosition="above" matTooltipClass="tooltipRed" [matTooltipDisabled]="true">
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado == 'gpv-o'">
+      <div class="form-group">
+        <div class="title ml-2">
+          <strong class="ml-3">Guía Salida:</strong>
+        </div>
+        <input name="guiaRemision" #guiaRemision="ngModel" type="number"
+          [(ngModel)]="ordenECService.formData.guiaRemision"
+          onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+          class="form-control" placeholder="Solo Número" matTooltip="Campo Obligatorio*" matTooltipPosition="above"
+          matTooltipClass="tooltipRed" [matTooltipDisabled]="true">
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-2">
+      <a [routerLink] (click)="onBuscarFactura()" class="btn bttn-Primario btn-block mt-4">
+        <fa-icon [icon]="fasearch"></fa-icon> Buscar
+      </a>
+    </div>
+  </div>
+  <div class="text-center my-3" *ngIf="spinnerOnOff==1">
+    <div class="d-flex justify-content-center">
+      <mat-spinner color="accent"></mat-spinner>
+    </div>
+  </div>
+  <div class="row boxForm" *ngIf="spinnerOnOff==2">
+    <div class="col-12">
+      <div class="card">
+        <div id="ordenarS" class="card-header btnAgregar d-flex justify-content-between">
+          <h5><a class="text-dark2" style="padding-top: 9px; cursor: auto;">Detalle de Devolución (Artículos)</a></h5>
+        </div>
+        <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th style="width: 10%;">Marcar</th>
+                <th style="width: 35%;">Descripción</th>
+                <th style="width: 20%;">Cantidad</th>
+                <th style="width: 10%;">Total Indv</th>
+                <th style="width: 25%;">Bodega</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let datoList of ordenECService.formData.listPcomprasO | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                <td class="justify-content-center text-center">
+                  <mat-checkbox id="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
+                    name="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar"
+                    color="primary"
+                    #isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].marcar">
+                  </mat-checkbox>
+                </td>
+                <td>{{datoList.producto.nombre}}</td>
+                <td id="inputSearchP">
+                  <div class="input-group">
+                    <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
+                      type="number" min="0" maxlength="10" placeholder="#" required
+                      onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      pattern="^[0-9]{0,12}([.][0-9]{1,3})?$"
+                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad="ngModel"
+                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
+                      (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
+                      class="form-control input-src" [disabled]="ordenECService.formData.planta=='OFICINAS'">
+                    <span class="input-group-text  input-src span">
+                      /Máximo:{{ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].disBttnInput}}</span>
+                  </div>
+                </td>
+                <td>{{datoList.totalInd| currency:4}}</td>
+                <td>{{datoList.destinoBodega}} /Stock A.:{{datoList.producto.listBodegaProducto[0].disponibilidad}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="paginationPadre mt-2">
+          <nav>
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+              <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+              <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row boxForm justify-content-around mt-1 mb-2" *ngIf="spinnerOnOff==2">
+    <div class="col-6 col-sm-6 col-md-6 mb-2 px-4">
+      <button class="btn btn-block bttn-Primario" type="submit" [ngClass]="{'bttn-Error':okBttnSubmit==3 }"
+        [disabled]="formOrdenC.invalid || okBttnSubmit==1">
+        <fa-icon [icon]="fasave"></fa-icon> Procesar
+      </button>
+    </div>
+  </div>
+</form>

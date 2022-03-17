@@ -1,0 +1,227 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Baldes</h1>
+    </div>
+  </div>
+</div>
+
+<section class="dashboard-header">
+  <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
+    <div class="row">
+      <div class="col-lg-8 col-md-12 col-sm-12 col-12">
+        <div class="card" *ngIf="(listBaldes$ | async | search:filtroBaldeG:'cBalde')as resultBusquedaMostrar">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2">Lista de Baldes Manacripex</a></h5>
+            <a class="text-dark2" (click)="onConvertPdfAll(resultBusquedaMostrar)">
+              <fa-icon [icon]="faprint"></fa-icon>
+            </a>
+          </div>
+          <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="row">
+                <div class="col-6">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <fa-icon [icon]="fasearch"></fa-icon>
+                      </span>
+                    </div>
+                    <input type="text" class="form-control" #filtroBaldeIn="ngModel" name="filtroBaldeIn" maxlength="30"
+                      placeholder="Buscar.." [(ngModel)]="filtroBaldeG" (ngModelChange)="filtroBaldeG = $event.toUpperCase()">
+                  </div>
+                </div>
+                <div class="col-6">
+                  <select class="form-control" name="filtroEstadoBalde" #filtroEstadoBalde="ngModel"
+                  [(ngModel)]="filtroBaldeEstado" (ngModelChange)="onFiltrarCampos()">
+                  <option value="All">Todos los estados</option>
+                  <option value="Guardado">Guardado</option>
+                  <option value="Prestado">Prestado</option>
+                  <option value="Volteado">Volteado</option>
+                  <option value="Incongruente S">Incongruente Salida</option>
+                  <option value="Incongruente E">Incongruente Entrada</option>
+                </select>
+                </div>
+            </div>
+          </div>
+          <div>
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th style="width: 20%;">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Número Balde</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenListBy(1)">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th style="width: 25%;">Ubicación</th>
+                    <th style="width: 20%;">Actividad</th>
+                    <th style="width: 25%;">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Estado Balde</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenListBy(2)">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th style="width: 10%;">Operación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div style="display: none;">{{getDataFiltro(resultBusquedaMostrar.length)}}</div>
+                  <tr *ngIf="resultBusquedaMostrar.length==0">
+                    <td class="font-italic text-center" colspan="4">
+                      No existen baldes registrados
+                    </td>
+                  </tr>
+                  <tr *ngIf="spinnerOnOff">
+                    <td class="text-center" colspan="8">
+                      <div class="d-flex justify-content-center">
+                        <mat-spinner color="accent"></mat-spinner>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let datoB of resultBusquedaMostrar |sort:ordenBy:'cBalde' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="text-center" (click)="onCompletarForm(datoB)" style="cursor: pointer;">
+                      <strong>{{datoB.numBalde}}</strong></td>
+                    <td>{{datoB.ubicacionActual}}</td>
+                    <td>{{datoB.actividad}}</td>
+                    <td id="utilitarioI">
+                      <div [ngClass]="{'bg-warning':datoB.colorFecha=='amarillo', 'bg-danger':datoB.colorFecha=='rojo' }">{{datoB.estadoBalde}}</div>
+                    </td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario" (click)="onCompletarForm(datoB)"
+                      matTooltip="Te permite modificar del Balde" matTooltipPosition="left"
+                      matTooltipClass="tooltipBlack">
+                      <fa-icon [icon]="fapencilAlt"></fa-icon>
+                    </a>
+                      <!-- <a class="badge text-primario" (click)="verHistorial(datoB)"
+                      matTooltip="Te permite ver el historial del Balde" matTooltipPosition="left"
+                      matTooltipClass="tooltipBlack">
+                      <fa-icon [icon]="faeye"></fa-icon>
+                    </a> -->
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="paginationPadre mt-2">
+              <nav>
+                <ul class="pagination justify-content-center">
+                  <li class="page-item">
+                    <select class="form-control" (change)="onUpdateSelect($event.target)">
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                      <option value="300">300</option>
+                    </select>
+                  </li>
+                  <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                    <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+                  <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                    <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5>Registrar Balde</h5>
+          </div>
+          <div class="m-3">
+            <form #formBalde="ngForm" autocomplete="off" (submit)="onSubmit(formBalde)" *ngIf="baldeService.formData">
+              <div class="row boxForm">
+                <div class="col-12">
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Número de Balde:</strong></div>
+                    <input type="number" name="numBalde" #numBalde="ngModel" min="0" pattern="[0-9]*"
+                      onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      [(ngModel)]="baldeService.formData.numBalde" class="form-control" maxlength="6"
+                      required  [datoAutoFocus]="autoFocus"  placeholder="# Indentificativo">
+                    <label class="error" *ngIf="numBalde.touched && numBalde.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Ubicación Actual:</strong></div>
+                    <div id="inputSearchP">
+                      <div class="wrapper">
+                        <div class="limit-width">
+                          <input name="selectLugar" #selectLugar="ngModel"
+                            [(ngModel)]="baldeService.formData.ubicacionActual"
+                            (ngModelChange)="onListLugares($event)" maxlength="100" placeholder="Ubicación del balde"
+                            class="form-control" [ngClass]="{'loading':spinLoadingG==1}" required>
+                          <div class="results" *ngIf="showSearchSelectG==1">
+                            <ul>
+                              <li *ngFor="let data of listVariosFiltros$ | async">
+                                <a (click)="onChooseLugar(data)" class="name">{{data.nombre}}</a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <label class="error" *ngIf="selectLugar.touched && selectLugar.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Actividad:</strong></div>
+                    <select class="form-control" name="actividad" #actividad="ngModel"
+                      [(ngModel)]="baldeService.formData.actividad" required>
+                      <option selected disabled value="Sin Asignar">-Seleccionar-</option>
+                      <option value="APILADA">Apilada</option>
+                      <option value="CARGADA">Cargada</option>
+                    </select>
+                    <label class="error" *ngIf="actividad.touched && actividad.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Estado Balde:</strong></div>
+                    <select class="form-control" name="estadoBalde" #estadoBalde="ngModel"
+                      [(ngModel)]="baldeService.formData.estadoBalde" required>
+                      <option selected disabled value="Sin Asignar">-Seleccionar-</option>
+                      <option value="Guardado">Guardado</option>
+                      <option value="Prestado">Prestado</option>
+                      <option value="Volteado">Volteado</option>
+                      <option value="Incongruente S">Incongruente Salida</option>
+                      <option value="Incongruente E">Incongruente Entrada</option>
+                    </select>
+                    <label class="error" *ngIf="estadoBalde.touched && estadoBalde.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm" *ngIf="baldeService.formData.estadoBalde=='Prestado'">
+                    <div class="title"><strong>Fecha Limite Devolución:</strong></div>
+                    <input name="fechaDevolucion" type="date" #fechaDevolucion="ngModel" [(ngModel)]="baldeService.formData.fechaPDevolucion"
+                      class="form-control" min="{{fechaHoy.strFecha}}">
+                  </div>
+                </div>
+              </div>
+              <div class="row boxForm justify-content-around my-2">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                  <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formBalde.invalid">
+                    <fa-icon [icon]="fasave"></fa-icon> {{modoEdicion ? 'Actualizar' : 'Guardar'}}
+                  </button>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                  <a [routerLink] (click)="resetForm()" class="btn bttn-Primario btn-block">
+                    <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

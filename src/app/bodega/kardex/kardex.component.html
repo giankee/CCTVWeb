@@ -1,0 +1,192 @@
+<mat-dialog-content id="ModalFix">
+  <div class="jumtron" *ngIf="productoBservice.formData!=null">
+    <div class="row justify-content-center">
+      <div id="contPrint1" class="col-12">
+        <h1 class="display-4 text-center">{{productoBservice.formData.nombre}}</h1>
+      </div>
+    </div>
+  </div>
+  <form #formOrden="ngForm" autocomplete="off" *ngIf="productoBservice.formData!=null">
+    <div class="container-fluid">
+      <div id="content" #content class="row mInCajaPadre">
+        <div class="col-12 mInCajaHijaOrden pt-3" style="padding-top: 0px;">
+          <div class="row">
+            <div class="col-6">
+              <strong>Código:</strong> {{productoBservice.formData.codigo}}
+            </div>
+            <div class="col-6">
+              <strong>Proveedor:</strong> {{productoBservice.formData.proveedor}}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <strong>Disponibilidad General Actual:</strong> {{oneKardex.cantidadDisponible}}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm ">
+        <div class="col-6 col-md-3">
+          <div class="form-group inputForm">
+            <div class="title"><strong>Periodo:</strong></div>
+            <select name="estadoProceso" #estadoProceso="ngModel" [(ngModel)]="oneKardex.tipoVista"
+              class="form-control">
+              <option value="Mes">Mensual</option>
+              <option value="Trimestral">Trimestral</option>
+              <option value="Semestral">Semestral</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="form-group inputForm">
+            <div class="title"><strong> Fecha:</strong></div>
+            <input name="fechaBusqueda" type="month" #fechaBusqueda="ngModel" [ngModel]="oneKardex.fechaBusqueda|fechaMes"
+              class="form-control" (ngModelChange)="oneKardex.fechaBusqueda=$event" min="2020-01" max="{{fechaHoy.sacaSoloMes()}}">
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="form-group inputForm" *ngIf="productoBservice.formData.planta=='OFICINAS'">
+            <div class="title"><strong> Bodega:</strong></div>
+            <select class="form-control" name="SelectBodega" #SelectBodega="ngModel"
+              [(ngModel)]="oneKardex.BodegaSelect">
+              <option value="all">-Seleccionar-</option>
+              <option value="Bodega1">Bodega #1</option>
+              <option value="Bodega2">Bodega #2</option>
+              <option value="Bodega3">Bodega #3</option>
+              <option value="Bodega4">Bodega #4</option>
+              <option value="Bodega5">Bodega #5</option>
+              <option value="Bodega6">Bodega #6</option>
+              <option value="Bodega7">Bodega #7</option>
+            </select>
+          </div>
+          <div class="form-group inputForm" *ngIf="productoBservice.formData.planta=='P MANACRIPEX'">
+            <div class="title"><strong> Bodega:</strong></div>
+            <select class="form-control" name="SelectBodega2" #SelectBodega2="ngModel"
+              [(ngModel)]="oneKardex.BodegaSelect">
+              <option value="all">-Seleccionar-</option>
+              <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
+                value="{{datobodega.nombre}}">
+                {{datobodega.nombre}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="form-group inputForm pt-1 pt-md-4">
+            <a [routerLink] class="btn bttn-Primario btn-block" (click)="cargarData()">
+              <fa-icon [icon]="faprint"></fa-icon> Generar
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-headerModal">
+              <h5>Kardex Método Promedio</h5>
+            </div>
+            <div>
+              <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                <table class="table">
+                  <thead>
+                    <tr class="text-center">
+                      <th rowspan="2" scope="col" class="tex-center" style="vertical-align:middle;">Index</th>
+                      <th colspan="3" scope="colgroup">Documento</th>
+                      <th rowspan="2" scope="col" class="tex-center" style="vertical-align:middle;">Detalle</th>
+                      <th colspan="3" scope="colgroup">Entradas</th>
+                      <th colspan="3" scope="colgroup">Salidas</th>
+                      <th colspan="3" scope="colgroup">Saldos</th>
+                    </tr>
+                    <tr class="text-center">
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Guía</th>
+                      <th scope="col">Factura</th>
+                      <th scope="col">Cant.</th>
+                      <th scope="col">P.U</th>
+                      <th scope="col">P.T.</th>
+                      <th scope="col">Cant.</th>
+                      <th scope="col">P.U</th>
+                      <th scope="col">P.T.</th>
+                      <th scope="col">Cant.</th>
+                      <th scope="col">P.U</th>
+                      <th scope="col">P.T.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="resaltar" *ngIf="controlMovimiento!=0">
+                      <td class="text-center"><strong>#</strong></td>
+                      <td colspan="10" class="text-center"><strong>Saldo Inicial {{strFechaMarcar}}</strong></td>
+                      <td><strong> {{oneKardex.datoInicial.cantidad}}</strong></td>
+                      <td><strong>$ {{oneKardex.datoInicial.precioU}}</strong></td>
+                      <td><strong>$ {{oneKardex.datoInicial.precioTotal}}</strong></td>
+                    </tr>
+                    <tr *ngIf="controlMovimiento==1">
+                      <td class="font-italic text-center" colspan="14">
+                        <strong>No existen movimientos en este período</strong>
+                      </td>
+                    </tr>
+                    <tr *ngIf="controlMovimiento==0">
+                      <td class="font-italic text-center" colspan="14">
+                        <strong>No existe ningun movimiento del producto</strong>
+                      </td>
+                    </tr>
+                    <tr *ngFor="let datoItem of oneKardex.listItems; let indice=index"
+                      [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                      <td class="indice">{{indice+1}}</td>
+                      <td>{{datoItem.fecha}}</td>
+                      <td>
+                        <a class="badge" (click)="onBuscarGF(datoItem, 1)"
+                        [ngClass]="{'hiper':((datoItem.guia)!='---')}">
+                          <strong>{{datoItem.guia}}</strong>
+                        </a>
+                      </td>
+                      <td>
+                        <a class="badge" (click)="onBuscarGF(datoItem, 2)"
+                        [ngClass]="{'hiper':((datoItem.factura)!='---')}">
+                        <strong>{{datoItem.factura}}</strong>
+                        </a>
+                      </td>
+                      <td class="separador">{{datoItem.tipoItem}} a {{datoItem.lugarTransaccion}}</td>
+                      <td>{{datoItem.datoEntrada.cantidad}}</td>
+                      <td>${{datoItem.datoEntrada.precioU}}</td>
+                      <td class="separador">${{datoItem.datoEntrada.precioTotal}}</td>
+                      <td>{{datoItem.datoSalida.cantidad}}</td>
+                      <td>${{datoItem.datoSalida.precioU}}</td>
+                      <td class="separador">${{datoItem.datoSalida.precioTotal}}</td>
+                      <td>{{datoItem.datoSaldo.cantidad}}</td>
+                      <td>${{datoItem.datoSaldo.precioU}}</td>
+                      <td>${{datoItem.datoSaldo.precioTotal}}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr *ngIf="controlMovimiento!=0">
+                      <td class="text-center" colspan="5"><strong>TOTALES</strong></td>
+                      <td><strong>{{oneKardex.totalSumE}}</strong></td>
+                      <td><strong>---</strong></td>
+                      <td><strong>${{oneKardex.precioSumE}}</strong></td>
+                      <td><strong>{{oneKardex.totalSumS}}</strong></td>
+                      <td><strong>---</strong></td>
+                      <td><strong>${{oneKardex.precioSumS}}</strong></td>
+                      <td><strong>{{oneKardex.totalSumE-oneKardex.totalSumS}}</strong></td>
+                      <td><strong>Saldo a Fecha:</strong></td>
+                      <td><strong>${{oneKardex.totalBalance}}</strong></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm  justify-content-around mt-1 mt-sm-2 mb-1 mb-sm-2">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-6 mb-2 ">
+          <a [routerLink] class="btn bttn-Primario btn-block" (click)="onConvertPdfOne()">
+            <fa-icon [icon]="faprint"></fa-icon> Descargar PDF
+          </a>
+        </div>
+        <div class="col-12 col-sm-10 col-md-6 col-lg-6">
+          <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>

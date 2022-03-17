@@ -1,0 +1,42 @@
+<div class="page" *ngIf="conexcionService.UserR!=null">
+  <nav aria-label="site nav" class="navbar" *ngIf="conexcionService.UserR.rolAsignado!=null">
+    <div class="container-fluid">
+      <div class="navbar-holder d-flex align-items-center justify-content-between">
+        <div>
+          <a [routerLink]='["/OrdenGuardia"]' class="navbar-brand">
+            <div class="brand-text ">
+              <span>Grupo</span><strong class=""> Buehs</strong>
+            </div>
+          </a>
+        </div>
+        <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+          <li><a class="nav-link disabled"> <span
+                class="d-none d-sm-inline-block mr-1">O{{conexcionService.formData.connectionStatus}}</span>
+              <fa-icon [icon]="facircle"
+                [ngClass]="{'iconOnline':conexcionService.formData.connectionStatus==='nline', 'iconOffline':conexcionService.formData.connectionStatus!=='nline' }">
+              </fa-icon>
+            </a>
+          </li>
+          <li class="d-none d-sm-inline-block"><a class="nav-link disabled"> <span class="mr-1"><strong>User:</strong>
+                {{conexcionService.UserR.UserName}}</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" (click)="logOut()"> <span class="mr-1">Salir</span>
+              <fa-icon [icon]="fasignOut"></fa-icon>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div
+    *ngIf="conexcionService.formData.connectionStatus === 'nline' && conexcionService.formData.connectionStatusMessage !==''"
+    class="online">
+    <span>{{conexcionService.formData.connectionStatusMessage}}</span>
+  </div>
+  <div *ngIf="conexcionService.formData.connectionStatus === 'ffline'" class="offline">
+    <span>{{conexcionService.formData.connectionStatusMessage}}</span>
+  </div>
+  <app-list-ordenes></app-list-ordenes>
+</div>

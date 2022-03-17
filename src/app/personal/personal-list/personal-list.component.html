@@ -1,0 +1,175 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Personal</h1>
+    </div>
+    <div class="col-2 col-sm-1 d-block jjustify-content-center align-self-center">
+      <a class="badge text-warning" [routerLink] (click)="okAyuda=!okAyuda">
+        <fa-icon [icon]="faquestion" size="3x"></fa-icon>
+      </a>
+    </div>
+  </div>
+</div>
+
+<section class="dashboard-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-7 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5>Lista de Personas Registradas</h5>
+          </div>
+          <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <fa-icon [icon]="fasearch"></fa-icon>
+                </span>
+              </div>
+              <input type="text" class="form-control" name="filtroPersona" maxlength="10" placeholder="Buscar.."
+                [(ngModel)]="filtroPersona">
+            </div>
+          </div>
+          <div>
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th>#</th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Nombre y Apellido</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenNombre()">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th>Cédula</th>
+                    <th>Empresa</th>
+                    <th>Tipo de persona</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="(listPersonasIn | search:filtroPersona:'cPersonal') as resultBusqueda">
+                  <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+                  <tr *ngIf="resultBusqueda.length==0">
+                    <td class="font-italic text-center" colspan="6">
+                      No existen personal registrados
+                    </td>
+                  </tr>
+                  <tr *ngFor="let datoP of resultBusqueda |sort:ordenNombre:'cPersonal' | slice:startIndex:endIndex; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{indice+1}}</td>
+                    <td><strong>{{datoP.nombreP}}</strong></td>
+                    <td>{{datoP.cedula}}</td>
+                    <td>{{datoP.empresa}}</td>
+                    <td>{{datoP.tipoPersona}}</td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario" (click)="onEditPersona(datoP)"
+                        matTooltip="Te permite modificar la información basica de la persona" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="fapencilAlt"></fa-icon>
+                      </a>
+                      <a class="badge text-primario" (click)="onDelete(datoP)"
+                        matTooltip="Te permite eliminar el personal siempre y cuando no tenga un historial de entrada o salida"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeraser"></fa-icon>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="paginationPadre mt-2" *ngIf="listPersonasIn!=null">
+              <nav>
+                <ul class="pagination justify-content-center">
+                  <li class="page-item">
+                    <select class="form-control" (change)="updateSelect($event.target)">
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                    </select>
+                  </li>
+                  <li class="page-item" [class.disabled]='anteriorBlock'>
+                    <a class="page-link" (click)="updateIndex(pagActualIndex-1)">Anterior</a></li>
+                  <li *ngFor="let i of pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='siguienteBlock'>
+                    <a class="page-link" (click)="updateIndex(pagActualIndex+1)">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5>Registrar Personal</h5>
+          </div>
+          <div class="m-3">
+            <form #formPersona="ngForm" autocomplete="off" (submit)="onSubmit(formPersona)"
+              *ngIf="personalService.formData">
+              <div class="row boxForm">
+                <div class="col-12">
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Nombre y Apellido:</strong></div>
+                    <input name="nombre" #nombre="ngModel" [(ngModel)]="personalService.formData.nombreP"
+                      class="form-control" maxlength="50" placeholder="Ingrese el nombre y apellido correspondiente"
+                      [datoAutoFocus]="autoFocus" required>
+                    <label class="error" *ngIf="nombre.touched && nombre.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Cédula</strong></div>
+                    <input name="cedula" type="number" min="9" maxlength="10" #cedula="ngModel"
+                      onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==190 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      [(ngModel)]="personalService.formData.cedula" class="form-control" placeholder="Número de cédula"
+                      required>
+                    <label class="error" *ngIf="cedula.touched && cedula.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Tipo de Persona:</strong></div>
+                    <select class="form-control" name="tipoPersona" #tipoPersona="ngModel"
+                      [(ngModel)]="personalService.formData.tipoPersona" required>
+                      <option selected disabled [ngValue]="null">-Seleccionar-</option>
+                      <option value="Empleado">Empleado</option>
+                      <option value="Persona Externa">Persona Externa</option>
+                      <option value="Proveedor">Proveedor</option>
+                    </select>
+                    <label class="error" *ngIf="tipoPersona.touched && tipoPersona.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Empresa que pertenece:</strong></div>
+                    <input name="empresa" #empresa="ngModel" [(ngModel)]="personalService.formData.empresa"
+                      class="form-control" maxlength="25" placeholder="Ingrese el nombre de la empresa la cual labora"
+                      [datoAutoFocus]="autoFocus" required>
+                    <label class="error" *ngIf="empresa.touched && empresa.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row boxForm justify-content-around my-2">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                  <button class="btn bttn-Primario btn-block" type="submit">
+                    <fa-icon [icon]="fasave"></fa-icon> {{modoEdicion ? 'Actualizar' : 'Guardar'}}
+                  </button>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                  <a [routerLink] (click)="resetForm(formPersona)" class="btn bttn-Primario btn-block">
+                    <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

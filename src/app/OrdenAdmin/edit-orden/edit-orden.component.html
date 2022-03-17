@@ -1,0 +1,325 @@
+<mat-dialog-content>
+  <div class="jumtron" *ngIf="ordenESService.formData!=null">
+    <div class="row justify-content-center">
+      <div id="contPrint1" class="col-12">
+        <h1 class="display-4 text-center">Orden de {{ordenESService.formData.tipoOrden}}</h1>
+      </div>
+    </div>
+  </div>
+  <form #formOrden="ngForm" autocomplete="off" *ngIf="ordenESService.formData!=null" (submit)="onSubmit()">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card padre">
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div class="form-group inputForm">
+                  <div class="title">
+                    <strong>Documentación:</strong>
+                  </div>
+                  <div class="input-group mb-3">
+                    <select name="tipoOrden" #tipoOrden="ngModel" [(ngModel)]="ordenESService.formData.tipoOrden"
+                      class="form-control" required>
+                      <option value="Entrada">Entrada</option>
+                      <option value="Salida">Salida</option>
+                    </select>
+                    <input name="guiaDocumentacion" #guiaDocumentacion="ngModel"
+                      [(ngModel)]="ordenESService.formData.numDocumentacion" class="form-control" required>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <div class="form-group inputForm">
+                  <div class="title">
+                    <strong>Fecha y Hora de Registro:</strong>
+                  </div>
+                  <div class="input-group mb-3">
+                    <input name="fechaRegistro" type="date" #fechaRegistro="ngModel"
+                      [(ngModel)]="ordenESService.formData.fechaRegistro" class="form-control" min="1900-01-01"
+                      max="{{fechaHoy.strFecha}}">
+                    <input type="time" name="horaRegistro" #horaRegistro="ngModel"
+                      [(ngModel)]="ordenESService.formData.horaRegistro" class="form-control" required>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                <div class="form-group inputForm">
+                  <div class="title">
+                    <strong>Lugar de
+                      {{ordenESService.formData.tipoOrden=="Entrada"? 'Procedencia': 'Destino'}}:</strong>
+                  </div>
+                  <div class="input-group mb-3">
+                    <select name="selectPlanta" #selectPlanta="ngModel" [(ngModel)]="ordenESService.formData.planta"
+                      class="form-control" required>
+                      <option *ngFor="let datoLugar of listLugarPrioridadIn" value="{{datoLugar.nombre}}">
+                        {{datoLugar.nombre}}
+                      </option>
+                    </select>
+                    <div id="inputSearchP" *ngIf="ordenESService.formData.destinoProcedencia!=null">
+                      <div class="wrapper">
+                        <div class="limit-width">
+                          <input name="selectDestinoArticulo" #selectDestinoArticulo="ngModel"
+                            [(ngModel)]="ordenESService.formData.destinoProcedencia"
+                            (ngModelChange)="onListLugares($event.toUpperCase())" maxlength="100" placeholder="Lugar"
+                            class="form-control" [ngClass]="{'loading':spinLoadingG=='2'}" required>
+                          <div class="results" *ngIf="showSearchSelectG=='2'">
+                            <ul>
+                              <li *ngFor="let data of listVariosFiltros$ | async">
+                                <a (click)="onChooseLugar(data)" class="name">{{data.nombre}}</a>
+                              </li>
+                            </ul>
+                            <ul>
+                              <li class="titulo"> El Puerto de Manta</li>
+                              <li *ngFor="let datoPrio of listLugarPrioridadIn  |lugaresCat:'cVario':'Puerto'">
+                                <a (click)="onChooseLugar(datoPrio)" class="name">{{datoPrio.nombre}}</a>
+                              </li>
+                            </ul>
+                            <ul>
+                              <li class="titulo"> Areas de Planta</li>
+                              <li *ngFor="let datoPrio of listLugarPrioridadIn |lugaresCat:'cVario':'Planta'">
+                                <a (click)="onChooseLugar(datoPrio)" class="name">{{datoPrio.nombre}}</a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6" *ngIf="ordenESService.formData.tipoOrden=='Materia Prima'">
+                <strong>Suministrado por:</strong> {{ordenESService.formData.destinoProcedencia}}
+              </div>
+              <div class="col-12 col-sm-6">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Estado de la Orden:</strong></div>
+                  <select name="estadoProceso" #estadoProceso="ngModel" required
+                    [(ngModel)]="ordenESService.formData.estadoProceso" class="form-control">
+                    <option value="Procesada">Procesada</option>
+                    <option value="Procesada Retorno">Procesada Retorno</option>
+                    <option value="Procesada Retorno V">Procesada Retorno V</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Pendiente Verificación">Pendiente Verificación</option>
+                    <option value="Pendiente Retorno">Pendiente Retorno</option>
+                    <option value="Anulada">Anular Orden</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <strong>Responsable de {{ordenESService.formData.tipoOrden}}:</strong>
+                {{ordenESService.formData.responsableES}}
+              </div>
+              <div class="col-12 col-sm-6" *ngIf="ordenESService.formData.numGuiaRetorno!=null">
+                <strong>Guía Retorno:</strong> {{ordenESService.formData.numGuiaRetorno}}
+              </div>
+            </div>
+          </div>
+          <div class="card padre" *ngIf="ordenESService.formData.persona!=null">
+            <div class="row">
+              <div class="col-12 col-sm-6">
+                <div class="form-group">
+                  <div class="title ml-2">
+                    <strong>Persona:</strong>
+                  </div>
+                  <div id="inputSearchP">
+                    <div class="wrapper">
+                      <div class="limit-width">
+                        <input name="selectPersona" #selectPersona="ngModel"
+                          [(ngModel)]="ordenESService.formData.persona.nombreP"
+                          (ngModelChange)="onListPersonal($event.toUpperCase())" maxlength="100" placeholder="Nombre"
+                          class="form-control" [ngClass]="{'loading':spinLoadingG=='1'}" required>
+                        <div class="results" *ngIf="showSearchSelectG=='1'">
+                          <ul>
+                            <li *ngFor="let data of listPersonalFiltros$ | async">
+                              <a (click)="onChoosePersonal(data, 'Personal')" class="name">{{data.nombreP}}</a>
+                              <label>{{data.tipoPersona}}</label>
+                            </li>
+                          </ul>
+                          <ul>
+                            <li class="titulo"> Lista Choferes</li>
+                            <li *ngFor="let datoC of listChoferesIn">
+                              <a (click)="onChoosePersonal(datoC,'Chofer')" class="name">{{datoC.empleado}}</a>
+                              <label>Chofer</label>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <strong>Cédula:</strong> {{ordenESService.formData.persona.cedula}}
+              </div>
+              <div class="col-12 col-sm-6">
+                <strong>Tipo de Persona:</strong> {{ordenESService.formData.persona.tipoPersona}}
+              </div>
+              <div class="col-12 col-sm-6">
+                <strong>Empresa:</strong> {{ordenESService.formData.persona.empresa}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-headerModal">
+              <h5>Lista Productos</h5>
+            </div>
+            <div>
+              <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                <table class="table">
+                  <thead>
+                    <tr class="text-center">
+                      <th scope="col" style="width:5%" *ngIf="ordenESService.formData.planta=='OFICINAS'" >Inventario
+                      </th>
+                      <th scope="col" style="width:30%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                        {{ordenESService.formData.tipoOrden=='Materia Prima' ? 'Material' : 'Producto'}}
+                      </th>
+                      <th scope="col" style="width:15%;">Cantidad</th>
+                      <th scope="col" style="width:15%;">Observación</th>
+                      <th scope="col" style="width:5%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                        Retorna</th>
+                      <th scope="col" style="width:15%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                        Verificador</th>
+                      <th scope="col" style="width:15%">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let datoListP of ordenESService.formData.listArticulosO; let indiceNewP=index"
+                      [ngClass]="{'filaPar':(((indiceNewP+1)%2)==0)}">
+                      <td class="justify-content-center text-center" *ngIf="ordenESService.formData.planta=='OFICINAS'" >
+                        <mat-checkbox color="primary" name="in{{indiceNewP}}checkInventario" #in{{indiceNewP}}checkInventario="ngModel"
+                          [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].checkInventario"
+                          (ngModelChange)="onTransformProductoToInv(indiceNewP)"
+                          [disabled]="ordenESService.formData.listArticulosO[indiceNewP].inventarioId!=null"
+                          >
+                        </mat-checkbox>
+                      </td>
+                      <td>
+                        <div id="inputSearchP"
+                          *ngIf="!ordenESService.formData.listArticulosO[indiceNewP].checkInventario">
+                          <div class="wrapper">
+                            <div class="limit-width"
+                              *ngIf="ordenESService.formData.listArticulosO[indiceNewP].producto!=null">
+                              <input name="in{{indiceNewP}}descripcionProductoP"
+                                #in{{indiceNewP}}descripcionProductoP="ngModel"
+                                [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].producto.nombre"
+                                (ngModelChange)="onListProducto(indiceNewP,1,$event.toUpperCase())" maxlength="100"
+                                placeholder="Nombre Producto" class="form-control input-src"
+                                [ngClass]="{'loading':datoListP.spinnerLoading}" required>
+                              <div class="results" *ngIf="datoListP.showSearchSelect==1">
+                                <ul>
+                                  <li *ngFor="let data of listProdFiltros$ | async">
+                                    <a (click)="onChooseElemente(indiceNewP,data)" class="name">{{data.nombre}}</a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div id="inputSearchP"
+                          *ngIf="ordenESService.formData.listArticulosO[indiceNewP].checkInventario">
+                          <div class="wrapper">
+                            <div class="limit-width"
+                              *ngIf="ordenESService.formData.listArticulosO[indiceNewP].inventario!=null">
+                              <input name="in{{indiceNewP}}descripcionProductoI"
+                                #in{{indiceNewP}}descripcionProductoI="ngModel"
+                                [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].inventario.nombre"
+                                (ngModelChange)="onListProducto(indiceNewP,2,$event.toUpperCase())" maxlength="100"
+                                placeholder="Nombre Producto" class="form-control input-src"
+                                [ngClass]="{'loading':datoListP.spinnerLoading}"
+                                [disabled]="ordenESService.formData.listArticulosO[indiceNewP].showSearchSelect==1" required>
+                              <div class="results" *ngIf="datoListP.showSearchSelect==2">
+                                <ul>
+                                  <li *ngFor="let data of listProdFiltros$ | async">
+                                    <a (click)="onChooseElemente(indiceNewP,data)" class="name">{{data.nombre}}</a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="text-center">
+                        <div class="input-group">
+                          <input name="in{{indiceNewP}}cantidad" #in{{indiceNewP}}cantidad="ngModel" type="number"
+                            min="0" maxlength="10" placeholder="#" class="form-control input-src"
+                            onkeydown="return (event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                            pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" required
+                            [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].cantidad"
+                            (ngModelChange)="onComprobarStock(indiceNewP)">
+                          <input name="in{{indiceNewP}}cantidadPendiente" #in{{indiceNewP}}cantidadPendiente="ngModel"
+                            type="number" min="0" maxlength="10" placeholder="#" class="form-control input-src"
+                            onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                            pattern="^[0-9]{0,12}([.][0-9]{1,3})?$"
+                            *ngIf="ordenESService.formData.listArticulosO[indiceNewP].estadoProducto=='Pendiente'||ordenESService.formData.listArticulosO[indiceNewP].estadoProducto=='Pendiente Retorno'"
+                            [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].cantidadPendiente">
+                          <div *ngIf="ordenESService.formData.listArticulosO[indiceNewP].checkInventario"
+                            style="width: 50%;">
+                            <select class="form-control input-src" name="in{{indiceNewP}}selectBodega"
+                              #in{{indiceNewP}}selectBodega="ngModel" required
+                              [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].inventario.SelectBodega"
+                              (ngModelChange)="onComprobarStock(indiceNewP)"
+                              [disabled]="ordenESService.formData.listArticulosO[indiceNewP].inventario.preBodega==ordenESService.formData.listArticulosO[indiceNewP].inventario.SelectBodega">
+                              <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                              <option
+                                *ngFor="let datoBodega of ordenESService.formData.listArticulosO[indiceNewP].inventario.listBodegaProducto"
+                                value="{{datoBodega.nombreBodega}}">{{datoBodega.disponibilidad}} - {{datoBodega.nombreBodega}}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <textarea name="in{{indiceNewP}}observacion" #in{{indiceNewP}}observacion="ngModel"
+                          [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].observacion"
+                          class="form-control" style="height:calc(1.5em + 0.75rem + 2px)" maxlength="300"></textarea>
+                      </td>
+                      <td class="justify-content-center text-center"
+                        *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                        <mat-checkbox name="in{{indiceNewP}}retorna" color="primary" #in{{indiceNewP}}retorna="ngModel"
+                          [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].retorna">
+                        </mat-checkbox>
+                      </td>
+                      <td *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                        <textarea name="in{{indiceNewP}}responsableVerificador"
+                          #in{{indiceNewP}}responsableVerificador="ngModel"
+                          [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].responsableVerificador"
+                          class="form-control" style="height:calc(1.5em + 0.75rem + 2px)" maxlength="300"></textarea>
+                      </td>
+                      <td class="text-center">
+                        <select name="in{{indiceNewP}}estadoProdcuto" #in{{indiceNewP}}estadoProdcuto="ngModel"
+                          [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP].estadoProducto"
+                          class="form-control">
+                          <option value="Procesada">Procesada</option>
+                          <option value="Pendiente">Pendiente</option>
+                          <option value="Pendiente Verificación">Pendiente Verificación</option>
+                          <option value="Pendiente Retorno">Pendiente Retorno</option>
+                          <option value="Anular">Anular</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm justify-content-around mt-1 mt-sm-2 mb-1 mb-sm-2">
+        <div class="col-12 col-sm-9 col-md-6 col-lg-4 mb-2 ">
+          <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formOrden.invalid"
+            [ngClass]="{'bttn-Error':!okContinuar }" matTooltip="Campos Vacios Revisar*" matTooltipPosition="above"
+            matTooltipClass="tooltipRed" [matTooltipDisabled]="okContinuar">
+            <fa-icon [icon]="fasave"></fa-icon> Actualizar
+          </button>
+        </div>
+        <div class="col-12 col-sm-9 col-md-6 col-lg-4">
+          <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>

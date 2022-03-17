@@ -1,0 +1,419 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Inventario</h1>
+    </div>
+  </div>
+</div>
+
+<section class="dashboard-header">
+  <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
+    <div class="row">
+      <div class="col-lg-8 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Productos Inventario</a></h5>
+            <a class="text-dark2" (click)="onConvertPdfAll()">
+              <fa-icon [icon]="faprint"></fa-icon>
+            </a>
+          </div>
+          <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="row">
+              <div class="col-8">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <fa-icon [icon]="fasearch"></fa-icon>
+                    </span>
+                  </div>
+                  <input type="text" class="form-control" #filtroProductoIn="ngModel" name="filtroProductoIn"
+                    maxlength="30" placeholder="Buscar.." [(ngModel)]="filtroProducto"
+                    (ngModelChange)="filtroProducto = $event.toUpperCase()">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='OFICINAS'">
+                  <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
+                    [(ngModel)]="selecBodegaFiltro">
+                    <option selected value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option value="Bodega1">Bodega #1</option>
+                    <option value="Bodega2">Bodega #2</option>
+                    <option value="Bodega3">Bodega #3</option>
+                    <option value="Bodega4">Bodega #4</option>
+                    <option value="Bodega5">Bodega #5</option>
+                    <option value="Bodega6">Bodega #6</option>
+                    <option value="Bodega7">Bodega #7</option>
+                  </select>
+                </div>
+                <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='P MANACRIPEX'">
+                  <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
+                    [(ngModel)]="selecBodegaFiltro">
+                    <option selected value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'" value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+            <table class="table">
+              <thead>
+                <tr class="text-center">
+                  <th style="width: 15%;">Código</th>
+                  <th style="width: 35%;">
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">Descripción</div>
+                    <div id="ordenarS" class="d-inline-block">
+                      <a class="badge text-dark2" (click)="onOrdenListBy(1)">
+                        <fa-icon [icon]="sort"></fa-icon>
+                      </a>
+                    </div>
+                  </th>
+                  <th style="width: 25%; padding-left: 0%; padding-right: 0%;">
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">
+                      <select class="form-control" name="showSelectCPM" #showSelectCPM="ngModel"
+                        [(ngModel)]="showSelect1">
+                        <option value="1">Proveedor</option>
+                        <option value="2">Categoría</option>
+                        <option value="3">Marca</option>
+                      </select>
+                    </div>
+                    <div id="ordenarS" class="d-inline-block">
+                      <a class="badge text-dark2" (click)="onOrdenListBy(2)">
+                        <fa-icon [icon]="sort"></fa-icon>
+                      </a>
+                    </div>
+                  </th>
+                  <th style="width: 13%;">Precio</th>
+                  <th style="width: 12%;">Kardex</th>
+                </tr>
+              </thead>
+              <tbody
+                *ngIf="(listProductosIn | search:filtroProducto:'cProductoB'| filtroBodega:selecBodegaFiltro) as resultBusqueda">
+                <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+                <tr *ngIf="resultBusqueda.length==0">
+                  <td class="font-italic text-center" colspan="4">
+                    No existen productos registrados
+                  </td>
+                </tr>
+                <tr
+                  *ngFor="let datoP of resultBusqueda |sort:ordenBy:'cProductoB' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                  [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                  <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.codigo}}</strong></td>
+                  <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.nombre}}</strong></td>
+                  <td *ngIf="showSelect1==1">{{datoP.proveedor}}</td>
+                  <td *ngIf="showSelect1==2">{{datoP.categoria}}</td>
+                  <td *ngIf="showSelect1==3">{{datoP.marca}}</td>
+                  <td class="text-center">${{datoP.precioStandar}}</td>
+                  <td class="text-center" id="utilitarioI">
+                    <a class="badge text-primario d-none d-sm-block" (click)="onModalKardex(datoP)"
+                      matTooltip="Te permite visualizar la Kardex del producto" matTooltipPosition="left"
+                      matTooltipClass="tooltipBlack">
+                      <fa-icon [icon]="faeye"></fa-icon>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="paginationPadre mt-2" *ngIf="listProductosIn!=null">
+            <nav>
+              <ul class="pagination justify-content-center">
+                <li class="page-item">
+                  <select class="form-control" (change)="onUpdateSelect($event.target)">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="300">300</option>
+                  </select>
+                </li>
+                <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+                <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                  [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                  <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12 col-12">
+        <div class="row">
+          <div class="col-12 mb-3" *ngIf="conexcionService.UserR.rolAsignado != 'gpv-o'">
+            <div class="card">
+              <div class="card-header">
+                <h5>Ingresar Documento</h5>
+              </div>
+              <div class="m-3 boxForm">
+                <div class="form-group inputForm">
+                  <a [routerLink] class="btn bttn-Secundario  btn-block"
+                    onclick="document.getElementById('ExcelFile').click()">Cargar</a>
+                  <input type="file" id="ExcelFile" accept=".xls, .xlsx" class="d-none" style="color: transparent"
+                    (change)="onExcelUpload($event.target.files)">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5>{{modoEdicion ? 'Modificar' : 'Registrar'}} producto</h5>
+              </div>
+              <div class="m-3">
+                <form #formProducto="ngForm" autocomplete="off" (submit)="onSubmit(formProducto)"
+                  *ngIf="productoBService.formData">
+                  <div class="row boxForm">
+                    <div class="col-12">
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Código:</strong></div>
+                        <input id="idCodigo" name="codigo" #codigo="ngModel"
+                          [(ngModel)]="productoBService.formData.codigo" class="form-control" maxlength="100"
+                          placeholder="Código del producto" [datoAutoFocus]="autoFocus"
+                          (ngModelChange)="productoBService.formData.codigo!=null && productoBService.formData.codigo = $event.toUpperCase()"
+                          required>
+                        <label class="error" *ngIf="codigo.touched && codigo.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Nombre:</strong></div>
+                        <input id="idNombre" name="nombre" #nombre="ngModel"
+                          [(ngModel)]="productoBService.formData.nombre" class="form-control" maxlength="75"
+                          placeholder="Nombre del producto"
+                          (ngModelChange)="productoBService.formData.nombre!=null && productoBService.formData.nombre = $event.toUpperCase()"
+                          required>
+                        <label class="error" *ngIf="nombre.touched && nombre.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Proveedor:</strong></div>
+                        <div [ngClass]="{'ocultarObj':productoBService.formData.proveedor=='-1NEW'}">
+                          <select class="form-control" name="proveedor" #proveedor="ngModel"
+                            [(ngModel)]="productoBService.formData.proveedor" required
+                            (ngModelChange)="onComprobarFocus(1)">
+                            <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                            <option *ngFor="let datoProveedor of listProveedores" value="{{datoProveedor}}">
+                              {{datoProveedor}}
+                            </option>
+                            <option value="-1NEW" *ngIf="!modoEdicion">** Nuevo Registro **</option>
+                          </select>
+                          <label class="error" *ngIf="proveedor.touched && proveedor.errors?.required">Campo
+                            Requerido</label>
+                        </div>
+                        <div [ngClass]="{'ocultarObj':productoBService.formData.proveedor!='-1NEW'}">
+                          <input id="nProveedor" name="nProveedor" #nProveedor="ngModel" [(ngModel)]="nuevoProveedor"
+                            (ngModelChange)="nuevoProveedor!=null && nuevoProveedor = $event.toUpperCase()"
+                            class="form-control" placeholder="Nuevo Proveedor">
+                        </div>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Categoría:</strong></div>
+                        <div [ngClass]="{'ocultarObj':productoBService.formData.categoria=='-1NEW'}">
+                          <select class="form-control" name="categoria" #categoria="ngModel"
+                            [(ngModel)]="productoBService.formData.categoria" required
+                            (ngModelChange)="onComprobarFocus(2)">
+                            <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                            <option *ngFor="let datoCategoria of listCategorias" value="{{datoCategoria}}">
+                              {{datoCategoria}}
+                            </option>
+                            <option value="-1NEW">** Nuevo Registro **</option>
+                          </select>
+                          <label class="error" *ngIf="categoria.touched && categoria.errors?.required">Campo
+                            Requerido</label>
+                        </div>
+                        <div [ngClass]="{'ocultarObj':productoBService.formData.categoria!='-1NEW'}">
+                          <input id="nCategoria" name="nCategoria" #nCategoria="ngModel" [(ngModel)]="nuevoCategoria"
+                            (ngModelChange)="nuevoCategoria!=null && nuevoCategoria = $event.toUpperCase()"
+                            class="form-control" placeholder="Nueva Categoría">
+                        </div>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Marca:</strong></div>
+                        <div [ngClass]="{'ocultarObj':productoBService.formData.marca=='-1NEW'}">
+                          <select class="form-control" name="marca" #marca="ngModel"
+                            [(ngModel)]="productoBService.formData.marca" required
+                            (ngModelChange)="onComprobarFocus(3)">
+                            <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                            <option *ngFor="let datoMarca of listMarcas" value="{{datoMarca}}">{{datoMarca}}
+                            </option>
+                            <option value="-1NEW">** Nuevo Registro **</option>
+                          </select>
+                          <label class="error" *ngIf="marca.touched && marca.errors?.required">Campo
+                            Requerido</label>
+                        </div>
+                        <div [ngClass]="{'ocultarObj':productoBService.formData.marca!='-1NEW'}">
+                          <input id="nMarca" name="nMarca" #nMarca="ngModel" [(ngModel)]="nuevoMarca"
+                            (ngModelChange)="nuevoMarca!=null && nuevoMarca = $event.toUpperCase()" class="form-control"
+                            placeholder="Nueva Marca">
+                        </div>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Tipo Unidad:</strong></div>
+                        <input id="idTipo" name="tipoUnidad" #tipoUnidad="ngModel"
+                          [(ngModel)]="productoBService.formData.tipoUnidad" class="form-control" maxlength="75"
+                          placeholder="Sistema de medición del producto"
+                          (ngModelChange)="productoBService.formData.tipoUnidad!=null && productoBService.formData.tipoUnidad = $event.toUpperCase()"
+                          required>
+                        <label class="error" *ngIf="tipoUnidad.touched && tipoUnidad.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Precio Standar:</strong></div>
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">$</span>
+                          <input type="number" name="precioStandar" #precioStandar="ngModel" min="0"
+                            pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                            onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                            [(ngModel)]="productoBService.formData.precioStandar" class="form-control" maxlength="10"
+                            required>
+                          <label class="error" *ngIf="precioStandar.touched && precioStandar.errors?.required">Campo
+                            Requerido</label>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="title"><strong>Lista de Bodegas:</strong></div>
+                        <div class="subForm">
+                          <div class="row mb-1" *ngIf="conexcionService.UserR.rolAsignado != 'bodega_verificador-m'">
+                            <div class="col-8">
+                              <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='OFICINAS'">
+                                <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
+                                  [(ngModel)]="selectBodegaAux">
+                                  <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                                  <option value="Bodega1">Bodega #1</option>
+                                  <option value="Bodega2">Bodega #2</option>
+                                  <option value="Bodega3">Bodega #3</option>
+                                  <option value="Bodega4">Bodega #4</option>
+                                  <option value="Bodega5">Bodega #5</option>
+                                  <option value="Bodega6">Bodega #6</option>
+                                  <option value="Bodega7">Bodega #7</option>
+                                </select>
+                              </div>
+                              <div class="form-group inputForm"
+                                *ngIf="productoBService.formData.planta=='P MANACRIPEX'">
+                                <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
+                                  [(ngModel)]="selectBodegaAux">
+                                  <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                                  <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
+                                    value="{{datobodega.nombre}}">
+                                    {{datobodega.nombre}}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-4">
+                              <a [routerLink] (click)="onNewBodega()" class="btn bttn-Primario btn-sm">
+                                <fa-icon [icon]="faplus"></fa-icon> Añadir Bodega
+                              </a>
+                            </div>
+                          </div>
+                          <div class="row mt-1" *ngIf="productoBService.formData.listBodegaProducto.length>0">
+                            <div class="col-12 mb-2"
+                              *ngFor="let datoB of productoBService.formData.listBodegaProducto; let indice=index">
+                              <div class="card">
+                                <div id="ordenarS" class="card-header d-flex justify-content-between">
+                                  <h5><a class="text-dark2" data-toggle="collapse"
+                                      href="#ListBodegaindex{{indice}}">{{datoB.nombreBodega}}</a></h5>
+                                  <a class="text-dark2" data-toggle="collapse" href="#ListBodegaindex{{indice}}"
+                                    (click)="onMostrarBodega(indice)">
+                                    <fa-icon [icon]="faangledown"
+                                      [class]="{'ocultarObj':productoBService.formData.listBodegaProducto[indice].ocultarObj}">
+                                    </fa-icon>
+                                    <fa-icon [icon]="faangleleft"
+                                      [class]="{'ocultarObj':!productoBService.formData.listBodegaProducto[indice].ocultarObj}">
+                                    </fa-icon>
+                                  </a>
+                                </div>
+                                <div *ngIf="!productoBService.formData.listBodegaProducto[indice].ocultarObj"
+                                  class="mt-2 px-4 py-2 boxForm collapse" id="ListBodegaindex{{indice}}">
+                                  <div class="row">
+                                    <div class="col-12">
+                                      <div class="form-group inputForm">
+                                        <div><strong>Cantidad Inicial:</strong></div>
+                                        <input type="number" name="in{{indice}}cantInicial"
+                                          #in{{indice}}cantInicial="ngModel" pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                          onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                          [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantInicial"
+                                          class="form-control" maxlength="10" required>
+                                      </div>
+                                      <div class="form-group inputForm">
+                                        <div><strong>Cantidad Disponible:</strong></div>
+                                        <input type="number" name="in{{indice}}disponibilidad"
+                                          #in{{indice}}disponibilidad="ngModel" min="0"
+                                          pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                          onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                          [(ngModel)]="productoBService.formData.listBodegaProducto[indice].disponibilidad"
+                                          class="form-control" maxlength="10" required>
+                                      </div>
+                                      <div class="form-group inputForm">
+                                        <div class="row">
+                                          <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                                            <div><strong>Percha:</strong></div>
+                                            <input type="number" name="in{{indice}}percha" #in{{indice}}percha="ngModel"
+                                              min="0" pattern="[0-9]*"
+                                              onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                              [(ngModel)]="productoBService.formData.listBodegaProducto[indice].percha"
+                                              class="form-control" maxlength="10" required>
+                                          </div>
+                                          <div class="col-6 col-sm-6 col-md-6 col-lg-12 mt-0 mt-lg-3">
+                                            <div><strong>Fila:</strong></div>
+                                            <input type="number" name="in{{indice}}fila" #in{{indice}}fila="ngModel"
+                                              min="0" pattern="[0-9]*"
+                                              onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                              [(ngModel)]="productoBService.formData.listBodegaProducto[indice].fila"
+                                              class="form-control" maxlength="10" required>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="form-group inputForm">
+                                        <div><strong>Número Casillero:</strong></div>
+                                        <input type="number" name="in{{indice}}numCasillero"
+                                          #in{{indice}}numCasillero="ngModel" min="0" pattern="[0-9]*"
+                                          onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                          [(ngModel)]="productoBService.formData.listBodegaProducto[indice].numCasillero"
+                                          class="form-control" maxlength="10" required>
+                                      </div>
+                                      <div class="form-group inputForm">
+                                        <div><strong>Número Palet:</strong></div>
+                                        <input type="number" name="in{{indice}}numPalet" #in{{indice}}numPalet="ngModel"
+                                          min="0" pattern="[0-9]*"
+                                          onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                          [(ngModel)]="productoBService.formData.listBodegaProducto[indice].numPalet"
+                                          class="form-control" maxlength="10" required>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row boxForm justify-content-around my-2">
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                      <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formProducto.invalid">
+                        <fa-icon [icon]="fasave"></fa-icon> {{modoEdicion ? 'Actualizar' : 'Guardar'}}
+                      </button>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                      <a [routerLink] (click)="resetForm()" class="btn bttn-Primario btn-block">
+                        <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                      </a>
+                    </div>
+                    <div class="col-8 col-lg-12 mt-2" *ngIf="modoEdicion">
+                      <a [routerLink] (click)="onDelate(formProducto)" class="btn bttn-Primario btn-block">
+                        <fa-icon [icon]="fatimesCircle"></fa-icon> Eliminar
+                      </a>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

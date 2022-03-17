@@ -1,0 +1,125 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div id="ordenarS" class="card-header d-flex justify-content-between">
+        <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Compras</a></h5>
+        <a class="text-dark2" (click)="onConvertPdfAll()">
+          <fa-icon [icon]="faprint"></fa-icon>
+        </a>
+      </div>
+      <div class="mt-2 px-4 pt-2 boxForm">
+        <div class="row">
+          <div class="col-3">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <fa-icon [icon]="fasearch"></fa-icon>
+                </span>
+              </div>
+              <input type="text" class="form-control" #filtroCompraIn="ngModel" name="filtroCompraIn" maxlength="30"
+                placeholder="Buscar.." [(ngModel)]="filtroTablaCompra.filtroCompra"
+                (ngModelChange)="filtroTablaCompra.filtroCompra = $event.toUpperCase()">
+            </div>
+          </div>
+          <div class="col-6  d-flex justify-content-around pt-2">
+            <mat-checkbox name="checkGuiaRemision" #checkGuiaRemision="ngModel" color="primary"
+              [(ngModel)]="filtroTablaCompra.checkGuiaRemision">Guía de Remisión</mat-checkbox>
+            <mat-checkbox name="checkFechaAutorizacion" #checkFechaAutorizacion="ngModel" color="primary"
+              [(ngModel)]="filtroTablaCompra.checkFechaAutorizacion">Fecha de Autorización</mat-checkbox>
+            <mat-checkbox name="checkRazonSocialCliente" #checkRazonSocialCliente="ngModel" color="primary"
+              [(ngModel)]="filtroTablaCompra.checkRazonSocialCliente">Razón Social </mat-checkbox>
+          </div>
+          <div class="col-3 d-flex justify-content-around pt-2">
+            <mat-checkbox name="checkSubLibre" #checkSubLibre="ngModel" color="primary"
+              [(ngModel)]="filtroTablaCompra.checkSubLibre">Subtotal Libre Impuestos</mat-checkbox>
+            <mat-checkbox name="checkTotalImpuesto" #checkTotalImpuesto="ngModel" color="primary"
+              [(ngModel)]="filtroTablaCompra.checkTotalImpuesto">Total Impuestos</mat-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;" >
+      <table class="table">
+        <thead>
+          <tr class="text-center">
+            <th>#</th>
+            <th style="width: 10%;">Factura</th>
+            <th *ngIf="filtroTablaCompra.checkGuiaRemision">Guía Remisión</th>
+            <th>Fecha Registro</th>
+            <th style="width: 30%;">
+              <div class="d-inline-block" style="margin-right: 0.5rem;">proveedor</div>
+              <div id="ordenarS" class="d-inline-block">
+                <a class="badge text-dark2" (click)="onOrdenListBy(1)">
+                  <fa-icon [icon]="sort"></fa-icon>
+                </a>
+              </div>
+            </th>
+            <th *ngIf="filtroTablaCompra.checkFechaAutorizacion">Fecha de Autorización</th>
+            <th *ngIf="filtroTablaCompra.checkRazonSocialCliente">Razón Social</th>
+            <th>Descripción</th>
+            <th *ngIf="filtroTablaCompra.checkSubLibre">SubTotal</th>
+            <th *ngIf="filtroTablaCompra.checkTotalImpuesto">Impuestos</th>
+            <th>Total Compra</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="listComprasIn | search:filtroTablaCompra.filtroCompra:'cOrdenEC' as resultBusqueda">
+          <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+          <tr *ngIf="resultBusqueda.length==0">
+            <td class="font-italic text-center" colspan="5">
+              No existen registros
+            </td>
+          </tr>
+          <tr
+            *ngFor="let datoC of resultBusqueda |sort:ordenBy:'cOrdenEC' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+            [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+            <td class="indice">{{indice+1}}</td>
+            <td class="text-center">{{datoC.factura}}</td>
+            <td class="text-center" *ngIf="filtroTablaCompra.checkGuiaRemision">
+              {{datoC.guiaRemision!=0? datoC.guiaRemision : '---'}}</td>
+            <td class="text-center">{{datoC.fechaRegistroBodega}}</td>
+            <td>{{datoC.proveedor}}</td>
+            <td class="text-center" *ngIf="filtroTablaCompra.checkFechaAutorizacion">{{datoC.fechaAutorizacion}}</td>
+            <td *ngIf="filtroTablaCompra.checkRazonSocialCliente">{{datoC.razonSocialCompra}}</td>
+            <td>
+              <div *ngFor="let datoCompras of datoC.listPcomprasO">
+                <ul id="utilitarioI">
+                  <li>{{datoCompras.producto.nombre}}</li>
+                </ul>
+              </div>
+            </td>
+            <td class="text-right" *ngIf="filtroTablaCompra.checkSubLibre">{{datoC.subTotalLibre}}</td>
+            <td class="text-right" *ngIf="filtroTablaCompra.checkTotalImpuesto">{{datoC.totalImpuestos}}</td>
+            <td class="text-right">{{datoC.totalOrden}}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr *ngIf="listComprasIn.length>0">
+            <td class="text-center" colspan="5"><strong>TOTAL COMPRAS</strong></td>
+            <td><strong>{{sumTotal}}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="paginationPadre mt-2" style="background-color: white;" *ngIf="listComprasIn!=null">
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item">
+            <select class="form-control" (change)="onUpdateSelect($event.target)">
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="300">300</option>
+            </select>
+          </li>
+          <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+            <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+          <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+            [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+            <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+          <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+            <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

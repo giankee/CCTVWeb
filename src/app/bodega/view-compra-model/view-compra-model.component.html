@@ -1,0 +1,128 @@
+<mat-dialog-content id="ModalFix">
+  <div class="jumtron" *ngIf="ordenECService.formData!=null">
+    <div class="row justify-content-center">
+      <div id="contPrint1" class="col-12">
+        <h1 class="display-4 text-center">Factura de Compra</h1>
+      </div>
+    </div>
+  </div>
+  <form #formOrden="ngForm" autocomplete="off" *ngIf="ordenECService.formData!=null">
+    <div class="container-fluid">
+      <div id="content" #content class="row mInCajaPadre">
+        <div class="col-12 mInCajaHijaOrden" style="padding-top: 0px;">
+          <div class="row justify-content-end mt-1">
+            <div class="col-4">
+              <div>
+                <strong>Factura: {{enterpriceServise.formDocumento.documento}}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-7">
+              <div class="cDividida">
+                <div class="row">
+                  <div class="col-12">
+                    <strong>{{ordenECService.formData.proveedor}}</strong>
+                  </div>
+                  <div class="col-12">
+                    <strong>Ruc:</strong> {{enterpriceServise.formDocumento.crp_Proveedor}}
+                  </div>
+                  <div class="col-12">
+                    <strong>Contribuyente Especial Nro:</strong> {{enterpriceServise.formDocumento.nro_contespecial}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-1">
+            <div class="col-8" style="font-size: 0.8rem;">
+              <strong>Autorización:</strong> {{enterpriceServise.formDocumento.claveacceso}}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 mInCajaHijaOrden">
+              <div class="row">
+                <div class="col-12">
+                  <strong>Razón Social / Nombres y Apellidos: </strong> {{enterpriceServise.formDocumento.rS_Cliente}}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                  <strong>Identificación:</strong> {{enterpriceServise.formDocumento.crp_Cliente}}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6">
+                  <strong>Fecha Emisión:</strong> {{enterpriceServise.formDocumento.emi_Fecha}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-headerModal">
+                  <h5>Lista Articulos</h5>
+                </div>
+                <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                  <table class="table">
+                    <thead>
+                      <tr class="text-center">
+                        <th scope="col">Código</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Precio U</th>
+                        <th scope="col">Descuento</th>
+                        <th scope="col">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let datoListC of ordenECService.formData.listPcomprasO; let indiceNewC=index"
+                        [ngClass]="{'filaPar':(((indiceNewC+1)%2)==0)}">
+                        <td>{{datoListC.producto.codigo}}</td>
+                        <td class="text-center">{{datoListC.cantidad}}</td>
+                        <td>{{datoListC.producto.nombre}}</td>
+                        <td class="text-center">${{datoListC.precio}}</td>
+                        <td class="text-center">{{datoListC.descuento}}</td>
+                        <td><strong>${{datoListC.totalInd}}</strong></td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td class="text-center" colspan="4" rowspan="5" style="border-right: 1px solid black;"></td>
+                        <td class="text-right"><strong>Sub Total sin Impuestos:</strong></td>
+                        <td class="text-center"><strong>{{ordenECService.formData.subTotalLibre}}</strong></td>
+                      </tr>
+                      <tr>
+                        <td class="text-right"><strong>Base 12%:</strong></td>
+                        <td class="text-center">{{ordenECService.formData.auxTarifa12}}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-right"><strong>Base 0%:</strong></td>
+                        <td class="text-center">{{ordenECService.formData.auxTarifa0}}</td>
+                      </tr>
+                      <tr>
+                        <td class="text-right"><strong>IVA 12%:</strong></td>
+                        <td class="text-center"><strong>{{ordenECService.formData.totalImpuestos}}</strong></td>
+                      </tr>
+                      <tr>
+                        <td class="text-right"><strong>TOTAL:</strong></td>
+                        <td class="text-center"><strong>{{ordenECService.formData.totalOrden}}</strong></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row boxForm justify-content-between mt-1 mt-sm-2 mb-1 mb-sm-2">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 mb-2">
+              <a [routerLink] class="btn bttn-Primario btn-block" (click)="onConvertPdfOne()">
+                <fa-icon [icon]="faprint"></fa-icon> Descargar PDF
+              </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 mb-2">
+              <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>

@@ -1,0 +1,784 @@
+/* You can add global styles to this file, and also import other style files */
+
+/*General***************************************************************************************************/
+:root {
+
+  --MicolorOscuro: #616163;
+  --MicolorPlateado: #CCDBDC;
+  --MicolorEncabezado: #BEBB37;
+
+
+  --MicolorPrimario: #CA3C25;
+  --MicolorSecundario: #FFBE0B;
+  --MicolorSecundarioSelect: #FFC31F;
+
+  --MicolorInfo: #3B7080;
+  --MicolorInfoSelect: #4d93a8;
+  
+  
+  --MicolorDanger: #E53935;
+  --MicolorDark: #1d2124;
+}
+
+a {
+  display: inline-block;
+  text-decoration: none;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.page {
+  position: absolute;
+  top: 0;
+  right: 0;
+  -webkit-transition: width 0.3s linear;
+  transition: width 0.3s linear;
+  width: calc(100% - 180px);
+  height: 100%;
+  background-color: rgba(1, 1, 1, 0.1);
+  /*min-height: 100vh;*/
+}
+
+.page.active {
+  width: calc(100% - 95px);
+}
+
+/* Malihu Custom Scroll */
+.mCSB_scrollTools {
+  width: 5px !important;
+}
+
+.mCSB_inside>.mCSB_container {
+  margin-right: 0 !important;
+}
+
+.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  background-color: var(--MicolorSecundario) !important;
+}
+
+.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar:hover {
+  background-color: rgb(252, 192, 30) !important;
+}
+
+/*Conexion Internet*/
+.online {
+  background-color: var(--success);
+  color: #ffffff;
+  padding: 10px;
+  text-align: center;
+  height: 100%;
+  animation: online-response 3s 1;
+  -webkit-animation: online-response 3s 1;
+  /*Primer valor cuanto tiempo se demora en la transasion y el otro las repeticiones*/
+  animation-delay: 2s;
+  animation-fill-mode: forwards;
+
+  -webkit-animation-delay: 2s;
+  -webkit-animation-fill-mode: forwards;
+}
+
+.offline {
+  background-color: var(--MicolorDanger);
+  color: #ffffff;
+  padding: 10px;
+  text-align: center;
+  height: 100%;
+}
+
+.iconOnline {
+  color: var(--success);
+}
+
+.iconOffline {
+  color: var(--MicolorDanger);
+}
+
+@keyframes online-response {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes online-response {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+
+/*User*****************************************************************************************************/
+.fondoLogin {
+  background-image: url("/assets/img/fondo.jpg");
+  background-size: cover;
+  background-position: center center;
+
+  top: 0;
+  bottom: 0;
+  height: 100vh;
+  z-index: -10;
+}
+
+.boxUser {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  padding: 45px;
+  padding-top: 45px;
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-bottom: 15px;
+  background: rgba(0, 0, 0, .8);
+  box-sizing: border-box;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, .5);
+  border-radius: 10px;
+}
+
+.boxUser h2 {
+  margin: 0 0 40px;
+  padding: 0;
+  color: var(--MicolorInfo);
+  text-align: center;
+}
+
+.boxUser .inputBox {
+  position: relative;
+}
+
+.boxUser .inputBox input {
+  display: block;
+  height: calc(1.5em + 0.75rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-bottom: 30px;
+  border: none;
+  color: #ced4da;
+  border-bottom: 1px solid #ced4dad0;
+  border-radius: 0.25rem;
+  outline: none;
+  background: transparent;
+}
+
+.boxUser .inputBox input:focus {
+  box-shadow: 2px 3px 0 2px rgba(17, 94, 105, 0.4);
+}
+
+.boxUser .inputBox select {
+  display: block;
+  height: calc(1.5em + 0.75rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-bottom: 30px;
+  border: none;
+  color: #ced4da;
+  border-bottom: 1px solid #ced4dad0;
+  border-radius: 0.25rem;
+  outline: none;
+  background: transparent;
+}
+
+.boxUser .inputBox option {
+  color: #ced4da;
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, .95);
+}
+
+.boxUser .inputBox select:focus {
+  box-shadow: 2px 3px 0 2px rgba(16, 85, 95, 0.35);
+}
+
+.boxUser .inputBox label {
+  position: absolute;
+  top: 0;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: .5s;
+}
+
+.boxUser .inputBox a {
+  padding: 0.375rem 0.75rem;
+  color: var(--MicolorInfo);
+  cursor: pointer;
+}
+
+.boxUser .inputBox a:focus,
+.boxUser .inputBox a:hover {
+  color: var(--MicolorInfoSelect);
+}
+
+.boxUser .inputBox .normal {
+  left: 0;
+  color: #ced4da;
+}
+
+.boxUser .inputBox .error {
+  right: 0;
+  font-size: 14px;
+  color: rgb(229, 56, 53);
+}
+
+.boxUser .inputBox input:focus~.normal,
+.boxUser .inputBox input:valid~.normal {
+  top: -20px;
+  color: var(--MicolorInfo);
+  font-size: 14px;
+}
+
+.boxUser .inputBox select:focus~.normal,
+.boxUser .inputBox select:valid~.normal {
+  top: -20px;
+  color: var(--MicolorInfo);
+  font-size: 14px;
+}
+
+.boxUser .inputBox input.ng-touched:invalid~.normal {
+  top: -20px;
+  color: var(--MicolorDanger);
+  font-size: 14px;
+}
+
+.boxUser .inputBox input:focus~.error,
+.boxUser .inputBox input:invalid~.error {
+  top: 35px;
+  right: 10px;
+  color: var(--MicolorDanger);
+}
+
+input.ng-touched.ng-invalid {
+  border-color: var(--MicolorDanger);
+}
+
+/*
+  * ==========================================================
+  *     DASHBOARD HEADER
+  * ==========================================================
+  */
+
+.dashboard-header {
+  background: #f2f2f2;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.section-padding {
+  padding: 3rem 2rem;
+}
+
+.card {
+  -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.card.static{
+  height: 600px;
+}
+
+.card-header {
+  background-color: var(--MicolorEncabezado);
+}
+
+.subForm .card-header {
+  background-color: white;
+}
+
+
+.card-header.btnAgregar {
+  padding: 0.4rem 0.8rem;
+}
+
+.card-headerModal {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0;
+  background-color: var(--MicolorEncabezado);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  color: black;
+}
+
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-headerModal h5,
+.card-header h6 {
+  margin-bottom: 0;
+}
+
+
+
+/*Tablas*/
+.table {
+  font-size: 0.8em;
+  background-color: white;
+}
+
+.table thead {
+  background-color: whitesmoke;
+}
+
+.table thead th {
+  border-bottom: 2px solid var(--MicolorPlateado);
+  border-left: 2px solid white;
+  border-right: 2px solid white;
+}
+
+.table tbody tr {
+  border-bottom: 2px solid var(--MicolorPlateado);
+  border-left: 2px solid white;
+  border-right: 2px solid white;
+}
+
+.table tbody td {
+  border-left: 2px solid white;
+  border-right: 2px solid white;
+  vertical-align: middle;
+}
+.table tbody td.separador{
+  border-right: 2px solid var(--MicolorSecundario);
+  vertical-align: middle;
+}
+
+.table tbody tr.resaltar {
+  background-color: var(--MicolorSecundario);
+}
+
+.table tbody strong {
+  color: var(--MicolorInfo);
+  font-size: 0.9rem;
+}
+.table tbody tr.resaltar strong {
+  color: black;
+  font-size: 0.9rem;
+}
+
+.table tbody a.hiper {
+  color: var(--MicolorInfo);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.table tbody tr.filaPar {
+  background-color: whitesmoke;
+}
+
+.table tbody .indice {
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--MicolorPlateado);
+}
+
+/*Utilitarios General*/
+/*ToolTip*/
+.tooltipRed {
+  background: var(--MicolorDanger) !important;
+  font-size: 13px !important;
+}
+
+.tooltipYellow {
+  background: var(--MicolorSecundarioSelect) !important;
+  color: black !important;
+  font-size: 13px !important;
+}
+
+.tooltipBlack {
+  font-size: 13px !important;
+}
+
+/*Badge*/
+.badge-warning {
+  background-color: var(--MicolorSecundario);
+}
+
+.badge-warning:focus,
+.badge-warning:hover {
+  background-color: var(--MicolorSecundarioSelect);
+  font-size: 80%;
+}
+
+/*a Text*/
+#ordenarS a.text-dark2 {
+  color: #525457;
+  cursor: pointer;
+}
+
+#ordenarS a.text-dark2:focus,
+#ordenarS a.text-dark2:hover {
+  color: var(--MicolorDark);
+}
+
+#utilitarioI a.text-info {
+  color: var(--MicolorInfo);
+  cursor: pointer;
+}
+
+#utilitarioI a.text-info:focus,
+#utilitarioI a.text-info:hover {
+  color: var(--MicolorInfoSelect);
+}
+
+#utilitarioI a.text-primario {
+  color: var(--MicolorPrimario);
+  cursor: pointer;
+}
+
+#utilitarioI a.text-primario:focus,
+#utilitarioI a.text-primario:hover {
+  color: var(--MicolorPrimario);
+}
+
+#utilitarioI a.text-secundario {
+  color: var(--MicolorSecundario);
+  cursor: pointer;
+}
+
+#utilitarioI li.bg-warning {
+  background-color: var(--MicolorSecundarioSelect);
+}
+#utilitarioI .bg-warning {
+  background-color: var(--MicolorSecundarioSelect);
+}
+#utilitarioI .bg-danger {
+  background-color: var(--MicolorDanger);
+}
+
+ul#utilitarioI {
+  margin-block-start: 0.15em;
+  margin-block-end: 0.15em;
+  padding-inline-start: 20px;
+  font-size: 0.7rem;
+}
+
+div#utilitarioI .cardGalery {
+  border: 1.5px solid lightgray;
+}
+
+/*Formularios*/
+.boxForm .bttn-Primario,
+.boxForm .bttn-Primario:hover {
+  background-color: var(--MicolorPrimario);
+  color: white;
+}
+.boxForm .bttn-Primario:focus {
+  box-shadow: 0 0 0 0.2rem rgba(202 60 37 / 25%);
+}
+
+.boxForm .bttn-Error,
+.boxForm .bttn-Error:hover {
+  background-color: white;
+  color: black;
+  border-color: var(--MicolorPrimario);
+  border-width: 4px;
+}
+
+.boxForm .bttn-Info,
+.boxForm .bttn-Info:hover {
+  background-color: var(--MicolorInfo);
+  color: white
+}
+
+.boxForm .bttn-Secundario,
+.boxForm .bttn-Secundario:hover {
+  background-color: var(--MicolorSecundario);
+  color: black;
+}
+.boxForm .bttn-Secundario:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255 190 11 / 25%);
+}
+
+.boxForm .form-control:focus {
+  border-color: var(--MicolorInfoSelect);
+  box-shadow: 0 0 0 0.3rem rgba(59, 112, 128, 0.25)
+}
+
+.boxForm .inputForm {
+  position: relative;
+}
+
+.boxForm .inputForm label {
+  position: absolute;
+  top: -0.4rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: .5s;
+}
+
+.boxForm .inputForm .title {
+  padding-left: 0.75rem;
+}
+
+.boxForm .inputForm .error {
+  right: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--MicolorDanger);
+}
+
+.ocultarObj {
+  display: none !important;
+}
+
+.boxForm .subForm{
+  position: relative;
+  border:  2px solid var(--MicolorPlateado);
+  padding: 1rem;
+  border-width: 1px;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+/*Paginacion*/
+.paginationPadre li {
+  padding: 0.2rem 0.2rem;
+  
+}
+
+.paginationPadre li.ocultar {
+  display: none;
+}
+
+.paginationPadre li:hover {
+  background-color: rgb(255, 255, 255);
+  cursor: pointer;
+}
+
+.paginationPadre li.disabled {
+  cursor: not-allowed;
+}
+.paginationPadre li a {
+  color: var(--MicolorInfo);
+}
+
+.paginationPadre li.act a.mas {
+  background-color: whitesmoke;
+  border-color: #000000;
+  color: #000000;
+}
+
+.paginationPadre li a:hover {
+  background-color: whitesmoke;
+  color: var(--MicolorInfoSelect);
+}
+
+.paginationPadre select:focus {
+  /*Si*/
+  border-color: rgb(255, 255, 255);
+  outline: 0;
+  box-shadow: 0 0 0 0.1rem lightgray;
+}
+
+
+/*View Orden*/
+.mInCajaPadre {
+  padding: 1.75rem 2.5rem;
+}
+
+.mInCajaHijaOrden {
+
+  margin-bottom: 1rem;
+  padding: 1rem 2rem;
+  border: 1.75px solid lightgray;
+}
+
+.mInCajaHijaOrden .cDividida {
+  border: 1px solid lightgray;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 16px;
+}
+
+.mInCajaHijaOrden .encabezado {
+  padding-left: 1.75rem;
+  padding-right: 1.75rem;
+  text-decoration-style: double;
+  font-size: 20px;
+  margin-bottom: 1rem;
+}
+
+/*Edit Orden*/
+.card.padre {
+  color: #000000;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-bottom: 1rem;
+  padding-top: 0.5rem;
+}
+
+/*BREAKS*/
+@media (max-width: 575.98px) {
+  /*prueba */
+  .boxUser {
+    width: 335px;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+
+/*Mateiral an*/
+/*para el select*/
+
+.form-group#selectMaterial{
+  margin-bottom: 0;
+}
+
+.mat-form-field-wrapper {
+  padding-bottom: 1em;
+}
+
+.mat-form-field-appearance-fill .mat-form-field-flex {
+  padding: .35em .75em 0 .75em !important;
+}
+
+#ModalFix.mat-dialog-content{
+  border-radius: 5px;
+  max-height: 75vh;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/*Busqueda progresiva*/
+#inputSearchP .wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+#inputSearchP input.ng-touched.ng-invalid {
+  border-color: var(--MicolorDanger);
+}
+
+#inputSearchP .input-src {
+  position: relative;
+  margin-top: 0px;
+  height: calc(1rem + 0.7rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  box-sizing: border-box;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+}
+
+#inputSearchP .input-src.span{
+  background-color: #e9ecef;
+}
+
+#inputSearchP input:disabled {
+  background-color: #e9ecef;
+  opacity: 1;
+}
+
+#inputSearchP .limit-width {
+  position: relative;
+  width: 100%;
+}
+
+#inputSearchP .loading {
+  background-image: url("/assets/img/loading.svg");
+  background-repeat: no-repeat;
+  background-size: 2rem;
+  background-position: right;
+}
+
+#inputSearchP .results {
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  padding: 0;
+  margin-top: .30rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  width: 100%;
+  box-shadow: 0 6.7px 5.3px rgba(0, 0, 0, 0.032),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.048),
+    0 100px 80px rgba(0, 0, 0, 0.08);
+}
+
+#inputSearchP .results ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#inputSearchP .results ul li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 375;
+  padding-top: .20rem;
+  padding-bottom: .20rem;
+  padding-left: .35rem;
+  padding-right: .35rem;
+  border-bottom: solid 2px var(--MicolorPlateado);
+  width: 100%;
+  /*en el caso de q quieran poner dos cosas*/
+}
+
+#inputSearchP .results ul li.titulo {
+  justify-content: center;
+  font-weight: 400;
+  border-top: solid 2px var(--MicolorPlateado);
+  background-color: whitesmoke;
+}
+
+#inputSearchP .results ul li a {
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--MicolorOscuro);
+}
+
+#inputSearchP .results ul li:hover .name {
+  background-color: var(--MicolorInfo);
+  color: white;
+}
+
+#inputSearchP .results ul li:last-child {
+  border-bottom: transparent;
+}
+
+#inputSearchP .results ul li .name {
+  padding: .20rem;
+  border-radius: 0.65rem;
+  transition: all ease 150ms;
+}

@@ -1,0 +1,203 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Vehículos Registrados</h1>
+    </div>
+    <div class="col-2 col-sm-1 d-block jjustify-content-center align-self-center">
+      <a class="badge text-warning" [routerLink] (click)="okAyuda=!okAyuda">
+        <fa-icon [icon]="faquestion" size="3x"></fa-icon>
+      </a>
+    </div>
+  </div>
+</div>
+
+<section class="dashboard-header">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-7 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5>Lista de Vehículos Registrados</h5>
+          </div>
+          <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text"> <fa-icon [icon]="fasearch"></fa-icon></span>
+              </div>
+              <input type="text" class="form-control" name="filtroCarro" maxlength="10" placeholder="Buscar.."
+                [(ngModel)]="filtroCarro">
+            </div>
+          </div>
+          <div>
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th scope="col">#</th>
+                    <th scope="col">Matricula</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Color</th>
+                    <th scope="col">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Propietario</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenPropietario()">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="(listCarrosIn | search:filtroCarro:'cCarro') as resultBusqueda">
+                  <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+                  <tr *ngIf="resultBusqueda.length==0">
+                    <td class="font-italic text-center" colspan="6">
+                      No existen vehículos registrados
+                    </td>
+                  </tr>
+                  <tr *ngFor="let datoC of resultBusqueda |sort:ordenPropietario:'cCarro' | slice:startIndex:endIndex; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{indice+1}}</td>
+                    <td>{{datoC.numMatricula}}</td>
+                    <td>{{datoC.marca | upperLowerCase:3}}</td>
+                    <td>{{datoC.colorCarro| upperLowerCase:3}}</td>
+                    <td><strong>{{datoC.propietario}}</strong></td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario" (click)="onEditVehiculo(datoC)"
+                        matTooltip="Te permite modificar la información basica del vehículo" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="fapencilAlt"></fa-icon>
+                      </a>
+                      <a class="badge text-primario"
+                        matTooltip="Te permite visualizar a el historial del vehículo en específico"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeye"></fa-icon>
+                      </a>
+                      <a class="badge text-primario" (click)="onDelete(datoC)"
+                        matTooltip="Te permite eliminar el vehículo siempre y cuando no tenga un historial de entrada o salida"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeraser"></fa-icon>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="paginationPadre mt-2" *ngIf="listCarrosIn!=null">
+              <nav>
+                <ul class="pagination justify-content-center">
+                  <li class="page-item">
+                    <select class="form-control" (change)="updateSelect($event.target)">
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                    </select>
+                  </li>
+                  <li class="page-item" [class.disabled]='anteriorBlock'>
+                    <a class="page-link" (click)="updateIndex(pagActualIndex-1)">Anterior</a></li>
+                  <li *ngFor="let i of pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='siguienteBlock'>
+                    <a class="page-link" (click)="updateIndex(pagActualIndex+1)">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5>Registrar vehículo</h5>
+          </div>
+          <div class="m-3">
+            <form #formCarro="ngForm" autocomplete="off" (submit)="onSubmit(formCarro)" *ngIf="carroService.formData">
+              <div class="row boxForm">
+                <div class="col-12">
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Matrícula:</strong></div>
+                    <input name="numMatricula" #numMatricula="ngModel" [(ngModel)]="carroService.formData.numMatricula" (ngModelChange)="carroService.formData.numMatricula = $event.toUpperCase()"
+                      class="form-control" maxlength="100" placeholder="Número de matrícula" [datoAutoFocus]="autoFocus"
+                      required>
+                    <label class="error" *ngIf="numMatricula.touched && numMatricula.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Marca:</strong></div>
+                    <input name="marca" #marca="ngModel" [(ngModel)]="carroService.formData.marca" class="form-control"
+                      maxlength="15" placeholder="Marca del vehículo" required> 
+                    <label class="error" *ngIf="marca.touched && marca.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Color del vehículo:</strong></div>
+                    <input name="colorCarro" #colorCarro="ngModel" [(ngModel)]="carroService.formData.colorCarro"
+                      class="form-control" maxlength="15" placeholder="Color del vehículo" required>
+                    <label class="error" *ngIf="colorCarro.touched && colorCarro.errors?.required">Campo
+                      Requerido</label>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Propietario:</strong></div>
+                    <select class="form-control" name="propietario" #propietario="ngModel"
+                      [(ngModel)]="carroService.formData.propietario" required>
+                      <option selected disabled [ngValue]="null">-Seleccionar-</option>
+                      <option value="NewP"> + Nuevo Propietario</option>
+                      <option value="B&B">Entidad: B&B</option>
+                      <option value="Manacripex">Entidad: Manacripex </option>
+                      <option value="Freshfish">Entidad: Freshfish</option>
+                      <option *ngFor="let datoP of listPersonalIn" value="{{datoP.nombreP}}">
+                        {{datoP.nombreP}}</option>
+                    </select>
+                    <label class="error" *ngIf="propietario.touched && propietario.errors?.required">Campo
+                      Requerido</label>
+                    <div class="mt-2 mb-1 py-2 px-3" *ngIf="carroService.formData.propietario =='NewP'"
+                      style="background-color: #f2f2f2">
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Cédula</strong></div>
+                        <input name="cedula" type="number" min="0" maxlength="10" #cedula="ngModel"
+                          onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                           [(ngModel)]="personalService.formData.cedula" class="form-control" placeholder="Número de cédula" required (change)="onAutoCompletarPersonal()">
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Nombre y apellido</strong></div>
+                        <input [disabled]="disableBtnPersonal" name="nombreP" #nombreP="ngModel"
+                          [(ngModel)]="personalService.formData.nombreP" class="form-control" maxlength="50"
+                          placeholder="Nombre de la persona" required>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Tipo de persona:</strong></div>
+                        <select [disabled]="disableBtnPersonal" class="form-control" name="tipoPersona"
+                          #tipoPersona="ngModel" [(ngModel)]="personalService.formData.tipoPersona" required>
+                          <option selected disabled [ngValue]="null">-Seleccionar-</option>
+                          <option value="Empleado">Empleado</option>
+                          <option value="Externa">Persona externa</option>
+                          <option value="Proveedor">Proveedor</option>
+                          <option value="Cliente">Cliente</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row boxForm justify-content-around my-2">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                  <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formCarro.invalid">
+                    <fa-icon [icon]="fasave"></fa-icon> {{modoEdicion ? 'Actualizar' : 'Guardar'}}
+                  </button>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                  <a [routerLink] (click)="resetForm(formCarro)" class="btn bttn-Primario btn-block">
+                    <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

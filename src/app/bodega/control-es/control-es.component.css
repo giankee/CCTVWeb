@@ -1,0 +1,202 @@
+.page {
+    width: 100%;
+  }
+  
+  nav.navbar {
+    /*SI*/
+    background: var(--MicolorOscuro);
+  }
+  
+  nav.navbar .container-fluid {
+    /*Si*/
+    width: 100%;
+    height: 100%;
+  }
+  
+  nav.navbar .navbar-holder {
+    /*Si*/
+    width: 100%;
+  }
+  
+  nav.navbar a {
+    /*Si*/
+    font-size: .8rem;
+    color: #fff;
+    position: relative;
+  }
+  
+  nav.navbar .badge {
+    /*Si*/
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  
+  nav.navbar a.navbar-brand {
+    /*Si*/
+    margin-left: 10px;
+  }
+  
+  nav.navbar .brand-text {
+    /*si*/
+    text-transform: uppercase;
+  }
+  
+  nav.navbar .brand-text strong {
+    /*si*/
+    font-size: 1.3em;
+    color: var(--MicolorInfo);
+  }
+  
+  nav.navbar .nav-menu {
+    /*si*/
+    margin-bottom: 0;
+  }
+  
+  a {
+      /*Si*/
+      color: var(--MicolorInfo);
+      /*aqui*/
+      text-decoration: none;
+    }
+  
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .h1,
+    .h2,
+    .h3,
+    .h4,
+    .h5,
+    .h6 {
+      margin-bottom: 0.5rem;
+      font-family: inherit;
+      font-weight: 700;
+      line-height: 1.1;
+      color: inherit;
+    }
+  
+    h1,
+    .h1 {
+      font-size: 1.5rem;
+    }
+  
+    h2,
+    .h2 {
+      font-size: 1.3rem;
+    }
+  
+    h3,
+    .h3 {
+      font-size: 1.2rem;
+    }
+  
+    h4,
+    .h4 {
+      font-size: 1.1rem;
+    }
+  
+    h5,
+    .h5 {
+      font-size: 1rem;
+    }
+  
+    h6,
+    .h6 {
+      font-size: 0.9rem;
+    }
+  
+    .lead {
+      font-size: 1.25rem;
+      font-weight: 300;
+    }
+  
+    .display-1 {
+      font-size: 6rem;
+      font-weight: 300;
+      line-height: 1.1;
+    }
+  
+    .display-2 {
+      font-size: 5.5rem;
+      font-weight: 300;
+      line-height: 1.1;
+    }
+  
+    .display-3 {
+      font-size: 4.5rem;
+      font-weight: 300;
+      line-height: 1.1;
+    }
+  
+    .display-4 {
+      font-size: 3.5rem;
+      font-weight: 300;
+      line-height: 1.1;
+    }
+  
+    hr {
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+  
+    small,
+    .small {
+      font-size: 80%;
+      font-weight: 400;
+    }
+  
+    .nav-link {
+      /*Si*/
+      padding: 0.5rem 0.75rem;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+      cursor: pointer;
+    }
+  
+    .nav-link.disabled {
+      /*Si*/
+      cursor: none;
+    }
+  
+    .boxCliente {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 95%; /*1000px;*/
+      height: 90%; /*700px;*/
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      padding-left: 40px;
+      padding-right: 40px;
+      background: white;
+      box-sizing: border-box;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, .5);
+      border-radius: 10px;
+    }
+  
+  
+    .boxCliente a.btn#BtnPrincipal{
+      height: 50px;
+      font-size: 1.4rem; 
+    }
+  
+    .boxCliente .bodyCard{
+      height: 600px;
+      margin-bottom: 10px;
+    }
+  
+    .boxCliente .bodyProveedor{
+      height: 0px;
+    }
+  
+    @media (max-width: 575px) {
+      .page {
+        background-color: white;
+      }
+    }
+  
+  

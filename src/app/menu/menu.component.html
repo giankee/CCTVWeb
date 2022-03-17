@@ -1,0 +1,182 @@
+<nav class="side-navbar mCustomScrollbar" [ngClass]="{'mCS_no_scrollbar':tooglebtn, 'shrink show-sm':!tooglebtn}"
+  *ngIf="conexcionService.UserR!=null">
+  <div class="sidenav-header d-flex align-items-center justify-content-center">
+    <div class="sidenav-header-inner text-center"><img src="/assets/img/logo2.png" class="img-fluid">
+      <h2 class="h5">{{conexcionService.UserR.UserName}}</h2><span>{{conexcionService.UserR.rolAsignado}}</span>
+    </div>
+    <div>
+      <a [routerLink]='["/OrdenSupervisor"]' class="brand-small text-center"><strong>B&B</strong></a>
+    </div>
+  </div>
+  <div class="main-menu" *ngIf="conexcionService.UserR.rolAsignado!='tinabg-m' && conexcionService.UserR.rolAsignado!='bodega_verificador-m'">
+    <ul class="side-menu list-unstyled" >
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/OrdenSupervisor"]'>
+          <fa-icon [icon]="fatasks"></fa-icon> Orden E/S
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/VehiculosList"]'>
+          <fa-icon [icon]="facar"></fa-icon> Vehículos
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/PersonalList"]'>
+          <fa-icon [icon]="fausers"></fa-icon> Personal
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/ProductosList"]'>
+          <fa-icon [icon]="fatools"></fa-icon> Productos
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m' || conexcionService.UserR.rolAsignado=='gpv-o'">
+    <h5 class="sidenav-heading">Menú Inventario</h5>
+    <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/comprasInv"]'>
+          <fa-icon [icon]="fashoppingCart"></fa-icon> Gestión Compras
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/inventarioList"]'>
+          <fa-icon [icon]="faboxes"></fa-icon> Inventario
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/reportes"]'>
+          <fa-icon [icon]="faboxes"></fa-icon> Reportes
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
+        <a [routerLink]='["/Bodega/controlBodega"]'>
+          <fa-icon [icon]="fadollyflatbed"></fa-icon> Control Bodega
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
+        <a [routerLink]='["/Bodega/trabajosInter"]'>
+          <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='tinabg-m'">
+    <h5 class="sidenav-heading">Menú Tinas</h5>
+    <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Tina/movTinas"]'>
+          <fa-icon [icon]="fadolly"></fa-icon> Gestión Tinas
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Tina/BaldesList"]'>
+          <fa-icon [icon]="faboxes"></fa-icon> Tinas
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="admin-menu">
+    <h5 class="sidenav-heading">Menú Extra</h5>
+    <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='bodega_verificador-m' && conexcionService.UserR.rolAsignado!='tinabg-m'"> <a [routerLink]='["/Entrada-Salida"]'>
+          <fa-icon [icon]="faexchangeAlt"></fa-icon> Entrada / Salida
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']"  *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='bodega_verificador-m'||conexcionService.UserR.rolAsignado=='gv-m'"> <a [routerLink]='["/Verificador"]'>
+          <fa-icon [icon]="faclipboardCheck"></fa-icon> Verificación
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m'"> <a [routerLink]='["/BuscarFactura"]'>
+        <fa-icon [icon]="faexchangeAlt"></fa-icon> Buscar Factura
+      </a>
+    </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'"> <a
+          [routerLink]='["/registrar"]'>
+          <fa-icon [icon]="fauserplus"></fa-icon> Registrar Usuario
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</nav>
+
+<div class="page" [ngClass]="{'active active-sm':!tooglebtn}" *ngIf="conexcionService.UserR!=null">
+  <nav class="navbar" *ngIf="conexcionService.UserR.rolAsignado!=null">
+    <div class="container-fluid">
+      <div class="navbar-holder d-flex align-items-center justify-content-between">
+        <div>
+          <a id="toggle-btn" class="menu-btn" (click)="tooglebtn=!tooglebtn">
+            <fa-icon [icon]="fabars"></fa-icon>
+          </a>
+          <a [routerLink]='["/OrdenSupervisor"]' class="navbar-brand">
+            <div class="brand-text d-none d-sm-inline-block">
+              <span>Grupo</span><strong class=""> Buehs</strong>
+            </div>
+          </a>
+        </div>
+        <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+          <li><a class="nav-link disabled"> <span
+                class="d-none d-sm-inline-block mr-1">O{{conexcionService.formData.connectionStatus}}</span>
+              <fa-icon [icon]="facircle"
+                [ngClass]="{'iconOnline':conexcionService.formData.connectionStatus==='nline', 'iconOffline':conexcionService.formData.connectionStatus!=='nline' }">
+              </fa-icon>
+            </a>
+          </li>
+          <!-- Notifications dropdown-->
+          <li class="dropdown">
+            <a data-toggle="dropdown" class="nav-link">
+              <fa-icon [icon]="fabell"></fa-icon><span class="badge badge-warning">{{listNotificacion.length}}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menuNav">
+              <li *ngFor="let datoListN of listNotificacion; let indiceN=index">
+                <a class="dropdown-item">
+                  <div class="notification d-flex justify-content-between">
+                    <div>
+                      <fa-icon [icon]="faenvelope"> </fa-icon> {{datoListN.tipoNotificacion}}
+                    </div>
+                    <div><small>{{datoListN.fechaCreacion}}</small></div>
+                  </div>
+                  <div class="notification">
+                    <div class="notification-descripcion"> {{datoListN.descripcion}} </div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <!-- Messages dropdown
+          <li class="dropdown" *ngIf="listMensajes.length>0"> <a href="#" data-toggle="dropdown"
+              class="nav-link"><i class="fa fa-envelope"></i><span
+                class="badge badge-info">{{listMensajes.length}}</span></a>
+            <ul class="dropdown-menu">
+              <li *ngFor="let datoListM of listMensajes; let indiceM=index">
+                <a class="dropdown-item d-flex">
+                  <div class="msg-body">
+                    <h3 class="h5">De: {{datoListM.emisor}}</h3>
+                    <span>{{datoListM.mensaje}}</span><small>{{datoListM.tiempoCreacion}}</small>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </li>-->
+          <!-- Log out-->
+          <li>
+            <a class="nav-link" (click)="logOut()"> <span class="d-none d-sm-inline-block mr-1">Salir</span>
+              <fa-icon [icon]="fasignOut"></fa-icon>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div
+    *ngIf="conexcionService.formData.connectionStatus === 'nline' && conexcionService.formData.connectionStatusMessage !==''"
+    class="online">
+    <span>{{conexcionService.formData.connectionStatusMessage}}</span>
+  </div>
+  <div *ngIf="conexcionService.formData.connectionStatus === 'ffline'" class="offline">
+    <span>{{conexcionService.formData.connectionStatusMessage}}</span>
+  </div>
+  <router-outlet></router-outlet>
+</div>

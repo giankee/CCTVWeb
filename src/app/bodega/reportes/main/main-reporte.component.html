@@ -1,0 +1,135 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div id="ordenarS" class="card-header d-flex justify-content-between">
+        <h5><a class="text-dark2" data-toggle="collapse" href="#FiltroList">Filtros</a></h5>
+        <a class="text-dark2" data-toggle="collapse" href="#FiltroList" (click)="iconDownLeft=!iconDownLeft">
+          <fa-icon [icon]="faangleleft" [class]="{'ocultarObj':!iconDownLeft}"></fa-icon>
+          <fa-icon [icon]="faangledown" [class]="{'ocultarObj':iconDownLeft}"></fa-icon>
+        </a>
+      </div>
+      <div class="mt-2 px-4 py-2 boxForm collapse show" id="FiltroList">
+        <div class="row">
+          <div class="col-6 col-md-3">
+            <div class="form-group inputForm">
+              <div class="title"><strong>Tipo de Reporte:</strong></div>
+              <select class="form-control" name="selectTipoReporte" #selectTipoReporte="ngModel"
+                [(ngModel)]="parametrosBusqueda.tipoR"
+                (ngModelChange)="onChangeReport()">
+                <option selected disabled value="null">--Seleccionar--</option>
+                <option value="CaseA">Productos sin movimiento</option>
+                <option value="CaseB">Productos con movimiento</option>
+                <option value="CaseC">Compras Periodo Proveedor</option>
+                <option value="CaseD">Compra Razon social</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-6 col-md-3 d-flex" *ngIf="parametrosBusqueda.tipoR=='CaseC'||parametrosBusqueda.tipoR=='CaseD'">
+            <div class="form-group inputForm mr-2">
+              <div class="title"><strong>Periodo:</strong></div>
+            <select name="selectTipoPeriodo" #selectTipoPeriodo="ngModel" [(ngModel)]="parametrosBusqueda.tipoPeriodo"
+              class="form-control">
+              <option selected disabled value="null">--Seleccionar--</option>
+              <option value="Semestral">Semestral</option>
+              <option value="Anual">Anual</option>
+            </select>
+            </div>
+            <div class="form-group inputForm">
+              <div class="title"><strong>Fecha</strong></div>
+              <input name="fechaDesde" type="month" #fechaHasta="ngModel"
+                [ngModel]="fechaHoy.inDesde|fechaMes" class="form-control" (ngModelChange)="fechaHoy.inDesde=$event"
+                max="{{fechaHoy.strFecha}}">
+            </div>
+          </div>
+          <div class="col-12 col-md-3" *ngIf="parametrosBusqueda.tipoR=='CaseD'">
+            <div class="form-group inputForm">
+              <div class="title"><strong class="ml-3">Razón Social:</strong></div>
+              <select class="form-control" name="selectRazonSocial" #selectRazonSocial="ngModel"
+                [(ngModel)]="parametrosBusqueda.strRazonSocial">
+                <option selected disabled value="null">--Seleccionar--</option>
+                <option value="1391700830001">MANACRIPEX CIA.LTDA</option>
+                <option value="1391736452001">B&B TUNE SUPPLIERS S.A.</option>
+                <option value="1302188618001">BUEHS BOWEN DANIEL</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-md-3" *ngIf="parametrosBusqueda.tipoR=='CaseB'||parametrosBusqueda.tipoR=='CaseC'||parametrosBusqueda.tipoR=='CaseD'">
+            <div class="form-group inputForm">
+              <div class="title"  *ngIf="parametrosBusqueda.tipoR=='CaseC'"><strong class="ml-3">Proveedor:</strong></div>
+              <div class="title"  *ngIf="parametrosBusqueda.tipoR!='CaseC'"><strong class="ml-3">Proveedor (opcional):</strong></div>
+              <div id="inputSearchP">
+                <div class="wrapper">
+                  <div class="limit-width">
+                    <input name="selectProveedor" #selectProveedor="ngModel"
+                      [(ngModel)]="parametrosBusqueda.strProveedor"
+                      (ngModelChange)="onBListProgProveedor($event.toUpperCase())" maxlength="255"
+                      placeholder="Proveedor" class="form-control"
+                      [ngClass]="{'loading':parametrosBusqueda.spinLoadingG==1}">
+                    <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==1">
+                      <ul>
+                        <li *ngFor="let data of listProveedoresFiltros$ | async">
+                          <a (click)="onChooseProveedor(data)" class="name">{{data.proveedor}}</a>
+                        </li>
+                        <li>
+                          <a (click)="onChooseProveedor('null')" class="name">--Sin Asignar--</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-3" *ngIf="parametrosBusqueda.tipoR=='CaseC'">
+            <div class="form-group inputForm">
+              <div class="title"><strong class="ml-3">Producto (opcional):</strong></div>
+              <div id="inputSearchP">
+                <div class="wrapper">
+                  <div class="limit-width">
+                    <input name="selectProducto" #selectProducto="ngModel"
+                      [(ngModel)]="parametrosBusqueda.strProducto"
+                      (ngModelChange)="onListProductoB($event.toUpperCase())" maxlength="255"
+                      placeholder="Producto" class="form-control"
+                      [ngClass]="{'loading':parametrosBusqueda.spinLoadingG==2}"
+                      [disabled]="parametrosBusqueda.strProveedor==''">
+                    <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==2">
+                      <ul>
+                        <li *ngFor="let data of listProdFiltros$ | async">
+                          <a (click)="onChooseElemente(data)" class="name">{{data.nombre}}</a>
+                        </li>
+                        <li>
+                          <a (click)="onChooseElemente('null')" class="name">--Sin Asignar--</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-4 pt-4">
+            <a [routerLink] (click)="onGenerarR()" class="btn bttn-Primario btn-block"
+              [ngClass]="{'disabled':parametrosBusqueda.tipoR=='null'}">
+              <fa-icon [icon]="fasearch"></fa-icon> Generar Reporte
+            </a>
+          </div>
+        </div>
+        <div class="text-center my-3" *ngIf="spinnerOnOff==1">
+          <div class="d-flex justify-content-center">
+            <mat-spinner color="accent"></mat-spinner>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mt-2 px-2" *ngIf="spinnerOnOff==2">
+  <div *ngIf="parametrosBusqueda.tipoR=='CaseA'||parametrosBusqueda.tipoR=='CaseB'">
+    <app-reporte-producto [listProductosIn]="listResultados" [tipoR]="parametrosBusqueda.tipoR">
+    </app-reporte-producto>
+  </div>
+  <div *ngIf="parametrosBusqueda.tipoR=='CaseC'||parametrosBusqueda.tipoR=='CaseD'">
+    <app-reporte-compra [listComprasIn]="listResultados" [tipoR]="parametrosBusqueda.tipoR">
+    </app-reporte-compra>
+  </div>
+</div>

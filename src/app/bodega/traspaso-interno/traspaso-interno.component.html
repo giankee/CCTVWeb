@@ -1,0 +1,224 @@
+<form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)">
+  <div class="bodyCard" *ngIf="ordenTrabajoService.formData.tipoOrden=='Traspaso Bodega'">
+    <div class="row mt-3">
+      <div class="col-8">
+        <h4 class="text-center">Recopilación datos para Traspaso de Bodega</h4>
+      </div>
+      <div class="col-4">
+        <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
+          [(ngModel)]="ordenTrabajoService.formData.fechaRegistro" min="2020-01-01" max="{{fechaHoy.strFecha}}">
+      </div>
+    </div>
+    <div class="row boxForm mt-2">
+      <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado=='tinabg-m'">
+        <div class="form-group" id="selectMaterial">
+          <div class="title ml-2">
+            <strong class="ml-3">Salida de Bodega: </strong>
+          </div>
+          <div id="inputSearchP">
+            <div class="wrapper">
+              <div class="limit-width">
+                <mat-form-field appearance="fill" style="width: 100%;">
+                  <mat-select name="bodega" #bodega="ngModel" [(ngModel)]="ordenTrabajoService.formData.bodega"
+                    required>
+                    <mat-option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'" value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="form-group" id="selectMaterial">
+          <div class="title ml-2">
+            <strong class="ml-3">Bodega de Destino: </strong>
+          </div>
+          <div id="inputSearchP">
+            <div class="wrapper">
+              <div class="limit-width">
+                <mat-form-field appearance="fill" style="width: 100%;">
+                  <mat-label>--Seleccionar--</mat-label>
+                  <mat-select name="destinoLugar" #destinoLugar="ngModel" required
+                    [(ngModel)]="ordenTrabajoService.formData.destinoLugar">
+                    <mat-option
+                      *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA' | popOutXList:ordenTrabajoService.formData.bodega"
+                      value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="form-group">
+          <div class="title ml-2">
+            <strong class="ml-3">Responsable de Bodega de Destino: </strong>
+          </div>
+          <div id="inputSearchP">
+            <div class="wrapper">
+              <div class="limit-width">
+                <input name="personaResponsable" #personaResponsable="ngModel" required
+                  [(ngModel)]="ordenTrabajoService.formData.personaResponsable" class="form-control"
+                  (ngModelChange)="ordenTrabajoService.formData.personaResponsable = $event?.toUpperCase()"
+                  placeholder="Nombre de la Persona">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="form-group">
+          <div class="title ml-2">
+            <strong class="ml-3">Responsable de Bodeguero Saliente: </strong>
+          </div>
+          <div id="inputSearchP">
+            <div class="wrapper">
+              <div class="limit-width">
+                <input name="bodeguero" #bodeguero="ngModel" required
+                  [(ngModel)]="ordenTrabajoService.formData.bodeguero" class="form-control"
+                  (ngModelChange)="ordenTrabajoService.formData.bodeguero = $event?.toUpperCase()"
+                  placeholder="Nombre de la Persona">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="card" style="height: 380px;">
+          <div class="card-header boxForm d-flex justify-content-between">
+            <h5 class="text-dark2" style="padding-top: 9px;">Lista de Materiales</h5>
+            <a [routerLink] (click)="onNewMaterial()" class="btn bttn-Primario btn-sm"
+              [ngClass]="{'bttn-Error':!okAddNewBotton }"
+              matTooltip="No se puede añadir material si existen campos vacios" matTooltipPosition="left"
+              matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
+              <fa-icon [icon]="faplus"></fa-icon> Añadir
+            </a>
+          </div>
+          <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px; height: 100%;">
+            <table class="table">
+              <thead>
+                <tr class="text-center">
+                  <th scope="col" style="width:45%;">Producto</th>
+                  <th scope="col" style="width:20%;">Cantidad</th>
+                  <th scope="col" style="width:30%;">Observación</th>
+                  <th scope="col" style="width:5%;"></th>
+                </tr>
+              </thead>
+              <tbody *ngIf="ordenTrabajoService.formData.listMaterialesO.length>0">
+                <tr
+                  *ngFor="let datoListP of ordenTrabajoService.formData.listMaterialesO | slice:paginacion.startIndex:paginacion.endIndex; let indiceNewP=index"
+                  [ngClass]="{'filaPar':(((indiceNewP+1)%2)==0)}">
+                  <td id="inputSearchP">
+                    <div class="row">
+                      <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                        <div class="wrapper">
+                          <div class="limit-width">
+                            <input
+                              name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigoProducto"
+                              #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigoProducto="ngModel"
+                              [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.codigo"
+                              (ngModelChange)="onListProducto(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex),1,$event?.toUpperCase())"
+                              maxlength="100" placeholder="Código Producto" class="form-control input-src"
+                              [ngClass]="{'loading':datoListP.spinnerLoading}"
+                              [disabled]="datoListP.inventario.disBttnInput==2" required>
+                            <div class="results" *ngIf="datoListP.showSearchSelect==1">
+                              <ul>
+                                <li *ngFor="let data of listProdFiltros$ | async">
+                                  <a (click)="onChooseElemente(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex),1,data)"
+                                    class="name">{{data.codigo}}</a>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                        <div class="wrapper">
+                          <div class="limit-width">
+                            <input
+                              name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto"
+                              #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto="ngModel"
+                              [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.nombre"
+                              (ngModelChange)="onListProducto(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex),2,$event?.toUpperCase())"
+                              maxlength="100" placeholder="Nombre Producto" class="form-control input-src"
+                              [ngClass]="{'loading':datoListP.spinnerLoading}"
+                              [disabled]="datoListP.inventario.disBttnInput==1" required>
+                            <div class="results" *ngIf="datoListP.showSearchSelect==2">
+                              <ul>
+                                <li *ngFor="let data of listProdFiltros$ | async">
+                                  <a (click)="onChooseElemente(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex),2,data)"
+                                    class="name">{{data.nombre}}</a>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td id="inputSearchP">
+                    <div class="input-group">
+                      <input name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
+                        type="number" min="0" maxlength="10" placeholder="#" class="form-control input-src"
+                        onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                        pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" required
+                        #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad="ngModel"
+                        [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
+                        (ngModelChange)="comprobarNewM()">
+                      <span
+                        class="input-group-text  input-src span">/{{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</span>
+                    </div>
+                  </td>
+                  <td id="inputSearchP">
+                    <textarea name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}observacion"
+                      #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}observacion="ngModel"
+                      [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].observacion"
+                      class="form-control input-src" maxlength="300" placeholder="Ingrese sus observaciones"></textarea>
+                  </td>
+                  <td class="justify-content-center" id="utilitarioI">
+                    <a class="badge text-primario d-block" matTooltip="Sacar de lista" matTooltipPosition="below"
+                      (click)="onRemoveNewM(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex))">
+                      <fa-icon [icon]="fatimes" size="3x"></fa-icon>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="paginationPadre" *ngIf="ordenTrabajoService.formData.listMaterialesO!=null">
+              <nav>
+                <ul class="pagination justify-content-center">
+                  <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                    <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
+                  </li>
+                  <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                    <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row boxForm mt-2 justify-content-center">
+      <div class="col-6 col-sm-6 col-md-6 mb-2 px-4">
+        <button class="btn bttn-Primario btn-block " type="submit" [disabled]="formOrden.invalid || !okBttnSubmit"
+          [ngClass]="{'bttn-Error':!okBttnSubmit }" matTooltip="Campos Vacios Revisar*" matTooltipPosition="above"
+          matTooltipClass="tooltipRed" [matTooltipDisabled]="okBttnSubmit">
+          <fa-icon [icon]="fasave"></fa-icon> Procesar
+        </button>
+      </div>
+    </div>
+  </div>
+</form>

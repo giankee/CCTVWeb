@@ -1,0 +1,80 @@
+<div class="fondoLogin">
+  <div class="boxUser" *ngIf="userService.formData">
+    <h2>Registrar</h2>
+    <form #form='ngForm' class="mb-4" autocomplete="off" (submit)="onSubmit(form)">
+      <div class="form-group inputBox" *ngIf="conexcionService.UserR">
+        <select class="form-control" #rolAsignado="ngModel" name="rolAsignado"
+          [(ngModel)]="userService.formData.rolAsignado" *ngIf="conexcionService.UserR.rolAsignado">
+          <option value="admin" *ngIf="conexcionService.UserR.rolAsignado=='admin'">Admin</option>
+          <option value="supervisor">Supervisor General</option>
+          <option value="gv-m">Supervisor Guardia</option>
+          <option value="gpv-o">Supervisor Oficina</option>
+          <option value="tinabg-m">Supervisor Compras Planta Manacripex</option>
+          <option value="guardia">Guardia</option>
+          <option value="verificador-p">Verificador Puerto</option>
+          <option value="verificador-m">Verificador Planta Manacripex</option>
+          <option value="visitante">Visitante</option>
+        </select>
+        <label class="normal">Tipo de Usuario</label>
+      </div>
+      <div class="form-group inputBox" *ngIf="listGuardiasIn.length>0 && userService.formData.rolAsignado=='guardia'">
+        <select class="form-control" #nombreU="ngModel" name="nombreU"
+          [(ngModel)]="userService.formData.nombreU" required>
+          <option *ngFor="let datoG of listGuardiasIn" value="{{datoG.empleado}}">{{datoG.empleado}}</option>
+          <option *ngIf="conexcionService.UserR.rolAsignado=='admin'" value="PruebaG">NOMBRE USUARIO</option>
+        </select>
+        <label class="normal">Nombre del Guardia</label>
+      </div>
+      <div class="form-group inputBox" *ngIf="userService.formData.rolAsignado!='guardia'">
+        <input class="form-control" #nombreU="ngModel" name="nombreU" [(ngModel)]="userService.formData.nombreU"
+          maxlength="20" required>
+        <label class="normal">Nombre Completo</label>
+        <label class="error" *ngIf="nombreU.touched && nombreU.errors?.required">Campo Requerido</label>
+      </div>
+      <div class="form-group inputBox">
+        <input class="form-control" #UserName="ngModel" name="UserName" [(ngModel)]="userService.formData.UserName"
+          maxlength="20" required>
+        <label class="normal">Usuario</label>
+        <label class="error" *ngIf="UserName.touched && UserName.errors?.required">Campo Requerido</label>
+      </div>
+      <div class="form-group inputBox">
+        <input class="form-control" #Email="ngModel" name="Email" [(ngModel)]="userService.formData.Email"
+          maxlength="30" required pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$">
+        <label class="normal">Email</label>
+        <label class="error" *ngIf="Email.touched && Email.errors?.required">Campo Requerido</label>
+        <label class="error" *ngIf="Email.touched && Email.errors?.pattern">Email no es válido</label>
+      </div>
+      <div class="form-group inputBox">
+        <input class="form-control" #Phone="ngModel" name="Phone" [(ngModel)]="userService.formData.PhoneNumber"
+          maxlength="13" required pattern="[0-9]{2,3}-[9]{1}[0-9]{8}">
+        <label class="normal">Número Celular</label>
+        <label class="error" *ngIf="Phone.touched && Phone.errors?.required">Campo Requerido</label>
+        <label class="error" *ngIf="Phone.touched && Phone.errors?.pattern">Celular no es válido</label>
+      </div>
+      <div class="form-group inputBox">
+        <input class="form-control" type="password" #PasswordHash="ngModel" name="PasswordHash"
+          [(ngModel)]="userService.formData.PasswordHash" maxlength="20" minlength="4" required
+          (ngModelChange)="onConfirmarPass(form)">
+        <label class="normal">Contraseña</label>
+        <label class="error" *ngIf="PasswordHash.touched && PasswordHash.errors?.required">Campo Requerido</label>
+        <label class="error" *ngIf="PasswordHash.touched && PasswordHash.errors?.minlength"> Mínimo 4 caracteres</label>
+      </div>
+      <div class="form-group inputBox">
+        <input class="form-control" type="password" #ConfirmPassword="ngModel" name="ConfirmPassword"
+          [(ngModel)]="userService.formData.ConfirmPassword" maxlength="20" minlength="4" required
+          (ngModelChange)="onConfirmarPass(form)">
+        <label class="normal">Confirmar Contraseña</label>
+        <label class="error" *ngIf="ConfirmPassword.touched && ConfirmPassword.errors?.minlength"> Mínimo 4
+          caracteres</label>
+        <label class="error" *ngIf="ConfirmPassword.dirty && ConfirmPassword.errors?.incorrect">No coinciden las
+          contraseñas</label>
+        <label class="error" *ngIf="ConfirmPassword.touched && ConfirmPassword.errors?.incompleta">No coinciden las
+          contraseñas</label>
+      </div>
+      <div class="pt-3">
+        <button class="btn btn-block btn-info" type="submit" [disabled]="form.invalid">
+          <em class="fas fa-sign-in-alt"></em> Registrar</button>
+      </div>
+    </form>
+  </div>
+</div>

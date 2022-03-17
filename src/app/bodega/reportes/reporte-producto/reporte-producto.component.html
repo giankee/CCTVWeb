@@ -1,0 +1,169 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div id="ordenarS" class="card-header d-flex justify-content-between">
+        <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Productos</a></h5>
+        <a class="text-dark2" (click)="onConvertPdfAll()">
+          <fa-icon [icon]="faprint"></fa-icon>
+        </a>
+      </div>
+      <div class="mt-2 px-4 pt-2 boxForm">
+        <div class="row">
+          <div class="col-3">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <fa-icon [icon]="fasearch"></fa-icon>
+                </span>
+              </div>
+              <input type="text" class="form-control" #filtroProductoIn="ngModel" name="filtroProductoIn" maxlength="30"
+                placeholder="Buscar.." [(ngModel)]="filtroTablaProd.filtroProducto"
+                (ngModelChange)="filtroTablaProd.filtroProducto = $event.toUpperCase()">
+            </div>
+          </div>
+          <div class="col-4  d-flex justify-content-around pt-2">
+            <mat-checkbox name="checkCat" #checkCat="ngModel" color="primary"
+              [(ngModel)]="filtroTablaProd.checkCategoria">Categoría</mat-checkbox>
+            <mat-checkbox name="checkMarca" #checkMarca="ngModel" color="primary"
+              [(ngModel)]="filtroTablaProd.checkMarca">Marca</mat-checkbox>
+            <mat-checkbox name="checkPrecio" #checkPrecio="ngModel" color="primary"
+              [(ngModel)]="filtroTablaProd.checkPrecio">Precio</mat-checkbox>
+          </div>
+          <div class="col-5 d-flex justify-content-around pt-2">
+            <mat-checkbox name="checkBodega" #checkBodega="ngModel" color="primary"
+              [(ngModel)]="filtroTablaProd.checkBodega">Bodega</mat-checkbox>
+            <mat-checkbox name="checkExistencia" #checkExistencia="ngModel" color="primary"
+              [(ngModel)]="filtroTablaProd.checkExistencia">Existencia</mat-checkbox>
+            <mat-checkbox name="chechPerchaFila" #chechPerchaFila="ngModel" color="primary"
+              [disabled]="!filtroTablaProd.checkBodega" [(ngModel)]="filtroTablaProd.chechPerchaFila">Percha Fila
+            </mat-checkbox>
+            <div *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
+              <mat-checkbox name="CheckCasillero" #CheckCasillero="ngModel" color="primary"
+                [disabled]="!filtroTablaProd.checkBodega" [(ngModel)]="filtroTablaProd.CheckCasillero">Casillero
+              </mat-checkbox>
+              <mat-checkbox name="CheckPalet" #CheckPalet="ngModel" color="primary"
+                [disabled]="!filtroTablaProd.checkBodega" [(ngModel)]="filtroTablaProd.CheckPalet">Núm Palet
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+        <table class="table">
+          <thead>
+            <tr class="text-center">
+              <th>#</th>
+              <th style="width: 10%;">Código</th>
+              <th style="width: 30%;">
+                <div class="d-inline-block" style="margin-right: 0.5rem;">Descripción</div>
+                <div id="ordenarS" class="d-inline-block">
+                  <a class="badge text-dark2" (click)="onOrdenListBy(1)">
+                    <fa-icon [icon]="sort"></fa-icon>
+                  </a>
+                </div>
+              </th>
+              <th>Proveedor</th>
+              <th *ngIf="filtroTablaProd.checkCategoria">Categoría</th>
+              <th *ngIf="filtroTablaProd.checkMarca">Marca</th>
+              <th *ngIf="filtroTablaProd.checkPrecio">Precio</th>
+              <th *ngIf="filtroTablaProd.checkBodega">Bodega</th>
+              <th *ngIf="filtroTablaProd.checkExistencia" style="width: 5%;">Existencia</th>
+              <th *ngIf="filtroTablaProd.checkBodega && filtroTablaProd.chechPerchaFila" style="width: 10%;">Percha-Fila
+              </th>
+              <th *ngIf="filtroTablaProd.checkBodega && filtroTablaProd.CheckCasillero" style="width: 5%;">Casillero
+              </th>
+              <th *ngIf="filtroTablaProd.checkBodega && filtroTablaProd.CheckPalet" style="width: 5%;">Núm Palet</th>
+              <th style="width: 5%;">Kardex</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="listProductosIn | search:filtroTablaProd.filtroProducto:'cProductoB' as resultBusqueda">
+            <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+            <tr *ngIf="resultBusqueda.length==0">
+              <td class="font-italic text-center" colspan="4">
+                No existen productos registrados
+              </td>
+            </tr>
+            <tr
+              *ngFor="let datoP of resultBusqueda |sort:ordenBy:'cProductoB' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+              [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+              <td class="indice">{{indice+1}}</td>
+              <td><strong>{{datoP.codigo}}</strong></td>
+              <td>{{datoP.nombre}}</td>
+              <td>{{datoP.proveedor}}</td>
+              <td *ngIf="filtroTablaProd.checkCategoria">{{datoP.categoria}}</td>
+              <td *ngIf="filtroTablaProd.checkMarca">{{datoP.marca}}</td>
+              <td *ngIf="filtroTablaProd.checkPrecio">{{datoP.precioStandar}}</td>
+
+              <td *ngIf="filtroTablaProd.checkBodega">
+                <div *ngFor="let datoBodega of datoP.listBodegaProducto">
+                  <ul id="utilitarioI">
+                    <li>{{datoBodega.nombreBodega}} </li>
+                  </ul>
+                </div>
+              </td>
+              <td *ngIf="filtroTablaProd.checkBodega && filtroTablaProd.checkExistencia">
+                <div *ngFor="let datoBodega of datoP.listBodegaProducto">
+                  <ul id="utilitarioI">
+                    <li>{{datoBodega.disponibilidad}} </li>
+                  </ul>
+                </div>
+              </td>
+              <td *ngIf="!filtroTablaProd.checkBodega && filtroTablaProd.checkExistencia" class="text-center">
+                {{datoP.listBodegaProducto|sumCantBodega}}
+              </td>
+              <td *ngIf="filtroTablaProd.chechPerchaFila">
+                <div *ngFor="let datoBodega of datoP.listBodegaProducto">
+                  <ul id="utilitarioI">P:{{datoBodega.percha}} - F:{{datoBodega.fila}}</ul>
+                </div>
+              </td>
+              <td *ngIf="filtroTablaProd.CheckCasillero">
+                <div *ngFor="let datoBodega of datoP.listBodegaProducto">
+                  <ul id="utilitarioI">{{datoBodega.numCasillero}}</ul>
+                </div>
+              </td>
+              <td *ngIf="filtroTablaProd.CheckPalet">
+                <div *ngFor="let datoBodega of datoP.listBodegaProducto">
+                  <ul id="utilitarioI">{{datoBodega.numPalet}}</ul>
+                </div>
+              </td>
+              <td class="text-center" id="utilitarioI" *ngIf="tipoR=='CaseB'">
+                <a class="badge text-primario d-none d-sm-block" (click)="onModalKardex(datoP)"
+                  matTooltip="Te permite visualizar la Kardex del producto" matTooltipPosition="left"
+                  matTooltipClass="tooltipBlack">
+                  <fa-icon [icon]="faeye"></fa-icon>
+                </a>
+              </td>
+              <td class="text-center" id="utilitarioI" *ngIf="tipoR=='CaseA'">
+                <a class="badge text-primario d-none d-sm-block">
+                  <fa-icon [icon]="faeyeslash"></fa-icon>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="paginationPadre mt-2" *ngIf="listProductosIn!=null">
+        <nav>
+          <ul class="pagination justify-content-center">
+            <li class="page-item">
+              <select class="form-control" (change)="onUpdateSelect($event.target)">
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="300">300</option>
+              </select>
+            </li>
+            <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+              <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+            <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+              [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+              <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+            <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+              <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

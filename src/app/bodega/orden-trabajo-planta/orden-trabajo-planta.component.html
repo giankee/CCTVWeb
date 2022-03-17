@@ -1,0 +1,265 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Trabajos Internos</h1>
+    </div>
+  </div>
+</div>
+
+<section class="dashboard-header">
+  <div class="container-fluid  mt-3 mt-sm-4 px-1 px-md-5">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2" data-toggle="collapse" href="#FiltroList">Filtros</a></h5>
+            <a class="text-dark2" data-toggle="collapse" href="#FiltroList" (click)="_iconDownLeft=!_iconDownLeft">
+              <fa-icon [icon]="faangleleft" [class]="{'ocultarObj':_iconDownLeft}"></fa-icon>
+              <fa-icon [icon]="faangledown" [class]="{'ocultarObj':!_iconDownLeft}"></fa-icon>
+            </a>
+          </div>
+          <div class="mt-2 px-4 py-2 boxForm collapse" id="FiltroList">
+            <div class="row">
+              <div class="col-12 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Bodega Origen:</strong></div>
+                  <select class="form-control" name="selectBodega" #selectBodega="ngModel"
+                    [(ngModel)]="parametrosBusqueda.strBodegaOrigen">
+                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'" value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong> Desde:</strong></div>
+                  <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="fechaHoy.inDesde"
+                    class="form-control" min="1900-01-01" max="{{fechaHoy.inHasta}}">
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Hasta:</strong></div>
+                  <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="fechaHoy.inHasta"
+                    class="form-control" min="{{fechaHoy.inDesde}}" max="{{fechaHoy.strFecha}}">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-sm-6 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Área Destino:</strong></div>
+                  <select class="form-control" name="selectArea" #selectArea="ngModel"
+                    [(ngModel)]="parametrosBusqueda.strArea">
+                    <option [ngValue]="'null'">-- Seleccionar --</option>
+                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'DEPARTAMENTO MANACRIPEX'"
+                      value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4">
+                <div class="form-group">
+                  <div class="title">Material</div>
+                  <div id="inputSearchP">
+                    <div class="wrapper">
+                      <div class="limit-width">
+                        <input name="selectProducto" #selectProducto="ngModel"
+                          [(ngModel)]="parametrosBusqueda.strProducto"
+                          (ngModelChange)="onListProducto(parametrosBusqueda.strProducto=$event.toUpperCase())"
+                          maxlength="100" placeholder="Nombre del Material" class="form-control"
+                          [ngClass]="{'loading':parametrosBusqueda.spinLoadingG==1}">
+                        <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==1">
+                          <ul>
+                            <li *ngFor="let data of listProdFiltros$ | async">
+                              <a (click)="onChooseElemente(data)" class="name">{{data.nombre}}</a>
+                            </li>
+                            <li>
+                              <a (click)="onChooseElemente('null')" class="name">--Sin Asignar--</a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title">Persona Responsable</div>
+                  <input name="selectPersonaR" #selectPersonaR="ngModel" [(ngModel)]="parametrosBusqueda.strPersona"
+                    (ngModelChange)="parametrosBusqueda.strPersona=$event.toUpperCase()" maxlength="100"
+                    placeholder="Nombre" class="form-control">
+                </div>
+              </div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col-12 col-sm-6 col-md-4">
+                <a [routerLink] (click)="onFiltrarOrdenes()" class="btn bttn-Primario btn-block">
+                  <fa-icon [icon]="fasearch"></fa-icon> Generar Reporte
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2">Lista Movimientos Internos</a></h5>
+            <!-- <a class="text-dark2" (click)="onConvertPdfAll()">
+              <fa-icon [icon]="faprint"></fa-icon>
+            </a> -->
+          </div>
+          <!-- <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="row">
+              <div class="col-12 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong> Documentación:</strong></div>
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <fa-icon [icon]="fasearch"></fa-icon>
+                      </span>
+                    </div>
+                    <input name="selectParamIn" #selectParamIn="ngModel" [(ngModel)]="selectParam"
+                      (ngModelChange)="onListParam(selectParam=$event.toUpperCase())"
+                      placeholder="Buscar número factura, Proveedor" class="form-control">
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong> Desde:</strong></div>
+                  <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="fechaHoy.inDesde"
+                    class="form-control" min="1900-01-01" max="{{fechaHoy.inHasta}}" (ngModelChange)="onListParam('')">
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Hasta:</strong></div>
+                  <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="fechaHoy.inHasta"
+                    class="form-control" min="{{fechaHoy.inDesde}}" max="{{fechaHoy.strFecha}}"
+                    (ngModelChange)="onListParam('')">
+                </div>
+              </div>
+            </div>
+          </div> -->
+          <div class="text-center my-3" *ngIf="spinnerOnOff">
+            <div class="d-flex justify-content-center">
+              <mat-spinner color="accent"></mat-spinner>
+            </div>
+          </div>
+          <div *ngIf="(listOrdenesMostrar$ | async)  as resultBusquedaMostrar">
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">#</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenTrabajos('index')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th>Fecha Registro</th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Bodega Origen</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenTrabajos('Bodega')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th>Área Destino</th>
+                    <th>Solicitante</th>
+                    <th>Materiales</th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Estado Proceso</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenTrabajos('Estado')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div style="display: none;">{{getDataFiltro(resultBusquedaMostrar)}}</div>
+                  <tr *ngIf="resultBusquedaMostrar.length==0">
+                    <td class="font-italic text-center" colspan="8">
+                      No existen trabajos registradas con esos parámetros de busqueda
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let dato of resultBusquedaMostrar |sort:ordenTrabajo:'cOrdenTrabajoI'| slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{dato.numOrdenSecuencial}}</td>
+                    <td>{{dato.fechaRegistro}}</td>
+                    <td>{{dato.bodega}}</td>
+                    <td>{{dato.destinoLugar}}</td>
+                    <td>{{dato.personaResponsable}}</td>
+                    <td>
+                      <div *ngFor="let datoMaterial of dato.listMaterialesO">
+                        <ul id="utilitarioI">
+                          <li *ngIf="datoMaterial.inventarioId!=null">
+                            {{datoMaterial.cantidad}} {{datoMaterial.inventario.nombre}}</li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td>{{dato.estadoProceso}}</td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato)"
+                        matTooltip="Te permite visualizar a detalladamente la orden de trabajo interna"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeye"></fa-icon>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="paginationPadre mt-2">
+              <nav aria-label="pagination">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item d-none d-sm-block">
+                    <select class="form-control" (change)="onUpdateSelect($event.target)">
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </li>
+                  <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">
+                      <fa-icon [icon]="faArLeft"></fa-icon>
+                    </a>
+                  </li>
+                  <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">
+                      <fa-icon [icon]="faArRight"></fa-icon>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
