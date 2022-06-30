@@ -1,0 +1,272 @@
+<section class="dashboard-header">
+  <div class="container-fluid">
+    <div class="boxCliente">
+
+      <form #formAccidente="ngForm" autocomplete="off" (submit)="onSubmit(formAccidente)">
+        <div class="bodyCard" *ngIf="accidenteMedicService.formData">
+          <div class="row mt-3">
+            <div class="col-12 col-md-8">
+              <h4 class="text-center">Recopilación datos del accidente</h4>
+            </div>
+            <div class="col-12 col-md-4">
+              <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
+                [(ngModel)]="accidenteMedicService.formData.fechaRegistro" min="2020-01-01" max="{{fechaHoy.strFecha}}">
+            </div>
+          </div>
+          <div class="row boxForm mt-2">
+            <div class="col-12 col-md-6 col-lg-4">
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Pasciente: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input name="pacienteIn" #pacienteIn="ngModel"
+                        [(ngModel)]="accidenteMedicService.formData.paciente"
+                        (ngModelChange)="onListPasciente($event?.toUpperCase())" maxlength="100"
+                        placeholder="Nombre de la Persona" class="form-control input-src"
+                        [ngClass]="{'loading':accidenteMedicService.formData.spinnerLoading}" required>
+                      <div class="results" *ngIf="accidenteMedicService.formData.showSearchSelect">
+                        <ul>
+                          <li *ngFor="let data of listPacienteFiltros$ | async">
+                            <a (click)="onChoosePaciente(data.empleado)" class="name">{{data.empleado}}</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2 offset-lg-1">
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Hora Inicio: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input type="time" name="horaInicio" #horaRegistro="ngModel"
+                        (change)="accidenteMedicService.formData.changeHours(2)"
+                        [(ngModel)]="accidenteMedicService.formData.horaInicio" class="form-control  input-src"
+                        required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-3">
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Hora Fin: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input class="form-control input-src" type="datetime-local" name="horaFin" #horaFin="ngModel"
+                        [(ngModel)]="accidenteMedicService.formData.horaFin"
+                        min="{{fechaHoy.strFecha}}T{{fechaHoy.strHoraA}}"
+                        (change)="accidenteMedicService.formData.changeHours(2)">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 col-md-6 col-lg-2">
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Total Horas: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input name="totalHoras" type="number" min="0" maxlength="5" placeholder="#"
+                        class="form-control input-src" pattern="^[0-9]{1,5}$" #totalHoras="ngModel" required
+                        onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                        (change)="accidenteMedicService.formData.changeHours(3)"
+                        [(ngModel)]="accidenteMedicService.formData.totalHoras">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row boxForm mt-3 py-1">
+            <div class="col-12 col-md-6">
+              <div class="form-group">
+                <div class="title ml-2"><strong>Descripción:</strong></div>
+                <div class="subForm">
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <textarea name="descripcion" #descripcion="ngModel" style="height: calc(15rem + 0.7rem + 2px);"
+                        [(ngModel)]="accidenteMedicService.formData.descripcion" required
+                        (ngModelChange)="accidenteMedicService.formData.descripcion = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="form-group">
+                <div class="title ml-2"><strong>Galería:</strong></div>
+                <div class="subForm">
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <div class="card" id="utilitarioI">
+                        <div id="ordenarS" class="card-header d-flex justify-content-between">
+                          <a class="badge text-primario d-block" matTooltip="Sacar de lista" matTooltipPosition="below"
+                            (click)="okDelete=true">
+                            <fa-icon [icon]="fatrash" size="1x"></fa-icon>
+                          </a>
+                          <h5><a class="text-dark2" (click)="okDelete=false">Archivos</a></h5>
+                          <a class="badge text-primario d-block" matTooltip="Sacar de lista" matTooltipPosition="below"
+                            onclick="document.getElementById('newFiles').click()">
+                            <fa-icon [icon]="faupload" size="1x"></fa-icon>
+                          </a>
+                          <input type="file" id="newFiles" class="d-none" style="color: transparent"
+                            accept="image/png, image/jpeg" (change)="onNewFiles($event.target.files)" multiple>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-1"
+                    *ngIf="accidenteMedicService.formData.listGaleriaAccidente.length>0 && !okDelete">
+                    <div class="col-12 text-center" style="height: 201px;">
+                      <ngx-gallery [options]="galleryOptions" [images]="galleryImages" #gallery></ngx-gallery>
+                    </div>
+                  </div>
+                  <div class="row mt-1"
+                    *ngIf="accidenteMedicService.formData.listGaleriaAccidente.length>0 && okDelete">
+                    <div class="col-12 mb-2"  id="utilitarioI">
+                      <div class="d-flex" *ngFor="let datoG of accidenteMedicService.formData.listGaleriaAccidente; let indice=index">
+                        <a class="badge text-primario d-block mr-3" matTooltip="Sacar de evidencia" matTooltipPosition="below"
+                          (click)="onRemoveImage(indice)" >
+                          <fa-icon [icon]="fatimes" size="2x"></fa-icon>
+                        </a>
+                        <label>{{datoG.nombreArchivo}}</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row" *ngIf="accidenteMedicService.formData.listGaleriaAccidente.length==0">
+                    <div class="col-12 text-center px-5" style="height: 201px;">
+                      <img src="assets\img\imgDefecto.png" style="height: 100%;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row boxForm mt-3">
+            <div class="col-12 col-md-6">
+              <div class="form-group">
+                <div class="title"><strong>Lista de Testigos:</strong></div>
+                <div class="subForm">
+                  <div class="row mb-1">
+                    <div class="col-12">
+                      <a [routerLink] (click)="onNewTestigo()" class="btn bttn-Primario btn-sm">
+                        <fa-icon [icon]="faplus"></fa-icon> Añadir Testigo
+                      </a>
+                    </div>
+                  </div>
+                  <div class="row mt-1" *ngIf="accidenteMedicService.formData.listTestigosAccidente.length>0">
+                    <div class="col-12 mb-2"
+                      *ngFor="let datoT of accidenteMedicService.formData.listTestigosAccidente; let indice=index">
+                      <div class="card" id="utilitarioI">
+                        <div id="ordenarS" class="card-header d-flex justify-content-between">
+                          <a class="badge text-primario d-block" matTooltip="Sacar de lista" matTooltipPosition="below"
+                            (click)="onRemoveNewT(indice)">
+                            <fa-icon [icon]="fatimes" size="2x"></fa-icon>
+                          </a>
+
+                          <h5><a class="text-dark2">{{datoT.nombreTestigo}}</a></h5>
+                          <a class="text-dark2" data-toggle="collapse" href="#ListTestigoindex{{indice}}"
+                            (click)="onMostrarTestigo(indice)">
+                            <fa-icon [icon]="faangledown"
+                              [class]="{'ocultarObj':accidenteMedicService.formData.listTestigosAccidente[indice].ocultarObj}">
+                            </fa-icon>
+                            <fa-icon [icon]="faangleleft"
+                              [class]="{'ocultarObj':!accidenteMedicService.formData.listTestigosAccidente[indice].ocultarObj}">
+                            </fa-icon>
+                          </a>
+                        </div>
+                        <div class="mt-2 px-4 py-2 boxForm"
+                          [ngClass]="{'show':!accidenteMedicService.formData.listTestigosAccidente[indice].ocultarObj}"
+                          id="ListTestigoindex{{indice}}">
+                          <div class="row" id="inputSearchP">
+                            <div class="col-12">
+                              <div class="form-group inputForm">
+                                <div><strong>Nombre Testigo:</strong></div>
+                                <input name="in{{indice}}testigo" #in{{indice}}testigo="ngModel"
+                                  [(ngModel)]="accidenteMedicService.formData.listTestigosAccidente[indice].nombreTestigo"
+                                  (ngModelChange)="accidenteMedicService.formData.listTestigosAccidente[indice].nombreTestigo = $event?.toUpperCase()"
+                                  class="form-control  input-src" placeholder="Ingrese nombre del testigo">
+                              </div>
+                              <div class="form-group inputForm">
+                                <div><strong>Testimonio:</strong></div>
+                                <textarea name="in{{indice}}relato" #in{{indice}}relato="ngModel"
+                                  [(ngModel)]="accidenteMedicService.formData.listTestigosAccidente[indice].relato"
+                                  (ngModelChange)="accidenteMedicService.formData.listTestigosAccidente[indice].relato = $event?.toUpperCase()"
+                                  class="form-control"></textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 pt-5">
+              <div class="form-group row" id="inputSearchP">
+                <label class="col-sm-4 col-md-3 col-form-label"><strong>Jefe Inmediato: </strong></label>
+                <div class="col-sm-8 col-md-9">
+                  <input name="jefeInmediato" #jefeInmediato="ngModel" required
+                    [(ngModel)]="accidenteMedicService.formData.jefeInmediato" class="form-control input-src"
+                    (ngModelChange)="accidenteMedicService.formData.jefeInmediato = $event?.toUpperCase()"
+                    placeholder="Nombre de la Persona">
+                </div>
+              </div>
+              <div class="form-group row" id="inputSearchP">
+                <label class="col-sm-4 col-md-3 col-form-label"><strong>Lugar Accidente: </strong></label>
+                <div class="col-sm-8 col-md-9">
+                  <input name="lugarAccidente" #lugarAccidente="ngModel" placeholder="Nombre del Lugar" required
+                    [(ngModel)]="accidenteMedicService.formData.lugarAccidente" class="form-control input-src"
+                    (ngModelChange)="accidenteMedicService.formData.lugarAccidente = $event?.toUpperCase()">
+                </div>
+              </div>
+              <div class="form-group row" id="inputSearchP">
+                <label class="col-sm-4 col-md-3 col-form-label"><strong>Causa Accidente: </strong></label>
+                <div class="col-sm-8 col-md-9">
+                  <input name="causaAccidente" #causaAccidente="ngModel" required placeholder="Causa"
+                    [(ngModel)]="accidenteMedicService.formData.causaAccidente" class="form-control input-src"
+                    (ngModelChange)="accidenteMedicService.formData.causaAccidente = $event?.toUpperCase()">
+                </div>
+              </div>
+              <div class="form-group row" id="inputSearchP">
+                <label class="col-sm-4 col-md-3 col-form-label"><strong>Labor Realizaba: </strong></label>
+                <div class="col-sm-8 col-md-9">
+                  <input name="laborRealizaba" #laborRealizaba="ngModel" required placeholder="Oficio"
+                    [(ngModel)]="accidenteMedicService.formData.laborRealizaba" class="form-control input-src"
+                    (ngModelChange)="accidenteMedicService.formData.laborRealizaba = $event?.toUpperCase()">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row boxForm justify-content-center my-2">
+            <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+              <button class="btn bttn-Primario btn-block " type="submit"
+                [disabled]="formAccidente.invalid" [ngClass]="{'bttn-Error':!okBttnSubmit }"
+                matTooltip="Campos Vacios Revisar*" matTooltipPosition="above" matTooltipClass="tooltipRed"
+                [matTooltipDisabled]="okBttnSubmit">
+                <fa-icon [icon]="fasave"></fa-icon> Procesar
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

@@ -16,6 +16,7 @@ import { KardexComponent } from '../kardex/kardex.component';
 import * as XLSX from 'xlsx';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { CargarXLSXComponent } from '../cargar-xlsx/cargar-xlsx.component';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 
 @Component({
@@ -56,7 +57,7 @@ export class ListProductoBComponent implements OnInit {
   nuevoMarca: string = "";
   listBodega: cVario[] = [];
 
-  paginacion = new cPaginacion(25);
+  paginacion = new cPaginacion(50);
   ordenBy: string = "default";
   autoFocus: boolean = false;
   modoEdicion: boolean = false;
@@ -83,17 +84,29 @@ export class ListProductoBComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cargarData();
     this.resetForm();
     this.cargarBodega();
-    this.fechaHoy;
   }
 
   cargarData() {//Datos de los productos traidos desde db
     this.listProductosIn = [];
-    var strParametro = "P MANACRIPEX";
+    var strParametro = "P MANACRIPEX@All";
     if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
-      strParametro = "OFICINAS";
+      strParametro = "OFICINAS@All";
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+      strParametro = "ENFERMERIA@All";
+    }
+    if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
+      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombre;
+      strParametro = "ENFERMERIA@" + this.selecBodegaFiltro;
+    }
+    if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero') {
+      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombre;
+      strParametro = "P MANACRIPEX@" + this.selecBodegaFiltro;
+    }
+    if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
+      strParametro = "P MANACRIPEX@GENERAL-ACEITE-3";
+    }
     this._productoBService.getProductosPlanta(strParametro)
       .subscribe(dato => {
         for (var i = 0; i < dato.length; i++) {
@@ -105,13 +118,6 @@ export class ListProductoBComponent implements OnInit {
           if (this.listMarcas.find(x => x == dato[i].marca) == undefined)
             this.listMarcas.push(dato[i].marca);
         }
-        if (this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m')
-          this.listProductosIn = this.listProductosIn.filter(x => {
-            if (x.listBodegaProducto.find(y => y.nombreBodega == "GENERAL") != undefined) {
-              x.listBodegaProducto = x.listBodegaProducto.filter(y => y.nombreBodega == "GENERAL");
-              return x;
-            }
-          });
         this.paginacion.getNumberIndex(this.listProductosIn.length);
         this.paginacion.updateIndex(0);
       },
@@ -119,22 +125,35 @@ export class ListProductoBComponent implements OnInit {
   }
 
   cargarBodega() {
-    this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-      this.listBodega = dato;
-    });
+    if (this.conexcionService.UserR.rolAsignado == "enfermeria" || this.conexcionService.UserR.rolAsignado == "verificador-medic") {
+      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
+        dato.forEach(x => {
+          if (x.categoria == "Puerto" && x.prioridadNivel == 1)
+            this.listBodega.push(x);
+        });
+        this.cargarData();
+      });
+    } else
+      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
+        this.listBodega = dato;
+        this.cargarData();
+      });
   }
 
   resetForm() {//Para que los valores en el html esten vacios
     this.selectBodegaAux = "SIN ASIGNAR";
     if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
       this._productoBService.formData = new cProducto_B("OFICINAS");
-    else {
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria' || this.conexcionService.UserR.rolAsignado == "verificador-medic")
+      this._productoBService.formData = new cProducto_B("ENFERMERIA");
+    if (this._conexcionService.UserR.rolAsignado == 'tinabg-m' || this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
       if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
         this._productoBService.formData = new cProducto_B("P MANACRIPEX");
         this.selectBodegaAux = "GENERAL";
         this.onNewBodega();
       } else this._productoBService.formData = new cProducto_B("P MANACRIPEX");
     }
+    this.productoBService.formData.contenidoNeto = 1;
     this.nuevoCategoria = "";
     this.nuevoProveedor = "";
     this.nuevoMarca = "";
@@ -165,7 +184,7 @@ export class ListProductoBComponent implements OnInit {
 
   onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views
     this.paginacion.selectPagination = Number(control.value);
-    this.paginacion.getNumberIndex(this.listProductosIn.length);
+    this.paginacion.getNumberIndex(this.dataProductosResult.length);
     this.paginacion.updateIndex(0);
   }
 
@@ -272,7 +291,7 @@ export class ListProductoBComponent implements OnInit {
             this.paginacion.updateIndex(this.paginacion.pagTotal.length - 1);
           }
         }
-      )
+      );
     }
   }
 
@@ -324,7 +343,7 @@ export class ListProductoBComponent implements OnInit {
       }, 0);
     }
   }
-  //tengoq editar
+
   onConvertPdfAll() {
     var y: number;
     var Npag: number = 1;
@@ -360,6 +379,8 @@ export class ListProductoBComponent implements OnInit {
     doc.text("Número de resultados por página: " + (this.paginacion.selectPagination), 220, (y + 15));
     if (this.filtroProducto != "")
       doc.text("Palabra Clave: " + this.filtroProducto, 10, (y + 20));
+    if (this.selecBodegaFiltro != "SIN ASIGNAR")
+      doc.text("Bodega: " + this.selecBodegaFiltro, 80, (y + 20));
     y = y + 25;
 
     doc.setFontSize(10);
@@ -368,30 +389,21 @@ export class ListProductoBComponent implements OnInit {
     doc.line(290, y, 290, (y + 10));//right
     doc.line(5, (y + 10), 290, (y + 10));//down
 
-    if (this.conexcionService.UserR.rolAsignado == "gpv-o") {
-      doc.text("Código", 15, (y + 7));
-      doc.line(40, y, 40, (y + 10));//right
-      doc.text("Descripción", 60, (y + 7));
-      doc.line(125, y, 125, (y + 10));//right
-      doc.text("Proveedor", 140, (y + 7));
-      doc.line(200, y, 200, (y + 10));//right
-      doc.text("Marca", 215, (y + 7));
-      doc.line(245, y, 245, (y + 10));//right
-      doc.text("Stock", 260, (y + 7));
-    } else {
-      doc.text("Código", 15, (y + 7));
-      doc.line(35, y, 35, (y + 10));//right
-      doc.text("Descripción", 60, (y + 7));
-      doc.line(100, y, 100, (y + 10));//right
-      doc.text("Proveedor", 125, (y + 7));
-      doc.line(165, y, 165, (y + 10));//right
-      doc.text("Marca", 175, (y + 7));
-      doc.line(200, y, 200, (y + 10));//right
-      doc.text("Stock / Ubicacion", 220, (y + 7));
-      doc.line(270, y, 270, (y + 10));//right
-      doc.text("Inventario", 273, (y + 7));
-    }
-
+    doc.text("Código", 15, (y + 7));
+    doc.line(35, y, 35, (y + 10));//right
+    doc.text("Descripción", 60, (y + 7));
+    doc.line(90, y, 90, (y + 10));//right
+    doc.text("Proveedor", 115, (y + 7));
+    doc.line(150, y, 150, (y + 10));//right
+    doc.text("Marca", 162, (y + 7));
+    doc.line(185, y, 185, (y + 10));//right
+    doc.text("Categoría", 195, (y + 7));
+    doc.line(220, y, 220, (y + 10));//right
+    doc.text("Ubicación", 225, (y + 7));
+    doc.line(250, y, 250, (y + 10));//right
+    doc.text("Existencia", 252, (y + 7));
+    doc.line(270, y, 270, (y + 10));//right
+    doc.text("Real", 274, (y + 7));
 
     y = y + 10;
     doc.setFontSize(8);
@@ -405,36 +417,36 @@ export class ListProductoBComponent implements OnInit {
     var lineaNombre;
     var lineaBodegaG;
     var lineaProveedor;
+    var lineaStockG;
     for (var i = 0; i < data.length; i++) {
-      if (this.conexcionService.UserR.rolAsignado == "gpv-o") {
-        lineaNombre = doc.splitTextToSize(data[i].nombre, (80));
-        lineaProveedor = doc.splitTextToSize(data[i].proveedor, (65));
-      } else {
-        lineaNombre = doc.splitTextToSize(data[i].nombre, (55));
-        lineaProveedor = doc.splitTextToSize(data[i].proveedor, (55));
-      }
-
+      lineaNombre = doc.splitTextToSize(data[i].nombre, (50));
+      lineaProveedor = doc.splitTextToSize(data[i].proveedor, (55));
+      lineaStockG = [];
       lineaBodegaG = [];
+
       for (var j = 0; j < data[i].listBodegaProducto.length; j++) {
-        var lineaBodega;
-        var auxpalabra = data[i].listBodegaProducto[j].nombreBodega + ":" + data[i].listBodegaProducto[j].disponibilidad;
-        if (this.conexcionService.UserR.rolAsignado != "gpv-o") {
-          if (data[i].listBodegaProducto[j].percha != 0)
-            auxpalabra = auxpalabra + ", Percha:" + data[i].listBodegaProducto[j].percha;
-          if (data[i].listBodegaProducto[j].fila != 0)
-            auxpalabra = auxpalabra + ", Fila:" + data[i].listBodegaProducto[j].fila;
-          if (data[i].listBodegaProducto[j].percha != 0)
-            auxpalabra = auxpalabra + ", NumCasilla:" + data[i].listBodegaProducto[j].numCasillero;
-          lineaBodega = doc.splitTextToSize(auxpalabra, (65));
-        } else lineaBodega = doc.splitTextToSize(auxpalabra, (30));
-        for (var il = 0; il < lineaBodega.length; il++) {
-          lineaBodegaG.push(lineaBodega[il]);
+        var auaxNombreBodega = data[i].listBodegaProducto[j].nombreBodega;
+        if (data[i].listBodegaProducto[j].nombreBodega.includes("Bodega")) {
+          var auxNum = data[i].listBodegaProducto[j].nombreBodega.split('odega:');
+          auaxNombreBodega = "#" + auxNum[1];
+        }
+        if (this.selecBodegaFiltro != "SIN ASIGNAR") {
+          if (data[i].listBodegaProducto[j].nombreBodega == this.selecBodegaFiltro) {
+            lineaBodegaG.push(auaxNombreBodega);
+            lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
+            lineaStockG.push(data[i].listBodegaProducto[j].disponibilidad.toString());
+          }
+        }
+        else {
+          lineaBodegaG.push(auaxNombreBodega);
+          lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
+          lineaStockG.push(data[i].listBodegaProducto[j].disponibilidad.toString());
         }
       }
 
       valorN = (3.5 * lineaNombre.length) + 4;
       valorP = (3.5 * lineaProveedor.length) + 4;
-      valorB = (4 * lineaBodega.length) + 5;
+      valorB = (3.5 * lineaBodegaG.length) + 4;
 
       if (valorB >= valorP && valorB >= valorN) {
         valorG = valorB;
@@ -460,29 +472,22 @@ export class ListProductoBComponent implements OnInit {
         doc.line(290, y, 290, (y + 10));//right
         doc.line(5, (y + 10), 290, (y + 10));//down
 
-        if (this.conexcionService.UserR.rolAsignado == "gpv-o") {
-          doc.text("Código", 15, (y + 7));
-          doc.line(40, y, 40, (y + 10));//right
-          doc.text("Descripción", 60, (y + 7));
-          doc.line(125, y, 125, (y + 10));//right
-          doc.text("Proveedor", 140, (y + 7));
-          doc.line(200, y, 200, (y + 10));//right
-          doc.text("Marca", 215, (y + 7));
-          doc.line(245, y, 245, (y + 10));//right
-          doc.text("Stock", 260, (y + 7));
-        } else {
-          doc.text("Código", 15, (y + 7));
-          doc.line(35, y, 35, (y + 10));//right
-          doc.text("Descripción", 60, (y + 7));
-          doc.line(100, y, 100, (y + 10));//right
-          doc.text("Proveedor", 125, (y + 7));
-          doc.line(165, y, 165, (y + 10));//right
-          doc.text("Marca", 175, (y + 7));
-          doc.line(200, y, 200, (y + 10));//right
-          doc.text("Stock / Ubicación", 220, (y + 7));
-          doc.line(270, y, 270, (y + 10));//right
-          doc.text("Inventario", 272, (y + 7));
-        }
+        doc.text("Código", 15, (y + 7));
+        doc.line(35, y, 35, (y + 10));//right
+        doc.text("Descripción", 60, (y + 7));
+        doc.line(90, y, 90, (y + 10));//right
+        doc.text("Proveedor", 115, (y + 7));
+        doc.line(150, y, 150, (y + 10));//right
+        doc.text("Marca", 162, (y + 7));
+        doc.line(185, y, 185, (y + 10));//right
+        doc.text("Categoría", 195, (y + 7));
+        doc.line(220, y, 220, (y + 10));//right
+        doc.text("Ubicación", 225, (y + 7));
+        doc.line(250, y, 250, (y + 10));//right
+        doc.text("Existencia", 252, (y + 7));
+        doc.line(270, y, 270, (y + 10));//right
+        doc.text("Real", 274, (y + 7));
+
         y = y + 10 + valorG;
         doc.setFontSize(8);
         doc.setFont("arial", "normal");
@@ -491,36 +496,25 @@ export class ListProductoBComponent implements OnInit {
       doc.line(290, (y - valorG), 290, y);//right
       doc.line(5, y, 290, y);//down +10y1y2
 
+      doc.text(data[i].codigo, 10, (y - ((valorG - 3) / 2)));
+      doc.line(35, (y - valorG), 35, y);//right
+      auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
+      doc.text(lineaNombre, 40, (y - valorG + auxLinea));
+      doc.line(90, (y - valorG), 90, y);//right
+      auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
+      doc.text(lineaProveedor, 93, (y - valorG + auxLinea));
+      doc.line(150, (y - valorG), 150, y);//right
+      doc.text(data[i].marca, 155, (y - ((valorG - 3) / 2)));
+      doc.line(185, (y - valorG), 185, y);//right
+      doc.text(data[i].categoria, 190, (y - ((valorG - 3) / 2)));
+      doc.line(220, (y - valorG), 220, y);//right
+      auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
+      doc.text(lineaBodegaG, 222, (y - valorG + auxLinea));
+      doc.line(250, (y - valorG), 250, y);//right
+      auxLinea = Number((valorG - (3 * lineaStockG.length + (3 * (lineaStockG.length - 1)))) / 2.5) + (2 + lineaStockG.length);
+      doc.text(lineaStockG, 257, (y - valorG + auxLinea));
+      doc.line(270, (y - valorG), 270, y);//right
 
-      if (this.conexcionService.UserR.rolAsignado == "gpv-o") {
-        doc.text(data[i].codigo, 10, (y - ((valorG - 3) / 2)));
-        doc.line(40, (y - valorG), 40, y);//right
-        auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
-        doc.text(lineaNombre, 45, (y - valorG + auxLinea));
-        doc.line(125, (y - valorG), 125, y);//right
-        auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
-        doc.text(lineaProveedor, 130, (y - valorG + auxLinea));
-        doc.line(200, (y - valorG), 200, y);//right
-        doc.text(data[i].marca, 205, (y - ((valorG - 3) / 2)));
-        doc.line(245, (y - valorG), 245, y);//right
-        auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
-        doc.text(lineaBodegaG, 250, (y - valorG + auxLinea));
-      } else {
-        doc.text(data[i].codigo, 10, (y - ((valorG - 3) / 2)));
-        doc.line(35, (y - valorG), 35, y);//right
-        auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
-        doc.text(lineaNombre, 40, (y - valorG + auxLinea));
-        doc.line(100, (y - valorG), 100, y);//right
-        auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
-        doc.text(lineaProveedor, 105, (y - valorG + auxLinea));
-        doc.line(165, (y - valorG), 165, y);//right
-        doc.text(data[i].marca, 170, (y - ((valorG - 3) / 2)));
-        doc.line(200, (y - valorG), 200, y);//right
-        auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
-        doc.text(lineaBodegaG, 203, (y - valorG + auxLinea));
-        doc.line(270, (y - valorG), 270, y);//right
-
-      }
     }
     doc.save("ListaProductos_" + this.fechaHoy.strFecha + ".pdf");
   }

@@ -46,30 +46,30 @@
         <div *ngIf="strFases=='Inicio'" style="height: 100%;">
           <h1 class="text-center">Proceso de Registro</h1>
           <div class="row boxForm align-items-center justify-content-center" style="height: 45%;">
-            <div class="col-5">
+            <div class="col-12 col-md-6">
               <a [routerLink] id="BtnPrincipal" (click)="onStart('Entrada')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="faindent"></fa-icon> Entrada
               </a>
             </div>
-            <div class="col-5">
+            <div class="col-12 col-md-6">
               <a [routerLink] id="BtnPrincipal" (click)="onStart('Salida')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="faoutdent"></fa-icon> Salida
               </a>
             </div>
           </div>
           <div class="row boxForm align-items-center justify-content-center" style="height: 45%;">
-            <div class="col-5" *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
+            <div class="col-12 col-md-6" *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
               <a [routerLink] id="BtnPrincipal" (click)="onStart('Balde')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="faboxes"></fa-icon> Control de Baldes
               </a>
             </div>
-            <div class="col-5">
+            <div class="col-12 col-md-6">
               <a *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'" [routerLink] id="BtnPrincipal"
                 (click)="onStart('Compras Proveedor')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="fausertag"></fa-icon> Compra Proveedor
               </a>
             </div>
-            <div class="col-5" >
+            <div class="col-12 col-md-6" >
               <a *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'" [routerLink] id="BtnPrincipal"
                 (click)="onStart('Devolucion Compra')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="fausertag"></fa-icon> Devolución Compra

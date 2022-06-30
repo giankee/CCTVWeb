@@ -100,17 +100,25 @@ export class UserComponent implements OnInit {
               break;
             case 'tinabg-m':
               this.router.navigateByUrl('/Tina/movTinas');
-            break;
+              break;
             case 'bodega_verificador-m':
               this.router.navigateByUrl('/Bodega/controlBodega');
               break;
+            case 'enfermeria':
+              this.router.navigateByUrl('/Bodega/controlBodega');
+              break;
+            case 'verificador-medic':
+              this.router.navigateByUrl('/Bodega/verificacion');
+              break;
+            case 'verificador-bodeguero':
+              this.router.navigateByUrl('/Bodega/inventarioList');
           }
         }
       },
       err => {
         console.log(err);
       },
-    ); 
+    );
   }
 
   //Listo

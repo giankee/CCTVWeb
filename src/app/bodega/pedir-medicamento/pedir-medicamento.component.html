@@ -1,0 +1,83 @@
+<section class="dashboard-header">
+  <div class="container-fluid  mt-3 mt-sm-4 px-1 px-md-5">
+    <div class="row">
+      <div class="col-12 py-2">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2">Lista de Medicamento</a></h5>
+            <a class="text-dark2" (click)="onConvertPdfAll()">
+              <fa-icon [icon]="faprint"></fa-icon>
+            </a>
+          </div>
+          <div class="mt-2 px-4 py-2 boxForm">
+            <div class="row">
+              <div class="col-6 col-md-5">
+                <div class="form-group inputForm">
+                  <div class="title"><strong> Barco:</strong></div>
+                  <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
+                    [(ngModel)]="selecBodegaFiltro" [disabled]="conexcionService.UserR.rolAsignado == 'verificador-medic'">
+                    <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-6 col-md-5">
+                <div class="form-group inputForm">
+                  <div class="title"><strong> Tipo:</strong></div>
+                  <select class="form-control" name="selecTipoFiltroIn" #selecBodegaFiltroIn="ngModel"
+                    [(ngModel)]="selecTipoFiltro">
+                    <option selected value="Faltantes">FALTANTES</option>
+                    <option value="Sobrantes">SOBRANTES</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-12 col-md-2">
+                <a [routerLink] (click)="onBuscarDiferencias()" class="btn bttn-Primario btn-block mt-md-4">
+                  <fa-icon [icon]="fasearch"></fa-icon> Buscar
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="text-center my-3" *ngIf="spinnerOnOff==1">
+            <div class="d-flex justify-content-center">
+              <mat-spinner color="accent"></mat-spinner>
+            </div>
+          </div>
+          <div *ngIf="spinnerOnOff==2 && listProductosIn!=null">
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th>#</th>
+                    <th>Producto</th>
+                    <th>Cant Unitaria Mínima</th>
+                    <th>Unidades Disponibles</th>
+                    <th>Diferencia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="listProductosIn.length==0">
+                    <td class="font-italic text-center" colspan="5">
+                      No hay necesidad de reponer Medicamento
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let datoP of listProductosIn; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{indice+1}}</td>
+                    <td>{{datoP.nombre}}</td>
+                    <td class="text-center">{{datoP.listBodegaProducto[0].cantMinima}}</td>
+                    <td class="text-center">{{datoP.listBodegaProducto[0].disponibilidad}}</td>
+                    <td class="text-center" *ngIf="selecTipoFiltro=='Faltantes'" >{{datoP.listBodegaProducto[0].cantMinima - datoP.listBodegaProducto[0].disponibilidad}}</td>
+                    <td class="text-center" *ngIf="selecTipoFiltro=='Sobrantes'" >{{datoP.listBodegaProducto[0].disponibilidad - datoP.listBodegaProducto[0].cantMinima}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

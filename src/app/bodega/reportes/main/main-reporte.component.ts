@@ -63,6 +63,7 @@ export class MainReporteComponent implements OnInit {
     this.listResultados=[];
     this.spinnerOnOff=0;
   }
+  
   onGenerarR() {
     this.spinnerOnOff = 1;
     if (this.parametrosBusqueda.tipoR == "CaseA" || this.parametrosBusqueda.tipoR == "CaseB") {

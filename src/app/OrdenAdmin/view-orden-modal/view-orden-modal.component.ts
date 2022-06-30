@@ -334,7 +334,7 @@ export class ViewOrdenModalComponent implements OnInit {
     }
   }
 
-  onNewFiles(file: FileList) {//tengo q arreglar si funcionaba para un objeto cuando pones dos se duplica el ultimo
+  onNewFiles(file: FileList) {
     this.okArchivos = true;
     this.disableOut = true;
     var auxNewArchivos: cGaleriaArchivosOrdenES;
@@ -362,7 +362,7 @@ export class ViewOrdenModalComponent implements OnInit {
           description: "",
         }
         self.galleryImages.push(auxGalleryImage);
-        self.arrayFilesRutas.push(event.target.result.toString());
+        self.arrayFilesRutas.push(rutaCompleta);
         if(self.arrayFilesRutas.length==self.newArchivos.length)
           self.disableOut=false;
       });

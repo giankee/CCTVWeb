@@ -8,8 +8,9 @@
       <a [routerLink]='["/OrdenSupervisor"]' class="brand-small text-center"><strong>B&B</strong></a>
     </div>
   </div>
-  <div class="main-menu" *ngIf="conexcionService.UserR.rolAsignado!='tinabg-m' && conexcionService.UserR.rolAsignado!='bodega_verificador-m'">
-    <ul class="side-menu list-unstyled" >
+  <div class="main-menu"
+    *ngIf="conexcionService.UserR.rolAsignado!='tinabg-m' && conexcionService.UserR.rolAsignado!='enfermeria' && conexcionService.UserR.rolAsignado!='bodega_verificador-m'  && conexcionService.UserR.rolAsignado!='verificador-medic' && conexcionService.UserR.rolAsignado!='verificador-bodeguero'">
+    <ul class="side-menu list-unstyled">
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/OrdenSupervisor"]'>
           <fa-icon [icon]="fatasks"></fa-icon> Orden E/S
@@ -32,7 +33,8 @@
       </li>
     </ul>
   </div>
-  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m' || conexcionService.UserR.rolAsignado=='gpv-o'">
+  <div class="admin-menu"
+    *ngIf="conexcionService.UserR.rolAsignado=='tinabg-m' || conexcionService.UserR.rolAsignado=='enfermeria' ||conexcionService.UserR.rolAsignado=='bodega_verificador-m' || conexcionService.UserR.rolAsignado=='gpv-o'">
     <h5 class="sidenav-heading">Menú Inventario</h5>
     <ul class="list-unstyled">
       <li [routerLinkActive]="['active']">
@@ -42,10 +44,11 @@
       </li>
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Bodega/inventarioList"]'>
-          <fa-icon [icon]="faboxes"></fa-icon> Inventario
+          <fa-icon *ngIf="conexcionService.UserR.rolAsignado!='enfermeria'" [icon]="faboxes"></fa-icon>
+          <fa-icon *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'" [icon]="fakitmedical"></fa-icon> Inventario
         </a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='enfermeria'">
         <a [routerLink]='["/Bodega/reportes"]'>
           <fa-icon [icon]="faboxes"></fa-icon> Reportes
         </a>
@@ -55,7 +58,53 @@
           <fa-icon [icon]="fadollyflatbed"></fa-icon> Control Bodega
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
+      <li [routerLinkActive]="['active']"
+        *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'&& conexcionService.UserR.rolAsignado!='enfermeria'">
+        <a [routerLink]='["/Bodega/trabajosInter"]'>
+          <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Bodega/consumoList"]'>
+          <fa-icon [icon]="fafilemedical"></fa-icon> Consumo de Medicamento
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Bodega/accidente"]'>
+          <fa-icon [icon]="facarcrash"></fa-icon> Accidente
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='verificador-medic'">
+    <h5 class="sidenav-heading">Menú Inventario</h5>
+    <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/inventarioList"]'>
+          <fa-icon [icon]="fakitmedical"></fa-icon> Inventario
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/consulta"]'>
+          <fa-icon [icon]="fabookmedical"></fa-icon> Entrega Medicamento
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/consumoList"]'>
+          <fa-icon [icon]="fafilemedical"></fa-icon> Consumo de Medicamento
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='verificador-bodeguero'">
+    <h5 class="sidenav-heading">Menú Inventario</h5>
+    <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/inventarioList"]'>
+          <fa-icon [icon]="fakitmedical"></fa-icon> Inventario
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Bodega/trabajosInter"]'>
           <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
         </a>
@@ -80,30 +129,58 @@
   <div class="admin-menu">
     <h5 class="sidenav-heading">Menú Extra</h5>
     <ul class="list-unstyled">
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='bodega_verificador-m' && conexcionService.UserR.rolAsignado!='tinabg-m'"> <a [routerLink]='["/Entrada-Salida"]'>
+      <li [routerLinkActive]="['active']"
+        *ngIf="conexcionService.UserR.rolAsignado!='bodega_verificador-m' && conexcionService.UserR.rolAsignado!='tinabg-m' && conexcionService.UserR.rolAsignado!='enfermeria'&& conexcionService.UserR.rolAsignado!='verificador-medic' && conexcionService.UserR.rolAsignado!='verificador-bodeguero'">
+        <a [routerLink]='["/Entrada-Salida"]'>
           <fa-icon [icon]="faexchangeAlt"></fa-icon> Entrada / Salida
         </a>
       </li>
-      <li [routerLinkActive]="['active']"  *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='bodega_verificador-m'||conexcionService.UserR.rolAsignado=='gv-m'"> <a [routerLink]='["/Verificador"]'>
+      <li [routerLinkActive]="['active']"
+        *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='bodega_verificador-m'||conexcionService.UserR.rolAsignado=='gv-m'">
+        <a [routerLink]='["/Verificador"]'>
           <fa-icon [icon]="faclipboardCheck"></fa-icon> Verificación
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m'"> <a [routerLink]='["/BuscarFactura"]'>
-        <fa-icon [icon]="faexchangeAlt"></fa-icon> Buscar Factura
-      </a>
-    </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='verificador-medic'"> <a
+          [routerLink]='["/Bodega/verificacion"]'>
+          <fa-icon [icon]="faclipboardCheck"></fa-icon> Recepción de Medicamento
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']"
+        *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='enfermeria'|| conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m'">
+        <a [routerLink]='["/BuscarFactura"]'>
+          <fa-icon [icon]="faexchangeAlt"></fa-icon> Buscar Factura
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']"
+        *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Bodega/crearMedicamento"]'>
+          <fa-icon [icon]="falaptopmedic"></fa-icon> Crear Medicamentos
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']"
+        *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'||conexcionService.UserR.rolAsignado=='verificador-medic'">
+        <a [routerLink]='["/Bodega/solicitarMedicamento"]'>
+          <fa-icon [icon]="fasquareplus"></fa-icon> {{conexcionService.UserR.rolAsignado == 'enfermeria'? 'Solicitar Medicamento' : 'Diferencia de Medicamento'}}
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']"
+        *ngIf="conexcionService.UserR.rolAsignado=='verificador-bodeguero'">
+        <a [routerLink]='["/Bodega/inventGroup"]'>
+          <fa-icon [icon]="faobjerctunicion"></fa-icon> Agrupar inventario
+        </a>
+      </li>
       <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'"> <a
           [routerLink]='["/registrar"]'>
           <fa-icon [icon]="fauserplus"></fa-icon> Registrar Usuario
         </a>
       </li>
-      
     </ul>
   </div>
 </nav>
 
 <div class="page" [ngClass]="{'active active-sm':!tooglebtn}" *ngIf="conexcionService.UserR!=null">
-  <nav class="navbar" *ngIf="conexcionService.UserR.rolAsignado!=null">
+  <nav class="navbar px-0"  *ngIf="conexcionService.UserR.rolAsignado!=null">
     <div class="container-fluid">
       <div class="navbar-holder d-flex align-items-center justify-content-between">
         <div>
@@ -172,10 +249,10 @@
   </nav>
   <div
     *ngIf="conexcionService.formData.connectionStatus === 'nline' && conexcionService.formData.connectionStatusMessage !==''"
-    class="online">
+    class="online" >
     <span>{{conexcionService.formData.connectionStatusMessage}}</span>
   </div>
-  <div *ngIf="conexcionService.formData.connectionStatus === 'ffline'" class="offline">
+  <div *ngIf="conexcionService.formData.connectionStatus == 'ffline'" class="offline">
     <span>{{conexcionService.formData.connectionStatusMessage}}</span>
   </div>
   <router-outlet></router-outlet>

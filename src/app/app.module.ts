@@ -1,10 +1,8 @@
 /**Basic */
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -30,6 +28,9 @@ import { LugaresCatPipe } from './pipes/lugares-cat.pipe';
 import { TemporalescantPipe } from './pipes/temporalescant.pipe';
 import { CurrencyPipe } from './pipes/currency.pipe';
 import { FiltroBodegahPipe } from './pipes/filtroBodega.pipe';
+import { PopOutXListPipe } from './pipes/pop-out-xlist.pipe';
+import { SumCantBodegaPipe } from './pipes/sum-cant-bodega.pipe';
+import { FechaMesPipe } from './pipes/fecha-mes.pipe';
 /*Componentes*/
 import { UserComponent } from './user/user.component';
 import { AccessDenegadoComponent } from './errores/access-denegado/access-denegado.component';
@@ -48,11 +49,6 @@ import { EditOrdenComponent } from './OrdenAdmin/edit-orden/edit-orden.component
 import { ForcedOutComponent } from './user/forced-out/forced-out.component';
 import { ListProductoBComponent } from './bodega/list-producto-b/list-producto-b.component';
 import { CompraProveedorComponent } from './bodega/compra-proveedor/compra-proveedor.component';
-/*Services*/
-import { CarroService } from './shared/carro.service';
-import { UserService } from './shared/user.service';
-import { ConexionService } from './shared/otrosServices/conexion.service';
-
 import { ListComprasComponent } from './bodega/list-compras/list-compras.component';
 import { ListBaldesComponent } from './tinas/list-baldes/list-baldes.component';
 import { ListMovTinasComponent } from './tinas/list-mov-tinas/list-mov-tinas.component';
@@ -62,16 +58,25 @@ import { CargarXLSXComponent } from './bodega/cargar-xlsx/cargar-xlsx.component'
 import { ControlESComponent } from './bodega/control-es/control-es.component';
 import { TraspasoInternoComponent } from './bodega/traspaso-interno/traspaso-interno.component';
 import { OrdenTrabajoPlantaComponent } from './bodega/orden-trabajo-planta/orden-trabajo-planta.component';
-import { PopOutXListPipe } from './pipes/pop-out-xlist.pipe';
 import { DevolucionCompraComponent } from './bodega/devolucion-compra/devolucion-compra.component';
 import { ViewTrabajoModelComponent } from './bodega/orden-trabajo-planta/view-trabajo-model/view-trabajo-model.component';
 import { MainReporteComponent } from './bodega/reportes/main/main-reporte.component';
 import { ReporteProductoComponent } from './bodega/reportes/reporte-producto/reporte-producto.component';
 import { ReporteCompraComponent } from './bodega/reportes/reporte-compra/reporte-compra.component';
-import { SumCantBodegaPipe } from './pipes/sum-cant-bodega.pipe';
 import { ComprasNoRealizadasComponent } from './bodega/compra-proveedor/compras-no-realizadas/compras-no-realizadas.component';
-import { FechaMesPipe } from './pipes/fecha-mes.pipe';
-
+import { ComprasVerificacionComponent } from './bodega/compra-proveedor/compras-verificacion/compras-verificacion.component';
+import { ConsultaMedicComponent } from './bodega/consulta-medic/consulta-medic.component';
+import { ListConsultaMedicComponent } from './bodega/consulta-medic/list-consulta-medic/list-consulta-medic.component';
+import { ViewConsultaComponent } from './bodega/consulta-medic/view-consulta/view-consulta.component';
+import { CrearMedicamentoComponent } from './bodega/crear-medicamento/crear-medicamento.component';
+import { PedirMedicamentoComponent } from './bodega/pedir-medicamento/pedir-medicamento.component';
+import { NewAccidenteComponent } from './bodega/accidente/new-accidente/new-accidente.component';
+import { AgruparInventarioComponent } from './bodega/list-producto-b/agrupar-inventario/agrupar-inventario.component';
+/*Services*/
+import { CarroService } from './shared/carro.service';
+import { UserService } from './shared/user.service';
+import { ConexionService } from './shared/otrosServices/conexion.service';
+import { SearchMaterialPipe } from './pipes/search-material.pipe';
 
 
 /*import { ServiceWorkerModule } from '@angular/service-worker';
@@ -124,7 +129,16 @@ import { FechaMesPipe } from './pipes/fecha-mes.pipe';
     ReporteCompraComponent,
     SumCantBodegaPipe,
     ComprasNoRealizadasComponent,
-    FechaMesPipe
+    FechaMesPipe,
+    ComprasVerificacionComponent,
+    ConsultaMedicComponent,
+    ListConsultaMedicComponent,
+    ViewConsultaComponent,
+    CrearMedicamentoComponent,
+    PedirMedicamentoComponent,
+    NewAccidenteComponent,
+    AgruparInventarioComponent,
+    SearchMaterialPipe
   ],
   imports: [
     BrowserModule,
@@ -143,7 +157,7 @@ import { FechaMesPipe } from './pipes/fecha-mes.pipe';
     MatSelectModule,
     NgxGalleryModule
   ],
-  entryComponents: [ViewOrdenModalComponent,EditOrdenComponent,KardexComponent],
+  entryComponents: [ViewOrdenModalComponent,ViewConsultaComponent,EditOrdenComponent,KardexComponent],
   providers: [UserService,ConexionService,CarroService,
     {provide: HTTP_INTERCEPTORS, useClass: InterceptorError, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: Interceptor,multi: true},],

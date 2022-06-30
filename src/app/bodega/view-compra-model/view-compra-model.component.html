@@ -58,7 +58,7 @@
             <div class="col-12">
               <div class="card">
                 <div class="card-headerModal">
-                  <h5>Lista Articulos</h5>
+                  <h5>Lista Articulos {{ordenECService.formData.planta=='ENFERMERIA' ? ' Para '+ordenECService.formData.listPcomprasO[0].destinoBodega  : ''}}</h5>
                 </div>
                 <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
                   <table class="table">
@@ -66,8 +66,10 @@
                       <tr class="text-center">
                         <th scope="col">Código</th>
                         <th scope="col">Cantidad</th>
+                        <th scope="col">Cont. Neto/ General</th>
                         <th scope="col">Descripción</th>
-                        <th scope="col">Precio U</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Precio Neto</th>
                         <th scope="col">Descuento</th>
                         <th scope="col">Total</th>
                       </tr>
@@ -77,15 +79,19 @@
                         [ngClass]="{'filaPar':(((indiceNewC+1)%2)==0)}">
                         <td>{{datoListC.producto.codigo}}</td>
                         <td class="text-center">{{datoListC.cantidad}}</td>
+                        <td class="text-center" *ngIf="datoListC.producto.tipoUnidad=='UNIDAD'">{{datoListC.cantidad}}</td>
+                        <td class="text-center" *ngIf="datoListC.producto.tipoUnidad=='CONTENIDO NETO'">{{datoListC.producto.contenidoNeto}} / {{datoListC.cantidad*datoListC.producto.contenidoNeto | number:'1.0-0'}}</td>
+                        <td class="text-center" *ngIf="datoListC.producto.tipoUnidad=='EQUIVALENCIA'">{{datoListC.cantidad/datoListC.producto.contenidoNeto | number:'1.0-0'}}</td>
                         <td>{{datoListC.producto.nombre}}</td>
                         <td class="text-center">${{datoListC.precio}}</td>
+                        <td class="text-center">{{datoListC.producto.precioNeto!=0? '$'+datoListC.producto.precioNeto: '---' }}</td>
                         <td class="text-center">{{datoListC.descuento}}</td>
                         <td><strong>${{datoListC.totalInd}}</strong></td>
                       </tr>
                     </tbody>
                     <tfoot>
                       <tr>
-                        <td class="text-center" colspan="4" rowspan="5" style="border-right: 1px solid black;"></td>
+                        <td class="text-center" colspan="6" rowspan="5" style="border-right: 1px solid black;"></td>
                         <td class="text-right"><strong>Sub Total sin Impuestos:</strong></td>
                         <td class="text-center"><strong>{{ordenECService.formData.subTotalLibre}}</strong></td>
                       </tr>

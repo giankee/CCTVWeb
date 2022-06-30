@@ -688,7 +688,7 @@ export class ClienteComponent implements OnInit {
                 this.comunSubmit(form);
               }
             )
-          }else this.comunSubmit(form);
+          } else this.comunSubmit(form);
         } else this.okBttnSubmit = true;
       }
       if (this.strFases == "Balde") {
@@ -840,7 +840,7 @@ export class ClienteComponent implements OnInit {
             this.ordenESService.formData.idOrdenES = res.data.idOrdenES;
             this.ordenESService.formData.estadoProceso = res.data.estadoProceso;
             if (!this.buscarGuiaVE)
-              this.sendMessageGroupNotification(JSON.parse(JSON.stringify(this.ordenESService.formData)), res.message);
+              this.sendMessageGroupNotification(JSON.parse(JSON.stringify(this.ordenESService.formData)), res.message, res.auxmessage);
           }
           if (res.data.estadoProceso != "Procesada" && (this.ordenESService.formData.tipoOrden == "Balde Entrada" || this.ordenESService.formData.tipoOrden == "Balde Salida")) {
             this.ordenESService.formData.idOrdenES = res.idOrdenES;
@@ -1568,18 +1568,30 @@ export class ClienteComponent implements OnInit {
             + '\n----------------------------------'
             + '\nAdicionalmente se adjunta la orden detalladamente :paperclip:'
             + '\n----------------------------------';
-
-          if (orden.destinoProcedencia != "P MANACRIPEX" && orden.destinoProcedencia != "OFICINAS")
-            this._whatsappService.sendMessageMGroup(auxWhatsapp).subscribe(
+          if (baldesIncorrectos != "Seguir") {
+            if (orden.destinoProcedencia != "P MANACRIPEX" && orden.destinoProcedencia != "OFICINAS")
+              this._whatsappService.sendMessageMGroup(auxWhatsapp).subscribe(
+                res => {
+                  if (res.status == "error")
+                    this.toastr.warning('Notificación error: ' + res.message, 'Mensaje no enviado');
+                  else this.toastr.success('Notificación enviada', 'Mensaje enviado Correctamente');
+                },
+                err => {
+                  console.log(err);
+                }
+              );
+          } else {
+            auxWhatsapp.phone ='593-939335731';
+            this._whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
               res => {
-                if (res.status == "error")
-                  this.toastr.warning('Notificación error: ' + res.message, 'Mensaje no enviado');
-                else this.toastr.success('Notificación enviada', 'Mensaje enviado Correctamente');
+                if (res.status != "error")
+                  this.toastr.success('Mensaje enviado Correctamente', 'Notificación enviada');
               },
               err => {
                 console.log(err);
               }
-            );
+            )
+          }
         }
         if (orden.estadoProceso == "Pendiente" || orden.estadoProceso == "Pendiente Retorno") {
           if (this._conexcionService.UserR.UserName == "daniel3" || this._conexcionService.UserR.UserName == "MARIAZABALU")

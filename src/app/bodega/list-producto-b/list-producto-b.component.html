@@ -9,7 +9,7 @@
 <section class="dashboard-header">
   <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
     <div class="row">
-      <div class="col-lg-8 col-md-12 col-sm-12 col-12">
+      <div class="col-lg-8 col-md-12 col-sm-12 col-12"  [ngClass]="{'col-lg-12':conexcionService.UserR.rolAsignado == 'verificador-medic'||conexcionService.UserR.rolAsignado == 'verificador-bodeguero'}">
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
             <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Productos Inventario</a></h5>
@@ -31,7 +31,7 @@
                     (ngModelChange)="filtroProducto = $event.toUpperCase()">
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-4" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
                 <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='OFICINAS'">
                   <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
                     [(ngModel)]="selecBodegaFiltro">
@@ -49,7 +49,18 @@
                   <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
                     [(ngModel)]="selecBodegaFiltro">
                     <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'" value="{{datobodega.nombre}}">
+                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA':conexcionService.UserR.rolAsignado"
+                      value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}</option>
+                  </select>
+                </div>
+                <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='ENFERMERIA'">
+                  <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
+                    [(ngModel)]="selecBodegaFiltro">
+                    <option selected value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
+                    <option *ngFor="let datobodega of listBodega"
+                      value="{{datobodega.nombre}}">
                       {{datobodega.nombre}}</option>
                   </select>
                 </div>
@@ -69,7 +80,7 @@
                       </a>
                     </div>
                   </th>
-                  <th style="width: 25%; padding-left: 0%; padding-right: 0%;">
+                  <th style="width: 25%; padding-left: 0%; padding-right: 0%;" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic'">
                     <div class="d-inline-block" style="margin-right: 0.5rem;">
                       <select class="form-control" name="showSelectCPM" #showSelectCPM="ngModel"
                         [(ngModel)]="showSelect1">
@@ -84,8 +95,8 @@
                       </a>
                     </div>
                   </th>
-                  <th style="width: 13%;">Precio</th>
-                  <th style="width: 12%;">Kardex</th>
+                  <th style="width: 13%;" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">Precio</th>
+                  <th style="width: 12%;">{{conexcionService.UserR.rolAsignado == 'verificador-medic'  || conexcionService.UserR.rolAsignado == 'verificador-bodeguero'? 'Disponibilidad' : 'Kardex'}}</th>
                 </tr>
               </thead>
               <tbody
@@ -101,16 +112,19 @@
                   [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                   <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.codigo}}</strong></td>
                   <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.nombre}}</strong></td>
-                  <td *ngIf="showSelect1==1">{{datoP.proveedor}}</td>
-                  <td *ngIf="showSelect1==2">{{datoP.categoria}}</td>
-                  <td *ngIf="showSelect1==3">{{datoP.marca}}</td>
-                  <td class="text-center">${{datoP.precioStandar}}</td>
-                  <td class="text-center" id="utilitarioI">
+                  <td *ngIf="showSelect1==1 && conexcionService.UserR.rolAsignado != 'verificador-medic'">{{datoP.proveedor}}</td>
+                  <td *ngIf="showSelect1==2 && conexcionService.UserR.rolAsignado != 'verificador-medic'">{{datoP.categoria}}</td>
+                  <td *ngIf="showSelect1==3 && conexcionService.UserR.rolAsignado != 'verificador-medic'">{{datoP.marca}}</td>
+                  <td class="text-center" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">${{datoP.precioStandar}}</td>
+                  <td class="text-center" id="utilitarioI" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
                     <a class="badge text-primario d-none d-sm-block" (click)="onModalKardex(datoP)"
                       matTooltip="Te permite visualizar la Kardex del producto" matTooltipPosition="left"
                       matTooltipClass="tooltipBlack">
                       <fa-icon [icon]="faeye"></fa-icon>
                     </a>
+                  </td>
+                  <td class="text-center" id="utilitarioI" *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic' || conexcionService.UserR.rolAsignado == 'verificador-bodeguero'">
+                    {{datoP.sumStock}}
                   </td>
                 </tr>
               </tbody>
@@ -121,7 +135,6 @@
               <ul class="pagination justify-content-center">
                 <li class="page-item">
                   <select class="form-control" (change)="onUpdateSelect($event.target)">
-                    <option value="25">25</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                     <option value="300">300</option>
@@ -140,9 +153,9 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-md-12 col-sm-12 col-12">
+      <div class="col-lg-4 col-md-12 col-sm-12 col-12" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
         <div class="row">
-          <div class="col-12 mb-3" *ngIf="conexcionService.UserR.rolAsignado != 'gpv-o'">
+          <div class="col-12 mb-3" *ngIf="conexcionService.UserR.rolAsignado != 'gpv-o' && conexcionService.UserR.rolAsignado != 'enfermeria'">
             <div class="card">
               <div class="card-header">
                 <h5>Ingresar Documento</h5>
@@ -173,7 +186,7 @@
                           [(ngModel)]="productoBService.formData.codigo" class="form-control" maxlength="100"
                           placeholder="Código del producto" [datoAutoFocus]="autoFocus"
                           (ngModelChange)="productoBService.formData.codigo!=null && productoBService.formData.codigo = $event.toUpperCase()"
-                          required>
+                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion" required>
                         <label class="error" *ngIf="codigo.touched && codigo.errors?.required">Campo
                           Requerido</label>
                       </div>
@@ -183,21 +196,21 @@
                           [(ngModel)]="productoBService.formData.nombre" class="form-control" maxlength="75"
                           placeholder="Nombre del producto"
                           (ngModelChange)="productoBService.formData.nombre!=null && productoBService.formData.nombre = $event.toUpperCase()"
-                          required>
+                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion" required>
                         <label class="error" *ngIf="nombre.touched && nombre.errors?.required">Campo
                           Requerido</label>
                       </div>
                       <div class="form-group inputForm">
                         <div class="title"><strong>Proveedor:</strong></div>
                         <div [ngClass]="{'ocultarObj':productoBService.formData.proveedor=='-1NEW'}">
-                          <select class="form-control" name="proveedor" #proveedor="ngModel"
-                            [(ngModel)]="productoBService.formData.proveedor" required
+                          <select class="form-control" name="proveedor" #proveedor="ngModel" required
+                            [(ngModel)]="productoBService.formData.proveedor" [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
                             (ngModelChange)="onComprobarFocus(1)">
                             <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
                             <option *ngFor="let datoProveedor of listProveedores" value="{{datoProveedor}}">
                               {{datoProveedor}}
                             </option>
-                            <option value="-1NEW" *ngIf="!modoEdicion">** Nuevo Registro **</option>
+                            <option value="-1NEW" *ngIf="!modoEdicion && conexcionService.UserR.rolAsignado != 'enfermeria'">** Nuevo Registro **</option>
                           </select>
                           <label class="error" *ngIf="proveedor.touched && proveedor.errors?.required">Campo
                             Requerido</label>
@@ -250,32 +263,46 @@
                         </div>
                       </div>
                       <div class="form-group inputForm">
-                        <div class="title"><strong>Tipo Unidad:</strong></div>
-                        <input id="idTipo" name="tipoUnidad" #tipoUnidad="ngModel"
-                          [(ngModel)]="productoBService.formData.tipoUnidad" class="form-control" maxlength="75"
-                          placeholder="Sistema de medición del producto"
-                          (ngModelChange)="productoBService.formData.tipoUnidad!=null && productoBService.formData.tipoUnidad = $event.toUpperCase()"
-                          required>
-                        <label class="error" *ngIf="tipoUnidad.touched && tipoUnidad.errors?.required">Campo
-                          Requerido</label>
-                      </div>
-                      <div class="form-group inputForm">
                         <div class="title"><strong>Precio Standar:</strong></div>
                         <div class="input-group-prepend">
                           <span class="input-group-text">$</span>
-                          <input type="number" name="precioStandar" #precioStandar="ngModel" min="0"
-                            pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                          <input type="number" name="precioStandar" #precioStandar="ngModel" min="0" required
+                            pattern="^(([0-9]+)((.[0-9]{1,4}))?)$" [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
                             onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                             [(ngModel)]="productoBService.formData.precioStandar" class="form-control" maxlength="10"
-                            required>
+                            >
                           <label class="error" *ngIf="precioStandar.touched && precioStandar.errors?.required">Campo
                             Requerido</label>
                         </div>
                       </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Tipo Unidad:</strong></div>
+                        <input id="idTipo" name="tipoUnidad" #tipoUnidad="ngModel"
+                          [(ngModel)]="productoBService.formData.tipoUnidad" class="form-control" maxlength="75"
+                          (ngModelChange)="productoBService.formData.tipoUnidad!=null && productoBService.formData.tipoUnidad = $event.toUpperCase()"
+                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                          required>
+                        <label class="error" *ngIf="tipoUnidad.touched && tipoUnidad.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm" *ngIf="productoBService.formData.tipoUnidad!='UNIDAD'">
+                        <div class="title"><strong> {{productoBService.formData.tipoUnidad=='CONTENIDO NETO' ? 'Contenido Neto' : 'Equivalencia'}}</strong></div>
+                        <input id="contenidoN" name="contenidoNeto" #contenidoNeto="ngModel" [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                          [(ngModel)]="productoBService.formData.contenidoNeto" class="form-control" maxlength="5" required>
+                        <label class="error" *ngIf="contenidoNeto.touched && contenidoNeto.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm" *ngIf="productoBService.formData.tipoUnidad=='CONTENIDO NETO'">
+                        <div class="title"><strong>Precio Neto:</strong></div>
+                        <input id="precioN" name="precioNeto" #precioNeto="ngModel" [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                          [(ngModel)]="productoBService.formData.precioNeto" class="form-control" maxlength="5" required>
+                        <label class="error" *ngIf="precioNeto.touched && precioNeto.errors?.required">Campo
+                          Requerido</label>
+                      </div>
                       <div class="form-group">
                         <div class="title"><strong>Lista de Bodegas:</strong></div>
                         <div class="subForm">
-                          <div class="row mb-1" *ngIf="conexcionService.UserR.rolAsignado != 'bodega_verificador-m'">
+                          <div class="row mb-1">
                             <div class="col-8">
                               <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='OFICINAS'">
                                 <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
@@ -290,13 +317,21 @@
                                   <option value="Bodega7">Bodega #7</option>
                                 </select>
                               </div>
-                              <div class="form-group inputForm"
-                                *ngIf="productoBService.formData.planta=='P MANACRIPEX'">
+                              <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='P MANACRIPEX'">
                                 <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
                                   [(ngModel)]="selectBodegaAux">
                                   <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                                  <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
+                                  <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA':conexcionService.UserR.rolAsignado"
                                     value="{{datobodega.nombre}}">
+                                    {{datobodega.nombre}}</option>
+                                </select>
+                              </div>
+                              <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='ENFERMERIA'">
+                                <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
+                                  [(ngModel)]="selectBodegaAux">
+                                  <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                                  <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
+                                  <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
                                     {{datobodega.nombre}}</option>
                                 </select>
                               </div>
@@ -310,8 +345,8 @@
                           <div class="row mt-1" *ngIf="productoBService.formData.listBodegaProducto.length>0">
                             <div class="col-12 mb-2"
                               *ngFor="let datoB of productoBService.formData.listBodegaProducto; let indice=index">
-                              <div class="card">
-                                <div id="ordenarS" class="card-header d-flex justify-content-between">
+                              <div class="card" *ngIf="selecBodegaFiltro=='SIN ASIGNAR'||selecBodegaFiltro==datoB.nombreBodega">
+                                <div id="ordenarS" class="card-header d-flex justify-content-between" >
                                   <h5><a class="text-dark2" data-toggle="collapse"
                                       href="#ListBodegaindex{{indice}}">{{datoB.nombreBodega}}</a></h5>
                                   <a class="text-dark2" data-toggle="collapse" href="#ListBodegaindex{{indice}}"
@@ -330,7 +365,7 @@
                                     <div class="col-12">
                                       <div class="form-group inputForm">
                                         <div><strong>Cantidad Inicial:</strong></div>
-                                        <input type="number" name="in{{indice}}cantInicial"
+                                        <input type="number" name="in{{indice}}cantInicial" 
                                           #in{{indice}}cantInicial="ngModel" pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
                                           onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                                           [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantInicial"
@@ -338,7 +373,7 @@
                                       </div>
                                       <div class="form-group inputForm">
                                         <div><strong>Cantidad Disponible:</strong></div>
-                                        <input type="number" name="in{{indice}}disponibilidad"
+                                        <input type="number" name="in{{indice}}disponibilidad" 
                                           #in{{indice}}disponibilidad="ngModel" min="0"
                                           pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
                                           onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
@@ -346,6 +381,15 @@
                                           class="form-control" maxlength="10" required>
                                       </div>
                                       <div class="form-group inputForm">
+                                        <div><strong>Cantidad Mínima:</strong></div>
+                                        <input type="number" name="in{{indice}}cantMinima"
+                                          #in{{indice}}cantMinima="ngModel" min="0"
+                                          pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                          onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                          [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantMinima"
+                                          class="form-control" maxlength="10" required>
+                                      </div>
+                                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
                                         <div class="row">
                                           <div class="col-6 col-sm-6 col-md-6 col-lg-12">
                                             <div><strong>Percha:</strong></div>
@@ -365,7 +409,7 @@
                                           </div>
                                         </div>
                                       </div>
-                                      <div class="form-group inputForm">
+                                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
                                         <div><strong>Número Casillero:</strong></div>
                                         <input type="number" name="in{{indice}}numCasillero"
                                           #in{{indice}}numCasillero="ngModel" min="0" pattern="[0-9]*"
@@ -373,7 +417,7 @@
                                           [(ngModel)]="productoBService.formData.listBodegaProducto[indice].numCasillero"
                                           class="form-control" maxlength="10" required>
                                       </div>
-                                      <div class="form-group inputForm">
+                                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
                                         <div><strong>Número Palet:</strong></div>
                                         <input type="number" name="in{{indice}}numPalet" #in{{indice}}numPalet="ngModel"
                                           min="0" pattern="[0-9]*"

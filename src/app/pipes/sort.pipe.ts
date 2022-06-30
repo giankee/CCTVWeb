@@ -75,16 +75,18 @@ export class SortPipe implements PipeTransform {
             case "est-down": return _.sortBy(value, function (dato) { return dato.estadoBalde }).reverse();
           }
           break;
-          case 'cOrdenEC':
+        case 'cOrdenEC':
           switch (arg) {
             case "default": return value;
             case "up-F": return _.sortBy(value, function (dato) { return dato.factura });
             case "down-F": return _.sortBy(value, function (dato) { return dato.factura }).reverse();
             case "up-P": return _.sortBy(value, function (dato) { return dato.proveedor });
             case "down-P": return _.sortBy(value, function (dato) { return dato.proveedor }).reverse();
+            case "up-B": return _.sortBy(value, function (dato) { return dato.listPcomprasO[0].destinoBodega });
+            case "down-B": return _.sortBy(value, function (dato) { return dato.listPcomprasO[0].destinoBodega }).reverse();
           }
           break;
-          case 'cOrdenTrabajoI':
+        case 'cOrdenTrabajoI':
           switch (arg) {
             case "default": return value;
             case "up-I": return _.sortBy(value, function (dato) { return dato.numOrdenSecuencial });
@@ -93,6 +95,17 @@ export class SortPipe implements PipeTransform {
             case "down-B": return _.sortBy(value, function (dato) { return dato.bodega }).reverse();
             case "up-E": return _.sortBy(value, function (dato) { return dato.estadoProceso });
             case "down-E": return _.sortBy(value, function (dato) { return dato.estadoProceso }).reverse();
+          }
+          break;
+        case 'cConsultaMedic':
+          switch (arg) {
+            case "default": return value;
+            case "up-I": return _.sortBy(value, function (dato) { return dato.numOrdenSecuencial });
+            case "down-I": return _.sortBy(value, function (dato) { return dato.numOrdenSecuencial }).reverse();
+            case "up-B": return _.sortBy(value, function (dato) { return dato.bodegaOrigen });
+            case "down-B": return _.sortBy(value, function (dato) { return dato.bodegaOrigen }).reverse();
+            case "up-P": return _.sortBy(value, function (dato) { return dato.paciente });
+            case "down-P": return _.sortBy(value, function (dato) { return dato.paciente }).reverse();
           }
           break;
       }

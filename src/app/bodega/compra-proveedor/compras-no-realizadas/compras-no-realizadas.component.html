@@ -1,14 +1,14 @@
 <section class="dashboard-header">
   <div class="container-fluid  mt-3 mt-sm-4 px-1 px-md-5">
     <div class="row">
-      <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-12 py-2">
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
             <h5><a class="text-dark2">Compras No Efectuadas</a></h5>
           </div>
           <div class="mt-2 px-4 pt-2 boxForm">
             <div class="row">
-              <div class="col-12 col-md-6 col-lg-4">
+              <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
                 <div class="form-group">
                   <div class="title ml-2">
                     <strong class="ml-3">Proveedor:</strong>
@@ -45,8 +45,8 @@
                     class="form-control" min="{{fechaHoy.inDesde}}" max="{{fechaHoy.strFecha}}">
                 </div>
               </div>
-              <div class="col-12 col-md-6 col-lg-2">
-                <a [routerLink] (click)="onBuscarFacturas()" class="btn bttn-Primario btn-block mt-4">
+              <div class="col-12 col-md-6 col-lg-2  offset-md-3  offset-lg-0 mb-2">
+                <a [routerLink] (click)="onBuscarFacturas()" class="btn bttn-Primario btn-block mt-md-4">
                   <fa-icon [icon]="fasearch"></fa-icon> Buscar
                 </a>
               </div>
@@ -78,7 +78,7 @@
                     </td>
                   </tr>
                   <tr
-                    *ngFor="let dato of resultBusquedaMostrar | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                    *ngFor="let dato of resultBusquedaMostrar; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
                     <td>{{dato.crp_Proveedor}}</td>
@@ -97,38 +97,6 @@
                 </tbody>
               </table>
             </div>
-            <!-- <div class="paginationPadre mt-2">
-              <nav aria-label="pagination">
-                <ul class="pagination justify-content-center">
-                  <li class="page-item d-none d-sm-block">
-                    <select class="form-control" (change)="onUpdateSelect($event.target)">
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                    </select>
-                  </li>
-                  <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
-                    <a class="page-link d-none d-sm-block"
-                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
-                    <a class="page-link d-block d-sm-none"
-                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">
-                      <fa-icon [icon]="faArLeft"></fa-icon>
-                    </a>
-                  </li>
-                  <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
-                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
-                    <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
-                  <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
-                    <a class="page-link d-none d-sm-block"
-                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
-                    <a class="page-link d-block d-sm-none"
-                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">
-                      <fa-icon [icon]="faArRight"></fa-icon>
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div> -->
           </div>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { OrdenTrabajoService } from 'src/app/shared/bodega/orden-trabajo.service
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
-import { cFecha, cVario } from 'src/app/shared/otrosServices/varios';
+import { cFecha, cVario, cWhatsapp } from 'src/app/shared/otrosServices/varios';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import Swal from 'sweetalert2';
 import { jsPDF } from "jspdf";
@@ -13,6 +13,7 @@ import { faOutdent, faPlus, faSave, faTimes, faTimesCircle } from '@fortawesome/
 import { cMaterialesO, cOrdenTrabajoI } from 'src/app/shared/bodega/ordenTrabajo';
 import { finalize, map } from 'rxjs/operators';
 import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 
 @Component({
   selector: 'app-traspaso-interno',
@@ -53,21 +54,15 @@ export class TraspasoInternoComponent implements OnInit {
 
   fechaHoy = new cFecha();
   paginacion = new cPaginacion(5);
-  
+
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
   listBodega: cVario[] = [];
   listProdFiltros$: any;
-  
+
   faoutdent = faOutdent; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; fasave = faSave;
-  constructor(private _conexcionService: ConexionService, private _productoBService: ProductoBService, private toastr: ToastrService,private _ordenTrabajoService: OrdenTrabajoService,private _variosService: VariosService) {
-    if(this.ordenTrabajoService.formData.tipoOrden!="Traspaso Bodega"){
-      if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
-        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX", "GENERAL");
-      else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
-      this._ordenTrabajoService.formData.tipoOrden="Traspaso Bodega";
-    }
-   }
+  constructor(private _conexcionService: ConexionService, private _productoBService: ProductoBService, private toastr: ToastrService, private _ordenTrabajoService: OrdenTrabajoService, private _variosService: VariosService, private whatsappService: WhatsappService) {
+  }
 
   ngOnInit(): void {
     this.cargarBodega();
@@ -77,14 +72,24 @@ export class TraspasoInternoComponent implements OnInit {
   }
 
   cargarBodega() {
-    this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-      this.listBodega = dato;
-    });
+    if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
+      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
+        dato.forEach(x => {
+          if (x.categoria == "Puerto" && x.prioridadNivel==1)
+            this.listBodega.push(x);
+        });
+      });
+    } else {
+      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
+        this.listBodega = dato;
+        console.table(this.listBodega)
+      });
+    }
   }
 
   comprobarNewM() {
     var flag = true;
-    if (this._ordenTrabajoService.formData.listMaterialesO.find(x => (x.cantidad <= 0 || x.inventarioId == undefined)||(x.cantidad>x.inventario.listBodegaProducto[0].disponibilidad)) != undefined)
+    if (this._ordenTrabajoService.formData.listMaterialesO.find(x => (x.cantidad <= 0 || x.inventarioId == undefined) || (x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)) != undefined)
       flag = false;
     this.okAddNewBotton = flag;
     return (flag);
@@ -120,10 +125,10 @@ export class TraspasoInternoComponent implements OnInit {
 
     var strParametro = value;
     if (value != "") {
-      strParametro = strParametro + "@" + this._ordenTrabajoService.formData.planta + "@" + op+"@" + this.ordenTrabajoService.formData.bodega;
+      strParametro = strParametro + "@" + this._ordenTrabajoService.formData.planta + "@" + op + "@" + this.ordenTrabajoService.formData.bodega;
       this.listProdFiltros$ = this._productoBService.getProductosSearch(strParametro).pipe(
         map((x: cProducto_B[]) => {
-          return x.filter(y=>y.listBodegaProducto.length>0);
+          return x.filter(y => y.listBodegaProducto.length > 0);
         }),
         finalize(() => this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = false)
       );
@@ -140,22 +145,25 @@ export class TraspasoInternoComponent implements OnInit {
   onSubmit(form: NgForm) {
     if (this._conexcionService.formData.connectionStatus == "nline") {
       this.okBttnSubmit = false;
-        if (this.comprobarNewM()) {
-          this._ordenTrabajoService.traspasoBodega(this._ordenTrabajoService.formData).subscribe(
-            (res: any) => {
-              if (res.exito == 1) {
-                this.toastr.success('Registro satisfactorio', 'Traspaso Exitoso');
-                this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
-                this.onConvertPdfOne(this.ordenTrabajoService.formData);
-              } else {
-                this.okBttnSubmit=false;
-                this.toastr.warning('Registro Fallido', 'Intentelo mas tarde')
-              };
-              this.ordenTrabajoService.formData.resetObject();
-              this.cerrar.emit(true);
-            });
-        } else this.okBttnSubmit = true;
-      
+      if (this.comprobarNewM()) {
+        
+       this._ordenTrabajoService.traspasoBodega(this._ordenTrabajoService.formData).subscribe(
+          (res: any) => {
+            if (res.exito == 1) {
+              this.toastr.success('Registro satisfactorio', 'Traspaso Exitoso');
+              this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
+              if(this.listBodega.find(x=>x.nombre==this._ordenTrabajoService.formData.bodega).encargadoBodega!=this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).encargadoBodega){
+                this.sendMediaMessage(this.ordenTrabajoService.formData, this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).telefonoEncargado)
+              }else this.onConvertPdfOne(this.ordenTrabajoService.formData);
+            } else {
+              this.okBttnSubmit = false;
+              this.toastr.warning('Registro Fallido', 'Intentelo mas tarde')
+            };
+            this.ordenTrabajoService.formData.resetObject();
+            this.cerrar.emit(true);
+          });
+      } else this.okBttnSubmit = true;
+
     } else {
       Swal.fire({
         title: 'No ahi conexión de Internet',
@@ -180,9 +188,9 @@ export class TraspasoInternoComponent implements OnInit {
 
     y = 25;
     doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 45));//left
-    doc.line(199, y, 199, (y + 45));//right
-    doc.line(9, (y + 45), 199, (y + 45));//down
+    doc.line(9, y, 9, (y + 35));//left
+    doc.line(199, y, 199, (y + 35));//right
+    doc.line(9, (y + 35), 199, (y + 35));//down
     doc.setFontSize(13);
     if (orden.tipoOrden == "Trabajo Interno")
       doc.text("Datos de la orden", 15, (y + 5));
@@ -208,8 +216,6 @@ export class TraspasoInternoComponent implements OnInit {
     doc.text("Responsable de bodega Saliente: ", 20, (y + 20));
     doc.text("Usuario Sistema: ", 20, (y + 25));
 
-
-
     doc.setFont("arial", "normal");
     doc.text(orden.planta, 32, (y + 10));
     doc.text(orden.fechaRegistro, 132, (y + 10));
@@ -219,8 +225,7 @@ export class TraspasoInternoComponent implements OnInit {
     doc.text(orden.personaResponsable, 163, (y + 20));
     doc.text(orden.guardiaCargoUser, 50, (y + 25));
     doc.text(orden.estadoProceso, 143, (y + 25));
-    doc.text(orden.observacion, 30, (y + 35));
-    y = y + 45;
+    y = y + 35;
 
     doc.setFontSize(13);
     doc.setFont("arial", "bold");
@@ -289,7 +294,7 @@ export class TraspasoInternoComponent implements OnInit {
       doc.line(9, (y - valorG), 9, y);//left
       doc.text(orden.listMaterialesO[i].inventario.codigo, 15, (y - ((valorG - 3) / 2)));
       doc.line(55, (y - valorG), 55, y);//right
-      doc.text(orden.listMaterialesO[i].cantidad.toString(), 70, (y - ((valorG - 3) / 2)));
+      doc.text(orden.listMaterialesO[i].cantidad.toString(), 60, (y - ((valorG - 3) / 2)));
       doc.line(80, (y - valorG), 80, y);//right
 
       auxPrueba = Number((valorG - (3 * lineaDescripcion.length + (3 * (lineaDescripcion.length - 1)))) / 2.5) + 3;//mega formula para centrar el texto en el espacio establecido
@@ -315,5 +320,36 @@ export class TraspasoInternoComponent implements OnInit {
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + orden.personaResponsable, 146, y + 5);
     doc.save("Orden#" + orden.numOrdenSecuencial + "_" + orden.fechaRegistro + ".pdf");
+    return (doc.output('datauristring'));
+  }
+
+  sendMediaMessage(traspaso: cOrdenTrabajoI, telefonoIn: string) {
+    var auxBase = this.onConvertPdfOne(traspaso).split('base64,');
+    var auxWhatsapp: cWhatsapp;
+    auxWhatsapp = {
+      phone: telefonoIn,
+      message: "",
+      title: "Traspaso_" + traspaso.fechaRegistro + "_" + traspaso.numOrdenSecuencial + ".pdf",
+      media: auxBase[1],
+      type: "application/pdf"
+    }
+    auxWhatsapp.message = ':bell: *Notificación de Traspaso*:exclamation: :bell:'
+      + '\n'
+      + '\n:wave: Saludos Compañero:'
+      + '\nSe le informa que se ha registrado un trasposo de material de la bodega *' + traspaso.bodega + '* para la bodega *'+ traspaso.destinoLugar +'*.'
+      + '\nLos datos de la compra son:'
+      + '\n'
+      + '\n*Secuencial:* ' + traspaso.numOrdenSecuencial
+      + '\n*Fecha de Registro* ' + traspaso.fechaRegistro
+      + '\n*Usuario:* ' + traspaso.guardiaCargoUser
+      + '\n----------------------------------';
+
+    this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
+      res => {
+      },
+      err => {
+        console.log(err);
+      }
+    )
   }
 }

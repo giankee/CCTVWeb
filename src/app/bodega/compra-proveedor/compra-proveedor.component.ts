@@ -5,7 +5,7 @@ import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { OrdenECService } from 'src/app/shared/orden-e-c.service';
 import { cCompraO, cOrdenEC, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
-import { cEnterpriceDocumento, cEnterpriceProveedor, cFecha, cVario } from 'src/app/shared/otrosServices/varios';
+import { cEnterpriceDocumento, cEnterpriceProveedor, cFecha, cVario, cWhatsapp } from 'src/app/shared/otrosServices/varios';
 import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 import { faSave, faSearch, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
@@ -13,7 +13,7 @@ import Swal from 'sweetalert2';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
 import { finalize, map } from 'rxjs/operators';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
-
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-compra-proveedor',
@@ -85,6 +85,7 @@ export class CompraProveedorComponent implements OnInit {
   okBttnSubmit: number = 2;//1 disable, 2 Ok, 3 error
   listBodega: cVario[] = [];
   okAddNewBotton: boolean = true;
+  selectBarcoCompra: string = "SIN ASIGNAR";
 
   spinnerLoading: boolean = false;
 
@@ -98,9 +99,21 @@ export class CompraProveedorComponent implements OnInit {
   }
 
   cargarBodega() {
-    this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-      this.listBodega = dato;
-    });
+    if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
+      this.selectProveedor.fuente = "ENT";
+      this.selectProveedor.proveedor = "DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A";
+      this.selectProveedor.cedrucpas = "0990858322001";
+      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
+        dato.forEach(x => {
+          if (x.categoria == "Puerto" && x.idVarios != 4)
+            this.listBodega.push(x);
+        });
+      });
+    } else {
+      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
+        this.listBodega = dato;
+      });
+    }
   }
 
   resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
@@ -111,10 +124,14 @@ export class CompraProveedorComponent implements OnInit {
     this.autoFocus = false;
     if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
       this._ordenECService.formData = new cOrdenEC("OFICINAS", this._conexcionService.UserR.nombreU);
-    else this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserR.nombreU);
+    if (this._conexcionService.UserR.rolAsignado == 'tinabg-m' || this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m')
+      this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserR.nombreU);
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+      this._ordenECService.formData = new cOrdenEC("ENFERMERIA", this._conexcionService.UserR.nombreU);
   }
 
   onSubmit(form: NgForm) {
+    this.okBttnSubmit = 1;
     if (this._ordenECService.formData.estadoProceso == "Temporal") {
       if (this._ordenECService.formData.idCompraAutomatica != 0) {
         if (this._ordenECService.formData.listPcomprasO.find(x => x.marcar && x.refenciaTemporalId == 0) != undefined) {
@@ -127,9 +144,9 @@ export class CompraProveedorComponent implements OnInit {
             } else {
               if (this._ordenECService.formData.listPcomprasO[i].productoId == undefined) {
                 var indexTemporal = this._ordenECService.formData.listPtemporales.findIndex(x => x.productoId == this._ordenECService.formData.listPcomprasO[i].refenciaTemporalId);
-                if(indexTemporal!=-1){
-                  if(this._ordenECService.formData.listPtemporales[indexTemporal].producto.codigo=="Temp")
-                    this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock=this._ordenECService.formData.listPcomprasO[i].refenciaTemporalId;
+                if (indexTemporal != -1) {
+                  if (this._ordenECService.formData.listPtemporales[indexTemporal].producto.codigo == "Temp")
+                    this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock = this._ordenECService.formData.listPcomprasO[i].refenciaTemporalId;
                 }
               }
             }
@@ -142,33 +159,55 @@ export class CompraProveedorComponent implements OnInit {
           this._ordenECService.formData.listPcomprasO[i].cargaIva = false;
           this._ordenECService.formData.listPcomprasO[i].producto.estado = 3;
           if (this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock == undefined) {
+            this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto = 1;
             this._ordenECService.formData.listPcomprasO[i].producto.nombre = "Temp-" + this._ordenECService.formData.listPcomprasO[i].descripcionProducto;
             this._ordenECService.formData.listPcomprasO[i].producto.codigo = "Temp";
             this._ordenECService.formData.listPcomprasO[i].producto.agregarOneBodega(null, this._ordenECService.formData.listPcomprasO[i].destinoBodega);
-          } else this.ordenECService.formData.listPcomprasO[i].precio=0;
+          } else this.ordenECService.formData.listPcomprasO[i].precio = 0;
           this._ordenECService.formData.listPcomprasO[i].estadoCompra = "Temporal";
         }
         this.guardar();
       }
-    } else{
-      if (this._ordenECService.formData.listPcomprasO.find(x => x.cantidad == 0 || (x.destinoBodega == "SIN ASIGNAR" && x.marcar)) == undefined) {
-        this.okBttnSubmit = 1;
-        if (this._ordenECService.formData.factura == null)
-          this._ordenECService.formData.factura = 0;
-        if (this._ordenECService.formData.guiaRemision == null)
-          this._ordenECService.formData.guiaRemision = 0;
-        for (var i = 0; i < this._ordenECService.formData.listPcomprasO.length; i++) {
-          if (!this._ordenECService.formData.listPcomprasO[i].marcar) {
-            this._ordenECService.formData.listPcomprasO.splice(i, 1);
-            i--;
-          } else {
-            if (this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock == undefined) {
-              this._ordenECService.formData.listPcomprasO[i].producto.nombre = this._ordenECService.formData.listPcomprasO[i].descripcionProducto;
+    } else {
+      if (this._ordenECService.formData.planta == "ENFERMERIA") {
+        if (this.selectBarcoCompra != "SIN ASIGNAR") {
+          this.ordenECService.formData.listPcomprasO.forEach(x => {
+            x.destinoBodega = this.selectBarcoCompra;
+            x.estadoCompra = "Pendiente";
+          });
+        } else this.okBttnSubmit = 3;
+        this._ordenECService.formData.marea = this._ordenECService.formData.marea + "-" + this.fechaHoy.anio;
+      }
+      if (this.okBttnSubmit == 1) {
+        if (this._ordenECService.formData.listPcomprasO.find(x => x.cantidad == 0 || (x.destinoBodega == "SIN ASIGNAR" && x.marcar)) == undefined) {
+          if (this._ordenECService.formData.factura == null)
+            this._ordenECService.formData.factura = 0;
+          if (this._ordenECService.formData.guiaRemision == null)
+            this._ordenECService.formData.guiaRemision = 0;
+          for (var i = 0; i < this._ordenECService.formData.listPcomprasO.length; i++) {
+            if (!this._ordenECService.formData.listPcomprasO[i].marcar) {
+              this._ordenECService.formData.listPcomprasO.splice(i, 1);
+              i--;
+            } else {
+              if (this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock == undefined) {
+                this._ordenECService.formData.listPcomprasO[i].producto.nombre = this._ordenECService.formData.listPcomprasO[i].descripcionProducto;
+              }
+              if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "UNIDAD") {
+                this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto = 1;
+                this._ordenECService.formData.listPcomprasO[i].producto.precioNeto = 0;
+              }
+              if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "CONTENIDO NETO") {
+                if (this.ordenECService.formData.listPcomprasO[i].producto.precioNeto == 0)
+                  this.onSepararContenidoNeto(i);
+              }
+              if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "EQUIVALENCIA") {
+                this._ordenECService.formData.listPcomprasO[i].producto.precioNeto = 0;
+              }
             }
           }
-        }
-        this.guardar();
-      } else this.okBttnSubmit = 3;
+          this.guardar();
+        } else this.okBttnSubmit = 3;
+      }
     }
   }
 
@@ -183,9 +222,25 @@ export class CompraProveedorComponent implements OnInit {
           if (res.message == "Registro Existente")
             this.toastr.warning('Aviso Importante', 'La factura ya ha sido registrada anteriormente');
           if (res.message == "Ok") {
-            this.onTerminar();
+            if (this._ordenECService.formData.planta == "ENFERMERIA") {
+              var auxNumber = this.listBodega.find(x => x.nombre == this.selectBarcoCompra).telefonoEncargado;
+              this.sendMediaMessageMedic(this.ordenECService.formData, auxNumber);
+            }
+            if(this._ordenECService.formData.planta=="P MANACRIPEX"){
+              var auxBodegas:cVario[]=[];
+              for (var i = 0; i < this._ordenECService.formData.listPcomprasO.length; i++) {
+                var auxBodega=this.listBodega.find(x => x.nombre == this._ordenECService.formData.listPcomprasO[i].destinoBodega);
+                if (auxBodega.encargadoBodega != this._conexcionService.UserR.nombreU){
+                  if(auxBodegas.find(x=>x.nombre==auxBodega.nombre)==undefined){
+                    auxBodegas.push(auxBodega);
+                    this.sendMediaMessageTraspaso(this._ordenECService.formData,auxBodega);
+                  }
+                }
+              }
+            }
             this.toastr.success('Registro Exitoso', 'La compra se ha registrado satisfactoriamente');
           }
+          this.onTerminar();
         } else {
           if (res.message == "Error Producto")
             this.toastr.warning('Producto Fallido', 'No se ha encontrado el código del prodcuto en la base de datos');
@@ -219,7 +274,7 @@ export class CompraProveedorComponent implements OnInit {
 
         if (dato.message == "ok" && dato.compra != null) {
           strTitulo = "Factura Encontrada!";
-          strTexto = "Se encontro " + dato.compra.tP_Documento +': '+dato.compra.documento+ " emitida el " + dato.compra.emi_Fecha.substring(0, 10) + ", bajo la razón social: " + dato.compra.rS_Cliente;
+          strTexto = "Se encontro " + dato.compra.tP_Documento + ': ' + dato.compra.documento + " emitida el " + dato.compra.emi_Fecha.substring(0, 10) + ", bajo la razón social: " + dato.compra.rS_Cliente;
           btn1Boton = "Continuar!";
           btn2Boton = "Cancelar!";
 
@@ -351,9 +406,13 @@ export class CompraProveedorComponent implements OnInit {
 
             if (dato.message == "Ok") {
               if ((indexP = dato.data.findIndex(x => x.codigo == datoCompra.listCompraO[i].codigoprincipal)) != -1) {
+                console.log("entro")
                 auxArticuloCompra.productoId = dato.data[indexP].idProductoStock;
-                auxArticuloCompra.rellenarProducto(dato.data[indexP], 1);
+                auxArticuloCompra.rellenarProducto(dato.data[indexP]);
+                auxArticuloCompra.producto.precioUltima = auxArticuloCompra.producto.precioStandar;
                 auxArticuloCompra.destinoBodega = auxArticuloCompra.producto.SelectBodega;
+                if (auxArticuloCompra.producto.tipoUnidad != "UNIDAD")
+                  auxArticuloCompra.producto.disBttnInput = 1;
               }
               else {
                 var auxProductoNew: cProducto_B = new cProducto_B(this._ordenECService.formData.planta, this._ordenECService.formData.proveedor);
@@ -378,7 +437,7 @@ export class CompraProveedorComponent implements OnInit {
                 auxArticuloCompra.idRegistro = this._ordenECService.formData.listPtemporales[indexTemp].idRegistro;
                 auxArticuloCompra.ordenE_CId = this._ordenECService.formData.listPtemporales[indexTemp].ordenE_CId;
                 auxArticuloCompra.destinoBodega = this._ordenECService.formData.listPtemporales[indexTemp].destinoBodega;
-                auxArticuloCompra.disableSelectBodega=true;
+                auxArticuloCompra.disableSelectBodega = true;
                 auxArticuloCompra.estadoCompra = "Procesada";
               }
             }
@@ -388,6 +447,7 @@ export class CompraProveedorComponent implements OnInit {
           this.spinnerOnOff = 2;
           this.paginacion.getNumberIndex(this._ordenECService.formData.listPcomprasO.length);
           this.paginacion.updateIndex(0);
+
         },
           error => console.error(error));
     }
@@ -516,5 +576,171 @@ export class CompraProveedorComponent implements OnInit {
       this._ordenECService.formData.listPcomprasO[index].destinoBodega = this._ordenECService.formData.listPtemporales[indexTemporal].destinoBodega;
       this._ordenECService.formData.listPcomprasO[index].estadoCompra = "Procesada";
     }
+  }
+
+  onSepararContenidoNeto(index) {
+    this.ordenECService.formData.listPcomprasO[index].producto.precioNeto = Number(((this._ordenECService.formData.listPcomprasO[index].precio - this.ordenECService.formData.listPcomprasO[index].descuento) / this.ordenECService.formData.listPcomprasO[index].producto.contenidoNeto).toFixed(2));
+  }
+
+  onTransformarUnidad(index) {
+    this.ordenECService.formData.listPcomprasO[index].producto.precioStandar = Number((this._ordenECService.formData.listPcomprasO[index].totalInd / (Number((this._ordenECService.formData.listPcomprasO[index].cantidad / this.ordenECService.formData.listPcomprasO[index].producto.contenidoNeto).toFixed(2)))).toFixed(2));
+  }
+
+  onConvertPdfOne(bodegaIn: string) {
+    var y: number;
+    var Npag: number = 1;
+    var doc = new jsPDF({
+      orientation: "landscape",
+    });
+
+    doc.setFontSize(18);
+    doc.setFont("arial", "bold");
+    if(this._ordenECService.formData.planta=="ENFERMERIA")
+    doc.text("Inventario", 115, 15);
+    else doc.text("Material Traspaso", 115, 15);
+
+    doc.setFontSize(13);
+    if(this._ordenECService.formData.planta=="ENFERMERIA")
+    doc.text("Barco: " + this.selectBarcoCompra, 200, 25);
+    else doc.text("Bodega: " + bodegaIn, 20, 25);
+    y = 30;
+
+    doc.setFontSize(10);
+    doc.setFont("arial", "bold");
+    doc.line(5, (y), 290, (y));//down
+    doc.line(5, y, 5, (y + 10));//left
+    doc.line(290, y, 290, (y + 10));//right
+    doc.line(5, (y + 10), 290, (y + 10));//down
+
+    doc.text("#", 10, (y + 7));
+    doc.line(20, y, 20, (y + 10));//right
+    doc.text("Código", 35, (y + 7));
+    doc.line(70, y, 70, (y + 10));//right
+    doc.text("Cantidad", 75, (y + 7));
+    doc.line(95, y, 95, (y + 10));//right
+    doc.text("Cont.Neto", 100, (y + 7));
+    doc.line(120, y, 120, (y + 10));//right
+    doc.text("Unidades G.", 125, (y + 7));
+    doc.line(150, y, 150, (y + 10));//right
+    doc.text("Descripción", 200, (y + 7));
+
+    y = y + 10;
+    doc.setFontSize(8);
+    doc.setFont("arial", "normal");
+    var valorG: number = 10;
+
+    var auxListaCompras:cCompraO[]=this._ordenECService.formData.listPcomprasO;
+    if(bodegaIn!="SIN ASIGNAR")
+    auxListaCompras = this._ordenECService.formData.listPcomprasO.filter(x=>x.destinoBodega==bodegaIn);
+
+    for (var i = 0; i < auxListaCompras.length; i++) {
+      y = y + valorG;
+      if (y > 200) {
+        doc.text("Pág. #" + Npag, 280, 207);
+        Npag++;
+        doc.addPage();
+        doc.text("Pág. #" + Npag, 280, 207);
+        doc.setFontSize(10);
+        doc.setFont("arial", "bold")
+        y = 15;
+        doc.line(5, (y), 290, (y));//up
+        doc.line(5, y, 5, (y + 10));//left
+        doc.line(290, y, 290, (y + 10));//right
+        doc.line(5, (y + 10), 290, (y + 10));//down
+
+        doc.text("#", 10, (y + 7));
+        doc.line(20, y, 20, (y + 10));//right
+        doc.text("Código", 35, (y + 7));
+        doc.line(70, y, 70, (y + 10));//right
+        doc.text("Cantidad", 75, (y + 7));
+        doc.line(95, y, 95, (y + 10));//right
+        doc.text("Cont.Neto", 100, (y + 7));
+        doc.line(120, y, 120, (y + 10));//right
+        doc.text("Unidades G.", 125, (y + 7));
+        doc.line(150, y, 150, (y + 10));//right
+        doc.text("Descripción", 200, (y + 7));
+
+        y = y + 10 + valorG;
+        doc.setFontSize(8);
+        doc.setFont("arial", "normal");
+      }
+
+      doc.line(5, (y - valorG), 5, y);//left
+      doc.text(i.toString(), 10, (y - ((valorG - 3) / 2)));
+      doc.line(20, (y - valorG), 20, y);//right
+      doc.text(auxListaCompras[i].producto.codigo, 25, (y - ((valorG - 3) / 2)));
+      doc.line(70, (y - valorG), 70, y);//right
+      doc.text(auxListaCompras[i].cantidad.toString(), 80, (y - ((valorG - 3) / 2)));
+      doc.line(95, (y - valorG), 95, y);//right
+      doc.text(auxListaCompras[i].producto.contenidoNeto.toString(), 105, (y - ((valorG - 3) / 2)));
+      doc.line(120, (y - valorG), 120, y);//right
+      doc.text((auxListaCompras[i].producto.contenidoNeto * auxListaCompras[i].cantidad) + "", 130, (y - ((valorG - 3) / 2)));
+      doc.line(150, (y - valorG), 150, y);//right
+      doc.text(auxListaCompras[i].producto.nombre, 155, (y - ((valorG - 3) / 2)));
+      doc.line(290, (y - valorG), 290, y);//right
+      doc.line(5, y, 290, y);//down
+    }
+    return (doc.output('datauristring'));
+  }
+
+  sendMediaMessageMedic(orden: cOrdenEC, telefonoIn: string) {
+    var auxBase = this.onConvertPdfOne("SIN ASIGNAR").split('base64,');
+    var auxWhatsapp: cWhatsapp;
+    auxWhatsapp = {
+      phone: telefonoIn,
+      message: "",
+      title: orden.planta + "_" + orden.fechaRegistroBodega + "-" + orden.factura + ".pdf",
+      media: auxBase[1],
+      type: "application/pdf"
+    }
+    auxWhatsapp.message = ':bell: *Notificación Compra Medicamento*:exclamation: :bell:'
+      + '\n'
+      + '\n:wave: Saludos Compañero:'
+      + '\nSe le informa que se ha registrado una nueva compra de medicamentos para el barco *' + this.selectBarcoCompra + '*.'
+      + '\nLos datos de la compra son:'
+      + '\n'
+      + '\n*Factura:* ' + orden.factura
+      + '\n*Fecha de Registro* ' + orden.fechaRegistroBodega
+      + '\n*Usuario:* ' + orden.guardiaCargoUser
+      + '\n----------------------------------';
+
+    this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
+      res => {
+      },
+      err => {
+        console.log(err);
+      }
+    )
+  }
+
+  sendMediaMessageTraspaso(orden: cOrdenEC, auxBodega:cVario) {
+    var auxBase = this.onConvertPdfOne(auxBodega.nombre).split('base64,');
+    var auxWhatsapp: cWhatsapp;
+    auxWhatsapp = {
+      phone: auxBodega.telefonoEncargado,
+      message: "",
+      title: orden.planta + "_" + orden.fechaRegistroBodega + "-" + orden.factura + ".pdf",
+      media: auxBase[1],
+      type: "application/pdf"
+    }
+    auxWhatsapp.message = ':bell: *Notificación Compra Material*:exclamation: :bell:'
+      + '\n'
+      + '\n:wave: Saludos Compañero:'
+      + '\nSe le informa que se ha comprado material para la bodega *' + auxBodega.nombre + '*.'
+      + '\nLos materiales fueron trasladados a su respectivo lugar'
+      + '\nLos datos de la compra son:'
+      + '\n'
+      + '\n*Factura:* ' + orden.factura
+      + '\n*Fecha de Registro* ' + orden.fechaRegistroBodega
+      + '\n*Usuario:* ' + orden.guardiaCargoUser
+      + '\n----------------------------------';
+
+    this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
+      res => {
+      },
+      err => {
+        console.log(err);
+      }
+    )
   }
 }

@@ -1,0 +1,240 @@
+<div class="text-center my-3" *ngIf="spinnerOnOff==1">
+  <div class="d-flex justify-content-center">
+    <mat-spinner color="accent"></mat-spinner>
+  </div>
+</div>
+<div class="mt-2 px-2" *ngIf="spinnerOnOff==2">
+  <div class="row">
+    <div class="col-lg-9 col-md-12 col-sm-12 col-12">
+      <div class="card">
+        <div id="ordenarS" class="card-header d-flex justify-content-between">
+          <h5><a class="text-dark2">Lista de Medicamentos No Registrados</a></h5>
+        </div>
+        <div class="mt-2 px-4 pt-2 boxForm">
+          <div class="row">
+            <div class="col-8">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <fa-icon [icon]="fasearch"></fa-icon>
+                  </span>
+                </div>
+                <input type="text" class="form-control" #filtroProductoIn="ngModel" name="filtroProductoIn"
+                  maxlength="30" placeholder="Buscar.." [(ngModel)]="filtroProducto"
+                  (ngModelChange)="filtroProducto= $event.toUpperCase()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+          <div class="table">
+            <div class="row mx-0" id="table2">
+              <div class="col-12">
+                <div class="row" id="thead2">
+                  <div class="col-1 bordes"></div>
+                  <div class="d-none d-sm-block col-sm-1 bordes">
+                    <div class="columnna"><strong>#</strong></div>
+                  </div>
+                  <div class="col-3 col-sm-2 bordes">
+                    <div class="columnna"><strong>Código</strong></div>
+                  </div>
+                  <div class="col-4 bordes">
+                    <div class="columnna">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"><strong>Descripción</strong></div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenListBy()">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-none d-sm-block col-sm-1 bordes">
+                    <div class="columnna"><strong>Precio</strong></div>
+                  </div>
+                  <div class="col-3 col-sm-2 bordes">
+                    <div class="columnna"><strong>Tipo Unidad</strong></div>
+                  </div>
+                  <div class="col-1 bordes">
+                    <div class="columnna"></div>
+                  </div>
+                </div>
+                <div class="row" id="tbody2"
+                  *ngIf="listProductosIn | search:filtroProducto:'cProductoB' as resultBusqueda">
+                  {{getDataFiltro(resultBusqueda)}}
+                  <div class="col-12" *ngIf="resultBusqueda.length==0">
+                    <div class="font-italic text-center"> No existen medicamentos con esos parámetros</div>
+                  </div>
+                  <div class="col-12 t_filas"
+                    *ngFor="let datoP of resultBusqueda |sort:ordenBy:'cProductoB' | slice:paginacion.startIndex:paginacion.endIndex;  let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <div class="row">
+                      <div class="col-1 bordes indice">
+                        <div class="columnna">
+                          <a data-toggle="collapse" (click)="onChangeDown(datoP)" style="cursor: pointer;">
+                            <fa-icon [icon]="faangleright" [class]="{'ocultarObj':datoP.check}"></fa-icon>
+                            <fa-icon [icon]="faangledown" [class]="{'ocultarObj':!datoP.check}"></fa-icon>
+                          </a>
+                        </div>
+                      </div>
+                      <div class="d-none d-sm-block col-sm-1 bordes indice">
+                        <div class="columnna">{{indice+1}}</div>
+                      </div>
+                      <div class="col-3 col-sm-2 bordes ">
+                        <div class="columnna" style="cursor: pointer;"><strong>{{datoP.codigo}}</strong></div>
+                      </div>
+                      <div class="col-4 bordes text-left">
+                        <div class="columnna">{{datoP.nombre}}</div>
+                      </div>
+                      <div class="d-none d-sm-block col-sm-1 bordes">
+                        <div class="columnna">${{datoP.precioStandar}}</div>
+                      </div>
+                      <div class="col-3 col-sm-2 bordes">
+                        <div class="columnna" id="inputSearchP">
+                          <select class="form-control input-src"
+                            name="inList{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}tipoUnidad"
+                            #inList{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}tipoUnidad="ngModel"
+                            [(ngModel)]="datoP.tipoUnidad" (ngModelChange)="onChangeDown(datoP)">
+                            <option value="UNIDAD">UNIDAD</option>
+                            <option value="CONTENIDO NETO">CONTENIDO NETO</option>
+                            <option value="EQUIVALENCIA">CONVERTIR A UNIDAD</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-1 bordes" id="utilitarioI">
+                        <div class="columnna">
+                          <a class="badge text-primario d-none d-sm-block" matTooltip="Te permite Guardar"
+                            matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onSaveProducto(datoP)">
+                            <fa-icon [icon]="fasave" size="1.7x"></fa-icon>
+                          </a>
+                          <a class="badge text-primario d-none d-sm-block" matTooltip="Te permite Agregar a Bodega"
+                            matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onAgregarStock(datoP)">
+                            <fa-icon [icon]="fawarehouse" size="1.5x"></fa-icon>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row py-2" [ngClass]="{'filaInPar':(((indice+1)%2)==0),'filaPar':!(((indice+1)%2)==0) }"
+                      id="inputSearchP" *ngIf="datoP.check">
+                      <div class="col-8 d-flex justify-content-center" *ngIf="datoP.tipoUnidad=='CONTENIDO NETO'">
+                        Contenido Neto:
+                        <input type="number" min="0" maxlength="4" placeholder="Contenido Neto" pattern="^[0-9]{0,4}"
+                          class="form-control ml-2 input-src" style="width: 50%;"
+                          name="inList{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto1"
+                          #inList{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto1="ngModel"
+                          [(ngModel)]="datoP.contenidoNeto" (ngModelChange)="onSepararContenidoNeto(datoP,1)"
+                          onkeydown="return (event.keyCode !== 69 && event.keyCode !== 109 && event.keyCode !==110 && event.keyCode !==190 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
+                      </div>
+                      <div class="col-8 d-flex justify-content-center" *ngIf="datoP.tipoUnidad=='EQUIVALENCIA'">
+                        Transformación:
+                        <input type="number" min="0" maxlength="4" placeholder="Contenido Neto"
+                          pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" class="form-control ml-2 input-src"
+                          style="width: 50%;"
+                          name="inList{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto2"
+                          #inList{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto2="ngModel"
+                          [(ngModel)]="datoP.contenidoNeto" (ngModelChange)="onSepararContenidoNeto(datoP,2)"
+                          onkeydown="return (event.keyCode !== 69 && event.keyCode !== 109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
+                      </div>
+                      <div class="col-4" *ngIf="datoP.tipoUnidad=='CONTENIDO NETO'">
+                        Precio Neto: {{datoP.precioNeto}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="paginationPadre mt-2" *ngIf="listProductosIn!=null">
+            <nav>
+              <ul class="pagination justify-content-center">
+                <li class="page-item">
+                  <select class="form-control" (change)="onUpdateSelect($event.target)">
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="300">300</option>
+                  </select>
+                </li>
+                <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+                <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                  [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                  <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-12 col-sm-12 col-12">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>{{productoBService.formData!=null ? productoBService.formData.nombre : "Inventario Barcos"}}</h5>
+            </div>
+            <div class="m-3">
+              <form #formProducto="ngForm" autocomplete="off" (submit)="onSaveProducto(productoBService.formData)" *ngIf="productoBService.formData">
+                <div class="row boxForm">
+                  <div class="col-12 mb-2"
+                    *ngFor="let datoB of productoBService.formData.listBodegaProducto; let indice=index">
+                    <div class="card">
+                      <div id="ordenarS" class="card-header d-flex justify-content-between">
+                        <h5><a class="text-dark2" data-toggle="collapse"
+                            href="#ListBodegaindex{{indice}}">{{datoB.nombreBodega}}</a></h5>
+                        <a class="text-dark2" data-toggle="collapse" href="#ListBodegaindex{{indice}}"
+                          (click)="onMostrarBodega(indice)">
+                          <fa-icon [icon]="faangledown"
+                            [class]="{'ocultarObj':productoBService.formData.listBodegaProducto[indice].ocultarObj}">
+                          </fa-icon>
+                          <fa-icon [icon]="faangleleft"
+                            [class]="{'ocultarObj':!productoBService.formData.listBodegaProducto[indice].ocultarObj}">
+                          </fa-icon>
+                        </a>
+                      </div>
+                      <div class="mt-2 px-4 py-2 boxForm collapse" id="ListBodegaindex{{indice}}">
+                        <div class="row">
+                          <div class="col-12">
+                            <div class="form-group inputForm">
+                              <div><strong>Cantidad Inicial:</strong></div>
+                              <input type="number" name="in{{indice}}cantInicial" #in{{indice}}cantInicial="ngModel"
+                                pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantInicial"
+                                class="form-control" maxlength="10" required>
+                            </div>
+                            <div class="form-group inputForm">
+                              <div><strong>Cantidad Mínima:</strong></div>
+                              <input type="number" name="in{{indice}}cantMinima" #in{{indice}}cantMinima="ngModel"
+                                min="0" pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantMinima"
+                                class="form-control" maxlength="10" required>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="row boxForm justify-content-around my-2">
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                    <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formProducto.invalid">
+                      <fa-icon [icon]="fasave"></fa-icon> Guardar
+                    </button>
+                  </div>
+                  <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                    <a [routerLink] (click)="resetForm()" class="btn bttn-Primario btn-block">
+                      <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                    </a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

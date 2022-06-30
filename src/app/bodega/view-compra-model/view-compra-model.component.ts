@@ -48,8 +48,7 @@ export class ViewCompraModelComponent implements OnInit {
                 this._enterpriceServise.formDocumento.completar(datoDocumento);
               },
                 error => console.error(error));
-          }
-          else this.onExit();
+          } else this.onExit();
         } else this.onExit();
       },
         error => console.error(error));
@@ -99,13 +98,19 @@ export class ViewCompraModelComponent implements OnInit {
 
     doc.text("Razón Social / Nombres y Apellidos:", 10, (y + 7));
     doc.text("Identificación: ", 10, (y + 14));
-    doc.text("Fecha de Emisión:", 135, (y + 14));
+    doc.text("Fecha de Emisión:", 100, (y + 14));
+    if (this.ordenECService.formData.planta == "ENFERMERIA") {
+      doc.text("Barco:", 190, (y + 14));
+      doc.setFont("arial", "normal");
+      doc.setFontSize(12);
+      doc.text(this.ordenECService.formData.listPcomprasO[0].destinoBodega, 205, (y + 14));
+    }
 
     doc.setFont("arial", "normal");
     doc.setFontSize(12);
     doc.text(this._enterpriceServise.formDocumento.rS_Cliente, 85, (y + 7));
     doc.text(this._enterpriceServise.formDocumento.crp_Cliente, 42, (y + 14));
-    doc.text(this._enterpriceServise.formDocumento.emi_Fecha, 174, (y + 14));
+    doc.text(this._enterpriceServise.formDocumento.emi_Fecha, 140, (y + 14));
 
 
     y = y + 25;
@@ -117,17 +122,21 @@ export class ViewCompraModelComponent implements OnInit {
     doc.line(290, y, 290, (y + 10));//right
     doc.line(5, (y + 10), 290, (y + 10));//down
 
-    doc.text("Código", 25, (y + 7));
-    doc.line(55, y, 55, (y + 10));//right
-    doc.text("Cantidad", 60, (y + 7));
-    doc.line(80, y, 80, (y + 10));//right
-    doc.text("Descripción", 85, (y + 7));
-    doc.line(180, y, 180, (y + 10));//right
-    doc.text("Precio U", 190, (y + 7));
+    doc.text("Código", 20, (y + 7));
+    doc.line(45, y, 45, (y + 10));//right
+    doc.text("Cantidad", 48, (y + 7));
+    doc.line(65, y, 65, (y + 10));//right
+    doc.text("Cont.Neto/General", 66, (y + 7));
+    doc.line(95, y, 95, (y + 10));//right
+    doc.text("Descripción", 120, (y + 7));
+    doc.line(190, y, 190, (y + 10));//right
+    doc.text("Precio U", 195, (y + 7));
     doc.line(215, y, 215, (y + 10));//right
-    doc.text("Descuento", 225, (y + 7));
-    doc.line(250, y, 250, (y + 10));//right
-    doc.text("Total", 265, (y + 7));
+    doc.text("Precio Neto", 220, (y + 7));
+    doc.line(240, y, 240, (y + 10));//right
+    doc.text("Descuento", 245, (y + 7));
+    doc.line(265, y, 265, (y + 10));//right
+    doc.text("Total", 272, (y + 7));
 
     y = y + 10;
     doc.setFontSize(8);
@@ -141,7 +150,7 @@ export class ViewCompraModelComponent implements OnInit {
       valorG = (3 * lineaDescripcion.length) + 4;
       y = y + valorG;
 
-      if (y > 205) {
+      if (y > 200) {
         doc.text("Pág. #" + Npag, 280, 207);
         Npag++;
         doc.addPage();
@@ -154,43 +163,62 @@ export class ViewCompraModelComponent implements OnInit {
         doc.line(290, y, 290, (y + 10));//right
         doc.line(5, (y + 10), 290, (y + 10));//down
 
-        doc.text("Código", 25, (y + 7));
-        doc.line(55, y, 55, (y + 10));//right
-        doc.text("Cantidad", 60, (y + 7));
-        doc.line(80, y, 80, (y + 10));//right
-        doc.text("Descripción", 85, (y + 7));
-        doc.line(180, y, 180, (y + 10));//right
-        doc.text("Precio U", 190, (y + 7));
+        doc.text("Código", 20, (y + 7));
+        doc.line(45, y, 45, (y + 10));//right
+        doc.text("Cantidad", 48, (y + 7));
+        doc.line(65, y, 65, (y + 10));//right
+        doc.text("Cont.Neto/General", 66, (y + 7));
+        doc.line(95, y, 95, (y + 10));//right
+        doc.text("Descripción", 120, (y + 7));
+        doc.line(190, y, 190, (y + 10));//right
+        doc.text("Precio U", 195, (y + 7));
         doc.line(215, y, 215, (y + 10));//right
-        doc.text("Descuento", 225, (y + 7));
-        doc.line(250, y, 250, (y + 10));//right
-        doc.text("Total", 265, (y + 7));
+        doc.text("Precio Neto", 220, (y + 7));
+        doc.line(240, y, 240, (y + 10));//right
+        doc.text("Descuento", 245, (y + 7));
+        doc.line(265, y, 265, (y + 10));//right
+        doc.text("Total", 272, (y + 7));
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
         doc.setFont("arial", "normal");
       }
 
-      auxPrueba = Number((valorG - (3 * lineaDescripcion.length + (3 * (lineaDescripcion.length - 1)))) / 2.5) + 3;//mega formula para centrar el texto en el espacio establecido
+      auxPrueba = Number((valorG - (3 * lineaDescripcion.length + (3 * (lineaDescripcion.length - 1)))) / 2.5) + 3;
 
       doc.line(5, (y - valorG), 5, y);//left
       doc.text(this._ordenECService.formData.listPcomprasO[i].producto.codigo, 10, (y - ((valorG - 3) / 2)));
-      doc.line(55, (y - valorG), 55, y);//right
-      doc.text(this._ordenECService.formData.listPcomprasO[i].cantidad.toString(), 65, (y - ((valorG - 3) / 2)));
-      doc.line(80, (y - valorG), 80, y);//right
-      doc.text(lineaDescripcion, 85, (y - valorG + auxPrueba));
-      doc.line(180, (y - valorG), 180, y);//right
-      doc.text('$' + this._ordenECService.formData.listPcomprasO[i].precio.toString(), 190, (y - ((valorG - 3) / 2)));
+      doc.line(45, (y - valorG), 45, y);//right
+      doc.text(this._ordenECService.formData.listPcomprasO[i].cantidad.toString(), 55, (y - ((valorG - 3) / 2)));
+      doc.line(65, (y - valorG), 65, y);//right
+      if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "UNIDAD")
+        doc.text(this._ordenECService.formData.listPcomprasO[i].cantidad.toString(), 80, (y - ((valorG - 3) / 2)));
+      if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "CONTENIDO NETO")
+        doc.text(this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto.toString() + " / " + (this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto * this._ordenECService.formData.listPcomprasO[i].cantidad), 75, (y - ((valorG - 3) / 2)));
+      if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "EQUIVALENCIA")
+        doc.text((this._ordenECService.formData.listPcomprasO[i].cantidad / this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto).toString(), 80, (y - ((valorG - 3) / 2)));
+      doc.line(95, (y - valorG), 95, y);//right
+      doc.text(lineaDescripcion, 100, (y - valorG + auxPrueba));
+      doc.line(190, (y - valorG), 190, y);//right
+      doc.text('$' + this._ordenECService.formData.listPcomprasO[i].precio.toString(), 200, (y - ((valorG - 3) / 2)));
       doc.line(215, (y - valorG), 215, y);//right
-      doc.text('$' + this._ordenECService.formData.listPcomprasO[i].descuento.toString(), 225, (y - ((valorG - 3) / 2)));
-      doc.line(250, (y - valorG), 250, y);//right
+
+      var auxPrecioNeto = "---";
+      if (this._ordenECService.formData.listPcomprasO[i].producto.precioNeto != 0)
+        auxPrecioNeto = "$" + this._ordenECService.formData.listPcomprasO[i].producto.precioNeto;
+      doc.text(auxPrecioNeto, 225, (y - ((valorG - 3) / 2)));
+      doc.line(240, (y - valorG), 240, y);//right
+
+      doc.text('$' + this._ordenECService.formData.listPcomprasO[i].descuento.toString(), 250, (y - ((valorG - 3) / 2)));
+      doc.line(265, (y - valorG), 265, y);//right
       doc.setFont("arial", "bold");
-      doc.text('$' + this._ordenECService.formData.listPcomprasO[i].totalInd.toString(), 265, (y - ((valorG - 3) / 2)));
+      doc.text('$' + this._ordenECService.formData.listPcomprasO[i].totalInd.toString(), 275, (y - ((valorG - 3) / 2)));
       doc.setFont("arial", "normal");
       doc.line(290, (y - valorG), 290, y);//right
       doc.line(5, y, 290, y);//down
     }
-    if ((y + 50) >= 205) {
+
+    if ((y + 50) >= 200) {
       doc.text("Pág. #" + Npag, 280, 207);
       Npag++;
       doc.addPage();

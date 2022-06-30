@@ -1,15 +1,15 @@
 <form #formOrdenC="ngForm" autocomplete="off" (submit)="onSubmit(formOrdenC)">
   <div class="row">
-    <div class="col-8">
+    <div class="col-12 col-md-8">
       <h4 class="text-center">Recopilación datos para la compra de Productos</h4>
     </div>
-    <div class="col-4">
+    <div class="col-12 col-md-4">
       <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
         [(ngModel)]="ordenECService.formData.fechaRegistroBodega" min="2020-01-01" max="{{fechaHoy.strFecha}}">
     </div>
   </div>
   <div class="row boxForm mt-2">
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
       <div class="form-group">
         <div class="title ml-2">
           <strong class="ml-3">Proveedor:</strong>
@@ -43,7 +43,7 @@
           matTooltipPosition="above" matTooltipClass="tooltipRed" [matTooltipDisabled]="true">
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-3">
+    <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
       <div class="form-group">
         <div class="title ml-2">
           <strong class="ml-3">Guía Remisión:</strong>
@@ -55,8 +55,32 @@
           matTooltipClass="tooltipRed" [matTooltipDisabled]="true">
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-2">
-      <a [routerLink] (click)="onBuscarFactura()" class="btn bttn-Primario btn-block mt-4">
+    <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+      <div class="form-group">
+        <div class="title ml-2">
+          <strong class="ml-3">Destino Barco:</strong>
+        </div>
+        <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
+          [(ngModel)]="selectBarcoCompra">
+          <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+          <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
+            {{datobodega.nombre}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+      <div class="form-group">
+        <div class="title ml-2">
+          <strong class="ml-3">Marea:</strong>
+        </div>
+        <input name="marea" #marea="ngModel" type="number" [(ngModel)]="ordenECService.formData.marea" required
+          onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+          class="form-control" placeholder="Solo Número" matTooltip="Campo Obligatorio*" [datoAutoFocus]="autoFocus"
+          matTooltipPosition="above" matTooltipClass="tooltipRed" [matTooltipDisabled]="true">
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-2 mb-2">
+      <a [routerLink] (click)="onBuscarFactura()" class="btn bttn-Primario btn-block mt-md-4">
         <fa-icon [icon]="fasearch"></fa-icon> Buscar
       </a>
     </div>
@@ -72,14 +96,13 @@
         <div id="ordenarS" class="card-header btnAgregar d-flex justify-content-between">
           <h5><a class="text-dark2" style="padding-top: 9px; cursor: auto;">Detalle de la Compra (Artículos)</a></h5>
           <h5
-            *ngIf="ordenECService.formData.estadoProceso=='Procesada'||(ordenECService.formData.estadoProceso=='Temporal'&&ordenECService.formData.idCompraAutomatica!=0)"
+            *ngIf="ordenECService.formData.estadoProceso=='Procesada' || ordenECService.formData.estadoProceso=='Pendiente Verificación' ||(ordenECService.formData.estadoProceso=='Temporal'&& ordenECService.formData.idCompraAutomatica!=0)"
             class="text-dark2" style="padding-top: 9px;">Subtotal Libre Inp:
             {{ordenECService.formData.subTotalLibre | currency}}</h5>
           <h5
-            *ngIf="ordenECService.formData.estadoProceso=='Procesada'||(ordenECService.formData.estadoProceso=='Temporal'&&ordenECService.formData.idCompraAutomatica!=0)"
+            *ngIf="ordenECService.formData.estadoProceso=='Procesada' || ordenECService.formData.estadoProceso=='Pendiente Verificación' ||(ordenECService.formData.estadoProceso=='Temporal'&& ordenECService.formData.idCompraAutomatica!=0)"
             class="text-dark2" style="padding-top: 9px;">Total Orden:
             {{ordenECService.formData.totalOrden | currency}}</h5>
-
           <a [routerLink] (click)="onAddNewP()" class="btn" *ngIf="okCompraManual"
             [ngClass]="{'text-Info':okAddNewBotton, 'text-Danger':!okAddNewBotton }"
             matTooltip="No se puede añadir tareas si existen campos vacios" matTooltipPosition="left"
@@ -87,228 +110,266 @@
             <fa-icon [icon]="faplus"></fa-icon> Añadir
           </a>
         </div>
-        <div>
-          <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
-            <table class="table">
-              <thead>
-                <tr class="text-center">
-                  <th
-                    *ngIf="ordenECService.formData.estadoProceso=='Procesada'||(ordenECService.formData.estadoProceso=='Temporal'&&ordenECService.formData.idCompraAutomatica!=0)"
-                    style="width: 20%;">Código</th>
-                  <th style="width: 10%;">Cantidad</th>
-                  <th style="width: 25%;">Descripción</th>
-                  <th
-                    *ngIf="ordenECService.formData.estadoProceso=='Procesada'||(ordenECService.formData.estadoProceso=='Temporal'&&ordenECService.formData.idCompraAutomatica!=0)"
-                    style="width: 15%; padding-left: 0%; padding-right: 0%;" id="inputSearchP">
-                    <select class="form-control  input-src" name="showSelectP" #showSelectP="ngModel"
-                      [(ngModel)]="showSelect">
-                      <option value="1">Precio Unitario</option>
-                      <option value="2">Descuento</option>
-                      <option value="3">IVA %</option>
-                      <option value="4">Último Precio</option>
-                      <option value="5">Tipo Unidad</option>
-                    </select>
-                  </th>
-                  <th
-                    *ngIf="ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0)"
-                    style="width: 10%;">Total Indv</th>
-                  <th
-                    *ngIf="ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 )"
-                    style="width: 15%;">Destino Bodega</th>
-                  <th
-                    *ngIf="ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0"
-                    style="width: 15%;">Referencia Temporal</th>
-                  <th style="width: 5%;" *ngIf="!okCompraManual">Marcar</th>
-                  <th style="width: 5%;" *ngIf="okCompraManual">Eliminar</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  *ngFor="let datoList of ordenECService.formData.listPcomprasO | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
-                  [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
-                  <td *ngIf="!okCompraManual">{{datoList.producto.codigo}}</td>
-                  <td *ngIf="okCompraManual && ordenECService.formData.estadoProceso!='Temporal'" id="inputSearchP">
-                    <div class="wrapper">
-                      <div class="limit-width">
-                        <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigo"
-                          #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigo="ngModel"
-                          [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.codigo"
-                          (ngModelChange)="onBListProgProducto(indice+(paginacion.selectPagination*paginacion.pagActualIndex),1,$event.toUpperCase())"
-                          maxlength="45" placeholder="Código Producto" class="form-control input-src"
-                          [ngClass]="{'loading':datoList.spinnerLoading}" [disabled]="datoList.disBttnInput==1"
-                          required>
-                        <div class="results" *ngIf="datoList.showSearchSelect==1">
-                          <ul>
-                            <li *ngFor="let data of listProdFiltros$ | async">
-                              <a (click)="onChooseElemente(indice+(paginacion.selectPagination*paginacion.pagActualIndex),1,data)"
-                                class="name">{{data.codigo}}</a>
-                              <label>{{data.categoria}}</label>
-                              <!-- <img [src]="data.categoria"> //futuro cuando tengas las img-->
-                            </li>
-                          </ul>
-                        </div>
+        <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th
+                  *ngIf="ordenECService.formData.estadoProceso=='Procesada'||ordenECService.formData.estadoProceso=='Pendiente Verificación' ||(ordenECService.formData.estadoProceso=='Temporal'&& ordenECService.formData.idCompraAutomatica!=0)"
+                  style="width: 15%;">Código</th>
+                <th style="width: 10%;">Cantidad</th>
+                <th style="width: 25%;">Descripción</th>
+                <th
+                  *ngIf="ordenECService.formData.estadoProceso=='Procesada'||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal'&& ordenECService.formData.idCompraAutomatica!=0)"
+                  style="width: 10%; padding-left: 0%; padding-right: 0%;" id="inputSearchP">
+                  <select class="form-control  input-src" name="showSelectP" #showSelectP="ngModel"
+                    [(ngModel)]="showSelect">
+                    <option value="1">Precio Unitario</option>
+                    <option value="2">Descuento</option>
+                    <option value="3">IVA %</option>
+                    <option value="4">Último Precio</option>
+                    <option value="5">Precio Neto</option>
+                  </select>
+                </th>
+                <th
+                  *ngIf="ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0)"
+                  style="width: 10%;">Total Indv</th>
+                <th
+                  *ngIf="ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0)"
+                  style="width: 20%;">Tipo Unidad</th>
+                <th
+                  *ngIf="ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 )"
+                  style="width: 15%;">Destino Bodega</th>
+                <th
+                  *ngIf="ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0"
+                  style="width: 15%;">Referencia Temporal</th>
+                <th style="width: 5%;"
+                  *ngIf="!okCompraManual && ordenECService.formData.estadoProceso!='Pendiente Verificación'">Marcar</th>
+                <th style="width: 5%;" *ngIf="okCompraManual">Eliminar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let datoList of ordenECService.formData.listPcomprasO | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                <td *ngIf="!okCompraManual">{{datoList.producto.codigo}}</td>
+                <td *ngIf="okCompraManual && ordenECService.formData.estadoProceso!='Temporal'" id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigo"
+                        #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigo="ngModel"
+                        [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.codigo"
+                        (ngModelChange)="onBListProgProducto(indice+(paginacion.selectPagination*paginacion.pagActualIndex),1,$event.toUpperCase())"
+                        maxlength="45" placeholder="Código Producto" class="form-control input-src"
+                        [ngClass]="{'loading':datoList.spinnerLoading}" [disabled]="datoList.disBttnInput==1" required>
+                      <div class="results" *ngIf="datoList.showSearchSelect==1">
+                        <ul>
+                          <li *ngFor="let data of listProdFiltros$ | async">
+                            <a (click)="onChooseElemente(indice+(paginacion.selectPagination*paginacion.pagActualIndex),1,data)"
+                              class="name">{{data.codigo}}</a>
+                            <label>{{data.categoria}}</label>
+                          </li>
+                        </ul>
                       </div>
                     </div>
-                  </td>
-                  <td class="text-center" *ngIf="!okCompraManual">{{datoList.cantidad}}</td>
-                  <td *ngIf="okCompraManual" id="inputSearchP">
-                    <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
-                      type="number" min="0" maxlength="10" placeholder="#" required
-                      onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                      pattern="^[0-9]{0,12}([.][0-9]{1,3})?$"
-                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
-                      (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
-                      class="form-control input-src">
-                  </td>
-                  <td *ngIf="!okCompraManual">{{datoList.producto.nombre}}</td>
-                  <td *ngIf="okCompraManual" id="inputSearchP">
-                    <div class="wrapper">
-                      <div class="limit-width">
-                        <input
-                          name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto"
-                          #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto="ngModel"
-                          [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].descripcionProducto"
-                          (ngModelChange)="onBListProgProducto(indice+(paginacion.selectPagination*paginacion.pagActualIndex),2,$event.toUpperCase())"
-                          maxlength="100" placeholder="Nombre Producto" class="form-control input-src"
-                          [ngClass]="{'loading':datoList.spinnerLoading}" [disabled]="datoList.disBttnInput==2"
-                          required>
-                        <div class="results" *ngIf="datoList.showSearchSelect==2">
-                          <ul>
-                            <li *ngFor="let data of listProdFiltros$ | async">
-                              <a (click)="onChooseElemente(indice+(paginacion.selectPagination*paginacion.pagActualIndex),2,data)"
-                                class="name">{{data.nombre}}</a>
-                            </li>
-                          </ul>
-                        </div>
+                  </div>
+                </td>
+                <td id="inputSearchP" class="text-center" *ngIf="!okCompraManual">
+                  <div
+                    *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad!='EQUIVALENCIA'&&
+                  ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad!='CONTENIDO NETO'">
+                    {{datoList.cantidad}} </div>
+                  <div
+                    *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=='EQUIVALENCIA'">
+                    {{datoList.cantidad}} => Unidades: {{datoList.cantidad/datoList.producto.contenidoNeto | number:'1.0-0'}}</div>
+                  <div
+                    *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=='CONTENIDO NETO'">
+                    {{datoList.cantidad}} => Unidades: {{datoList.producto.contenidoNeto*datoList.cantidad | number:'1.0-0'}}</div>
+                </td>
+                <td *ngIf="okCompraManual" id="inputSearchP">
+                  <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
+                    type="number" min="0" maxlength="10" placeholder="#" required
+                    onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                    pattern="^[0-9]{0,12}([.][0-9]{1,3})?$"
+                    #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
+                    (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
+                    class="form-control input-src">
+                </td>
+                <td *ngIf="!okCompraManual">{{datoList.producto.nombre}}</td>
+                <td *ngIf="okCompraManual" id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input
+                        name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto"
+                        #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto="ngModel"
+                        [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].descripcionProducto"
+                        (ngModelChange)="onBListProgProducto(indice+(paginacion.selectPagination*paginacion.pagActualIndex),2,$event.toUpperCase())"
+                        maxlength="100" placeholder="Nombre Producto" class="form-control input-src"
+                        [ngClass]="{'loading':datoList.spinnerLoading}" [disabled]="datoList.disBttnInput==2" required>
+                      <div class="results" *ngIf="datoList.showSearchSelect==2">
+                        <ul>
+                          <li *ngFor="let data of listProdFiltros$ | async">
+                            <a (click)="onChooseElemente(indice+(paginacion.selectPagination*paginacion.pagActualIndex),2,data)"
+                              class="name">{{data.nombre}}</a>
+                          </li>
+                        </ul>
                       </div>
                     </div>
-                  </td>
-                  <td *ngIf="showSelect==1 && !okCompraManual">{{datoList.precio| currency:4}}</td>
-                  <td *ngIf="showSelect==1 && okCompraManual && ordenECService.formData.estadoProceso!='Temporal'"
-                    id="inputSearchP">
-                    <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}precioStandar"
-                      type="number" min="0" step="0.1" maxlength="10" placeholder="#" required
-                      onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                      pattern="^[0-9]{0,12}([.][0-9]{1,2})?$"
-                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}precioStandar="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.precioStandar"
-                      (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
-                      class="form-control input-src">
-                  </td>
-                  <td class="text-center" *ngIf="showSelect==2 && !okCompraManual">{{datoList.descuento  | currency}}
-                  </td>
-                  <td *ngIf="showSelect==2 && okCompraManual && ordenECService.formData.estadoProceso!='Temporal'"
-                    id="inputSearchP">
-                    <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descuento"
-                      type="number" min="0" step="0.1" maxlength="10" placeholder="#" required
-                      onkeydown="return (event.keyCode !== 69 && event.keyCode !==109  && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                      pattern="^[0-9]{0,12}([.][0-9]{1,2})?$"
-                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descuento="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].descuento"
-                      (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
-                      class="form-control input-src">
-                  </td>
-                  <td *ngIf="showSelect==3" id="inputSearchP" class="justify-content-center text-center">
-                    <div class="form-check">
-                      <mat-checkbox id="isCheckIVA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
-                        name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva"
-                        #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva="ngModel"
-                        color="primary"
-                        [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cargaIva"
-                        (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))">
-                      </mat-checkbox>
-                      <label class="form-check-label"
-                        for="isCheckIVA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"> 12%</label>
-                    </div>
-                  </td>
-                  <td *ngIf="showSelect==5" id="inputSearchP">
-                    <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}tipoUnidad"
-                      maxlength="10" placeholder="Tipo Unidad" required
-                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}tipoUnidad="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad"
-                      (ngModelChange)="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=$event.toUpperCase()"
-                      class="form-control input-src">
-                  </td>
-                  <td *ngIf="showSelect==4" class="text-center">{{datoList.producto.precioUltima| currency:4}}</td>
-                  <td class="text-center"
-                    *ngIf="ordenECService.formData.estadoProceso=='Procesada'||(ordenECService.formData.estadoProceso=='Temporal'&&ordenECService.formData.idCompraAutomatica!=0)">
-                    {{datoList.totalInd | currency}}</td>
-                  <td id="inputSearchP"
-                    *ngIf="ordenECService.formData.planta=='OFICINAS' && (ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 )) ">
-                    <select class="form-control input-src"
-                      name="in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega"
-                      #in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].destinoBodega">
-                      <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                      <option value="Bodega1">Bodega #1</option>
-                      <option value="Bodega2">Bodega #2</option>
-                      <option value="Bodega3">Bodega #3</option>
-                      <option value="Bodega4">Bodega #4</option>
-                      <option value="Bodega5">Bodega #5</option>
-                      <option value="Bodega6">Bodega #6</option>
-                      <option value="Bodega7">Bodega #7</option>
-                    </select>
-                  </td>
-                  <td id="inputSearchP"
-                    *ngIf="ordenECService.formData.planta=='P MANACRIPEX' && (ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 ))">
-                    <select class="form-control input-src"
-                      name="in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega"
-                      #in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].destinoBodega">
-                      <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                      <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
-                        value="{{datobodega.nombre}}">
-                        {{datobodega.nombre}}</option>
-                    </select>
-                  </td>
-                  <td id="inputSearchP"
-                    *ngIf="ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0">
-                    <select class="form-control input-src" required
-                      name="in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectReferencia"
-                      #in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectReferencia="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].refenciaTemporalId"
-                      (ngModelChange)="onChangeRefTemporal(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
-                      [disabled]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].disableSelectBodega">
-                      <option
-                        *ngFor="let datotemporales of ordenECService.formData.listPtemporales |temporalescant:datoList.cantidad"
-                        value="{{datotemporales.productoId}}">
-                        {{datotemporales.cantidad}} - {{datotemporales.producto.nombre}}</option>
-                    </select>
-                  </td>
-                  <td *ngIf="!okCompraManual" class="justify-content-center text-center">
-                    <mat-checkbox id="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
-                      name="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar"
+                  </div>
+                </td>
+                <td *ngIf="showSelect==1 && !okCompraManual">{{datoList.precio| currency:4}}</td>
+                <td *ngIf="showSelect==1 && okCompraManual && ordenECService.formData.estadoProceso!='Temporal'"
+                  id="inputSearchP">
+                  <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}precioStandar"
+                    type="number" min="0" step="0.1" maxlength="10" placeholder="#" required
+                    onkeydown="return(event.keyCode !== 69 && event.keyCode !==109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                    pattern="^[0-9]{0,12}([.][0-9]{1,2})?$"
+                    #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}precioStandar="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.precioStandar"
+                    (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
+                    class="form-control input-src">
+                </td>
+                <td class="text-center" *ngIf="showSelect==2 && !okCompraManual">{{datoList.descuento  | currency}}
+                </td>
+                <td *ngIf="showSelect==2 && okCompraManual && ordenECService.formData.estadoProceso!='Temporal'"
+                  id="inputSearchP">
+                  <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descuento"
+                    type="number" min="0" step="0.1" maxlength="10" placeholder="#" required
+                    onkeydown="return (event.keyCode !== 69 && event.keyCode !==109  && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                    pattern="^[0-9]{0,12}([.][0-9]{1,2})?$"
+                    #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}descuento="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].descuento"
+                    (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
+                    class="form-control input-src">
+                </td>
+                <td *ngIf="showSelect==3" id="inputSearchP" class="justify-content-center text-center">
+                  <div class="form-check">
+                    <mat-checkbox id="isCheckIVA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
+                      name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva"
+                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva="ngModel"
                       color="primary"
-                      #isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar="ngModel"
-                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].marcar"
+                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cargaIva"
                       (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))">
                     </mat-checkbox>
-                  </td>
-                  <td *ngIf="okCompraManual" class="justify-content-center">
-                    <a class="badge text-danger d-block" matTooltip="Eliminar Producto" matTooltipPosition="below"
-                      (click)="onRemoveNewP(indice+(paginacion.selectPagination*paginacion.pagActualIndex))">
-                      <fa-icon [icon]="fatimes" size="2x"></fa-icon>
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="paginationPadre mt-2">
-            <nav>
-              <ul class="pagination justify-content-center">
-                <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
-                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
-                <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
-                  [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
-                  <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
-                <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
-                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
-                </li>
-              </ul>
-            </nav>
-          </div>
+                    <label class="form-check-label"
+                      for="isCheckIVA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"> 12%</label>
+                  </div>
+                </td>
+                <td *ngIf="showSelect==4" class="text-center">{{datoList.producto.precioUltima| currency:4}}</td>
+                <td *ngIf="showSelect==5" class="text-center">{{datoList.producto.precioNeto| currency:4}}</td>
+                <td class="text-center"
+                  *ngIf="ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación' ||(ordenECService.formData.estadoProceso=='Temporal'&&ordenECService.formData.idCompraAutomatica!=0)">
+                  {{datoList.totalInd | currency}}</td>
+                <td *ngIf="!okCompraManual" id="inputSearchP" class="d-flex">
+                  <select class="form-control input-src"
+                    name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}tipoUnidad"
+                    #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}tipoUnidad="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad"
+                    [disabled]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.disBttnInput=='1'">
+                    <option value="UNIDAD">UNIDAD</option>
+                    <option value="CONTENIDO NETO">CONTENIDO NETO</option>
+                    <option value="EQUIVALENCIA">CONVERTIR A UNIDAD</option>
+                  </select>
+                  <div
+                    *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=='CONTENIDO NETO'"
+                    style="width: 60%;">
+                    <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto1"
+                      type="number" min="0" maxlength="4" placeholder="Contenido Neto" required pattern="^[0-9]{0,4}" class="form-control input-src"
+                      onkeydown="return (event.keyCode !== 69 && event.keyCode !== 109 && event.keyCode !==110 && event.keyCode !==190 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto1="ngModel"
+                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.contenidoNeto"
+                      (ngModelChange)="onSepararContenidoNeto(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
+                      [disabled]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.disBttnInput=='1'">
+                  </div>
+                  <div
+                    *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=='EQUIVALENCIA'"
+                    style="width: 60%;">
+                    <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto2"
+                      type="number" min="0" maxlength="4" placeholder="Contenido Neto" required
+                      pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" class="form-control input-src"
+                      onkeydown="return (event.keyCode !== 69 && event.keyCode !== 109 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto2="ngModel"
+                      [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.contenidoNeto"
+                      (ngModelChange)="onTransformarUnidad(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
+                      [disabled]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.disBttnInput=='1'">
+                  </div>
+                </td>
+                <td id="inputSearchP"
+                  *ngIf="ordenECService.formData.planta=='OFICINAS' && (ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 )) ">
+                  <select class="form-control input-src"
+                    name="in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega"
+                    #in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].destinoBodega">
+                    <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option value="Bodega1">Bodega #1</option>
+                    <option value="Bodega2">Bodega #2</option>
+                    <option value="Bodega3">Bodega #3</option>
+                    <option value="Bodega4">Bodega #4</option>
+                    <option value="Bodega5">Bodega #5</option>
+                    <option value="Bodega6">Bodega #6</option>
+                    <option value="Bodega7">Bodega #7</option>
+                  </select>
+                </td>
+                <td id="inputSearchP"
+                  *ngIf="ordenECService.formData.planta=='P MANACRIPEX' && (ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 ))">
+                  <select class="form-control input-src"
+                    name="in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega"
+                    #in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].destinoBodega">
+                    <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
+                      value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}</option>
+                  </select>
+                </td>
+                <td id="inputSearchP" 
+                  *ngIf="ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0">
+                  <select class="form-control input-src" required
+                    name="in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectReferencia"
+                    #in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectReferencia="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].refenciaTemporalId"
+                    (ngModelChange)="onChangeRefTemporal(indice+(paginacion.selectPagination*paginacion.pagActualIndex))"
+                    [disabled]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].disableSelectBodega">
+                    <option
+                      *ngFor="let datotemporales of ordenECService.formData.listPtemporales |temporalescant:datoList.cantidad"
+                      value="{{datotemporales.productoId}}">
+                      {{datotemporales.cantidad}} - {{datotemporales.producto.nombre}}</option>
+                  </select>
+                </td>
+                <td *ngIf="!okCompraManual && ordenECService.formData.estadoProceso!='Pendiente Verificación'"
+                  class="justify-content-center text-center">
+                  <mat-checkbox id="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
+                    name="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar"
+                    color="primary"
+                    #isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].marcar"
+                    (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))">
+                  </mat-checkbox>
+                </td>
+                <td *ngIf="okCompraManual" class="justify-content-center">
+                  <a class="badge text-danger d-block" matTooltip="Eliminar Producto" matTooltipPosition="below"
+                    (click)="onRemoveNewP(indice+(paginacion.selectPagination*paginacion.pagActualIndex))">
+                    <fa-icon [icon]="fatimes" size="2x"></fa-icon>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="paginationPadre mt-2">
+          <nav>
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+              <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+              <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>

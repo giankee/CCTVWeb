@@ -232,7 +232,6 @@ export class PuertoComponent implements OnInit {
 
       if (data.listArticulosO.find(x => x.estadoProducto == "Pendiente" || x.estadoProducto == "Pendiente Verificación" || (x.estadoProducto == "Procesada" && x.responsableVerificador == null)) == undefined) {
         if ((this._conexcionService.UserR.rolAsignado != "verificador-m"&&this._conexcionService.UserR.rolAsignado != "bodega_verificador-m") && data.estadoProceso == "Procesada Retorno V") {
-          console.log("paso el punto desconocido");
           this.buscarGuiaGeneral(data.tipoOrden, data.destinoProcedencia, data.numGuiaRetorno, data.planta,JSON.parse(JSON.stringify(data.listArticulosO)) )
         }
         data.estadoProceso = this.cambiarStatus(data.estadoProceso);

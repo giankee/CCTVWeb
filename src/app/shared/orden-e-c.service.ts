@@ -34,19 +34,22 @@ export class OrdenECService {
   getVerificarCompraTemporal(strParametros:string): Observable<cOrdenEC> {//gestionCompra
     return this.http.get<cOrdenEC>(this.serverUrl+'/getVerificarCompraTemporal/'+strParametros);
   }
-  
   actualizarOrdenES(formData: cOrdenEC): Observable<cOrdenEC> {//gestionCompra
     return this.http.put<cOrdenEC>(this.serverUrl + '/' + formData.idOrdenE_C, formData);
   }
-
   getCompraDevolucion(strParametros:string): Observable<cOrdenEC[]> {//devolucion
     return this.http.get<cOrdenEC[]>(this.serverUrl+'/getCompraDevolucion/'+strParametros);
   }
   devolucionOrdenCompra(formData: cOrdenEC): Observable<cOrdenEC> {//devolucion
     return this.http.post<cOrdenEC>(this.serverUrl+'/postDevolucion', formData);
   }
-
   getVistaReporte(strParametros:string): Observable<cOrdenEC[]> { // reporte
-    return this.http.get<cOrdenEC[]>('http://192.168.2.97:5005/api/cctv_ordenE_C/getVistaReporte/'+strParametros);
+    return this.http.get<cOrdenEC[]>(this.serverUrl+'/getVistaReporte/'+strParametros);
+  }
+  getVerificarMedicamento(strParametros:string): Observable<cOrdenEC[]> {//verificación medicamento
+    return this.http.get<cOrdenEC[]>(this.serverUrl+'/getVerificarMedicamento/'+strParametros);
+  }
+  verificacionOrdenCompra(formData: cOrdenEC): Observable<cOrdenEC> {//verificacion medicamento
+    return this.http.post<cOrdenEC>(this.serverUrl+'/postVerificar', formData);
   }
 }

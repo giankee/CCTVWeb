@@ -1,0 +1,267 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Inventario Creado</h1>
+    </div>
+  </div>
+</div>
+
+<section class="dashboard-header">
+  <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
+    <div class="row">
+      <div class="col-lg-7 col-12 mb-2" [ngClass]="{'col-lg-12':modoEdicion==0}">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2">Lista de Inventario</a></h5>
+          </div>
+          <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="row">
+              <div class="col-12">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <fa-icon [icon]="fasearch"></fa-icon>
+                    </span>
+                  </div>
+                  <input type="text" class="form-control" #filtroProductoIn="ngModel" name="filtroProductoIn"
+                    maxlength="30" placeholder="Buscar.." [(ngModel)]="filtroProductoCreados"
+                    (ngModelChange)="filtroProductoCreados = $event.toUpperCase()">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+            <table class="table">
+              <thead>
+                <tr class="text-center">
+                  <th style="width: 30%;">Código</th>
+                  <th style="width: 45%;">
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">Descripción</div>
+                    <div id="ordenarS" class="d-inline-block">
+                      <a class="badge text-dark2" (click)="onOrdenListBy()">
+                        <fa-icon [icon]="sort"></fa-icon>
+                      </a>
+                    </div>
+                  </th>
+                  <th style="width: 15%;">Disponibilidad</th>
+                  <th style="width: 10%;">Operación</th>
+                </tr>
+              </thead>
+              <tbody
+                *ngIf="(listProductosIn | search:filtroProductoCreados:'cProductoB'| filtroBodega:selectBodegaAux) as resultBusqueda">
+                <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+                <tr *ngIf="resultBusqueda.length==0">
+                  <td class="font-italic text-center" colspan="4">
+                    No existen productos creados
+                  </td>
+                </tr>
+                <tr
+                  *ngFor="let datoP of resultBusqueda |sort:ordenBy:'cProductoB' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                  [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                  <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.codigo}}</strong></td>
+                  <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.nombre}}</strong></td>
+                  <td class="text-center" id="utilitarioI">
+                    {{datoP.sumStock}}
+                  </td>
+                  <td class="text-center" id="utilitarioI">
+                    <a class="badge text-primario" (click)="onCompletarForm(1,resultBusqueda[indice])"
+                      matTooltip="Te permite modificar orden seleccionada" matTooltipPosition="left"
+                      matTooltipClass="tooltipBlack">
+                      <fa-icon [icon]="fapencilAlt"></fa-icon>
+                    </a>
+                    <a class="badge text-primario" (click)="onCompletarForm(2,resultBusqueda[indice])"
+                      matTooltip="Te permite aumentar stock de los materiales"
+                      matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                      <fa-icon [icon]="faplus"></fa-icon>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="paginationPadre mt-2" *ngIf="listProductosIn!=null">
+            <nav>
+              <ul class="pagination justify-content-center">
+                <li class="page-item">
+                  <select class="form-control" (change)="onUpdateSelect($event.target)">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </li>
+                <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a></li>
+                <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                  [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                  <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                  <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+        <div class="col-lg-5 col-12" [ngClass]="{'col-lg-12':modoEdicion==0}">
+        <div class="card">
+          <div class="card-header">
+            <h5>{{modoEdicion==0 ? 'Registrar' : 'Modificar'}} producto</h5>
+          </div>
+          <div class="m-3">
+            <form #formProducto="ngForm" autocomplete="off" (submit)="onSubmit(formProducto)"
+              *ngIf="productoBService.formData">
+              <div class="row boxForm">
+                <div class="col-12" *ngIf="modoEdicion!=2" [ngClass]="{'col-lg-6':modoEdicion==0}">
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Código:</strong></div>
+                    <input id="idCodigo" name="codigo" #codigo="ngModel" [(ngModel)]="productoBService.formData.codigo"
+                      class="form-control" maxlength="200" placeholder="Código del producto" [datoAutoFocus]="autoFocus"
+                      (ngModelChange)="productoBService.formData.codigo!=null && productoBService.formData.codigo = $event.toUpperCase()"
+                      [disabled]="modoEdicion" required>
+                    <label class="error" *ngIf="codigo.touched && codigo.errors?.required">Campo Requerido</label>
+                  </div>
+                </div>
+                <div class="col-12" *ngIf="modoEdicion!=2" [ngClass]="{'col-lg-6':modoEdicion==0}">
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Nombre:</strong></div>
+                    <input id="idNombre" name="nombre" #nombre="ngModel" [(ngModel)]="productoBService.formData.nombre"
+                      class="form-control" maxlength="75" placeholder="Nombre del producto" required
+                      (ngModelChange)="productoBService.formData.nombre!=null && productoBService.formData.nombre = $event.toUpperCase()">
+                    <label class="error" *ngIf="nombre.touched && nombre.errors?.required">Campo Requerido</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-group">
+                    <div class="title"><strong>Lista de Materiales:</strong></div>
+                    <div class="subForm">
+                      <div class="row mb-1">
+                        <div class="col-4" *ngIf="modoEdicion!=2">
+                          <a [routerLink] (click)="onNewMaterial()" class="btn bttn-Primario btn-sm"  [ngClass]="{'bttn-Error':!okAddNewBotton }">
+                            <fa-icon [icon]="faplus"></fa-icon> Añadir Elementos
+                          </a>
+                        </div>
+                        <div class="col-12" *ngIf="modoEdicion==2">
+                          <div class="row">
+                            <div class="col-6">
+                              <a [routerLink] (click)="onAumentarKit()" class="btn bttn-Primario btn-sm"  [ngClass]="{'bttn-Error':!okAddNewBotton }">
+                                <fa-icon [icon]="faplus"></fa-icon> Más
+                              </a>
+                            </div>
+                            <div class="col-6"><strong>Agregar:</strong> {{productoBService.formData.sumStock}}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row mt-1" *ngIf="productoBService.formData.listComponentesProducto.length>0">
+                        <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                          <table class="table">
+                            <thead>
+                              <tr class="text-center">
+                                <th>Código</th>
+                                <th>Nombre del material</th>
+                                <th>Cantidad Requerida</th>
+                                <th>{{modoEdicion==2 ? 'Disponibilidad' : ''}}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                *ngFor="let datoListP of productoBService.formData.listComponentesProducto; let indice=index"
+                                [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                                <td id="inputSearchP">
+                                  <div class="row">
+                                    <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                                      <div class="wrapper">
+                                        <div class="limit-width">
+                                          <input
+                                            name="in{{indice}}labelCodigo" class="form-control input-src"
+                                            #in{{indice}}labelCodigo="ngModel"
+                                            [(ngModel)]="productoBService.formData.listComponentesProducto[indice].labelCodigo"
+                                            (ngModelChange)="onListProducto(indice,1,$event?.toUpperCase())"
+                                            maxlength="100" placeholder="Código Producto" 
+                                            [ngClass]="{'loading':datoListP.showSearchSelect==1}"
+                                            [disabled]="productoBService.formData.listComponentesProducto[indice].showSearchSelect==3" required>
+                                          <div class="results" *ngIf="productoBService.formData.listComponentesProducto[indice].showSearchSelect==1">
+                                            <ul>
+                                              <li *ngFor="let data of listMaterialesIn  | searchMaterial:'codigo':productoBService.formData.listComponentesProducto[indice].labelCodigo">
+                                                <a (click)="onChooseElemente(indice,data)"
+                                                  class="name">{{data.codigo}}</a>
+                                              </li>
+                                            </ul>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td id="inputSearchP">
+                                  <div class="row">
+                                    <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                                      <div class="wrapper">
+                                        <div class="limit-width">
+                                          <input
+                                            name="in{{indice}}labelNombre" class="form-control input-src"
+                                            #in{{indice}}labelNombre="ngModel"
+                                            [(ngModel)]="productoBService.formData.listComponentesProducto[indice].labelNombre"
+                                            (ngModelChange)="onListProducto(indice,2,$event?.toUpperCase())"
+                                            maxlength="100" placeholder="Nombre del Material" 
+                                            [ngClass]="{'loading':datoListP.showSearchSelect==2}"
+                                            [disabled]="productoBService.formData.listComponentesProducto[indice].showSearchSelect==3" required>
+                                          <div class="results" *ngIf="productoBService.formData.listComponentesProducto[indice].showSearchSelect==2">
+                                            <ul>
+                                              <li *ngFor="let data of listMaterialesIn  | searchMaterial:'nombre':productoBService.formData.listComponentesProducto[indice].labelNombre">
+                                                <a (click)="onChooseElemente(indice,data)"
+                                                  class="name">{{data.nombre}}</a>
+                                              </li>
+                                            </ul>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td id="inputSearchP">
+                                  <div class="input-group">
+                                    <input
+                                      name="in{{indice}}cantidadNecesaria"
+                                      type="number" maxlength="10" class="form-control input-src" pattern="^[0-9]{0,5}([.][0-9]{1,3})?$" required
+                                      onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                      #in{{indice}}cantidadNecesaria="ngModel" [disabled]="modoEdicion==2"
+                                      [(ngModel)]="productoBService.formData.listComponentesProducto[indice].cantidadNecesaria">
+                                  </div>
+                                </td>
+                                <td class="text-center" id="utilitarioI" *ngIf="modoEdicion!=2">
+                                  <a class="badge text-primario d-block" matTooltip="Sacar de lista"
+                                  matTooltipPosition="below"
+                                  (click)="onRemoveM(indice)">
+                                  <fa-icon [icon]="fatimes" size="3x"></fa-icon>
+                                </a>
+                                </td>
+                                <td class="text-center" id="utilitarioI" *ngIf="modoEdicion==2">{{productoBService.formData.listComponentesProducto[indice].bodegaProducto.disponibilidad - (productoBService.formData.listComponentesProducto[indice].cantidadNecesaria * productoBService.formData.sumStock)}}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row boxForm justify-content-around my-2">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                  <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formProducto.invalid">
+                    <fa-icon [icon]="fasave"></fa-icon> {{modoEdicion!=0 ? 'Actualizar' : 'Guardar'}}
+                  </button>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                  <a [routerLink] (click)="resetForm()" class="btn bttn-Primario btn-block">
+                    <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

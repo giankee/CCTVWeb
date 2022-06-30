@@ -385,6 +385,50 @@ input.ng-touched.ng-invalid {
   color: var(--MicolorPlateado);
 }
 
+/*Segunda tabla*/
+.table #table2 #thead2 {
+  background-color: whitesmoke;
+  height: auto;
+
+  border-bottom: 2px solid var(--MicolorPlateado);
+  text-align: center;
+}
+
+.table #table2 .columnna {
+  height: auto;
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
+
+.table #table2 #tbody2 .filaPar {
+  background-color: whitesmoke;
+}
+.table #table2 #tbody2 .filaInPar {
+  background-color: white;
+}
+
+.table #table2 #tbody2 strong {
+  color: var(--MicolorInfo);
+  font-size: 0.9rem;
+}
+
+.table #table2 #tbody2 .indice {
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--MicolorPlateado);
+}
+
+.table #table2 #tbody2 .t_filas{
+  height: auto;
+  border-bottom: 2px solid var(--MicolorPlateado);
+}
+
+.table #table2 .bordes {
+  border-left: 1px solid white;
+  border-right: 1px solid white;
+}
+
 /*Utilitarios General*/
 /*ToolTip*/
 .tooltipRed {
@@ -475,6 +519,8 @@ div#utilitarioI .cardGalery {
 .boxForm .bttn-Primario:hover {
   background-color: var(--MicolorPrimario);
   color: white;
+  height: auto;
+  
 }
 .boxForm .bttn-Primario:focus {
   box-shadow: 0 0 0 0.2rem rgba(202 60 37 / 25%);

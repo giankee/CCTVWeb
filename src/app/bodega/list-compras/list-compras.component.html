@@ -70,10 +70,18 @@
                       </div>
                     </th>
                     <th>Fecha Registro</th>
-                    <th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
                       <div class="d-inline-block" style="margin-right: 0.5rem;">Proveedor</div>
                       <div id="ordenarS" class="d-inline-block">
                         <a class="badge text-dark2" (click)="onOrdenNombre('Proveedor')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Barco</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenNombre('Barco')">
                           <fa-icon [icon]="sort"></fa-icon>
                         </a>
                       </div>
@@ -97,7 +105,8 @@
                     <td class="indice">{{indice+1}}</td>
                     <td>{{dato.factura}}</td>
                     <td>{{dato.fechaRegistroBodega}}</td>
-                    <td><strong>{{dato.proveedor}}</strong></td>
+                    <td *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'"><strong>{{dato.proveedor}}</strong></td>
+                    <td *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'"><strong>{{dato.listPcomprasO[0].destinoBodega}}</strong></td>
                     <td>
                       <div *ngFor="let datoItems of dato.listPcomprasO">
                         <ul id="utilitarioI">

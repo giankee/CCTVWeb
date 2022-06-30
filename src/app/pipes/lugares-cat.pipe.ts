@@ -5,12 +5,20 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class LugaresCatPipe implements PipeTransform {
 
-  transform(list: any[], tDato: string, inText: string): any {
+  transform(list: any[], tDato: string, inText: string, rolAsignadoIn?:string): any {
     if (!list)
       return [];
     if (tDato) {
-      if (tDato == "cVario")
-        return list.filter(x => x.categoria == inText);
+      if (tDato == "cVario"){
+        if(rolAsignadoIn!=undefined){
+          if(rolAsignadoIn=="verificador-bodeguero")
+          return list.filter(x => x.categoria == inText && x.prioridadNivel==3);
+          if(rolAsignadoIn=="bodega_verificador-m")
+          return list.filter(x => x.categoria == inText && x.prioridadNivel==1);
+          if(rolAsignadoIn=="tinabg-m")
+          return list.filter(x => x.categoria == inText && x.prioridadNivel>=1);
+        }else return list.filter(x => x.categoria == inText);
+      }
       if (tDato == "cVistaSalida") {
         if (inText == 'notAll')
           return list.filter(x => x.subCat != "Planta" && x.subCat != "Puerto" && x.cat =="Lugar");

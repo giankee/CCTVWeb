@@ -166,12 +166,12 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 95%; /*1000px;*/
-      height: 90%; /*700px;*/
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      padding-left: 40px;
-      padding-right: 40px;
+      width: 95%; 
+      height: auto; 
+      padding-top: 0.5rem;
+      padding-left:  1.50rem;
+      padding-right:  1.50rem;
+      margin-right: 1rem;
       background: white;
       box-sizing: border-box;
       box-shadow: 0 15px 25px rgba(0, 0, 0, .5);
@@ -180,12 +180,14 @@
   
   
     .boxCliente a.btn#BtnPrincipal{
-      height: 50px;
-      font-size: 1.4rem; 
+      height: auto;
+      font-size: 1.4rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
     }
   
     .boxCliente .bodyCard{
-      height: 600px;
+      height: auto;
       margin-bottom: 10px;
     }
   
@@ -193,10 +195,25 @@
       height: 0px;
     }
   
+   @media (min-width: 285px){
+      .boxCliente#open {
+        position: relative;
+        transform: translate(-50%,0%);
+        margin-top: 10px;   
+      }
+    }
+
     @media (max-width: 575px) {
       .page {
         background-color: white;
       }
+      .boxCliente {
+        width: 100%; 
+        background-color: transparent;
+        padding: auto;
+        box-shadow: 0 15px 25px rgba(255, 255, 255, 0.5);
+      }
     }
+    
   
   

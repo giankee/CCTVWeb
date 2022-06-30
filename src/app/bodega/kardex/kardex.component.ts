@@ -10,8 +10,8 @@ import { cFecha, cVario } from 'src/app/shared/otrosServices/varios';
 import { ViewOrdenModalComponent } from 'src/app/OrdenAdmin/view-orden-modal/view-orden-modal.component';
 import { ViewCompraModelComponent } from '../view-compra-model/view-compra-model.component';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { ViewTrabajoModelComponent } from '../orden-trabajo-planta/view-trabajo-model/view-trabajo-model.component';
+import { ViewConsultaComponent } from '../consulta-medic/view-consulta/view-consulta.component';
 
 @Component({
   selector: 'app-kardex',
@@ -59,21 +59,26 @@ export class KardexComponent implements OnInit {
     this.cargarBodega();
     if (this.dato.auxId != null) {
       this.cargarData();
-      this._productoBservice.formData.listBodegaProducto.forEach(x => {
-        this.oneKardex.cantidadDisponible = this.oneKardex.cantidadDisponible + x.disponibilidad;
-        this.oneKardex.cantidadInicial = this.oneKardex.cantidadInicial + x.cantInicial;
-      });
+      this.onFiltrarCantidadesBodega();
     }
   }
 
   cargarBodega() {
-    this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-      this.listBodega = dato;
-    });
+    if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
+      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
+        dato.forEach(x => {
+          if (x.categoria == "Puerto" && x.prioridadNivel == 1)
+            this.listBodega.push(x);
+        });
+      });
+    } else
+      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
+        this.listBodega = dato;
+      });
   }
 
   cargarData() {
-    this.oneKardex.listItems=[];
+    this.oneKardex.listItems = [];
     this.strFechaMarcar = "";
     var strParametro = this._productoBservice.formData.planta + "@" + this.dato.auxId + "@" + this.oneKardex.tipoVista + "@" + this.oneKardex.fechaBusqueda + "@" + this._oneKardex.BodegaSelect;
     this._productoBservice.getKardexProducto(strParametro)
@@ -290,7 +295,7 @@ export class KardexComponent implements OnInit {
     doc.line(230, y + 10, 230, (y + 10));//left
     doc.text(this._oneKardex.precioSumS.toString(), 235, (y + 7));
     doc.line(245, y, 245, (y + 10));//left
-    doc.text((this._oneKardex.totalSumS-this._oneKardex.totalSumS).toString(), 248, (y + 7));
+    doc.text((this._oneKardex.totalSumS - this._oneKardex.totalSumS).toString(), 248, (y + 7));
     doc.line(260, y + 10, 260, (y + 10));//left
     doc.text("Saldo", 263, (y + 7));
     doc.line(275, y + 10, 275, (y + 10));//left
@@ -320,9 +325,31 @@ export class KardexComponent implements OnInit {
       dialoConfig.data = { auxId };
       this.dialog.open(ViewTrabajoModelComponent, dialoConfig);
     }
+    if (tipo == 1 && dataIn.guia != '---' && dataIn.tipoItem == "Consulta Médica") {
+      var auxId = dataIn.relacionGuiaId;
+      dialoConfig.data = { auxId };
+      this.dialog.open(ViewConsultaComponent, dialoConfig);
+    }
   }
 
   onExit() {
     this.dialogRef.close();
+  }
+
+  onFiltrarCantidadesBodega() {
+    this.oneKardex.cantidadInicial = 0;
+    this.oneKardex.cantidadDisponible = 0;
+    this._productoBservice.formData.listBodegaProducto.forEach(x => {
+      if (this.oneKardex.BodegaSelect == "all") {
+        this.oneKardex.cantidadDisponible = this.oneKardex.cantidadDisponible + x.disponibilidad;
+        this.oneKardex.cantidadInicial = this.oneKardex.cantidadInicial + x.cantInicial;
+      } else {
+        if (x.nombreBodega == this.oneKardex.BodegaSelect) {
+          this.oneKardex.cantidadDisponible = this.oneKardex.cantidadDisponible + x.disponibilidad;
+          this.oneKardex.cantidadInicial = this.oneKardex.cantidadInicial + x.cantInicial;
+        }
+      }
+    });
+
   }
 }

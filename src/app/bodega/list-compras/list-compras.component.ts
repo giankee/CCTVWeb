@@ -6,7 +6,7 @@ import { OrdenECService } from 'src/app/shared/orden-e-c.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
 import { cFecha } from 'src/app/shared/otrosServices/varios';
-import { faQuestion, faSort, faPencilAlt, faEye, faEraser, faSave, faTimesCircle, faSearch, faAngleDown, faAngleLeft, faPrint, faArrowAltCircleLeft, faArrowAltCircleRight,faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faQuestion, faSort, faPencilAlt, faEye, faEraser, faSave, faTimesCircle, faSearch, faAngleDown, faAngleLeft, faPrint, faArrowAltCircleLeft, faArrowAltCircleRight, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ViewCompraModelComponent } from '../view-compra-model/view-compra-model.component';
 import jsPDF from 'jspdf';
@@ -46,8 +46,8 @@ export class ListComprasComponent implements OnInit {
   fechaHoy = new cFecha();
   /**Fin paginatacion */
 
-  faquestion = faQuestion; sort = faSort; fapencilAlt = faPencilAlt; faeye = faEye; faeraser = faEraser; fasave = faSave; fatimesCircle = faTimesCircle; fasearch = faSearch; 
-  faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight;faeyeslash=faEyeSlash
+  faquestion = faQuestion; sort = faSort; fapencilAlt = faPencilAlt; faeye = faEye; faeraser = faEraser; fasave = faSave; fatimesCircle = faTimesCircle; fasearch = faSearch;
+  faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
   constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private dialog: MatDialog, private ordenarPipe: SortPipe) { }
 
   ngOnInit(): void {
@@ -61,6 +61,9 @@ export class ListComprasComponent implements OnInit {
     var strParametro = "P MANACRIPEX";
     if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
       strParametro = "OFICINAS";
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+      strParametro = "ENFERMERIA";
+
     this.spinnerOnOff = true;
     this.listOrdenesMostrar$ = this._ordenECService.getListOrdenesCompra(strParametro).pipe(
       map((x: cOrdenEC[]) => {
@@ -79,6 +82,8 @@ export class ListComprasComponent implements OnInit {
     var strParametro = "P MANACRIPEX@";
     if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
       strParametro = "OFICINAS@";
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+      strParametro = "ENFERMERIA@";
     if (value != '') {
       strParametro = strParametro + "null@null@";
       const regex = /^[0-9]*$/;
@@ -123,6 +128,11 @@ export class ListComprasComponent implements OnInit {
       if (this.ordenGuia == "default" || this.ordenGuia == "down-F")
         this.ordenGuia = "up-F";
       else this.ordenGuia = "down-F";
+    }
+    if (tipo == "Barco") {
+      if (this.ordenGuia == "default" || this.ordenGuia == "down-B")
+        this.ordenGuia = "up-B";
+      else this.ordenGuia = "down-B";
     }
   }
 

@@ -23,9 +23,9 @@
               <div class="col-12 col-md-4">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Bodega Origen:</strong></div>
-                  <select class="form-control" name="selectBodega" #selectBodega="ngModel"
+                  <select class="form-control" name="selectBodega" #selectBodega="ngModel" [disabled]="conexcionService.UserR.rolAsignado == 'verificador-bodeguero'"
                     [(ngModel)]="parametrosBusqueda.strBodegaOrigen">
-                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'" value="{{datobodega.nombre}}">
+                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA':conexcionService.UserR.rolAsignado" value="{{datobodega.nombre}}">
                       {{datobodega.nombre}}
                     </option>
                   </select>

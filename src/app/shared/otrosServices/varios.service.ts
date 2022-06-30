@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 export class VariosService {
 
   serverUrl = environment.baseUrlCCTVL + 'cctv_vario';
-  serverUrl2 = environment.baseUrlCCTVL;
+  serverUrl2 = environment.baseUrlCCTVL+'vcctv_salidaConProveedor';
   formData: cVario;
   formArrayB:cVario[];
 
@@ -18,9 +18,10 @@ export class VariosService {
     var URLactual = window.location;
     if(URLactual.hostname!='192.168.2.97'){
       this.serverUrl=environment.baseUrlCCTVP + 'cctv_vario';
+      this.serverUrl2=environment.baseUrlCCTVP+'vcctv_salidaConProveedor';
     }
     if (URLactual.hostname == '192.168.2.115') {
-      this.serverUrl2 = 'http://192.168.2.97:5005/api/';
+      this.serverUrl2 = 'http://192.168.2.97:5005/api/vcctv_salidaConProveedor';
     }
    }
 
@@ -45,6 +46,6 @@ export class VariosService {
   }
 
   getSalidasLugarGSearch(strParametros:string): Observable<cVistaSalida[]> { // solo cliente
-    return this.http.get<cVistaSalida[]>(this.serverUrl2 +'vcctv_salidaConProveedor'+'/getSalidasLugarGSearch/'+strParametros);
+    return this.http.get<cVistaSalida[]>(this.serverUrl2+'/getSalidasLugarGSearch/'+strParametros);
   }
 }

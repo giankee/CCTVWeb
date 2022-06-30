@@ -4,9 +4,11 @@ import { Router } from '@angular/router';
 import { ConexionService } from '../shared/otrosServices/conexion.service';
 import { Observable, Subscription, fromEvent } from 'rxjs';
 
-import { faBars,faCircle,faSignOutAlt, faBell, faTasks, faCar, faUserPlus,faTools, faUsers, faEnvelope,faExchangeAlt,faClipboardCheck, faShoppingCart, faBoxes,faDolly,faDollyFlatbed } from '@fortawesome/free-solid-svg-icons';
+import { faBars,faCircle,faSignOutAlt, faBell, faTasks, faCar, faUserPlus,faTools, faUsers, faEnvelope,faExchangeAlt,faClipboardCheck,
+   faShoppingCart, faBoxes,faDolly,faDollyFlatbed, faFileMedical, faMedkit, faBookMedical, faLaptopMedical, faCarCrash, faObjectGroup } from '@fortawesome/free-solid-svg-icons';
 import { cNotificacion } from '../shared/ordenEs';
 import { NotificacionService } from '../shared/notificacion.service';
+import { faPlusSquare } from '@fortawesome/free-regular-svg-icons';
 
 @Component({
   selector: 'app-menu',
@@ -41,7 +43,9 @@ export class MenuComponent implements OnInit, OnDestroy {
   /**Icon */
   fabars=faBars;facircle=faCircle;fasignOut=faSignOutAlt;fabell=faBell;fatasks=faTasks;facar=faCar;fauserplus=faUserPlus;
   fatools=faTools; fausers=faUsers;faenvelope=faEnvelope;faexchangeAlt=faExchangeAlt;faclipboardCheck=faClipboardCheck;
-  fashoppingCart=faShoppingCart;faboxes=faBoxes;fadolly=faDolly;fadollyflatbed=faDollyFlatbed
+  fashoppingCart=faShoppingCart;faboxes=faBoxes;fadolly=faDolly;fadollyflatbed=faDollyFlatbed;fasquareplus=faPlusSquare;
+  fafilemedical=faFileMedical;fakitmedical=faMedkit;fabookmedical=faBookMedical;falaptopmedic=faLaptopMedical;facarcrash=faCarCrash;
+  faobjerctunicion= faObjectGroup;
 
   /**Parte Online/OffLine */
   public onlineEvent: Observable<Event>;

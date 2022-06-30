@@ -1,28 +1,35 @@
 <section class="dashboard-header">
-  <div class="container-fluid">
-    <div class="boxCliente">
+  <div class="container-fluid pt-0 px-0" style="height: auto;">
+    <div class="boxCliente" *ngIf="strFases=='Inicio'|| strFases=='OrdenTrabajo'">
       <div *ngIf="strFases=='Inicio'" style="height: 100%;">
         <h1 class="text-center">Control Inventario</h1>
         <div class="row boxForm align-items-center justify-content-center" style="height: 45%;">
-          <div class="col-5">
+          <div class="col-12 col-md-6 " *ngIf="conexcionService.UserR.rolAsignado!='enfermeria'">
             <a [routerLink] id="BtnPrincipal" (click)="onStart('OrdenTrabajo')" class="btn bttn-Primario btn-block">
               <fa-icon [icon]="fatasks"></fa-icon> Orden de Trabajo
             </a>
           </div>
-         <div class="col-5">
+          <div class="col-12 col-md-6" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+            <a [routerLink] id="BtnPrincipal" (click)="onStart('Consulta')" class="btn bttn-Primario btn-block">
+              <fa-icon [icon]="fatasks"></fa-icon> Entrega de Medicamento
+            </a>
+          </div>
+          <div class="col-12 col-md-6">
             <a [routerLink] id="BtnPrincipal" (click)="onStart('Traspaso')" class="btn bttn-Primario btn-block">
-              <fa-icon [icon]="faoutdent"></fa-icon> Traspaso Bodega
+              <fa-icon [icon]="faoutdent"></fa-icon> Traspaso
+              {{conexcionService.UserR.rolAsignado!='enfermeria' ? ' Bodega' : ' Medicamento'}}
             </a>
           </div>
         </div>
         <div class="row boxForm align-items-center justify-content-center" style="height: 45%;">
-          <div class="col-5">
+          <div class="col-12 col-md-6">
             <a [routerLink] id="BtnPrincipal" (click)="onStart('Proveedor')" class="btn bttn-Primario btn-block">
-              <fa-icon [icon]="fausertag"></fa-icon> Compra Proveedor
+              <fa-icon [icon]="fausertag"></fa-icon> Compra
+              {{conexcionService.UserR.rolAsignado!='enfermeria' ? ' Proveedor' : ' Medicamento'}}
             </a>
           </div>
-          <div class="col-5">
-            <a  [routerLink] id="BtnPrincipal" (click)="onStart('Devolucion')" class="btn bttn-Primario btn-block">
+          <div class="col-12 col-md-6" *ngIf="conexcionService.UserR.rolAsignado!='enfermeria'">
+            <a [routerLink] id="BtnPrincipal" (click)="onStart('Devolucion')" class="btn bttn-Primario btn-block">
               <fa-icon [icon]="fausertag"></fa-icon> Devolución Compra
             </a>
           </div>
@@ -32,16 +39,16 @@
         <form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)">
           <div class="bodyCard" *ngIf="strFases=='OrdenTrabajo'">
             <div class="row mt-3">
-              <div class="col-8">
+              <div class="col-12 col-md-8">
                 <h4 class="text-center">Recopilación datos para Trabajos Internos</h4>
               </div>
-              <div class="col-4">
+              <div class="col-12 col-md-4">
                 <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
                   [(ngModel)]="ordenTrabajoService.formData.fechaRegistro" min="2020-01-01" max="{{fechaHoy.strFecha}}">
               </div>
             </div>
             <div class="row boxForm mt-2">
-              <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado=='tinabg-m'">
+              <div class="col-12 col-md-6 col-lg-3">
                 <div class="form-group" id="selectMaterial">
                   <div class="title ml-2">
                     <strong class="ml-3">Salida de Bodega: </strong>
@@ -53,7 +60,8 @@
                           <mat-label>--Seleccionar--</mat-label>
                           <mat-select name="bodega" #bodega="ngModel" [(ngModel)]="ordenTrabajoService.formData.bodega"
                             required>
-                            <mat-option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
+                            <mat-option
+                              *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA':conexcionService.UserR.rolAsignado"
                               value="{{datobodega.nombre}}">
                               {{datobodega.nombre}}
                             </mat-option>
@@ -64,7 +72,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-6 col-lg-4">
+              <div class="col-12 col-md-6 col-lg-3">
                 <div class="form-group" id="selectMaterial">
                   <div class="title ml-2">
                     <strong class="ml-3">Lugar de Destino: </strong>
@@ -76,7 +84,8 @@
                           <mat-label>--Seleccionar--</mat-label>
                           <mat-select name="destinoLugar" #destinoLugar="ngModel" required
                             [(ngModel)]="ordenTrabajoService.formData.destinoLugar">
-                            <mat-option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'DEPARTAMENTO MANACRIPEX'"
+                            <mat-option
+                              *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'DEPARTAMENTO MANACRIPEX'"
                               value="{{datobodega.nombre}}">
                               {{datobodega.nombre}}
                             </mat-option>
@@ -87,7 +96,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-6 col-lg-4">
+              <div class="col-12 col-md-6 col-lg-3">
                 <div class="form-group">
                   <div class="title ml-2">
                     <strong class="ml-3">Responsable de Solicitud: </strong>
@@ -104,7 +113,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-6 col-lg-4">
+              <div class="col-12 col-md-6 col-lg-3">
                 <div class="form-group">
                   <div class="title ml-2">
                     <strong class="ml-3">Bodeguero: </strong>
@@ -121,7 +130,8 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-6" [ngClass]="{'col-md-12 col-lg-8':conexcionService.UserR.rolAsignado=='tinabg-m','col-lg-12':conexcionService.UserR.rolAsignado=='bodega_verificador-m'}">
+              <div class="col-12 col-md-6"
+                [ngClass]="{'col-md-12 col-lg-8':conexcionService.UserR.rolAsignado=='tinabg-m','col-lg-12':conexcionService.UserR.rolAsignado=='bodega_verificador-m'}">
                 <div class="form-group">
                   <div class="title ml-2">
                     <strong class="ml-3">Justificación del Motivo de Salida: </strong>
@@ -169,7 +179,8 @@
                               <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
                                 <div class="wrapper">
                                   <div class="limit-width">
-                                    <input name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigoProducto"
+                                    <input
+                                      name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigoProducto"
                                       #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}codigoProducto="ngModel"
                                       [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.codigo"
                                       (ngModelChange)="onListProducto(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex),1,$event?.toUpperCase())"
@@ -190,7 +201,8 @@
                               <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
                                 <div class="wrapper">
                                   <div class="limit-width">
-                                    <input name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto"
+                                    <input
+                                      name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto"
                                       #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}descripcionProducto="ngModel"
                                       [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.nombre"
                                       (ngModelChange)="onListProducto(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex),2,$event?.toUpperCase())"
@@ -212,26 +224,29 @@
                           </td>
                           <td id="inputSearchP">
                             <div class="input-group">
-                              <input name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
+                              <input
+                                name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
                                 type="number" min="0" maxlength="10" placeholder="#" class="form-control input-src"
                                 onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                                 pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" required
                                 #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad="ngModel"
                                 [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
                                 (ngModelChange)="comprobarNewM()">
-                              <span class="input-group-text  input-src span">/{{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</span>
+                              <span
+                                class="input-group-text  input-src span">/{{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</span>
                             </div>
                           </td>
                           <td id="inputSearchP">
-                            <textarea name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}observacion"
+                            <textarea
+                              name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}observacion"
                               #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}observacion="ngModel"
                               [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].observacion"
                               class="form-control input-src" maxlength="300"
                               placeholder="Ingrese sus observaciones"></textarea>
                           </td>
                           <td class="justify-content-center" id="utilitarioI">
-                            <a class="badge text-primario d-block"
-                              matTooltip="Sacar de lista" matTooltipPosition="below"
+                            <a class="badge text-primario d-block" matTooltip="Sacar de lista"
+                              matTooltipPosition="below"
                               (click)="onRemoveNewM(indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex))">
                               <fa-icon [icon]="fatimes" size="3x"></fa-icon>
                             </a>
@@ -243,13 +258,15 @@
                       <nav>
                         <ul class="pagination justify-content-center">
                           <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
-                            <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
+                            <a class="page-link"
+                              (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
                           </li>
                           <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
                             [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
                             <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
                           <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
-                            <a class="page-link" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                            <a class="page-link"
+                              (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
                           </li>
                         </ul>
                       </nav>
@@ -264,9 +281,9 @@
                   <fa-icon [icon]="faHandLeft"></fa-icon> Anterior
                 </a>
               </div>
-              <div class="col-6 col-sm-6 col-md-6 mb-2 px-4" >
-                <button class="btn bttn-Primario btn-block " type="submit" [disabled]="formOrden.invalid || !okBttnSubmit"
-                  [ngClass]="{'bttn-Error':!okBttnSubmit }"
+              <div class="col-6 col-sm-6 col-md-6 mb-2 px-4">
+                <button class="btn bttn-Primario btn-block " type="submit"
+                  [disabled]="formOrden.invalid || !okBttnSubmit" [ngClass]="{'bttn-Error':!okBttnSubmit }"
                   matTooltip="Campos Vacios Revisar*" matTooltipPosition="above" matTooltipClass="tooltipRed"
                   [matTooltipDisabled]="okBttnSubmit">
                   <fa-icon [icon]="fasave"></fa-icon> Procesar
@@ -277,38 +294,41 @@
         </form>
       </div>
     </div>
-    <div class="boxCliente pt-0" *ngIf="strFases=='Proveedor'">
+    <div class="boxCliente" id="open" *ngIf="strFases=='Proveedor'">
       <div class="d-flex flex-row-reverse" id=utilitarioI>
         <a (click)="recibirRes(true, 'proveedor')" class="btn text-secundario btn-block mt-2" style="width: 50px;">
           <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
         </a>
       </div>
-      <div>
         <app-compra-proveedor [isOpen]="proveedorIsOpened" (cerrar)="recibirRes($event, 'proveedor')">
         </app-compra-proveedor>
-      </div>
     </div>
-    <div class="boxCliente pt-0" *ngIf="strFases=='Traspaso'">
+    <div class="boxCliente" id="open" *ngIf="strFases=='Traspaso'">
       <div class="d-flex flex-row-reverse" id=utilitarioI>
         <a (click)="recibirRes(true, 'traspaso')" class="btn text-secundario btn-block mt-2" style="width: 50px;">
           <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
         </a>
       </div>
-      <div>
-        <app-traspaso-interno [isOpen]="traspasoIsOpened" (cerrar)="recibirRes($event, 'traspaso')">
-        </app-traspaso-interno>
-      </div>
+      <app-traspaso-interno [isOpen]="traspasoIsOpened" (cerrar)="recibirRes($event, 'traspaso')">
+      </app-traspaso-interno>
     </div>
-    <div class="boxCliente pt-0" *ngIf="strFases=='Devolucion'">
+    <div class="boxCliente" id="open" *ngIf="strFases=='Devolucion'">
       <div class="d-flex flex-row-reverse" id=utilitarioI>
         <a (click)="recibirRes(true, 'devolucion')" class="btn text-secundario btn-block mt-2" style="width: 50px;">
           <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
         </a>
       </div>
-      <div>
-        <app-devolucion-compra [isOpen]="devolucionIsOpened" (cerrar)="recibirRes($event, 'devolucion')">
-        </app-devolucion-compra>
+      <app-devolucion-compra [isOpen]="devolucionIsOpened" (cerrar)="recibirRes($event, 'devolucion')">
+      </app-devolucion-compra>
+    </div>
+    <div class="boxCliente" id="open" *ngIf="strFases=='Consulta'">
+      <div class="d-flex flex-row-reverse" id=utilitarioI>
+        <a (click)="recibirRes(true, 'consulta')" class="btn text-secundario btn-block mt-2" style="width: 50px;">
+          <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
+        </a>
       </div>
+      <app-consulta-medic [isOpen]="consultaIsOpened" (cerrar)="recibirRes($event, 'consulta')">
+      </app-consulta-medic>
     </div>
   </div>
 </section>

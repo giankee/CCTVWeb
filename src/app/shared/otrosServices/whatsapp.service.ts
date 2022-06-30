@@ -30,25 +30,4 @@ export class WhatsappService {
   sendMessageMGroup(formData:cWhatsapp){
     return this.http.post<any>(this.serverUrl+"group/sendmedia/"+formData.chatname,formData,this.httpOptions)
   }
-
-  /*buscarGrupo(formData:cWhatsapp){
-    return this.http.get<any>(this.serverUrl+"group/isregisteredgroup/"+formData.chatname,this.httpOptions)
-  }*/
-  /*buscarContact(formData:cWhatsapp){
-    return this.http.get<any>(this.serverUrl+"contact/getcontact/"+formData.phone,this.httpOptions)
-  }
-  
-  logoutWhatsapp(formData:cWhatsapp){
-    return this.http.post<any>(this.serverUrl+"auth/logout",formData,this.httpOptions)
-  }*/
-  
-  /**Pruebas */
-  /*sendMultipleMessageWhat(formData:cWhatsapp){
-    return this.http.post<any>(this.serverUrl+"chat/sendmultmessage/",formData,this.httpOptions)
-  }*/
-
-  //Listo
-  /*viewAllContacts(){
-    return this.http.get<any>(this.serverUrl+"contact/getallcontacts",this.httpOptions)
-  }*/
 }

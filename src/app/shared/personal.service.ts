@@ -36,8 +36,4 @@ export class PersonalService {
   getPersonales(): Observable<cPersonal[]> { //personal-list
     return this.http.get<cPersonal[]>(this.serverUrl);
   }
-
-  /*getPersona(carroId: string): Observable<cPersonal>{
-    return this.http.get<cPersonal>(this.serverUrl + '/' + carroId);
-  }*/
 }

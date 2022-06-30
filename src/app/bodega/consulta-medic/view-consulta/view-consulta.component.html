@@ -1,0 +1,79 @@
+<mat-dialog-content id="ModalFix">
+  <div class="jumtron" *ngIf="consultaMedicService.formData!=null">
+    <div class="row justify-content-center">
+      <div id="contPrint1" class="col-12">
+        <h1 class="display-4 text-center">Consulta #{{consultaMedicService.formData.numOrdenSecuencial}}</h1>
+      </div>
+    </div>
+  </div>
+  <form #formOrden="ngForm" autocomplete="off" *ngIf="consultaMedicService.formData!=null">
+    <div class="container-fluid">
+      <div id="content" #content class="row mInCajaPadre">
+        <div class="col-12 mInCajaHijaOrden">
+          <div class="row my-2">
+            <div class="col-6">
+              <strong>Paciente:</strong> {{consultaMedicService.formData.paciente}}
+            </div>
+            <div class="col-6">
+              <strong>Fecha Registro:</strong> {{consultaMedicService.formData.fechaRegistro}}
+            </div>
+            <div class="col-6">
+              <strong>Bodega Salida:</strong> {{consultaMedicService.formData.bodegaOrigen}}
+            </div>
+            <div class="col-6" *ngIf="consultaMedicService.formData.bodegaOrigen!='ENFERMERIA GENERAL'">
+              <strong>Marea</strong> {{consultaMedicService.formData.marea}}
+            </div>
+            <div class="col-6">
+              <strong>Responsable de Entrega:</strong> {{consultaMedicService.formData.personaResponsable}}
+            </div>
+            <div class="col-12">
+              <strong>Sintomas del Paciente:</strong> {{consultaMedicService.formData.sintomas}}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-headerModal">
+                  <h5>Receta Médiica</h5>
+                </div>
+                <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                  <table class="table">
+                    <thead>
+                      <tr class="text-center">
+                        <th scope="col">Código</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Observación</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="let datoList of consultaMedicService.formData.listReceta; let indiceNew=index"
+                        [ngClass]="{'filaPar':(((indiceNew+1)%2)==0)}">
+                        <td>{{datoList.inventario.codigo}}</td>
+                        <td class="text-center">{{datoList.cantidad}}</td>
+                        <td>{{datoList.inventario.nombre}}</td>
+                        <td class="text-center">{{datoList.observacion}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row boxForm justify-content-between mt-1 mt-sm-2 mb-1 mb-sm-2">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 mb-2">
+              <a [routerLink] class="btn bttn-Primario btn-block"
+                (click)="onConvertPdfOne(consultaMedicService.formData)">
+                <fa-icon [icon]="faprint"></fa-icon> Descargar PDF
+              </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 mb-2">
+              <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>

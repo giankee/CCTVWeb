@@ -61,6 +61,8 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
   dataOrdenesResult: cOrdenTrabajoI[] = [];
   listProdFiltros$: any;
 
+  listBodegasFiltro: string = "All";
+
   /**Para pagination y fecha Entrada*/
   paginacion = new cPaginacion(25);
   fechaHoy = new cFecha();
@@ -74,12 +76,12 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
     this._conexcionService.msg$.subscribe(mensajeStatus => {
       this.internetStatus = mensajeStatus.connectionStatus;
     });
-    this.cargarData();
+    
     this.cargarBodega();
   }
 
   cargarData() {//Datos de los ordenes traidos desde db
-    var strParametro = "P MANACRIPEX@Trabajo Interno";
+    var strParametro = "P MANACRIPEX@Trabajo Interno@"+this.listBodegasFiltro;
     this.spinnerOnOff = true;
     this.listOrdenesMostrar$ = this._ordenInterService.getListOrdenesInter(strParametro).pipe(
       map((x: cOrdenTrabajoI[]) => {
@@ -96,6 +98,17 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
   cargarBodega() {
     this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
       this.listBodega = dato;
+      if(this.conexcionService.UserR.rolAsignado!="tinabg-m")
+      this.listBodega.forEach(x=>{
+        if(x.encargadoBodega==this.conexcionService.UserR.nombreU){
+          if(this.listBodegasFiltro=="All"){
+            this.parametrosBusqueda.strBodegaOrigen=x.nombre;
+            this.listBodegasFiltro=x.nombre;
+          }
+          else this.listBodegasFiltro=this.listBodegasFiltro+'-'+x.nombre;
+        }
+      }) 
+      this.cargarData();
     });
   }
 
@@ -145,6 +158,12 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
         this.ordenTrabajo = "up-E";
       else this.ordenTrabajo = "down-E";
     }
+  }
+
+  onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views
+    this.paginacion.selectPagination = Number(control.value);
+    this.paginacion.getNumberIndex(this.dataOrdenesResult.length);
+    this.paginacion.updateIndex(0);
   }
 
   onFiltrarOrdenes() {

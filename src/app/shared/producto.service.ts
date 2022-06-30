@@ -42,10 +42,6 @@ export class ProductoService {
     return this.http.get<cProducto[]>(environment.baseUrlCCTVL +'vcctv_productos'+'/getProductosGSearch/'+strParametros);
   }
 
-  /*getProducto(ProductoId: string): Observable<cProducto>{
-    return this.http.get<cProducto>(this.serverUrl + '/' + ProductoId);
-  }*/
-
   getBuscarEliminar(ProductoId: string): Observable<cProducto>{
     return this.http.get<cProducto>(this.serverUrl + '/getBuscarEliminar/' + ProductoId);
   }

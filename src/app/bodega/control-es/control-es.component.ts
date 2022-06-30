@@ -53,6 +53,7 @@ export class ControlESComponent implements OnInit {
   proveedorIsOpened: boolean = false;
   traspasoIsOpened: boolean = false;
   devolucionIsOpened: boolean = false;
+  consultaIsOpened: boolean = false;
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
   listBodega: cVario[] = [];
@@ -82,6 +83,8 @@ export class ControlESComponent implements OnInit {
     if (tipo == "devolucion")
       this.devolucionIsOpened = !salir;
     this.strFases = "Inicio";
+    if (tipo == "consulta")
+      this.consultaIsOpened = !salir;
   }
 
   onStart(op: string) {
@@ -95,6 +98,11 @@ export class ControlESComponent implements OnInit {
         break;
       case 'Traspaso':
         this._ordenTrabajoService.formData.tipoOrden = "Traspaso Bodega";
+        if (this._conexcionService.UserR.rolAsignado == "enfermeria") {
+          this._ordenTrabajoService.formData.bodega = "SIN ASIGNAR";
+          this._ordenTrabajoService.formData.destinoLugar = "ENFERMERIA GENERAL";
+          this._ordenTrabajoService.formData.personaResponsable = "VERÓNICA CHUMO";
+        }
         this.traspasoIsOpened = true;
         break;
       case 'Proveedor':
@@ -103,21 +111,26 @@ export class ControlESComponent implements OnInit {
       case 'Devolucion':
         this.devolucionIsOpened = true;
         break;
+      case 'Consulta':
+        this.consultaIsOpened = true;
+        break;
     }
   }
 
-  resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
+  resetForm(form?: NgForm) {
     if (form != null) {
       form.resetForm();
     }
-    this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
-    if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
-        this._ordenTrabajoService.formData.bodega="GENERAL";
+    if (this._conexcionService.UserR.rolAsignado != "enfermeria") {
+      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
+      if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
+        this._ordenTrabajoService.formData.bodega = "GENERAL";
+    } else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "ENFERMERIA");
     this.strFases = "Inicio";
     this.okBttnSubmit = true;
   }
 
-  onAntSig(op:string){
+  onAntSig(op: string) {
     this.strFases = "Inicio";
     this.resetForm();
   }
@@ -156,7 +169,7 @@ export class ControlESComponent implements OnInit {
   }
 
   onListProducto(index: number, op: number, value: string) {
-    if(value!=null){
+    if (value != null) {
       this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = true;
       this._ordenTrabajoService.formData.listMaterialesO.forEach(x => x.showSearchSelect = 0);
       this._ordenTrabajoService.formData.listMaterialesO[index].showSearchSelect = op;
@@ -164,14 +177,14 @@ export class ControlESComponent implements OnInit {
       if (op == 2)
         this._ordenTrabajoService.formData.listMaterialesO[index].inventario.nombre = value.toUpperCase();
       else this._ordenTrabajoService.formData.listMaterialesO[index].inventario.codigo = value.toUpperCase();
-  
+
       var strParametro = value;
       if (value != "") {
         strParametro = strParametro + "@" + this._ordenTrabajoService.formData.planta + "@" + op + "@" + this.ordenTrabajoService.formData.bodega;
-  
+
         this.listProdFiltros$ = this._productoBService.getProductosSearch(strParametro).pipe(
           map((x: cProducto_B[]) => {
-            return x.filter(y=>y.listBodegaProducto.length>0);
+            return x.filter(y => y.listBodegaProducto.length > 0);
           }),
           finalize(() => this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = false)
         );

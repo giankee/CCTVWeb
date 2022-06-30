@@ -65,4 +65,20 @@ export class ProductoBService {
   getVistaReporte(strParametros:string): Observable<cProducto_B[]> { // reporte
     return this.http.get<cProducto_B[]>(this.serverUrl+'/getVistaReporte/'+strParametros);
   }
+
+  getProductosFaltantesMedic(strParametros:string): Observable<cProducto_B[]> {//pedirmedicamento
+    return this.http.get<cProducto_B[]>(this.serverUrl+'/getProductosFaltantesMedic/'+strParametros);
+  }
+
+  getProductosAgrupados(strParametros:string): Observable<cProducto_B[]> { //en agrupar
+    return this.http.get<cProducto_B[]>(this.serverUrl+'/getProductosAgrupados/'+strParametros);
+  }
+
+
+  /*solo pruebas si funciona
+  getProductosPlantaSinBodega(strParametros:string): Observable<cProducto_B[]> {//compra proveedor
+    return this.http.get<cProducto_B[]>(this.serverUrl+'/getProductosPlantaSinBodega/'+strParametros);
+  }
+  */
+  
 }

@@ -31,6 +31,7 @@ export class CargarXLSXComponent implements OnInit {
     if (this.dato.newlist.length > 0) {
       this.productosMostrar = this.dato.newlist;
       this.productosMostrar.forEach(x => {
+        x.contenidoNeto=1;
         x.disBttnInput = 1;
         var index = -1;
         if ((index = this.dato.prelist.findIndex(y => y.codigo == x.codigo && y.proveedor == x.proveedor)) != -1) {

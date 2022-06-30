@@ -5,6 +5,9 @@ export class cVario {
     estado: number = 2;
     categoria: string;
     diasPrestamo?: number = 0;
+    encargadoBodega?: string = null;
+    telefonoEncargado?: string = null;
+    prioridadNivel?: number = 0;
 }
 
 export class cEnterpriceEmpleados {
@@ -31,7 +34,11 @@ export class cFecha {
     mes: number;
     anio: number;
 
+    hora: number;
+    minutos: number;
+
     strFecha: string = undefined;
+    strHoraA: string = undefined;
     inDesde: string = undefined;
     inHasta: string = undefined;
 
@@ -55,6 +62,8 @@ export class cFecha {
             this.dia = hoy.getDate();
             this.mes = hoy.getMonth() + 1;
             this.anio = hoy.getFullYear();
+            this.hora = hoy.getHours();
+            this.minutos = hoy.getMinutes();
             this.fechaActual();
         } else {
             this.dia = d;
@@ -62,11 +71,14 @@ export class cFecha {
             this.anio = a;
             this.strFecha = a + "-" + m + "-" + d;
         }
+
     }
 
     fechaActual(): string {
         var strmonth = "";
         var strday = "";
+        var strHour = "" + this.hora;
+        var strMinute = "" + this.minutos;
         if (this.mes < 10)
             strmonth = "0" + this.mes;
         else
@@ -85,7 +97,12 @@ export class cFecha {
             else strmonth = "" + (this.mes - 1);
             this.inDesde = this.anio + '-' + strmonth + '-' + strday;
         }
+        if (this.hora < 10)
+            strHour = "0" + this.hora;
+        if (this.minutos < 10)
+            strMinute = "0" + this.minutos;
 
+        this.strHoraA = strHour + ':' + strMinute;
         return this.strFecha;
     }
 
@@ -94,6 +111,8 @@ export class cFecha {
         this.dia = hoy.getDate();
         this.mes = hoy.getMonth() + 1;
         this.anio = hoy.getFullYear();
+        this.hora = hoy.getHours();
+        this.minutos = hoy.getMinutes();
         this.fechaActual();
         return this.strFecha;
     }
@@ -138,6 +157,26 @@ export class cFecha {
         }
         return this.arrayMes.find(x => x.id == (Number(strValor))).nombre;
     }
+
+    compararFechasDias(strFechaA: string, strFechaB: string) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
+        var separarA = strFechaA.split("-");
+        var separarB = strFechaB.split("-");
+        var difAnio = 0;
+        var difMes = 0;
+        var difDia = 0;
+        if (Number(separarA[0]) < Number(separarB[0]))
+            difAnio = Number(separarB) - Number(separarA);
+
+        if (difAnio != 0)
+            difMes= (12-Number(separarA[1]))+Number(separarB[1]);
+        else difMes=(Number(separarB[1])-Number(separarA[1]));
+        if(difMes!=0){
+            if(Number(separarA[2]) < Number(separarB[2]))
+                difDia= (difMes*30)+(Number(separarB[2])-Number(separarA[2]));
+            else difDia=(difMes*30)+(Number(separarA[2])-Number(separarB[2]));
+        }else difDia=Number(separarB[2]) - Number(separarA[2]);
+        return difDia;
+    }
 }
 
 export class cParemetos {
@@ -175,6 +214,10 @@ export class cParemetosOrdenInterna {
     spinLoadingG: number = 0;//0 offf, 1 inventario
     showSearchSelectG: number = 0;//0 offf, 1 inventario
 
+    /**solo para consultas */
+    disableCheck: boolean = false;
+    marea: number = 1;
+    anio: string = "";
     constructor() {
 
     }
@@ -182,6 +225,17 @@ export class cParemetosOrdenInterna {
         var strparam = "P MANACRIPEX@" + this.tipoO + "@" + fDesdeIn + "@" + fHastaIn + "@" + this.strBodegaOrigen + "@" + this.strArea + "@" + this.productoCodigo + "@";
         if (this.strPersona != "")
             strparam = strparam + this.strPersona;
+        else strparam = strparam + "null";
+        return strparam;
+    }
+    transformarParametroConsulta(fDesdeIn: string, fHastaIn: string): string {
+        var strparam = fDesdeIn + "@" + fHastaIn + "@";
+        if (this.strPersona != "")
+            strparam = strparam + this.strPersona;
+        else strparam = strparam + "null";
+        strparam = strparam + "@" + this.productoCodigo + "@" + this.strBodegaOrigen + "@";
+        if (this.disableCheck)
+            strparam = strparam + this.marea + "-" + this.anio;
         else strparam = strparam + "null";
         return strparam;
     }
@@ -289,7 +343,7 @@ export class cParmtoReporte {
         else params = params + this.strProveedor;
         return params;
     }
-    
+
     transformarParametroCasesCD(fDesdeIn: string): string {
         var params = this.planta + "@" + this.tipoR + "@" + this.tipoPeriodo + "@" + fDesdeIn + "@";
 
@@ -330,4 +384,13 @@ export class cFiltroTablaCompra {
     checkSubLibre: boolean = false;
     checkTotalImpuesto: boolean = false;
     constructor() { }
+}
+
+export class cEnterpricePersonal {
+    idEmpleado: number;
+    empleado: string;
+    cedula: string;
+    departamento: string;
+    funcion: string;
+    barco: string;
 }

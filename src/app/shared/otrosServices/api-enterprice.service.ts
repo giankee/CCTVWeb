@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { cEnterpriceDocumento, cEnterpriceEmpleados, cEnterpriceProveedor } from './varios';
+import { cEnterpriceArticulosDocumento, cEnterpriceDocumento, cEnterpriceEmpleados, cEnterpricePersonal, cEnterpriceProveedor } from './varios';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { cProducto_B } from '../bodega/ordenEC';
 
 @Injectable({
   providedIn: 'root'
@@ -48,5 +49,13 @@ export class ApiEnterpriceService {
 
   getComprasNoRealizadas(strParametros:string): Observable<cEnterpriceDocumento[]> {
     return this.http.get<cEnterpriceDocumento[]>(this.serverUrl+'vfe_documentos/getCompraNoProcesadas/'+strParametros);
+  }
+
+  getPersonalEnter2(strParametros: string): Observable<cEnterpricePersonal[]> {
+    return this.http.get<cEnterpricePersonal[]>(this.serverUrl + 'vpe_pacientes' + '/getPersonaSearch/' + strParametros);
+  }
+
+  getInventarioNoRegistrado(): Observable<cProducto_B[]> {
+    return this.http.get<cProducto_B[]>(this.serverUrl + 'vfe_idocumentos/getProdNoRegisterEnfermeria/');
   }
 }

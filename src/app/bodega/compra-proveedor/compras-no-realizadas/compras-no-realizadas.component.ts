@@ -3,7 +3,7 @@ import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
-import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
+import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cEnterpriceDocumento, cEnterpriceProveedor, cFecha } from 'src/app/shared/otrosServices/varios';
 
 @Component({
@@ -12,6 +12,12 @@ import { cEnterpriceDocumento, cEnterpriceProveedor, cFecha } from 'src/app/shar
   styles: []
 })
 export class ComprasNoRealizadasComponent implements OnInit {
+  public get conexcionService(): ConexionService {
+    return this._conexcionService;
+  }
+  public set conexcionService(value: ConexionService) {
+    this._conexcionService = value;
+  }
   public get enterpriceServise(): ApiEnterpriceService {
     return this._enterpriceServise;
   }
@@ -22,7 +28,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
   spinnerOnOff: number = 0;//0 off / 1 loading Espera / 2 loading completo
   spinnerLoading:boolean=false;
   showSearchSelect:boolean=false;
-  selectProveedor:string="Sin Asignar";
+  selectProveedor:string="SIN ASIGNAR";
   selectRuc:string="";
   
 
@@ -31,14 +37,17 @@ export class ComprasNoRealizadasComponent implements OnInit {
   dataOrdenesResult: cEnterpriceDocumento[] = [];
 
    /**Para pagination y fecha Entrada*/
-   paginacion = new cPaginacion(25);
    fechaHoy = new cFecha();
    /**Fin paginatacion */
    
   fasearch = faSearch; fatimes = faTimes;
-  constructor(private _enterpriceServise: ApiEnterpriceService) { }
+  constructor(private _enterpriceServise: ApiEnterpriceService,private _conexcionService: ConexionService) { }
 
   ngOnInit(): void {
+    if(this._conexcionService.UserR.rolAsignado=="enfermeria"){
+      this.selectProveedor="DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A";
+      this.selectRuc="0990858322001";
+    }
   }
 
   onBListProgProveedor(value: string) {
@@ -67,7 +76,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
   onBuscarFacturas(){
     this.spinnerOnOff=1;
     var strParametros= "@"+this.fechaHoy.inDesde+"@"+this.fechaHoy.inHasta;
-    if(this.selectProveedor!=null)
+    if(this.selectProveedor!='SIN ASIGNAR')
     strParametros=this.selectRuc+strParametros;
     else strParametros="datoNull"+strParametros;
     this.listComprasMostrar$ = this._enterpriceServise.getComprasNoRealizadas(strParametros).pipe(
@@ -75,7 +84,6 @@ export class ComprasNoRealizadasComponent implements OnInit {
         x.forEach(y => {
           y.emi_Fecha = y.emi_Fecha.substring(0, 10);
         });
-        this.paginacion.getNumberIndex(x.length);
         return x;
       }),
       finalize(() =>  this.spinnerOnOff=2)
@@ -85,7 +93,6 @@ export class ComprasNoRealizadasComponent implements OnInit {
   getDataFiltro(data: cEnterpriceDocumento[]) {
     if (data.length != undefined && data.length != this.dataOrdenesResult.length) {
       this.dataOrdenesResult = JSON.parse(JSON.stringify(data));
-      this.paginacion.getNumberIndex(this.dataOrdenesResult.length);
     }
   }
 }
