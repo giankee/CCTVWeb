@@ -313,9 +313,7 @@ export class ClienteComponent implements OnInit {
         if (this._ordenESService.formData.listArticulosO[index].checkInventario)
           this._ordenESService.formData.listArticulosO[index].inventario.nombre = value.toUpperCase();
         else this._ordenESService.formData.listArticulosO[index].producto.nombre = value.toUpperCase();
-      }
-
-      else this._ordenESService.formData.listArticulosO[index].inventario.codigo = value.toUpperCase();
+      } else this._ordenESService.formData.listArticulosO[index].inventario.codigo = value.toUpperCase();
       var strParametro = value;
 
       if (value != "")
@@ -560,7 +558,7 @@ export class ClienteComponent implements OnInit {
 
   comprobarNewArticulos() {
     var newProductos: cProducto[] = [];
-    if (this.buscarGuiaR || (this._ordenESService.formData.tipoOrden == "Salida")) {
+    if (this.buscarGuiaR || this._ordenESService.formData.tipoOrden == "Salida") {
       if ((this.buscarGuiaR && !this.buscarGuiaVE) && (this.ordenESService.formData.listArticulosO.find(x => x.cantidad != 0 && x.retorna && x.checkRevision == true) == undefined))
         this.okContinuar = false;
     }

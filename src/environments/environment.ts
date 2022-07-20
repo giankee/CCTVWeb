@@ -4,8 +4,9 @@
 
 export const environment = {
   production: false,
-  baseUrlCCTVL: 'http://192.168.2.115:5005/api/',
+  baseUrlCCTVL: 'http://192.168.2.115:5005/api/',//trabajo
   baseUrlCCTVP: 'http://192.168.2.115:5005/api/',//trabajo
+  
   //baseWhatsapp: "http://127.0.0.1:5010/",
   baseWhatsapp: "http://192.168.2.97:5010/",
   sharedFolder: "shared-test"

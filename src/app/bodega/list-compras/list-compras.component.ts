@@ -84,14 +84,13 @@ export class ListComprasComponent implements OnInit {
       strParametro = "OFICINAS@";
     if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
       strParametro = "ENFERMERIA@";
-    if (value != '') {
-      strParametro = strParametro + "null@null@";
+    strParametro = strParametro+this.fechaHoy.inDesde + "@" + this.fechaHoy.inHasta+"@"
+    if (value != "") {
       const regex = /^[0-9]*$/;
       if (regex.test(value))
         strParametro = strParametro + value + "@null";
       else strParametro = strParametro + "null@" + value;
-    }
-    else strParametro = strParametro + this.fechaHoy.inDesde + "@" + this.fechaHoy.inHasta + "@null@null";
+    } else strParametro = strParametro + "null@null";
     this.listOrdenesMostrar$ = this.ordenECService.getCompraSearch(strParametro).pipe(
       map((x: cOrdenEC[]) => {
         x.forEach(y => {

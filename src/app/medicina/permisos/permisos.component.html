@@ -1,0 +1,145 @@
+<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="isOpen==1">
+  <a (click)="onTerminar('0')" class="btn text-secundario btn-block mt-2" style="width: 50px;">
+    <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
+  </a>
+</div>
+<section [ngClass]="{'dashboard-header px-4':!isOpen}">
+  <div class="p-1" [ngClass]="{'container-fluid':!isOpen}">
+    <form #formPermiso="ngForm" autocomplete="off" (submit)="onSubmit(formPermiso)">
+      <div class="bodyCard" *ngIf="permisoMedicService.formData">
+        <div class="row">
+          <div class="col-12">
+            <h4 class="text-center">Gestión de Permisos - Manacripex</h4>
+          </div>
+        </div>
+        <div class="row boxForm mt-2" *ngIf="!isOpen">
+          <div class="col-6">
+            <div id="inputSearchP">
+              <div class="wrapper">
+                <div class="limit-width">
+                  <div class="title ml-3"><strong>Paciente:</strong> </div>
+                  <input name="filtroPersonaIn" #filtroPersonaIn="ngModel" [(ngModel)]="filtroPersona"
+                    (ngModelChange)="onListPasciente($event?.toUpperCase())" maxlength="100"
+                    placeholder="Nombre del trabajador" class="form-control input-src" required
+                    [ngClass]="{'loading':permisoMedicService.formData.spinnerLoading==1}">
+                  <div class="results" *ngIf="permisoMedicService.formData.showSearchSelect==1">
+                    <ul>
+                      <li
+                        *ngFor="let data of listPacienteFiltros$ | async">
+                        <a (click)="onChoosePaciente(data)"
+                          class="name">{{data.empleado}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div id="inputSearchP">
+              <div class="wrapper">
+                <div class="limit-width">
+                  <div class="title ml-3"><strong>Enfermedad CIE10:</strong> </div>
+                  <input name="cie" #cie="ngModel" [(ngModel)]="permisoMedicService.formData.enfermedadCIE10"
+                    (ngModelChange)="onListCIE($event?.toUpperCase())"
+                    placeholder="Código o nombre de enfermedad" class="form-control input-src" required
+                    [ngClass]="{'loading':permisoMedicService.formData.spinnerLoading==2}">
+                  <div class="results" *ngIf="permisoMedicService.formData.showSearchSelect==2">
+                    <ul>
+                      <li
+                        *ngFor="let data of listCie10Array | filtrarCie10:permisoMedicService.formData.enfermedadCIE10">
+                        <a (click)="onChooseEnfermedad(data)"
+                          class="name"><strong>{{data.code}}:</strong>{{data.description}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm mt-2">
+          <div class="col-12 col-md-6">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Tipo de Permito:</strong></div>
+              <select class="form-control  input-src" name="tipoPermiso" #tipoPermiso="ngModel"
+                [(ngModel)]="permisoMedicService.formData.tipoPermiso">
+                <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                <option value="IESS">PERMISO IESS</option>
+                <option value="DEP MEDICO">PERMISO DEP. MEDICO</option>
+                <option value="MSP">PERMISO MSP</option>
+                <option value="MATERNIDAD">MATERNIDAD</option>
+              </select>
+            </div>
+          </div>
+          <!-- <div class="col-12 col-md-6">
+            gráfica
+          </div> -->
+        </div>
+        <div class="row boxForm">
+          <div class="col-12 col-sm-6">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Fecha Salida:</strong></div>
+              <input class="form-control input-src" type="datetime-local" name="fechaSalida1" #fechaSalida1="ngModel"
+                [(ngModel)]="permisoMedicService.formData.fechaSalida" min="{{fechaHoy.strFecha}}T{{fechaHoy.strHoraA}}"
+                (change)="permisoMedicService.formData.changeHours(2)">
+            </div>
+          </div>
+          <div class="col-12 col-sm-6">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Fecha Regreso:</strong></div>
+              <input class="form-control input-src" type="datetime-local" name="fechaRegreso" #fechaRegreso="ngModel"
+                [(ngModel)]="permisoMedicService.formData.fechaRegreso"
+                min="{{permisoMedicService.formData.fechaSalida}}"
+                (change)="permisoMedicService.formData.changeHours(2)">
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm">
+          <div class="col-6 col-sm-3 col-md-3">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Total Días:</strong></div>
+              <input type="number" name="totalDias" #totalDias="ngModel" pattern="[0-9]*" min="0" required
+                placeholder="0" (change)="permisoMedicService.formData.changeHours(4)"
+                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                [(ngModel)]="permisoMedicService.formData.totalDias" class="form-control input-src" maxlength="3">
+            </div>
+          </div>
+          <div class="col-6 col-sm-3 col-md-3">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Total Horas:</strong></div>
+              <input type="number" name="totaHoras" #totaHoras="ngModel" pattern="[0-9]*" min="0" required
+                placeholder="0" (change)="permisoMedicService.formData.changeHours(3)"
+                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                [(ngModel)]="permisoMedicService.formData.totalHoras" class="form-control input-src" maxlength="3">
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-md-6">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Permiso Generado por:</strong></div>
+              <input name="responsable" #responsable="ngModel"
+                [(ngModel)]="permisoMedicService.formData.guardiaCargoUser" class="form-control input-src">
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm">
+          <div class="col-12">
+            <div class="form-group inputForm">
+              <div class="title"><strong>Observación</strong></div>
+              <textarea name="observacion" #observacion="ngModel" [(ngModel)]="permisoMedicService.formData.observacion"
+                (ngModelChange)="permisoMedicService.formData.observacion = $event?.toUpperCase()" required
+                class="form-control"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm justify-content-around my-2">
+          <div class="col-12 col-sm-8 col-md-4 justify-content-around">
+            <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formPermiso.invalid">
+              <fa-icon [icon]="fasave"></fa-icon> Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

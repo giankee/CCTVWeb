@@ -135,7 +135,7 @@
                   *ngIf="ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0)"
                   style="width: 10%;">Total Indv</th>
                 <th
-                  *ngIf="ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0)"
+                  *ngIf="!okCompraManual && (ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0))"
                   style="width: 20%;">Tipo Unidad</th>
                 <th
                   *ngIf="ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 )"

@@ -227,7 +227,6 @@ export class ListConsultaMedicComponent implements OnInit {
   onFiltrarConsultas() {
     this.spinnerOnOff = true;
     var strParametros: string = this.parametrosBusqueda.transformarParametroConsulta(this.fechaHoy.inDesde, this.fechaHoy.inHasta);
-    console.table(strParametros)
     this.listConsultasMostrar$ = this.consultaMedicService.getFiltroConsultas(strParametros).pipe(
       map((x: cConsultaMedic[]) => {
         x.forEach(y => {

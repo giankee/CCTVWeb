@@ -1,0 +1,251 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Historial de Atenciones Medicas</h1>
+    </div>
+  </div>
+</div>
+<section class="dashboard-header">
+  <div class="container-fluid  mt-3 mt-sm-4 px-1 px-md-5">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2" data-toggle="collapse" href="#FiltroList">Filtros</a></h5>
+            <a class="text-dark2" data-toggle="collapse" href="#FiltroList" (click)="iconDownLeft=!iconDownLeft">
+              <fa-icon [icon]="faangleleft" [class]="{'ocultarObj':iconDownLeft}"></fa-icon>
+              <fa-icon [icon]="faangledown" [class]="{'ocultarObj':!iconDownLeft}"></fa-icon>
+            </a>
+          </div>
+          <div class="mt-2 px-4 py-2 boxForm collapse" id="FiltroList">
+            <div class="row">
+              <div class="col-6 col-md-3">
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <div class="title ml-3"><strong>Empleado:</strong> </div>
+                      <input name="filtroPersonaIn" #filtroPersonaIn="ngModel" [(ngModel)]="parametrosBusqueda.strCampoA"
+                        (ngModelChange)="onListPasciente($event?.toUpperCase())"
+                        placeholder="Nombre del trabajador" class="form-control input-src"
+                        [ngClass]="{'loading':parametrosBusqueda.spinLoadingG=='strA'}">
+                      <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG=='strA'">
+                        <ul>
+                          <li
+                            *ngFor="let data of listPacienteFiltros$ | async">
+                            <a (click)="onChoosePaciente(data)"
+                              class="name">{{data.empleado}}</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <div class="title ml-3"><strong>Enfermedad CIE10:</strong> </div>
+                      <input name="cie" #cie="ngModel" [(ngModel)]="parametrosBusqueda.strCampoB"
+                        (ngModelChange)="onListCIE($event?.toUpperCase())" placeholder="Código o nombre de enfermedad"
+                        class="form-control input-src" [ngClass]="{'loading':parametrosBusqueda.spinLoadingG=='strB'}">
+                      <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG=='strB'">
+                        <ul>
+                          <li
+                            *ngFor="let data of listCie10Array | filtrarCie10:parametrosBusqueda.strCampoB">
+                            <a (click)="onChooseEnfermedad(data)"
+                              class="name"><strong>{{data.code}}:</strong>{{data.description}}</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="form-group inputForm" id="inputSearchP">
+                  <div class="title"><strong> Desde:</strong></div>
+                  <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="parametrosBusqueda.fechaA"
+                    class="form-control input-src" min="2022-01-01" max="{{parametrosBusqueda.fechaB}}">
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="form-group inputForm" id="inputSearchP">
+                  <div class="title"><strong>Hasta:</strong></div>
+                  <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="parametrosBusqueda.fechaB"
+                    class="form-control input-src" min="{{parametrosBusqueda.fechaA}}" max="{{parametrosBusqueda.fechaH}}">
+                </div>
+              </div>
+            </div>
+            <!-- <div class="row">
+              <div class="col-6 col-md-4" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Bodega:</strong></div>
+                  <select class="form-control" name="selectBodega" #selectBodega="ngModel"
+                    [(ngModel)]="parametrosBusqueda.strBodegaOrigen">
+                    <option value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
+                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
+                      {{datobodega.nombre}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-6 col-md-4"
+                *ngIf="parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL' && parametrosBusqueda.strBodegaOrigen != 'SIN ASIGNAR'">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Marea:</strong></div>
+                  <div class="input-group">
+                    <span class="input-group-text"><input name="isCheck" #isCheck="ngModel" type="checkbox"
+                        [(ngModel)]="parametrosBusqueda.disableCheck"></span>
+                    <input name="marea" #marea="ngModel" type="number" [(ngModel)]="parametrosBusqueda.marea"
+                      class="form-control input-src" placeholder="Solo Número"
+                      [disabled]="parametrosBusqueda.disableCheck"
+                      onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
+                    <span class="input-group-text">AÑO</span>
+                    <input name="anio" #anio="ngModel" type="number" [(ngModel)]="parametrosBusqueda.anio"
+                      [disabled]="parametrosBusqueda.disableCheck" class="form-control input-src" min="2022" step="1"
+                      value="parametrosBusqueda.anio" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-4">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Medicamento</strong></div>
+                  <div id="inputSearchP">
+                    <div class="wrapper">
+                      <div class="limit-width">
+                        <input name="selectProducto" #selectProducto="ngModel"
+                          [(ngModel)]="parametrosBusqueda.strProducto"
+                          (ngModelChange)="onListProducto(parametrosBusqueda.strProducto=$event.toUpperCase())"
+                          maxlength="100" placeholder="Nombre del Medicamento" class="form-control"
+                          [ngClass]="{'loading':parametrosBusqueda.spinLoadingG==2}">
+                        <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==2">
+                          <ul>
+                            <li *ngFor="let data of listProdFiltros$ | async">
+                              <a (click)="onChooseElemente(data)" class="name">{{data.nombre}}</a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+            <div class="row justify-content-center">
+              <div class="col-12 col-sm-6 col-md-4">
+                <a [routerLink] (click)="onFiltrarAtenciones()" class="btn bttn-Primario btn-block">
+                  <fa-icon [icon]="fasearch"></fa-icon> Generar Reporte
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2">Lista Atenciones Médicas</a></h5>
+            <a class="text-dark2" (click)="onConvertPdfAll()">
+              <fa-icon [icon]="faprint"></fa-icon>
+            </a>
+          </div>
+          <div class="text-center my-3" *ngIf="spinnerOnOff">
+            <div class="d-flex justify-content-center">
+              <mat-spinner color="accent"></mat-spinner>
+            </div>
+          </div>
+          <div *ngIf="(listAtencionesMostrar$ | async)  as resultBusquedaMostrar">
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th>#</th>
+                    <th>Fecha Atención</th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Paciente</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenAtencion('Paciente')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Enfermedad CIE10</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenAtencion('Enfermedad')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th>Reposo</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div style="display: none;">{{getDataFiltro(resultBusquedaMostrar)}}</div>
+                  <tr *ngIf="resultBusquedaMostrar.length==0">
+                    <td class="font-italic text-center" colspan="8">
+                      No existen atenciones registradas con esos parámetros de busqueda
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let dato of resultBusquedaMostrar |sort:ordenAtencion:'cAtencionMedic'| slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{indice+1}}</td>
+                    <td class="text-center">{{dato.fechaAtencion}}</td>
+                    <td>{{dato.pacienteMedic.nombreEmpleado}}</td>
+                    <td>{{dato.enfermedadCIE10}}</td>
+                    <td class="text-center">{{dato.reposo? 'Si' : 'No' }}</td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato)"
+                        matTooltip="Te permite visualizar a detalladamente la consulta médica" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeye"></fa-icon>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="paginationPadre mt-2">
+              <nav aria-label="pagination">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item d-none d-sm-block">
+                    <select class="form-control" (change)="onUpdateSelect($event.target)">
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </li>
+                  <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">
+                      <fa-icon [icon]="faArLeft"></fa-icon>
+                    </a>
+                  </li>
+                  <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">
+                      <fa-icon [icon]="faArRight"></fa-icon>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -16,6 +16,7 @@ import { MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { MatDialogModule} from '@angular/material/dialog';
 import { MatCheckboxModule} from '@angular/material/checkbox';
 import { MatSelectModule} from '@angular/material/select';
+//import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 /**Directivas y Pipes*/
 import { AutoFocusDirective } from './directives/auto-focus.directive';
@@ -31,6 +32,8 @@ import { FiltroBodegahPipe } from './pipes/filtroBodega.pipe';
 import { PopOutXListPipe } from './pipes/pop-out-xlist.pipe';
 import { SumCantBodegaPipe } from './pipes/sum-cant-bodega.pipe';
 import { FechaMesPipe } from './pipes/fecha-mes.pipe';
+import { FiltrarCie10Pipe } from './pipes/filtrar-cie10.pipe';
+import { SearchMaterialPipe } from './pipes/search-material.pipe';
 /*Componentes*/
 import { UserComponent } from './user/user.component';
 import { AccessDenegadoComponent } from './errores/access-denegado/access-denegado.component';
@@ -70,14 +73,16 @@ import { ListConsultaMedicComponent } from './bodega/consulta-medic/list-consult
 import { ViewConsultaComponent } from './bodega/consulta-medic/view-consulta/view-consulta.component';
 import { CrearMedicamentoComponent } from './bodega/crear-medicamento/crear-medicamento.component';
 import { PedirMedicamentoComponent } from './bodega/pedir-medicamento/pedir-medicamento.component';
-import { NewAccidenteComponent } from './bodega/accidente/new-accidente/new-accidente.component';
+import { NewAccidenteComponent } from './medicina/new-accidente/new-accidente.component';
 import { AgruparInventarioComponent } from './bodega/list-producto-b/agrupar-inventario/agrupar-inventario.component';
+import { FichaTecnicaComponent } from './medicina/ficha-tecnica/ficha-tecnica.component';
+import { PermisosComponent } from './medicina/permisos/permisos.component';
+import { AtencionMedicComponent } from './medicina/atencion-medic/atencion-medic.component';
 /*Services*/
 import { CarroService } from './shared/carro.service';
 import { UserService } from './shared/user.service';
 import { ConexionService } from './shared/otrosServices/conexion.service';
-import { SearchMaterialPipe } from './pipes/search-material.pipe';
-
+import { ListAtencionesComponent } from './medicina/list-atenciones/list-atenciones.component';
 
 /*import { ServiceWorkerModule } from '@angular/service-worker';
 */
@@ -138,7 +143,12 @@ import { SearchMaterialPipe } from './pipes/search-material.pipe';
     PedirMedicamentoComponent,
     NewAccidenteComponent,
     AgruparInventarioComponent,
-    SearchMaterialPipe
+    SearchMaterialPipe,
+    FichaTecnicaComponent,
+    PermisosComponent,
+    AtencionMedicComponent,
+    FiltrarCie10Pipe,
+    ListAtencionesComponent
   ],
   imports: [
     BrowserModule,
@@ -155,7 +165,8 @@ import { SearchMaterialPipe } from './pipes/search-material.pipe';
     MatDialogModule,
     MatCheckboxModule,
     MatSelectModule,
-    NgxGalleryModule
+    NgxGalleryModule,
+    //NgxChartsModule
   ],
   entryComponents: [ViewOrdenModalComponent,ViewConsultaComponent,EditOrdenComponent,KardexComponent],
   providers: [UserService,ConexionService,CarroService,

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { cEnterpriceArticulosDocumento, cEnterpriceDocumento, cEnterpriceEmpleados, cEnterpricePersonal, cEnterpriceProveedor } from './varios';
+import { cEnterpriceDocumento, cEnterpriceEmpleados, cEnterpricePersonal, cEnterpriceProveedor } from './varios';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { cProducto_B } from '../bodega/ordenEC';

@@ -28,6 +28,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@kolkov/ngx-gallery": "^1.2.3",
     "@popperjs/core": "^2.9.3",
+    "@swimlane/ngx-charts": "^20.1.0",
     "bootstrap": "^4.6.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.6.0",

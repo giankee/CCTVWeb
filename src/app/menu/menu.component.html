@@ -64,16 +64,6 @@
           <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
-        <a [routerLink]='["/Bodega/consumoList"]'>
-          <fa-icon [icon]="fafilemedical"></fa-icon> Consumo de Medicamento
-        </a>
-      </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
-        <a [routerLink]='["/Bodega/accidente"]'>
-          <fa-icon [icon]="facarcrash"></fa-icon> Accidente
-        </a>
-      </li>
     </ul>
   </div>
   <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='verificador-medic'">
@@ -82,16 +72,6 @@
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Bodega/inventarioList"]'>
           <fa-icon [icon]="fakitmedical"></fa-icon> Inventario
-        </a>
-      </li>
-      <li [routerLinkActive]="['active']">
-        <a [routerLink]='["/Bodega/consulta"]'>
-          <fa-icon [icon]="fabookmedical"></fa-icon> Entrega Medicamento
-        </a>
-      </li>
-      <li [routerLinkActive]="['active']">
-        <a [routerLink]='["/Bodega/consumoList"]'>
-          <fa-icon [icon]="fafilemedical"></fa-icon> Consumo de Medicamento
         </a>
       </li>
     </ul>
@@ -107,6 +87,47 @@
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Bodega/trabajosInter"]'>
           <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'||conexcionService.UserR.rolAsignado=='verificador-medic'">
+    <h5 class="sidenav-heading">Enfermería</h5>
+    <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='verificador-medic'">
+        <a [routerLink]='["/Bodega/consulta"]'>
+          <fa-icon [icon]="fabookmedical"></fa-icon> Entregar Medicamento
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/consumoList"]'>
+          <fa-icon [icon]="faprescription"></fa-icon> Consumos de Medicamento
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Bodega/accidente"]'>
+          <fa-icon [icon]="facarcrash"></fa-icon> Accidente
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Medicina/fichaMedica"]'>
+          <fa-icon [icon]="faidcardalt"></fa-icon> Ficha Médica
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Medicina/permisoMedico"]'>
+          <fa-icon [icon]="fafilemedical"></fa-icon> Permiso
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Medicina/atencionList"]'>
+          <fa-icon [icon]="fabookmedical"></fa-icon> Historial Atenciones
+        </a>
+      </li>
+      
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Bodega/crearMedicamento"]'>
+          <fa-icon [icon]="falaptopmedic"></fa-icon> Crear Medicamentos
         </a>
       </li>
     </ul>
@@ -146,22 +167,15 @@
           <fa-icon [icon]="faclipboardCheck"></fa-icon> Recepción de Medicamento
         </a>
       </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'||conexcionService.UserR.rolAsignado=='verificador-medic'">
+        <a [routerLink]='["/Bodega/solicitarMedicamento"]'>
+          <fa-icon [icon]="fasquareplus"></fa-icon> {{conexcionService.UserR.rolAsignado == 'enfermeria'? 'Solicitar Medicamento' : 'Diferencia de Medicamento'}}
+        </a>
+      </li>
       <li [routerLinkActive]="['active']"
         *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='enfermeria'|| conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m'">
         <a [routerLink]='["/BuscarFactura"]'>
           <fa-icon [icon]="faexchangeAlt"></fa-icon> Buscar Factura
-        </a>
-      </li>
-      <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
-        <a [routerLink]='["/Bodega/crearMedicamento"]'>
-          <fa-icon [icon]="falaptopmedic"></fa-icon> Crear Medicamentos
-        </a>
-      </li>
-      <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'||conexcionService.UserR.rolAsignado=='verificador-medic'">
-        <a [routerLink]='["/Bodega/solicitarMedicamento"]'>
-          <fa-icon [icon]="fasquareplus"></fa-icon> {{conexcionService.UserR.rolAsignado == 'enfermeria'? 'Solicitar Medicamento' : 'Diferencia de Medicamento'}}
         </a>
       </li>
       <li [routerLinkActive]="['active']"

@@ -5,90 +5,53 @@
       <form #formAccidente="ngForm" autocomplete="off" (submit)="onSubmit(formAccidente)">
         <div class="bodyCard" *ngIf="accidenteMedicService.formData">
           <div class="row mt-3">
-            <div class="col-12 col-md-8">
+            <div class="col-12">
               <h4 class="text-center">Recopilación datos del accidente</h4>
-            </div>
-            <div class="col-12 col-md-4">
-              <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
-                [(ngModel)]="accidenteMedicService.formData.fechaRegistro" min="2020-01-01" max="{{fechaHoy.strFecha}}">
             </div>
           </div>
           <div class="row boxForm mt-2">
-            <div class="col-12 col-md-6 col-lg-4">
-              <div class="form-group" id="selectMaterial">
-                <div class="title ml-2">
-                  <strong class="ml-3">Pasciente: </strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <input name="pacienteIn" #pacienteIn="ngModel"
-                        [(ngModel)]="accidenteMedicService.formData.paciente"
-                        (ngModelChange)="onListPasciente($event?.toUpperCase())" maxlength="100"
-                        placeholder="Nombre de la Persona" class="form-control input-src"
-                        [ngClass]="{'loading':accidenteMedicService.formData.spinnerLoading}" required>
-                      <div class="results" *ngIf="accidenteMedicService.formData.showSearchSelect">
-                        <ul>
-                          <li *ngFor="let data of listPacienteFiltros$ | async">
-                            <a (click)="onChoosePaciente(data.empleado)" class="name">{{data.empleado}}</a>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+            <div class="col-12 col-sm-8 col-md-3 col-lg-4">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Pasciente: </strong></div>
+                <input name="pacienteIn" #pacienteIn="ngModel" [(ngModel)]="filtroPersona"
+                  (ngModelChange)="onListPasciente($event?.toUpperCase())" placeholder="Nombre de la Persona"
+                  class="form-control input-src" [ngClass]="{'loading':accidenteMedicService.formData.spinnerLoading}"
+                  required>
+                <div class="results" *ngIf="accidenteMedicService.formData.showSearchSelect">
+                  <ul>
+                    <li *ngFor="let data of listPacienteFiltros$ | async">
+                      <a (click)="onChoosePaciente(data)" class="name">{{data.empleado}}</a>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
-            <div class="col-4 col-md-3 col-lg-2 offset-lg-1">
-              <div class="form-group" id="selectMaterial">
-                <div class="title ml-2">
-                  <strong class="ml-3">Hora Inicio: </strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <input type="time" name="horaInicio" #horaRegistro="ngModel"
-                        (change)="accidenteMedicService.formData.changeHours(2)"
-                        [(ngModel)]="accidenteMedicService.formData.horaInicio" class="form-control  input-src"
-                        required>
-                    </div>
-                  </div>
-                </div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-2">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Total Horas: </strong></div>
+                <input name="totalHoras" type="number" min="0" maxlength="5" placeholder="#"
+                  class="form-control input-src" pattern="^[0-9]{1,5}$" #totalHoras="ngModel" required
+                  onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  (change)="accidenteMedicService.formData.changeHours(3)"
+                  [(ngModel)]="accidenteMedicService.formData.totalHoras">
               </div>
             </div>
-            <div class="col-4 col-md-3 col-lg-3">
-              <div class="form-group" id="selectMaterial">
-                <div class="title ml-2">
-                  <strong class="ml-3">Hora Fin: </strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <input class="form-control input-src" type="datetime-local" name="horaFin" #horaFin="ngModel"
-                        [(ngModel)]="accidenteMedicService.formData.horaFin"
-                        min="{{fechaHoy.strFecha}}T{{fechaHoy.strHoraA}}"
-                        (change)="accidenteMedicService.formData.changeHours(2)">
-                    </div>
-                  </div>
-                </div>
+            <div class="col-12 col-sm-6 col-md-3 col-lg-3">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Fecha Registro:</strong></div>
+                <input class="form-control input-src" type="datetime-local" name="fechaSalida1" #fechaSalida1="ngModel"
+                  [(ngModel)]="accidenteMedicService.formData.fechaRegistro"
+                  min="{{fechaHoy.strFecha}}T{{fechaHoy.strHoraA}}"
+                  (change)="accidenteMedicService.formData.changeHours(2)">
               </div>
             </div>
-            <div class="col-4 col-md-6 col-lg-2">
-              <div class="form-group" id="selectMaterial">
-                <div class="title ml-2">
-                  <strong class="ml-3">Total Horas: </strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <input name="totalHoras" type="number" min="0" maxlength="5" placeholder="#"
-                        class="form-control input-src" pattern="^[0-9]{1,5}$" #totalHoras="ngModel" required
-                        onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                        (change)="accidenteMedicService.formData.changeHours(3)"
-                        [(ngModel)]="accidenteMedicService.formData.totalHoras">
-                    </div>
-                  </div>
-                </div>
+            <div class="col-12 col-sm-6 col-md-3 col-lg-3">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Fecha Regreso: </strong></div>
+                <input class="form-control input-src" type="datetime-local" name="fechaRegreso" #fechaRegreso="ngModel"
+                  [(ngModel)]="accidenteMedicService.formData.fechaRegreso"
+                  min="{{fechaHoy.strFecha}}T{{fechaHoy.strHoraA}}"
+                  (change)="accidenteMedicService.formData.changeHours(2)">
               </div>
             </div>
           </div>
@@ -139,10 +102,11 @@
                   </div>
                   <div class="row mt-1"
                     *ngIf="accidenteMedicService.formData.listGaleriaAccidente.length>0 && okDelete">
-                    <div class="col-12 mb-2"  id="utilitarioI">
-                      <div class="d-flex" *ngFor="let datoG of accidenteMedicService.formData.listGaleriaAccidente; let indice=index">
-                        <a class="badge text-primario d-block mr-3" matTooltip="Sacar de evidencia" matTooltipPosition="below"
-                          (click)="onRemoveImage(indice)" >
+                    <div class="col-12 mb-2" id="utilitarioI">
+                      <div class="d-flex"
+                        *ngFor="let datoG of accidenteMedicService.formData.listGaleriaAccidente; let indice=index">
+                        <a class="badge text-primario d-block mr-3" matTooltip="Sacar de evidencia"
+                          matTooltipPosition="below" (click)="onRemoveImage(indice)">
                           <fa-icon [icon]="fatimes" size="2x"></fa-icon>
                         </a>
                         <label>{{datoG.nombreArchivo}}</label>
@@ -257,10 +221,9 @@
           </div>
           <div class="row boxForm justify-content-center my-2">
             <div class="col-12 col-sm-8 col-md-6 col-lg-4">
-              <button class="btn bttn-Primario btn-block " type="submit"
-                [disabled]="formAccidente.invalid" [ngClass]="{'bttn-Error':!okBttnSubmit }"
-                matTooltip="Campos Vacios Revisar*" matTooltipPosition="above" matTooltipClass="tooltipRed"
-                [matTooltipDisabled]="okBttnSubmit">
+              <button class="btn bttn-Primario btn-block " type="submit" [disabled]="formAccidente.invalid"
+                [ngClass]="{'bttn-Error':!okBttnSubmit }" matTooltip="Campos Vacios Revisar*" matTooltipPosition="above"
+                matTooltipClass="tooltipRed" [matTooltipDisabled]="okBttnSubmit">
                 <fa-icon [icon]="fasave"></fa-icon> Procesar
               </button>
             </div>

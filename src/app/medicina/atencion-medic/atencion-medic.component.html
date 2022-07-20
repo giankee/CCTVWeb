@@ -1,0 +1,189 @@
+<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="permisoOpened!=1">
+  <a (click)="onTerminar()" class="btn text-secundario btn-block mt-2" style="width: 50px;">
+    <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
+  </a>
+</div>
+<div class="p-1" *ngIf="permisoOpened!=1">
+  <form #formAtencion="ngForm" autocomplete="off" (submit)="onSubmit(formAtencion)">
+    <div class="bodyCard" *ngIf="atencionMedicService.formData">
+      <div class="row">
+        <div class="col-12">
+          <h4 class="text-center">Gestión de Atención Médica - Manacripex</h4>
+        </div>
+      </div>
+      <div class="row boxForm mt-2">
+        <div class="col-6">
+          <div>
+            <strong>{{pacienteNombre}}</strong>
+          </div>
+          <div> <strong>I.M.C:</strong>
+            {{atencionMedicService.formData.auxIMC!=0 ? atencionMedicService.formData.auxIMC : ' ' }}
+          </div>
+        </div>
+        <div class="col-6">
+          <div id="inputSearchP">
+            <div class="wrapper">
+              <div class="limit-width">
+                <div class="title"><strong>Enfermedad CIE10:</strong> </div>
+                <input name="cie" #cie="ngModel" [(ngModel)]="atencionMedicService.formData.enfermedadCIE10"
+                  (ngModelChange)="onListCIE($event?.toUpperCase())" placeholder="Código o nombre de enfermedad"
+                  class="form-control input-src" required>
+                <div class="results" *ngIf="atencionMedicService.formData.showSearchSelect">
+                  <ul>
+                    <li
+                      *ngFor="let data of listCie10Array | filtrarCie10:atencionMedicService.formData.enfermedadCIE10">
+                      <a (click)="onChooseEnfermedad(data)"
+                        class="name"><strong>{{data.code}}:</strong>{{data.description}}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm mt-3">
+        <div class="col-12 col-md-12 col-lg-7">
+          <div class="row boxForm">
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Peso(kg):</strong></div>
+                <input type="number" name="peso" #peso="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$" min="0"
+                  onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  [(ngModel)]="atencionMedicService.formData.peso" class="form-control input-src" maxlength="2" required
+                  placeholder="0" (ngModelChange)="atencionMedicService.formData.calcularIMC()">
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Altura(m):</strong></div>
+                <input type="number" name="altura" #altura="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$" min="0"
+                  onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  [(ngModel)]="atencionMedicService.formData.altura" class="form-control input-src" maxlength="2"
+                  required placeholder="0" (ngModelChange)="atencionMedicService.formData.calcularIMC()">
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Temperatura:</strong></div>
+                <input type="number" name="temperatura" #temperatura="ngModel" min="0" pattern="[0-9]*" maxlength="10"
+                  required placeholder="0"
+                  onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  [(ngModel)]="atencionMedicService.formData.temperatura" class="form-control input-src">
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Presión:</strong></div>
+                <input type="number" name="presion" #presion="ngModel" min="0" pattern="[0-9]*" maxlength="10" required
+                  placeholder="00/00"
+                  onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  [(ngModel)]="atencionMedicService.formData.presion" class="form-control input-src">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-12 col-lg-5">
+          <div class="row boxForm">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>F. Cardiaca:</strong></div>
+                <input type="number" name="fcardiaca" #fcardiaca="ngModel" min="0" pattern="[0-9]*" maxlength="10"
+                  required placeholder="0"
+                  onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  [(ngModel)]="atencionMedicService.formData.fCardiaca" class="form-control input-src">
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>F. Respiratoria:</strong></div>
+                <input type="number" name="fRespiratoria" #fRespiratoria="ngModel" min="0" pattern="[0-9]*"
+                  maxlength="10" required placeholder="0"
+                  onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  [(ngModel)]="atencionMedicService.formData.fRespiratoria" class="form-control input-src">
+              </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+              <div class="form-group inputForm" id="inputSearchP">
+                <div class="title"><strong>Sp02:</strong></div>
+                <input type="number" name="sp02" #sp02="ngModel" min="0" pattern="[0-9]*" maxlength="10" required
+                  placeholder="0"
+                  onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                  [(ngModel)]="atencionMedicService.formData.sp02" class="form-control input-src">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm mt-1">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+          <div class="form-group inputForm">
+            <div class="title"><strong>Motivo de atención</strong></div>
+            <textarea name="motivo" #motivo="ngModel" [(ngModel)]="atencionMedicService.formData.motivoAtencion"
+              (ngModelChange)="atencionMedicService.formData.motivoAtencion = $event?.toUpperCase()"
+              class="form-control" required></textarea>
+          </div>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+          <div class="form-group inputForm">
+            <div class="title"><strong>Enfermedades actuales</strong></div>
+            <textarea name="enfermedades" #enfermedades="ngModel"
+              [(ngModel)]="atencionMedicService.formData.enfermedadesActuales"
+              (ngModelChange)="atencionMedicService.formData.enfermedadesActuales = $event?.toUpperCase()"
+              class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+          <div class="form-group inputForm">
+            <div class="title"><strong>Prescripción</strong></div>
+            <textarea name="prescripcion" #prescripcion="ngModel"
+              [(ngModel)]="atencionMedicService.formData.prescripcion"
+              (ngModelChange)="atencionMedicService.formData.prescripcion = $event?.toUpperCase()"
+              class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+          <div class="form-group inputForm">
+            <div class="title"><strong>Indicaciones</strong></div>
+            <textarea name="indicaciones" #indicaciones="ngModel"
+              [(ngModel)]="atencionMedicService.formData.indicaciones"
+              (ngModelChange)="atencionMedicService.formData.indicaciones = $event?.toUpperCase()"
+              class="form-control"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm my-1">
+        <div class="col-12">
+          <div class="custom-control custom-switch ml-3">
+            <input type="checkbox" name="reposo" #reposo="ngModel" class="custom-control-input" id="customSwitch1"
+              [disabled]="permisoOpened==2 ||!atencionMedicService.formData.spinnerLoading"
+              [(ngModel)]="atencionMedicService.formData.reposo" (ngModelChange)="onChangePermiso()">
+            <label class="custom-control-label" for="customSwitch1">Reposo</label>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm mt-1">
+        <div class="col-12">
+          <div class="form-group inputForm">
+            <div class="title"><strong>Observación</strong></div>
+            <textarea name="observacion" #observacion="ngModel" [(ngModel)]="atencionMedicService.formData.observacion"
+              (ngModelChange)="atencionMedicService.formData.observacion = $event?.toUpperCase()"
+              class="form-control"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row boxForm justify-content-around my-2">
+        <div class="col-12 col-sm-8 col-md-4 justify-content-around">
+          <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formAtencion.invalid">
+            <fa-icon [icon]="fasave"></fa-icon> Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div id="open" *ngIf="atencionMedicService.formData.reposo && permisoOpened!=2">
+  <app-permisos [isOpen]="permisoOpened" [idPacienteIn]="idPacienteIn"
+    [enfermedadCIE10In]="atencionMedicService.formData.enfermedadCIE10" (cerrar)="recibirRes($event)">
+  </app-permisos>
+</div>

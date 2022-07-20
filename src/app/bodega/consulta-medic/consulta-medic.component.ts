@@ -47,7 +47,7 @@ export class ConsultaMedicComponent implements OnInit {
   }
 
   @Input()
-  isOpen: boolean = false;
+  isOpen: boolean;
 
   @Output()
   cerrar: EventEmitter<boolean> = new EventEmitter<boolean>();

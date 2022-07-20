@@ -1,0 +1,338 @@
+<section class="dashboard-header">
+  <div class="container-fluid pt-0 px-0" style="height: auto;">
+    <div class="px-2 py-3" id="open" *ngIf="strFases=='Principal'">
+      <div class="row">
+        <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+          <div class="card">
+            <div id="ordenarS" class="card-header d-flex justify-content-between">
+              <h5><a class="text-dark2">Listado Trabajadores</a></h5>
+            </div>
+            <div class="mt-1 px-4 pt-2 boxForm">
+              <div class="form-group inputForm">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <fa-icon [icon]="fasearch"></fa-icon>
+                    </span>
+                  </div>
+                  <input type="text" class="form-control" #filtroPersonaIn="ngModel" name="filtroPersonaIn"
+                    maxlength="30" placeholder="Buscar.." [(ngModel)]="filtroPersona"
+                    (ngModelChange)="onListPasciente($event?.toUpperCase())" [ngClass]="{'loading':spinnerLoading==1}">
+                </div>
+              </div>
+            </div>
+            <div *ngIf="(listPacienteFiltros$ | async)  as resultBusquedaMostrar">
+              <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                <table class="table">
+                  <thead>
+                    <tr class="text-center">
+                      <th>Cédula</th>
+                      <th>Trabajador</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <div style="display: none;">{{getDataFiltro(resultBusquedaMostrar)}}</div>
+                    <tr *ngIf="resultBusquedaMostrar.length==0">
+                      <td class="font-italic text-center" colspan="8">
+                        No existen trabajadores con esos parámetros de busqueda
+                      </td>
+                    </tr>
+                    <tr *ngFor="let dato of resultBusquedaMostrar; let indice=index"
+                      [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                      <td style="padding: 0.35rem;">{{dato.cedula}}</td>
+                      <td style="padding: 0.35rem; cursor: pointer;" (click)="onChoosePaciente(dato)">
+                        <strong>{{dato.empleado}}</strong></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-12 col-md-8 col-lg-8">
+          <div class="card">
+            <div class="card-header">
+              <h5>Ficha Médica</h5>
+            </div>
+            <ul class="nav nav-tabs justify-content-center mb-2">
+              <li class="nav-item">
+                <a class="nav-link " [ngClass]="{'active':openSideA, 'beStrong':!openSideA}"
+                  (click)="onChangePage(true)">Datos personales</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" [ngClass]="{'active':!openSideA, 'beStrong':openSideA}"
+                  (click)="onChangePage(false)">Historial Laboral y Antecedentes</a>
+              </li>
+            </ul>
+            <div class="m-3">
+              <form #formPaciente="ngForm" autocomplete="off" (submit)="onSubmit(formPaciente)"
+                *ngIf="datoPersona!=null">
+                <div class="row boxForm" *ngIf="openSideA">
+                  <div class="col-12 col-sm-4 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Cédula:</div>
+                      <input name="cedula" #cedula="ngModel" disabled [(ngModel)]="datoPersona.datosPaciente.cedula"
+                        class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-4 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Estado Civil:</div>
+                      <input name="estadoCivil" #estadoCivil="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.estadoCivil" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-4 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Género:</div>
+                      <input name="sexo" #sexo="ngModel" disabled [(ngModel)]="datoPersona.datosEnterprice.sexo"
+                        class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 d-block d-md-none">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Apellidos:</div>
+                      <input name="apellidos" #apellidos="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.apellidos" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 d-block d-md-none">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Nombres:</div>
+                      <input name="nombres" #nombres="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.nombres" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="d-none d-md-block col-md-7 col-lg-8">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Empleado:</div>
+                      <input name="empleado" #empleado="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.empleado" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="d-none d-md-block col-md-2 col-lg-2">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Peso:</div>
+                      <input type="number" name="upeso" #upeso="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$" min="0" placeholder="0"
+                        onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                        [(ngModel)]="datoPersona.datosPaciente.ultimoPeso" class="form-control input-src" maxlength="2">
+                    </div>
+                  </div>
+                  <div class="d-none d-md-block col-md-3 col-lg-2">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Altura:</div>
+                      <input type="number" name="ualtura" #ualtura="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$" min="0" placeholder="0"
+                      onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      [(ngModel)]="datoPersona.datosPaciente.ultimaAltura" class="form-control input-src" maxlength="2">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Fecha Nacimiento:</div>
+                      <input name="fechaNacimiento" #fechaNacimiento="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.fecha_Nacido" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Edad:</div>
+                      <input name="edad" #edad="ngModel" disabled [(ngModel)]="datoPersona.datosEnterprice.edad"
+                        class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Tipo de Sangre:</div>
+                      <select class="form-control  input-src" name="tipoSangre" #tipoSangre="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.tipoSangre">
+                        <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                        <option value="ARH+">A Positivo (A+)</option>
+                        <option value="ARH-">A Negativo (A-)</option>
+                        <option value="BRH+">B Positivo (B+)</option>
+                        <option value="BRH-">B Negativo (B-)</option>
+                        <option value="ABRH+">AB Positivo (AB+)</option>
+                        <option value="ABRH-">AB Negativo (AB-)</option>
+                        <option value="ORH+">O Positivo (O+)</option>
+                        <option value="ORH-">O Negativo (O-)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 col-md-5">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Cargo:</div>
+                      <input name="funcion" #funcion="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.funcion" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Dirección:</div>
+                      <input name="direccion" #direccion="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.direccion" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6 col-md-3">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Teléfono:</div>
+                      <input name="telefono" #telefono="ngModel" disabled
+                        [(ngModel)]="datoPersona.datosEnterprice.telf_Movil" class="form-control input-src">
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-4 col-md-5">
+                    <div class="row">
+                      <div class="col-6 justify-content-center text-center">
+                        <div class="title">Embarazo</div>
+                        <mat-checkbox id="idEmbarazo" name="embarazo" #embarazo="ngModel" color="primary"
+                          [(ngModel)]="datoPersona.datosPaciente.embarazo"
+                          [disabled]="datoPersona.datosEnterprice.sexo=='Masculino'">
+                        </mat-checkbox>
+                      </div>
+                      <div class="col-6 justify-content-center text-center">
+                        <div class="title">Minusválido</div>
+                        <mat-checkbox id="idMinusvalido" name="minusvalido" #minusvalido="ngModel" color="primary"
+                          [(ngModel)]="datoPersona.datosPaciente.minusvalido">
+                        </mat-checkbox>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-sm-4 col-md-4">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">Tipo de Minusvalia:</div>
+                      <select class="form-control  input-src" name="tipoMinusvalia" #tipoMinusvalia="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.tipoMinusvalido"
+                        [disabled]="!datoPersona.datosPaciente.minusvalido">
+                        <option selected value="SIN ASIGNAR">-Seleccionar-</option>
+                        <option value="Auditiva">Auditiva</option>
+                        <option value="Física">Física</option>
+                        <option value="Intelectual">Intelectual</option>
+                        <option value="Lenguaje">Lenguaje</option>
+                        <option value="Psicosocial">Psicosocial</option>
+                        <option value="Visual y Multiple">Visual y Multiple</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-6 col-sm-4 col-md-3">
+                    <div class="form-group inputForm" id="inputSearchP">
+                      <div class="title">% Minusvalia:</div>
+                      <input type="number" name="porcentajeMinusvalia" #porcentajeMinusvalia="ngModel" min="0"
+                        pattern="[0-9]*" [disabled]="!datoPersona.datosPaciente.minusvalido"
+                        onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                        [(ngModel)]="datoPersona.datosPaciente.porcentajeMinusvalido" class="form-control input-src"
+                        maxlength="10">
+                    </div>
+                  </div>
+                </div>
+                <div class="row boxForm scroll" *ngIf="!openSideA">
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Antecendentes Personales (Quirúrgico y Ginecológico)</div>
+                      <textarea name="inBantecedenteP" #inBantecedenteP="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.antPersonales"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.antPersonales = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Antecedentes Familiares</div>
+                      <textarea name="inBantFamiliares" #inBantFamiliares="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.antFamiliares"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.antFamiliares = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Alergias Medicamento</div>
+                      <textarea name="inBaalergiaMedicamento" #inBaalergiaMedicamento="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.alergiaMedicamento"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.alergiaMedicamento = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Hábitos y Encuesta Social</div>
+                      <textarea name="inBhabitos" #inBhabitos="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.habitos"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.habitos = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Historia Laboral</div>
+                      <textarea name="inBhistoriaLaboral" #inBhistoriaLaboral="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.historiaLaboral"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.historiaLaboral = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Examen físico general de inicio</div>
+                      <textarea name="inBexamenInicio" #inBexamenInicio="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.examenInicio"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.examenInicio = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Tareas que desempeñaba antes de pertenecer a la empresa</div>
+                      <textarea name="inBtareasAntTrabajo" #inBtareasAntTrabajo="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.tareasAntTrabajo"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.tareasAntTrabajo = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group inputForm">
+                      <div class="title">Medidas de Prevención</div>
+                      <textarea name="inBmedidasPrevencion" #inBmedidasPrevencion="ngModel"
+                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.medidasPrevencion"
+                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.medidasPrevencion = $event?.toUpperCase()"
+                        class="form-control"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="row boxForm mt-3">
+                  <div class="col-6 col-sm-6 col-md-4 order-2 order-sm-2 order-md-1 mb-1">
+                    <a [routerLink] (click)="onStart('Atencion')" class="btn beStrong btn-block">
+                      <fa-icon [icon]="fastethoscope"></fa-icon> Atención Médica
+                    </a>
+                  </div>
+                  <div
+                    class="col-12 col-sm-8 col-md-4 order-1 order-sm-1 orden-md-2 offset-sm-2 offset-md-0 mb-2 mb-md-1">
+                    <button class="btn bttn-Primario btn-block" type="submit">
+                      <fa-icon [icon]="fasave"></fa-icon> Guardar
+                    </button>
+                  </div>
+                  <div class="col-6 col-sm-6 col-md-4 order-3 order-sm-3 order-md-3 mb-1">
+                    <a [routerLink] (click)="onStart('Formulario')" class="btn beStrong btn-block">
+                      <fa-icon [icon]="fafile"></fa-icon> Formularios
+                    </a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="boxCliente" id="open" *ngIf="strFases=='Atencion'&& datoPersona.datosPaciente.idPacienteMedic!=0">
+      <app-atencion-medic [isOpen]="atencionIsOpened" [idPacienteIn]="datoPersona.datosPaciente.idPacienteMedic"
+        [pacienteNombre]="datoPersona.datosEnterprice.empleado" (cerrar)="recibirRes($event, 'atencion')">
+      </app-atencion-medic>
+    </div>
+    <!-- <div class="boxCliente" id="open" *ngIf="strFases=='Formulario'">
+      <div class="d-flex flex-row-reverse" id=utilitarioI>
+        <a (click)="recibirRes(true, 'formulario')" class="btn text-secundario btn-block mt-2" style="width: 50px;">
+          <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
+        </a>
+      </div>
+      <app-atencion-medic [isOpen]="formularioIsOpened" (cerrar)="recibirRes($event, 'formulario')">
+      </app-atencion-medic>
+    </div> -->
+  </div>
+</section>

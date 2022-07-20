@@ -4,8 +4,9 @@ import { faAngleDown, faAngleLeft, faOutdent, faPlus, faSave, faTimes, faTimesCi
 import { NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions } from '@kolkov/ngx-gallery';
 import { ToastrService } from 'ngx-toastr';
 import { finalize, map } from 'rxjs/operators';
-import { AccidenteService } from 'src/app/shared/bodega/accidente.service';
-import { cAccidenteMedic, cGaleriaAccidente, cTestigosMedic } from 'src/app/shared/bodega/ordenTrabajo';
+import { AccidenteService } from 'src/app/shared/medicina/accidente.service';
+import { cAccidenteMedic, cGaleriaAccidente, cPacienteMedic, cTestigosMedic } from 'src/app/shared/medicina/medicina';
+import { PacienteService } from 'src/app/shared/medicina/paciente.service';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cEnterpricePersonal, cFecha } from 'src/app/shared/otrosServices/varios';
@@ -17,6 +18,12 @@ import { environment } from 'src/environments/environment';
   styles: [],
 })
 export class NewAccidenteComponent implements OnInit {
+  public get pacienteService(): PacienteService {
+    return this._pacienteService;
+  }
+  public set pacienteService(value: PacienteService) {
+    this._pacienteService = value;
+  }
   public get enterpriceService(): ApiEnterpriceService {
     return this._enterpriceService;
   }
@@ -38,6 +45,7 @@ export class NewAccidenteComponent implements OnInit {
 
   fechaHoy = new cFecha();
   listPacienteFiltros$: any;
+  filtroPersona: string = "";
   okAddNewTestigo = true;
   okBttnSubmit = true;
   okDelete: boolean = false;
@@ -47,7 +55,7 @@ export class NewAccidenteComponent implements OnInit {
   galleryImages: NgxGalleryImage[];
 
   faoutdent = faOutdent; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; fasave = faSave; faangledown = faAngleDown; faangleleft = faAngleLeft; faupload = faUpload; fatrash = faTrash;
-  constructor(private _conexcionService: ConexionService, private _accidenteMedicService: AccidenteService, private _enterpriceService: ApiEnterpriceService,private toastr: ToastrService) { }
+  constructor(private _conexcionService: ConexionService, private _accidenteMedicService: AccidenteService, private _enterpriceService: ApiEnterpriceService,private toastr: ToastrService,private _pacienteService: PacienteService) { }
 
   ngOnInit(): void {
     this.galleryOptions = [
@@ -80,6 +88,7 @@ export class NewAccidenteComponent implements OnInit {
     if (form != null) {
       form.resetForm();
     }
+    this.filtroPersona = "";
     this._accidenteMedicService.formData = new cAccidenteMedic();
     this._accidenteMedicService.formData.agregarOneTestigo();
     this.okAddNewTestigo = true;
@@ -89,8 +98,9 @@ export class NewAccidenteComponent implements OnInit {
   onListPasciente(value: string) {
     this._accidenteMedicService.formData.spinnerLoading = true;
     this._accidenteMedicService.formData.showSearchSelect = true;
-    this._accidenteMedicService.formData.paciente = value;
+    this.filtroPersona = value;
     var strParametro = "all@" + value;
+    
     if (value != "") {
       this.listPacienteFiltros$ = this._enterpriceService.getPersonalEnter2(strParametro).pipe(
         map((x: cEnterpricePersonal[]) => {
@@ -101,9 +111,24 @@ export class NewAccidenteComponent implements OnInit {
     } else this._accidenteMedicService.formData.spinnerLoading = false;
   }
 
-  onChoosePaciente(data: string) {
+  onChoosePaciente(dataIn: cEnterpricePersonal) {console.table(dataIn)
+    this._accidenteMedicService.formData.spinnerLoading = false;
     this._accidenteMedicService.formData.showSearchSelect = false;
-    this._accidenteMedicService.formData.paciente = data;
+    this.filtroPersona = dataIn.empleado;
+
+    this._pacienteService.formData = new cPacienteMedic();
+    this._pacienteService.getPacienteCedula(dataIn.cedula).subscribe((dato: any) => {
+      if (dato.exito == 1) {
+        if (dato.message == "Ok") {
+          this._pacienteService.formData.completarObject(dato.data);
+          this._accidenteMedicService.formData.pacienteMedicId = this.pacienteService.formData.idPacienteMedic;
+        } else {
+          this.pacienteService.formData.cedula = dataIn.cedula;
+          this.pacienteService.formData.nombreEmpleado=dataIn.empleado;
+          this.pacienteService.formData.tipoSangre=dataIn.tipoSangre;
+        }
+      }
+    });
   }
 
   onNewTestigo() {
@@ -189,14 +214,28 @@ export class NewAccidenteComponent implements OnInit {
         strBase64 = this.arrayFilesRutas[i].split('base64,');
         this._accidenteMedicService.formData.listGaleriaAccidente[i].rutaArchivo = strBase64[1];
       }
-      this._accidenteMedicService.insertarAccidente(this._accidenteMedicService.formData).subscribe(
-        (res: any) => {
-          if (res.exito == 1) {
-            this.toastr.success('Registro Exitoso', 'El accidente se ha registrado satisfactoriamente');
-            this.resetForm(form);
+      if (this.accidenteMedicService.formData.pacienteMedicId == undefined) {
+        this._pacienteService.insertarDataPaciente(this._pacienteService.formData).subscribe(
+          (res: any) => {
+            if (res.exito == 1) {
+              this.accidenteMedicService.formData.pacienteMedicId = res.data.idPacienteMedic;
+              this.guardarAccidente(form)
+            }
+            else this.toastr.error('Se ha producido un inconveniente', 'Error');
           }
-        }
-      );
+        );
+      } else this.guardarAccidente(form)
     }
+  }
+
+  guardarAccidente(form: NgForm) {
+    this._accidenteMedicService.insertarAccidente(this._accidenteMedicService.formData).subscribe(
+      (res: any) => {
+        if (res.exito == 1) {
+          this.toastr.success('Registro Exitoso', 'El accidente se ha registrado satisfactoriamente');
+          this.resetForm(form);
+        }
+      }
+    );
   }
 }

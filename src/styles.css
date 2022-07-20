@@ -363,6 +363,17 @@ input.ng-touched.ng-invalid {
   color: var(--MicolorInfo);
   font-size: 0.9rem;
 }
+
+.beStrong{
+  color: var(--MicolorInfo);
+  font-weight: bolder;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.beStrong:hover{
+  color: var(--MicolorInfo);
+}
+
 .table tbody tr.resaltar strong {
   color: black;
   font-size: 0.9rem;
@@ -827,4 +838,16 @@ body {
   padding: .20rem;
   border-radius: 0.65rem;
   transition: all ease 150ms;
+}
+
+/*Scroll*/
+
+.scroll{
+  padding-left: 2px;
+  padding-right: 0px;
+  width: 100%;
+  height: 500px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align:justify;
 }

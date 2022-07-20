@@ -394,6 +394,7 @@ export class CompraProveedorComponent implements OnInit {
     if (datoCompra != null) {
       this.okCompraManual = false;
       this._ordenECService.formData.idCompraAutomatica = datoCompra.idDocumento;
+      this._ordenECService.formData.factura = Number(datoCompra.documento);
       this._productoBService.getProductosPlantaProveedor(this._ordenECService.formData.planta + "@" + this._ordenECService.formData.proveedor)
         .subscribe((dato: any) => {
           for (var i = 0; i < datoCompra.listCompraO.length; i++) {

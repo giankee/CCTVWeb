@@ -165,8 +165,7 @@ export class cFecha {
         var difMes = 0;
         var difDia = 0;
         if (Number(separarA[0]) < Number(separarB[0]))
-            difAnio = Number(separarB) - Number(separarA);
-
+            difAnio = Number(separarB[0]) - Number(separarA[0]);
         if (difAnio != 0)
             difMes= (12-Number(separarA[1]))+Number(separarB[1]);
         else difMes=(Number(separarB[1])-Number(separarA[1]));
@@ -176,6 +175,24 @@ export class cFecha {
             else difDia=(difMes*30)+(Number(separarA[2])-Number(separarB[2]));
         }else difDia=Number(separarB[2]) - Number(separarA[2]);
         return difDia;
+    }
+
+    sacarEdad(strFechaA: string, strFechaB: string) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
+        var separarA = strFechaA.split("-");
+        var separarB = strFechaB.split("-");
+        var difAnio =  (Number(separarB[0]) - Number(separarA[0]));;
+        var difMes = 0;
+
+        if (Number(separarA[1]) >= Number(separarB[1])){
+            if((Number(separarA[1]) == Number(separarB[1]))&&(Number(separarA[2]) < Number(separarB[2]))){
+                difMes= (Number(separarB[1])-Number(separarA[1]));
+            }else {
+                difAnio--;
+                difMes= (12-(Number(separarA[1])-Number(separarB[1])));
+            }
+        }else difMes= (Number(separarB[1])-Number(separarA[1]));
+
+        return (difAnio + " años con "+ difMes+ " meses");
     }
 }
 
@@ -268,6 +285,7 @@ export class cEnterpriceDocumento {
     rS_Cliente: string;
     crp_Cliente: string = "";
     nro_contespecial: string = "";
+    anulado:number;
 
     listCompraO: cEnterpriceArticulosDocumento[];
 
@@ -286,6 +304,7 @@ export class cEnterpriceDocumento {
         this.rS_Cliente = dataIn.rS_Cliente;
         this.crp_Cliente = dataIn.crp_Cliente;
         this.nro_contespecial = dataIn.nro_contespecial;
+        this.anulado=dataIn.anulado;
     }
 }
 
@@ -390,7 +409,114 @@ export class cEnterpricePersonal {
     idEmpleado: number;
     empleado: string;
     cedula: string;
+    nombres: string;
+    apellidos: string;
+    fecha_Nacido: string;
+    tipoSangre: string;
+    sexo: string;
+    telf_Movil: string;
+    direccion: string;
+    estadoCivil: string;
     departamento: string;
     funcion: string;
     barco: string;
+    enrolar:number;
+
+    /**Control */
+    edad:string;
+
+    constructor(){
+        this.idEmpleado=undefined;
+        this.empleado="";
+        this.cedula="";
+        this.nombres="";
+        this.apellidos="";
+        this.fecha_Nacido="";
+        this.tipoSangre="SIN ASIGNAR";
+        this.sexo="";
+        this.telf_Movil="";
+        this.direccion="";
+        this.estadoCivil="";
+        this.departamento="";
+        this.funcion="";
+        this.barco="";
+        this.enrolar=undefined;
+
+        this.edad="";
+    }
+
+    completarObj(dataIn:cEnterpricePersonal){
+        this.idEmpleado=dataIn.idEmpleado;
+        this.empleado=dataIn.empleado;
+        this.cedula=dataIn.cedula;
+        this.nombres=dataIn.nombres;
+        this.apellidos=dataIn.apellidos;
+        this.fecha_Nacido=dataIn.fecha_Nacido.substring(0, 10);
+        this.tipoSangre=dataIn.tipoSangre;
+
+        if(dataIn.sexo=="F")
+        this.sexo="Femenino";
+        else this.sexo="Masculino";
+
+        this.telf_Movil=dataIn.telf_Movil;
+        this.direccion=dataIn.direccion;
+        this.estadoCivil=dataIn.estadoCivil;
+        this.departamento=dataIn.departamento;
+        this.funcion=dataIn.funcion;
+        this.barco=dataIn.barco;
+        this.enrolar=dataIn.enrolar;
+
+        var fechaHoy=new cFecha();
+        this.edad=fechaHoy.sacarEdad(this.fecha_Nacido,fechaHoy.strFecha);
+    }
+}
+
+
+export class cParemetosGeneral {
+    strCampoA: string = "";
+    strCampoB: string = "";
+    strCampoC: string = "";
+    strCampoD: string = "";
+    numCampoA: number = undefined;
+    numCampoB: number = undefined;
+    numCampoC: number = undefined;
+    numCampoD: number = undefined;
+
+    fechaH:string;
+    fechaA:string;
+    fechaB:string;
+
+    spinLoadingG: string = '0';//0 offf, strA o numA
+    showSearchSelectG: string = '0';//0 offf, strA o numA
+
+
+
+    /**solo para consultas */
+    disableCheck: boolean = false;
+
+    constructor() {
+        this.strCampoA = "";
+        this.strCampoB = "";
+        this.strCampoC = "";
+        this.strCampoD = "";
+        this.numCampoA = undefined;
+        this.numCampoB = undefined;
+        this.numCampoC = undefined;
+        this.numCampoD = undefined;
+    
+        var fechaHoy = new cFecha();
+        this.fechaH=fechaHoy.strFecha;
+        this.fechaA=fechaHoy.inDesde;
+        this.fechaB=fechaHoy.inHasta;
+    
+        this.spinLoadingG = '0';
+        this.showSearchSelectG = '0';
+    }
+    /*transformarParametro(fDesdeIn: string, fHastaIn: string): string {
+        var strparam = "P MANACRIPEX@" + this.tipoO + "@" + fDesdeIn + "@" + fHastaIn + "@" + this.strBodegaOrigen + "@" + this.strArea + "@" + this.productoCodigo + "@";
+        if (this.strPersona != "")
+            strparam = strparam + this.strPersona;
+        else strparam = strparam + "null";
+        return strparam;
+    }*/
 }

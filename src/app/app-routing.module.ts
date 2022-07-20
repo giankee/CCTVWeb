@@ -27,9 +27,12 @@ import { UserComponent } from './user/user.component';
 import { VisitantesComponent } from './visitantes/visitantes.component';
 import { CrearMedicamentoComponent } from './bodega/crear-medicamento/crear-medicamento.component';
 import { PedirMedicamentoComponent } from './bodega/pedir-medicamento/pedir-medicamento.component';
-import { cAccidenteMedic } from './shared/bodega/ordenTrabajo';
-import { NewAccidenteComponent } from './bodega/accidente/new-accidente/new-accidente.component';
+import { NewAccidenteComponent } from './medicina/new-accidente/new-accidente.component';
 import { AgruparInventarioComponent } from './bodega/list-producto-b/agrupar-inventario/agrupar-inventario.component';
+import { FichaTecnicaComponent } from './medicina/ficha-tecnica/ficha-tecnica.component';
+import { PermisosComponent } from './medicina/permisos/permisos.component';
+import { AtencionMedicComponent } from './medicina/atencion-medic/atencion-medic.component';
+import { ListAtencionesComponent } from './medicina/list-atenciones/list-atenciones.component';
 
 const routes: Routes = [
 
@@ -71,6 +74,14 @@ const routes: Routes = [
           { path: 'solicitarMedicamento', data: { permittedRoles: ['enfermeria','verificador-medic'] }, component: PedirMedicamentoComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'accidente', data: { permittedRoles: ['enfermeria'] }, component: NewAccidenteComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'inventGroup', data: { permittedRoles: ['verificador-bodeguero'] }, component: AgruparInventarioComponent, canDeactivate: [CanDeactivateGuard] }
+        ]
+      },
+      {
+        path: 'Medicina', children: [
+          { path: 'fichaMedica', data: { permittedRoles: ['enfermeria'] }, component: FichaTecnicaComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'permisoMedico', data: { permittedRoles: ['enfermeria'] }, component: PermisosComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'atencionMedica', data: { permittedRoles: ['enfermeria'] }, component: AtencionMedicComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'atencionList', data: { permittedRoles: ['enfermeria'] }, component: ListAtencionesComponent, canDeactivate: [CanDeactivateGuard] },
         ]
       },
       {

@@ -82,9 +82,9 @@ export class ControlESComponent implements OnInit {
     }
     if (tipo == "devolucion")
       this.devolucionIsOpened = !salir;
-    this.strFases = "Inicio";
     if (tipo == "consulta")
       this.consultaIsOpened = !salir;
+      this.strFases = "Inicio";
   }
 
   onStart(op: string) {
