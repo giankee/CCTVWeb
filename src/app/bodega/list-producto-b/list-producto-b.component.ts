@@ -16,7 +16,6 @@ import { KardexComponent } from '../kardex/kardex.component';
 import * as XLSX from 'xlsx';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { CargarXLSXComponent } from '../cargar-xlsx/cargar-xlsx.component';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 
 @Component({
@@ -389,21 +388,26 @@ export class ListProductoBComponent implements OnInit {
     doc.line(290, y, 290, (y + 10));//right
     doc.line(5, (y + 10), 290, (y + 10));//down
 
-    doc.text("Código", 15, (y + 7));
-    doc.line(35, y, 35, (y + 10));//right
-    doc.text("Descripción", 60, (y + 7));
-    doc.line(90, y, 90, (y + 10));//right
-    doc.text("Proveedor", 115, (y + 7));
-    doc.line(150, y, 150, (y + 10));//right
-    doc.text("Marca", 162, (y + 7));
-    doc.line(185, y, 185, (y + 10));//right
-    doc.text("Categoría", 195, (y + 7));
-    doc.line(220, y, 220, (y + 10));//right
-    doc.text("Ubicación", 225, (y + 7));
-    doc.line(250, y, 250, (y + 10));//right
-    doc.text("Existencia", 252, (y + 7));
-    doc.line(270, y, 270, (y + 10));//right
-    doc.text("Real", 274, (y + 7));
+    doc.text("Código", 10, (y + 7));
+    doc.line(25, y, 25, (y + 10));//right
+    doc.text("Descripción", 50, (y + 7));
+    doc.line(80, y, 80, (y + 10));//right
+    doc.text("Proveedor", 105, (y + 7));
+    doc.line(140, y, 140, (y + 10));//right
+    doc.text("Marca", 152, (y + 7));
+    doc.line(170, y, 170, (y + 10));//right
+    doc.text("Categoría", 178, (y + 7));
+    doc.line(200, y, 200, (y + 10));//right
+    doc.text("Ubicación", 208, (y + 7));
+    doc.line(237, y, 237, (y + 10));//right
+    doc.text("Existencia", 238, (y + 7));
+    doc.line(255, y, 255, (y + 10));//right
+
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+      doc.text("Mínimo", 256, (y + 7));
+      doc.line(270, y, 270, (y + 10));//right
+      doc.text("Real", 275, (y + 7));
+    } else doc.text("Real", 274, (y + 7));
 
     y = y + 10;
     doc.setFontSize(8);
@@ -418,10 +422,12 @@ export class ListProductoBComponent implements OnInit {
     var lineaBodegaG;
     var lineaProveedor;
     var lineaStockG;
+    var lineaStockM;
     for (var i = 0; i < data.length; i++) {
       lineaNombre = doc.splitTextToSize(data[i].nombre, (50));
       lineaProveedor = doc.splitTextToSize(data[i].proveedor, (55));
       lineaStockG = [];
+      lineaStockM = [];
       lineaBodegaG = [];
 
       for (var j = 0; j < data[i].listBodegaProducto.length; j++) {
@@ -435,12 +441,14 @@ export class ListProductoBComponent implements OnInit {
             lineaBodegaG.push(auaxNombreBodega);
             lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
             lineaStockG.push(data[i].listBodegaProducto[j].disponibilidad.toString());
+            lineaStockM.push(data[i].listBodegaProducto[j].cantMinima.toString());
           }
         }
         else {
           lineaBodegaG.push(auaxNombreBodega);
           lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
           lineaStockG.push(data[i].listBodegaProducto[j].disponibilidad.toString());
+          lineaStockM.push(data[i].listBodegaProducto[j].cantMinima.toString());
         }
       }
 
@@ -472,21 +480,27 @@ export class ListProductoBComponent implements OnInit {
         doc.line(290, y, 290, (y + 10));//right
         doc.line(5, (y + 10), 290, (y + 10));//down
 
-        doc.text("Código", 15, (y + 7));
-        doc.line(35, y, 35, (y + 10));//right
-        doc.text("Descripción", 60, (y + 7));
-        doc.line(90, y, 90, (y + 10));//right
-        doc.text("Proveedor", 115, (y + 7));
-        doc.line(150, y, 150, (y + 10));//right
-        doc.text("Marca", 162, (y + 7));
-        doc.line(185, y, 185, (y + 10));//right
-        doc.text("Categoría", 195, (y + 7));
-        doc.line(220, y, 220, (y + 10));//right
-        doc.text("Ubicación", 225, (y + 7));
-        doc.line(250, y, 250, (y + 10));//right
-        doc.text("Existencia", 252, (y + 7));
-        doc.line(270, y, 270, (y + 10));//right
-        doc.text("Real", 274, (y + 7));
+        doc.text("Código", 10, (y + 7));
+        doc.line(25, y, 25, (y + 10));//right
+        doc.text("Descripción", 50, (y + 7));
+        doc.line(80, y, 80, (y + 10));//right
+        doc.text("Proveedor", 105, (y + 7));
+        doc.line(140, y, 140, (y + 10));//right
+        doc.text("Marca", 152, (y + 7));
+        doc.line(170, y, 170, (y + 10));//right
+        doc.text("Categoría", 178, (y + 7));
+        doc.line(200, y, 200, (y + 10));//right
+        doc.text("Ubicación", 208, (y + 7));
+        doc.line(237, y, 237, (y + 10));//right
+        doc.text("Existencia", 238, (y + 7));
+        doc.line(255, y, 255, (y + 10));//right
+
+        if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+          doc.text("Mínimo", 256, (y + 7));
+          doc.line(270, y, 270, (y + 10));//right
+          doc.text("Real", 275, (y + 7));
+        } else doc.text("Real", 274, (y + 7));
+
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
@@ -496,24 +510,30 @@ export class ListProductoBComponent implements OnInit {
       doc.line(290, (y - valorG), 290, y);//right
       doc.line(5, y, 290, y);//down +10y1y2
 
-      doc.text(data[i].codigo, 10, (y - ((valorG - 3) / 2)));
-      doc.line(35, (y - valorG), 35, y);//right
+      doc.text(data[i].codigo, 7, (y - ((valorG - 3) / 2)));
+      doc.line(25, (y - valorG), 25, y);//right
       auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
-      doc.text(lineaNombre, 40, (y - valorG + auxLinea));
-      doc.line(90, (y - valorG), 90, y);//right
+      doc.text(lineaNombre, 30, (y - valorG + auxLinea));
+      doc.line(80, (y - valorG), 80, y);//right
       auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
-      doc.text(lineaProveedor, 93, (y - valorG + auxLinea));
-      doc.line(150, (y - valorG), 150, y);//right
-      doc.text(data[i].marca, 155, (y - ((valorG - 3) / 2)));
-      doc.line(185, (y - valorG), 185, y);//right
-      doc.text(data[i].categoria, 190, (y - ((valorG - 3) / 2)));
-      doc.line(220, (y - valorG), 220, y);//right
+      doc.text(lineaProveedor, 83, (y - valorG + auxLinea));
+      doc.line(140, (y - valorG), 140, y);//right
+      doc.text(data[i].marca, 145, (y - ((valorG - 3) / 2)));
+      doc.line(170, (y - valorG), 170, y);//right
+      doc.text(data[i].categoria, 175, (y - ((valorG - 3) / 2)));
+      doc.line(200, (y - valorG), 200, y);//right
       auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
-      doc.text(lineaBodegaG, 222, (y - valorG + auxLinea));
-      doc.line(250, (y - valorG), 250, y);//right
+      doc.text(lineaBodegaG, 202, (y - valorG + auxLinea));
+      doc.line(237, (y - valorG), 237, y);//right
       auxLinea = Number((valorG - (3 * lineaStockG.length + (3 * (lineaStockG.length - 1)))) / 2.5) + (2 + lineaStockG.length);
-      doc.text(lineaStockG, 257, (y - valorG + auxLinea));
-      doc.line(270, (y - valorG), 270, y);//right
+      doc.text(lineaStockG, 245, (y - valorG + auxLinea));
+      doc.line(255, (y - valorG), 255, y);//right
+
+      if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+        auxLinea = Number((valorG - (3 * lineaStockM.length + (3 * (lineaStockM.length - 1)))) / 2.5) + (2 + lineaStockM.length);
+        doc.text(lineaStockM, 260, (y - valorG + auxLinea));
+        doc.line(270, (y - valorG), 270, y);//right
+      }
 
     }
     doc.save("ListaProductos_" + this.fechaHoy.strFecha + ".pdf");

@@ -33,6 +33,8 @@ import { FichaTecnicaComponent } from './medicina/ficha-tecnica/ficha-tecnica.co
 import { PermisosComponent } from './medicina/permisos/permisos.component';
 import { AtencionMedicComponent } from './medicina/atencion-medic/atencion-medic.component';
 import { ListAtencionesComponent } from './medicina/list-atenciones/list-atenciones.component';
+import { ListPermisosComponent } from './medicina/list-historial-persona/list-permisos/list-permisos.component';
+import { ListAccidentesComponent } from './medicina/list-historial-persona/list-accidentes/list-accidentes.component';
 
 const routes: Routes = [
 
@@ -82,6 +84,8 @@ const routes: Routes = [
           { path: 'permisoMedico', data: { permittedRoles: ['enfermeria'] }, component: PermisosComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'atencionMedica', data: { permittedRoles: ['enfermeria'] }, component: AtencionMedicComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'atencionList', data: { permittedRoles: ['enfermeria'] }, component: ListAtencionesComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'list_permisos', data: { permittedRoles: ['enfermeria'] }, component: ListPermisosComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'list_accidentes', data: { permittedRoles: ['enfermeria'] }, component: ListAccidentesComponent, canDeactivate: [CanDeactivateGuard] },
         ]
       },
       {

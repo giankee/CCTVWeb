@@ -83,6 +83,10 @@ import { CarroService } from './shared/carro.service';
 import { UserService } from './shared/user.service';
 import { ConexionService } from './shared/otrosServices/conexion.service';
 import { ListAtencionesComponent } from './medicina/list-atenciones/list-atenciones.component';
+import { ViewAtencionModalComponent } from './medicina/atencion-medic/view-atencion-modal/view-atencion-modal.component';
+import { ListPermisosComponent } from './medicina/list-historial-persona/list-permisos/list-permisos.component';
+import { ListAccidentesComponent } from './medicina/list-historial-persona/list-accidentes/list-accidentes.component';
+import { ViewAccidenteModelComponent } from './medicina/new-accidente/view-accidente-model/view-accidente-model.component';
 
 /*import { ServiceWorkerModule } from '@angular/service-worker';
 */
@@ -148,7 +152,11 @@ import { ListAtencionesComponent } from './medicina/list-atenciones/list-atencio
     PermisosComponent,
     AtencionMedicComponent,
     FiltrarCie10Pipe,
-    ListAtencionesComponent
+    ListAtencionesComponent,
+    ViewAtencionModalComponent,
+    ListPermisosComponent,
+    ListAccidentesComponent,
+    ViewAccidenteModelComponent
   ],
   imports: [
     BrowserModule,

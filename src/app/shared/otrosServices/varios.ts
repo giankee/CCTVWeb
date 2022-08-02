@@ -177,7 +177,7 @@ export class cFecha {
         return difDia;
     }
 
-    sacarEdad(strFechaA: string, strFechaB: string) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
+    sacarEdad(strFechaA: string, strFechaB: string, opTipo:string) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
         var separarA = strFechaA.split("-");
         var separarB = strFechaB.split("-");
         var difAnio =  (Number(separarB[0]) - Number(separarA[0]));;
@@ -191,8 +191,9 @@ export class cFecha {
                 difMes= (12-(Number(separarA[1])-Number(separarB[1])));
             }
         }else difMes= (Number(separarB[1])-Number(separarA[1]));
-
+        if(opTipo=="string")
         return (difAnio + " años con "+ difMes+ " meses");
+        else return difAnio+"";
     }
 }
 
@@ -421,6 +422,7 @@ export class cEnterpricePersonal {
     funcion: string;
     barco: string;
     enrolar:number;
+    idEmpresa:number;
 
     /**Control */
     edad:string;
@@ -441,6 +443,7 @@ export class cEnterpricePersonal {
         this.funcion="";
         this.barco="";
         this.enrolar=undefined;
+        this.idEmpresa=undefined;
 
         this.edad="";
     }
@@ -453,6 +456,7 @@ export class cEnterpricePersonal {
         this.apellidos=dataIn.apellidos;
         this.fecha_Nacido=dataIn.fecha_Nacido.substring(0, 10);
         this.tipoSangre=dataIn.tipoSangre;
+        this.idEmpresa=dataIn.idEmpresa;
 
         if(dataIn.sexo=="F")
         this.sexo="Femenino";
@@ -467,7 +471,7 @@ export class cEnterpricePersonal {
         this.enrolar=dataIn.enrolar;
 
         var fechaHoy=new cFecha();
-        this.edad=fechaHoy.sacarEdad(this.fecha_Nacido,fechaHoy.strFecha);
+        this.edad=fechaHoy.sacarEdad(this.fecha_Nacido,fechaHoy.strFecha,'string');
     }
 }
 

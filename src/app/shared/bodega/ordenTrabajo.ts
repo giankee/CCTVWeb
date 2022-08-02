@@ -132,6 +132,7 @@ export class cConsultaMedic {
     constructor(guardiaCargoIn: string, bodegaIn?: string) {
         let fechaHoy: cFecha = new cFecha();
         this.guardiaCargoUser = guardiaCargoIn;
+        this.personaResponsable=guardiaCargoIn;
         this.fechaRegistro = fechaHoy.strFecha;
         if (bodegaIn != null)
             this.bodegaOrigen = bodegaIn;

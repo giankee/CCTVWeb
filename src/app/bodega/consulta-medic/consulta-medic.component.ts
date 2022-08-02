@@ -153,10 +153,10 @@ export class ConsultaMedicComponent implements OnInit {
     this._consultaMedicService.formData.spinnerLoading = true;
     this._consultaMedicService.formData.showSearchSelect = true;
     this._consultaMedicService.formData.paciente = value;
-    var strParametro = "all@" + value;
+    var strParametro = "all@" + value+'@SIN ASIGNAR';
     var auxBarcoSelect = "";
     if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
-      strParametro = "Tripulantes@" + value;
+      strParametro = "Tripulantes@" + value+'@SIN ASIGNAR';
       var auxBarco = this.listBarcos[0].nombre.split(' ');
       switch (auxBarco.length) {
         case 2:

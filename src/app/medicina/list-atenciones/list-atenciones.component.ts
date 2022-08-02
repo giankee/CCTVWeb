@@ -10,6 +10,9 @@ import { cEnterpricePersonal, cParemetosGeneral } from 'src/app/shared/otrosServ
 import listCie10 from 'src/assets/cie10code.json';
 import { jsPDF } from "jspdf";
 import { SortPipe } from 'src/app/pipes/sort.pipe';
+import { PermisoService } from 'src/app/shared/medicina/permiso.service';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { ViewAtencionModalComponent } from '../atencion-medic/view-atencion-modal/view-atencion-modal.component';
 
 @Component({
   selector: 'app-list-atenciones',
@@ -42,13 +45,12 @@ export class ListAtencionesComponent implements OnInit {
 
   /**Para pagination y fecha Entrada*/
   paginacion = new cPaginacion(25);
-  //fechaHoy = new cFecha();
   /**Fin paginatacion */
 
 
   sort = faSort; faeye = faEye; fasearch = faSearch; faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArRight = faArrowAltCircleRight; faArLeft = faArrowAltCircleLeft;
   //fatimesCircle = faTimesCircle;  
-  constructor(private _atencionMedicService: AtencionService, private _enterpriceService: ApiEnterpriceService, private consultaPipe: SortPipe) { }
+  constructor(private _atencionMedicService: AtencionService, private _enterpriceService: ApiEnterpriceService, private consultaPipe: SortPipe, private permisoMedicService: PermisoService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.cargarData();
@@ -60,6 +62,15 @@ export class ListAtencionesComponent implements OnInit {
       map((x: cAtencionMedic[]) => {
         x.forEach(y => {
           y.fechaAtencion = y.fechaAtencion.substring(0, 10);
+          if (y.reposo && y.permisoIdOpcional != 0) {
+            this.permisoMedicService.getOnePermiso(y.permisoIdOpcional).subscribe(
+              (res: any) => {
+                if (res.exito == 1)
+                  if (res.message = "Ok")
+                    y.permisoMedic = res.data;
+              }
+            );
+          }
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
@@ -82,6 +93,15 @@ export class ListAtencionesComponent implements OnInit {
       map((x: cAtencionMedic[]) => {
         x.forEach(y => {
           y.fechaAtencion = y.fechaAtencion.substring(0, 10);
+          if (y.reposo && y.permisoIdOpcional != 0) {
+            this.permisoMedicService.getOnePermiso(y.permisoIdOpcional).subscribe(
+              (res: any) => {
+                if (res.exito == 1)
+                  if (res.message = "Ok")
+                    y.permisoMedic = res.data;
+              }
+            );
+          }
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
@@ -92,7 +112,7 @@ export class ListAtencionesComponent implements OnInit {
 
   getDataFiltro(data: cAtencionMedic[]) {//Para q la filtracion de datos se automatica
     if (data.length != undefined && data.length != this.dataAtencionesResult.length) {
-      this.dataAtencionesResult = JSON.parse(JSON.stringify(data));
+      this.dataAtencionesResult = data;
       this.paginacion.getNumberIndex(this.dataAtencionesResult.length);
     }
   }
@@ -115,7 +135,7 @@ export class ListAtencionesComponent implements OnInit {
   onListPasciente(value: string) {
     this.parametrosBusqueda.spinLoadingG = 'strA';
     this.parametrosBusqueda.showSearchSelectG = 'strA';
-    var strParametro = "all@" + value;
+    var strParametro = "all@" + value+"@SIN ASIGNAR";
     this.parametrosBusqueda.strCampoA = value;
     if (value != "") {
       this.listPacienteFiltros$ = this._enterpriceService.getPersonalEnter2(strParametro).pipe(
@@ -159,7 +179,7 @@ export class ListAtencionesComponent implements OnInit {
       });
       if (this.ordenAtencion != "default")
         this.dataAtencionesResult = this.consultaPipe.transform(this.dataAtencionesResult, this.ordenAtencion, 'cAtencionMedic');
-      
+
       doc.setFontSize(17);
       doc.setFont("arial", "bold")
       doc.text("Lista de Atenciones", 120, 15);
@@ -204,15 +224,19 @@ export class ListAtencionesComponent implements OnInit {
 
       doc.text("#", 12, (y + 7));
       doc.line(20, y, 20, (y + 10));//left
-      doc.text("Fecha Atención", 25, (y + 7));
-      doc.line(55, y, 55, (y + 10));//left
-      doc.text("Paciente", 80, (y + 7));
-      doc.line(120, y, 120, (y + 10));//left
-      doc.text("Enfermedad CIE10", 140, (y + 7));
-      doc.line(195, y, 195, (y + 10));//left
-      doc.text("Motivo de Atención", 215, (y + 7));
-      doc.line(270, y, 270, (y + 10));//left
-      doc.text("Reposo", 275, (y + 7));
+      doc.text("Fecha Atención", 23, (y + 7));
+      doc.line(50, y, 50, (y + 10));//left
+      doc.text("Paciente", 70, (y + 7));
+      doc.line(105, y, 105, (y + 10));//left
+      doc.text("Enfermedad CIE10", 120, (y + 7));
+      doc.line(175, y, 175, (y + 10));//left
+      doc.text("Motivo de Atención", 195, (y + 7));
+      doc.line(245, y, 245, (y + 10));//left
+      doc.text("Reposo", 247, (y + 7));
+      doc.line(260, y, 260, (y + 10));//left
+      doc.text("T. Días", 262, (y + 7));
+      doc.line(275, y, 275, (y + 10));//left
+      doc.text("T. Horas", 276, (y + 7));
 
       y = y + 10;
       doc.setFontSize(8);
@@ -226,11 +250,10 @@ export class ListAtencionesComponent implements OnInit {
       var lineaPaciente;
       var lineaEnfermedad;
       var lineaMotivo;
-
       for (var index = 0; index < this.dataAtencionesResult.length; index++) {
-        lineaPaciente = doc.splitTextToSize(this.dataAtencionesResult[index].pacienteMedic.nombreEmpleado, (60));
-        lineaEnfermedad = doc.splitTextToSize(this.dataAtencionesResult[index].enfermedadCIE10, (70));
-        lineaMotivo = doc.splitTextToSize(this.dataAtencionesResult[index].motivoAtencion, (70));
+        lineaPaciente = doc.splitTextToSize(this.dataAtencionesResult[index].pacienteMedic.nombreEmpleado, (50));
+        lineaEnfermedad = doc.splitTextToSize(this.dataAtencionesResult[index].enfermedadCIE10, (65));
+        lineaMotivo = doc.splitTextToSize(this.dataAtencionesResult[index].motivoAtencion, (65));
 
         valorP = (3 * lineaPaciente.length) + 4;
         valorE = (3 * lineaEnfermedad.length) + 4;
@@ -257,15 +280,20 @@ export class ListAtencionesComponent implements OnInit {
           doc.line(5, (y + 10), 290, (y + 10));//down
           doc.text("#", 12, (y + 7));
           doc.line(20, y, 20, (y + 10));//left
-          doc.text("Fecha Atención", 25, (y + 7));
-          doc.line(55, y, 55, (y + 10));//left
-          doc.text("Paciente", 80, (y + 7));
-          doc.line(120, y, 120, (y + 10));//left
-          doc.text("Enfermedad CIE10", 140, (y + 7));
-          doc.line(195, y, 195, (y + 10));//left
-          doc.text("Motivo de Atención", 215, (y + 7));
-          doc.line(270, y, 270, (y + 10));//left
-          doc.text("Reposo", 275, (y + 7));
+          doc.text("Fecha Atención", 23, (y + 7));
+          doc.line(50, y, 50, (y + 10));//left
+          doc.text("Paciente", 70, (y + 7));
+          doc.line(105, y, 105, (y + 10));//left
+          doc.text("Enfermedad CIE10", 120, (y + 7));
+          doc.line(175, y, 175, (y + 10));//left
+          doc.text("Motivo de Atención", 195, (y + 7));
+          doc.line(245, y, 245, (y + 10));//left
+          doc.text("Reposo", 247, (y + 7));
+          doc.line(260, y, 260, (y + 10));//left
+          doc.text("T. Días", 262, (y + 7));
+          doc.line(275, y, 275, (y + 10));//left
+          doc.text("T. Horas", 276, (y + 7));
+
           y = y + 10 + valorG;
           doc.setFontSize(8);
           doc.setFont("arial", "normal");
@@ -275,26 +303,42 @@ export class ListAtencionesComponent implements OnInit {
         doc.line(5, y, 290, y);//down +10y1y2
         doc.text((index + 1).toString(), 12, (y - ((valorG - 3) / 2)));
         doc.line(20, (y - valorG), 20, y);//right
-        doc.text(this.dataAtencionesResult[index].fechaAtencion, 30, (y - ((valorG - 3) / 2)));
-        doc.line(55, (y - valorG), 55, y);//right
+        doc.text(this.dataAtencionesResult[index].fechaAtencion, 28, (y - ((valorG - 3) / 2)));
+        doc.line(50, (y - valorG), 50, y);//right
         auxLinea = Number((valorG - (3 * lineaPaciente.length + (3 * (lineaPaciente.length - 1)))) / 2.5) + (2 + lineaPaciente.length);
-        doc.text(lineaPaciente, 60, (y - valorG + auxLinea));
-        doc.line(120, (y - valorG), 120, y);//right
+        doc.text(lineaPaciente, 53, (y - valorG + auxLinea));
+        doc.line(105, (y - valorG), 105, y);//right
         auxLinea = Number((valorG - (3 * lineaEnfermedad.length + (3 * (lineaEnfermedad.length - 1)))) / 2.5) + (2 + lineaEnfermedad.length);
-        doc.text(lineaEnfermedad, 125, (y - valorG + auxLinea));
-        doc.line(195, (y - valorG), 195, y);//right
+        doc.text(lineaEnfermedad, 110, (y - valorG + auxLinea));
+        doc.line(175, (y - valorG), 175, y);//right
         auxLinea = Number((valorG - (3 * lineaMotivo.length + (3 * (lineaMotivo.length - 1)))) / 2.5) + (2 + lineaMotivo.length);
-        doc.text(lineaMotivo, 200, (y - valorG + auxLinea));
-        doc.line(270, (y - valorG), 270, y);//right
-        if (this.dataAtencionesResult[index].reposo)
-          doc.text("SI", 278, (y - ((valorG - 3) / 2)));
-        else doc.text("NO", 278, (y - ((valorG - 3) / 2)));
+        doc.text(lineaMotivo, 180, (y - valorG + auxLinea));
+        doc.line(245, (y - valorG), 245, y);//right
+        if (this.dataAtencionesResult[index].reposo){
+          doc.text("SI", 250, (y - ((valorG - 3) / 2)));
+          doc.text(this.dataAtencionesResult[index].permisoMedic.totalDias.toString(), 265, (y - ((valorG - 3) / 2)));
+          doc.text(this.dataAtencionesResult[index].permisoMedic.totalHoras.toString(), 280, (y - ((valorG - 3) / 2)));
+        }
+        else{
+          doc.text("NO", 250, (y - ((valorG - 3) / 2)));
+          doc.text("---", 265, (y - ((valorG - 3) / 2)));
+          doc.text("---", 280, (y - ((valorG - 3) / 2)));
+        }
+        doc.line(260, (y - valorG), 260, y);//right
+        doc.line(275, (y - valorG), 275, y);//right
       }
       doc.save("ListaAtenciones" + ".pdf");
     }
   }
 
-  onModal(dato) {
-
+  onModal(dataIn: cAtencionMedic) {
+    var auxId = dataIn.idAtencionMedic;
+    const dialoConfig = new MatDialogConfig();
+    dialoConfig.autoFocus = true;
+    dialoConfig.disableClose = false;
+    dialoConfig.data = { auxId }
+    this.dialog.open(ViewAtencionModalComponent, dialoConfig);
+    this._atencionMedicService.formData = new cAtencionMedic();
+    this.atencionMedicService.formData.completarObject(dataIn);
   }
 }

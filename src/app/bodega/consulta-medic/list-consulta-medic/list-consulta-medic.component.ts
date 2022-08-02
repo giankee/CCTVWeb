@@ -180,11 +180,11 @@ export class ListConsultaMedicComponent implements OnInit {
     this.parametrosBusqueda.showSearchSelectG = 1;
     if (value != "") {
       this.parametrosBusqueda.strPersona = value;
-      var strParametro = "all@" + value;
+      var strParametro = "all@" + value+"@SIN ASIGNAR";
       var auxBarcoSelect = "";
       if (this.parametrosBusqueda.strBodegaOrigen != "SIN ASIGNAR") {
         if (this.parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL') {
-          strParametro = "Tripulantes@" + value;
+          strParametro = "Tripulantes@" + value+"@SIN ASIGNAR";
           var auxBarco = this.parametrosBusqueda.strBodegaOrigen.split(' ');
           switch (auxBarco.length) {
             case 2:

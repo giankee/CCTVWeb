@@ -9,7 +9,7 @@
       <div class="bodyCard" *ngIf="permisoMedicService.formData">
         <div class="row">
           <div class="col-12">
-            <h4 class="text-center">Gestión de Permisos - Manacripex</h4>
+            <h4 class="text-center">Certificado de Reposo {{permisoMedicService.formData.totalDias==0? 'por horas': " "}}- Manacripex</h4>
           </div>
         </div>
         <div class="row boxForm mt-2" *ngIf="!isOpen">
@@ -18,7 +18,7 @@
               <div class="wrapper">
                 <div class="limit-width">
                   <div class="title ml-3"><strong>Paciente:</strong> </div>
-                  <input name="filtroPersonaIn" #filtroPersonaIn="ngModel" [(ngModel)]="filtroPersona"
+                  <input name="filtroPersonaIn" #filtroPersonaIn="ngModel" [(ngModel)]="pacienteNombre"
                     (ngModelChange)="onListPasciente($event?.toUpperCase())" maxlength="100"
                     placeholder="Nombre del trabajador" class="form-control input-src" required
                     [ngClass]="{'loading':permisoMedicService.formData.spinnerLoading==1}">
@@ -29,6 +29,7 @@
                         <a (click)="onChoosePaciente(data)"
                           class="name">{{data.empleado}}</a>
                       </li>
+                      
                     </ul>
                   </div>
                 </div>
@@ -51,6 +52,10 @@
                         <a (click)="onChooseEnfermedad(data)"
                           class="name"><strong>{{data.code}}:</strong>{{data.description}}</a>
                       </li>
+                      <li>
+                        <a (click)="onChooseEnfermedad('Nuevo')"
+                          class="name"><strong>--Nuevo--</strong></a>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -59,7 +64,7 @@
           </div>
         </div>
         <div class="row boxForm mt-2">
-          <div class="col-12 col-md-6">
+          <div class="col-12 col-sm-6 col-md-6">
             <div class="form-group inputForm" id="inputSearchP">
               <div class="title"><strong>Tipo de Permito:</strong></div>
               <select class="form-control  input-src" name="tipoPermiso" #tipoPermiso="ngModel"
@@ -72,9 +77,13 @@
               </select>
             </div>
           </div>
-          <!-- <div class="col-12 col-md-6">
-            gráfica
-          </div> -->
+          <div class="col-12 col-sm-6 col-md-6">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Permiso Generado por:</strong></div>
+              <input name="responsable" #responsable="ngModel"
+                [(ngModel)]="permisoMedicService.formData.guardiaCargoUser" class="form-control input-src">
+            </div>
+          </div>
         </div>
         <div class="row boxForm">
           <div class="col-12 col-sm-6">
@@ -114,13 +123,12 @@
                 [(ngModel)]="permisoMedicService.formData.totalHoras" class="form-control input-src" maxlength="3">
             </div>
           </div>
-          <div class="col-12 col-sm-6 col-md-6">
-            <div class="form-group inputForm" id="inputSearchP">
-              <div class="title"><strong>Permiso Generado por:</strong></div>
-              <input name="responsable" #responsable="ngModel"
-                [(ngModel)]="permisoMedicService.formData.guardiaCargoUser" class="form-control input-src">
-            </div>
-          </div>
+          <div class="col-12 col-sm-6 col-md-6 justify-content-center text-center">
+            <div class="title"><strong>Deberá acudir a consulta médica de la empresa?</strong></div>
+            <mat-checkbox id="acudirRegreso" name="acudirRegreso" #acudirRegreso="ngModel" color="primary"
+            [(ngModel)]="permisoMedicService.formData.regresaConsulta">
+          </mat-checkbox>
+        </div>
         </div>
         <div class="row boxForm">
           <div class="col-12">

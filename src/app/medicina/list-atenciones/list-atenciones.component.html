@@ -182,6 +182,8 @@
                       </div>
                     </th>
                     <th>Reposo</th>
+                    <th>Total Días</th>
+                    <th>Total Horas</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -200,6 +202,8 @@
                     <td>{{dato.pacienteMedic.nombreEmpleado}}</td>
                     <td>{{dato.enfermedadCIE10}}</td>
                     <td class="text-center">{{dato.reposo? 'Si' : 'No' }}</td>
+                    <td class="text-center">{{dato.reposo && dato.permisoMedic!=null? dato.permisoMedic.totalDias : '---' }}</td>
+                    <td class="text-center">{{dato.reposo && dato.permisoMedic!=null? dato.permisoMedic.totalHoras : '---' }}</td>
                     <td class="text-center" id="utilitarioI">
                       <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato)"
                         matTooltip="Te permite visualizar a detalladamente la consulta médica" matTooltipPosition="left"

@@ -1,0 +1,176 @@
+<mat-dialog-content id="ModalFix">
+  <div class="jumtron" *ngIf="atencionMedicService.formData!=null">
+    <div class="row justify-content-center">
+      <div class="col-12  col-md-8">
+        <h1 class="display-4 text-center">Manacripex</h1>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="text-center">Departamento Médico</div>
+        <div class="text-center"><strong>Fecha Atención: </strong> {{atencionMedicService.formData.fechaAtencion}}</div>
+      </div>
+    </div>
+    <div class="row boxForm py-1">
+      <div class="col-12 col-md-7">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row mb-1">
+              <div class="col-12">
+                <div><strong>Doctor (a):</strong> Dra. VERONICA CHUMO</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Paciente:</strong> {{atencionMedicService.formData.pacienteMedic.nombreEmpleado}}</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Enfermedad:</strong> {{atencionMedicService.formData.enfermedadCIE10}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div><strong>Estatura:</strong> {{atencionMedicService.formData.altura}}</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div><strong>Peso:</strong> {{atencionMedicService.formData.peso}}</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div><strong>F. Cardiaca:</strong> {{atencionMedicService.formData.fCardiaca}}</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div><strong>F. Respiratoria:</strong> {{atencionMedicService.formData.fRespiratoria}}</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div><strong>Temperatura:</strong> {{atencionMedicService.formData.temperatura}} &deg;C</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div><strong>Presión:</strong> {{atencionMedicService.formData.presion}} mmHg</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div><strong>Saturación de óxigeno:</strong> {{atencionMedicService.formData.sp02}}%</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div><strong>Permiso:</strong> {{atencionMedicService.formData.reposo? "SI" : "Ninguno"}}</div>
+              </div>
+              <div class="col-12 mt-2" *ngIf="atencionMedicService.formData.reposo">
+                <div class="form-group">
+                    <div class="title ml-2"><strong>Detalles del Permiso</strong></div>
+                    <div class="subForm">
+                      <div class="row">
+                        <div class="col-12">
+                            <div><strong>Tipo de Permiso:</strong> {{atencionMedicService.formData.permisoMedic.tipoPermiso}}</div>
+                        </div>
+                        <div class="col-12">
+                            <div><strong>Fecha de Salida:</strong> {{atencionMedicService.formData.permisoMedic.fechaSalida}}</div>
+                        </div>
+                        <div class="col-12">
+                            <div><strong>Fecha de Regreso:</strong> {{atencionMedicService.formData.permisoMedic.fechaRegreso}}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div><strong>Total Días:</strong> {{atencionMedicService.formData.permisoMedic.totalDias}}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div><strong>Total Horas:</strong> {{atencionMedicService.formData.permisoMedic.totalHoras}}</div>
+                        </div>
+                        <div class="col-12">
+                            <div><strong>Observación:</strong> {{atencionMedicService.formData.permisoMedic.observacion}}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row boxForm py-1">
+      <div class="col-12">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row mb-1">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <div class="title ml-2"><strong>Motivo de atención:</strong></div>
+                  <div class="subForm">
+                    <div class="row mb-1">
+                      <div class="col-12">
+                        <textarea name="motivoAtencion" #motivoAtencion="ngModel"
+                          style="height: calc(3rem + 0.7rem + 2px);"
+                          [(ngModel)]="atencionMedicService.formData.motivoAtencion" class="form-control"
+                          disabled>{{atencionMedicService.formData.motivoAtencion}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <div class="title ml-2"><strong>Enfermedades Actuales:</strong></div>
+                  <div class="subForm">
+                    <div class="row mb-1">
+                      <div class="col-12">
+                        <textarea name="enfermedadesActuales" #enfermedadesActuales="ngModel"
+                          style="height: calc(3rem + 0.7rem + 2px);"
+                          [(ngModel)]="atencionMedicService.formData.enfermedadesActuales" class="form-control"
+                          disabled>{{atencionMedicService.formData.enfermedadesActuales}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <div class="title ml-2"><strong>Prescripción:</strong></div>
+                    <div class="subForm">
+                      <div class="row mb-1">
+                        <div class="col-12">
+                          <textarea name="prescripcion" #prescripcion="ngModel"
+                            style="height: calc(3rem + 0.7rem + 2px);"
+                            [(ngModel)]="atencionMedicService.formData.prescripcion" class="form-control"
+                            disabled>{{atencionMedicService.formData.prescripcion}}</textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <div class="title ml-2"><strong>Indicaciones:</strong></div>
+                    <div class="subForm">
+                      <div class="row mb-1">
+                        <div class="col-12">
+                          <textarea name="indicaciones" #indicaciones="ngModel"
+                            style="height: calc(3rem + 0.7rem + 2px);"
+                            [(ngModel)]="atencionMedicService.formData.indicaciones" class="form-control"
+                            disabled>{{atencionMedicService.formData.indicaciones}}</textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                    <div class="title ml-2"><strong>Observaciones:</strong></div>
+                    <div class="subForm">
+                      <div class="row mb-1">
+                        <div class="col-12">
+                          <textarea name="observacion" #observacion="ngModel"
+                            style="height: calc(3rem + 0.7rem + 2px);"
+                            [(ngModel)]="atencionMedicService.formData.observacion" class="form-control"
+                            disabled>{{atencionMedicService.formData.observacion}}</textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

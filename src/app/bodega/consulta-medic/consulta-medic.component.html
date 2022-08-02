@@ -82,8 +82,9 @@
                 <div id="inputSearchP">
                   <div class="wrapper">
                     <div class="limit-width">
-                      <textarea name="sintomas" #sintomas="ngModel" required minlength="10"
+                      <textarea name="sintomas" #sintomas="ngModel" required
                         [(ngModel)]="consultaMedicService.formData.sintomas" class="form-control input-src"
+                        (ngModelChange)="consultaMedicService.formData.sintomas = $event?.toUpperCase()"
                         placeholder="Descipción de las anomalías del paciente"></textarea>
                     </div>
                   </div>

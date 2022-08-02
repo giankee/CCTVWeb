@@ -22,4 +22,8 @@ export class AccidenteService {
   insertarAccidente(formData: cAccidenteMedic): Observable<cAccidenteMedic> {//accidente
     return this.http.post<cAccidenteMedic>(this.serverUrl, formData)
   }
+
+  getListAccidentesPersona(pacienteId: number): Observable<cAccidenteMedic[]> {//modl view
+    return this.http.get<cAccidenteMedic[]>(this.serverUrl  + '/getListAccidentesPersona/'+ pacienteId);
+  }
 }

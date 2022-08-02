@@ -99,7 +99,7 @@ export class NewAccidenteComponent implements OnInit {
     this._accidenteMedicService.formData.spinnerLoading = true;
     this._accidenteMedicService.formData.showSearchSelect = true;
     this.filtroPersona = value;
-    var strParametro = "all@" + value;
+    var strParametro = "all@" + value+"@SIN ASIGNAR";
     
     if (value != "") {
       this.listPacienteFiltros$ = this._enterpriceService.getPersonalEnter2(strParametro).pipe(

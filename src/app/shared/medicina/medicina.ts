@@ -3,11 +3,14 @@ import { cEnterpricePersonal, cFecha } from "../otrosServices/varios";
 export class cPacienteMedic {
     idPacienteMedic: number;
     cedula: string;
-    nombreEmpleado:string;
+    nombreEmpleado: string;
     embarazo: boolean;
     minusvalido: boolean;
     tipoMinusvalido: string;
     porcentajeMinusvalido: number;
+    ecnt: boolean;
+    tipoECNT: string;
+
     ultimoPeso: number;
     ultimaAltura: number;
     tipoSangre: string;
@@ -18,15 +21,17 @@ export class cPacienteMedic {
     listPermisos: cPermisoMedic[];
 
     /*Control*/
-    
+
 
     constructor() {
         this.idPacienteMedic = undefined;
         this.cedula = "";
-        this.nombreEmpleado="";
+        this.nombreEmpleado = "";
         this.embarazo = false;
         this.minusvalido = false;
         this.tipoMinusvalido = "SIN ASIGNAR";
+        this.ecnt = false;
+        this.tipoECNT = "SIN ASIGNAR";
         this.porcentajeMinusvalido = 0;
         this.ultimoPeso = 0;
         this.ultimaAltura = 0;
@@ -38,11 +43,13 @@ export class cPacienteMedic {
     completarObject(dataIn: cPacienteMedic) {
         this.idPacienteMedic = dataIn.idPacienteMedic;
         this.cedula = dataIn.cedula;
-        this.nombreEmpleado=dataIn.nombreEmpleado;
+        this.nombreEmpleado = dataIn.nombreEmpleado;
         this.embarazo = dataIn.embarazo;
         this.minusvalido = dataIn.minusvalido;
         this.tipoMinusvalido = dataIn.tipoMinusvalido;
         this.porcentajeMinusvalido = dataIn.porcentajeMinusvalido;
+        this.ecnt = dataIn.ecnt;
+        this.tipoECNT = dataIn.tipoECNT;
         this.ultimoPeso = dataIn.ultimoPeso;
         this.ultimaAltura = dataIn.ultimaAltura;
         this.tipoSangre = dataIn.tipoSangre;
@@ -112,6 +119,7 @@ export class cPermisoMedic {
     totalDias: number;
     totalHoras: number;
     observacion: string;
+    regresaConsulta:boolean;
     guardiaCargoUser: string;
 
     /**Variables de control */
@@ -132,10 +140,11 @@ export class cPermisoMedic {
         this.totalDias = 0;
         this.totalHoras = 1;
         this.observacion = "";
+        this.regresaConsulta=false;
         this.guardiaCargoUser = "VERONICA CHUMO";
 
-        this.spinnerLoading=0;
-        this.showSearchSelect=0;
+        this.spinnerLoading = 0;
+        this.showSearchSelect = 0;
 
         this.changeHours(0);
     }
@@ -150,6 +159,7 @@ export class cPermisoMedic {
         this.totalDias = dataIn.totalDias;
         this.totalHoras = dataIn.totalHoras;
         this.observacion = dataIn.observacion;
+        this.regresaConsulta=dataIn.regresaConsulta;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
     }
 
@@ -171,20 +181,20 @@ export class cPermisoMedic {
                 var soloHoraRegreso = auxSepararFechaRegreso[1].split(':');
                 this.totalDias = fechaHoy.compararFechasDias(auxSepararFechaSalida[0], auxSepararFechaRegreso[0]);
                 var horasDif = (Number(soloHoraRegreso[0]) - Number(soloHoraSalida[0]));
-                if (horasDif < 0){
+                if (horasDif < 0) {
                     this.totalDias--;
-                    this.totalHoras = (this.totalDias * 24) + (24+ horasDif);
-                }else this.totalHoras = (this.totalDias * 24) + (horasDif);
+                    this.totalHoras = (this.totalDias * 24) + (24 + horasDif);
+                } else this.totalHoras = (this.totalDias * 24) + (horasDif);
             }
             if (strInicio == 3 || strInicio == 4) {
                 var auxDiferenciaHoras = 0;
                 var diasDif = 0;
 
-                if (strInicio == 4){
+                if (strInicio == 4) {
                     this.totalHoras = 24 * this.totalDias;
-                    diasDif=this.totalDias;
+                    diasDif = this.totalDias;
                 }
-                else{
+                else {
                     auxDiferenciaHoras = this.totalHoras;
                     while (auxDiferenciaHoras > 23) {
                         diasDif++;
@@ -192,7 +202,7 @@ export class cPermisoMedic {
                     }
                     this.totalDias = diasDif;
                 }
-                
+
                 var soloFechaSalida = auxSepararFechaSalida[0].split("-");
                 var soloHora = "";
                 newHoraFin = Number(soloHoraSalida[0]) + auxDiferenciaHoras;
@@ -251,7 +261,8 @@ export class cAtencionMedic {
     observacion: string;
 
 
-    pacienteMedic?:cPacienteMedic;
+    pacienteMedic?: cPacienteMedic;
+    permisoMedic?: cPermisoMedic;
 
     /**Variables de control */
     auxIMC: number;
@@ -304,6 +315,16 @@ export class cAtencionMedic {
         this.prescripcion = dataIn.prescripcion;
         this.indicaciones = dataIn.indicaciones;
         this.observacion = dataIn.observacion;
+
+        if (dataIn.pacienteMedic != null) {
+            this.pacienteMedic = new cPacienteMedic();
+            this.pacienteMedic.completarObject(dataIn.pacienteMedic);
+        }
+        if (dataIn.reposo) {
+            this.permisoMedic = new cPermisoMedic();
+            if (dataIn.permisoIdOpcional != 0)
+                this.permisoMedic.completarObject(dataIn.permisoMedic);
+        }
     }
 
     calcularIMC() {
@@ -372,7 +393,7 @@ export class cAccidenteMedic {
 
     changeHours(strInicio: number) {
         let fechaHoy: cFecha = new cFecha();
-        var auxTotalDias:number;
+        var auxTotalDias: number;
         var auxSepararFechaSalida = this.fechaRegistro.split("T");
         var soloHoraSalida = auxSepararFechaSalida[1].split(':');
         var newHoraFin: number;
@@ -388,20 +409,20 @@ export class cAccidenteMedic {
                 var soloHoraRegreso = auxSepararFechaRegreso[1].split(':');
                 auxTotalDias = fechaHoy.compararFechasDias(auxSepararFechaSalida[0], auxSepararFechaRegreso[0]);
                 var horasDif = (Number(soloHoraRegreso[0]) - Number(soloHoraSalida[0]));
-                if (horasDif < 0){
+                if (horasDif < 0) {
                     auxTotalDias--;
-                    this.totalHoras = (auxTotalDias * 24) + (24+ horasDif);
-                }else this.totalHoras = (auxTotalDias * 24) + (horasDif);
+                    this.totalHoras = (auxTotalDias * 24) + (24 + horasDif);
+                } else this.totalHoras = (auxTotalDias * 24) + (horasDif);
             }
             if (strInicio == 3 || strInicio == 4) {
                 var auxDiferenciaHoras = 0;
                 var diasDif = 0;
 
-                if (strInicio == 4){
+                if (strInicio == 4) {
                     this.totalHoras = 24 * auxTotalDias;
-                    diasDif=auxTotalDias;
+                    diasDif = auxTotalDias;
                 }
-                else{
+                else {
                     auxDiferenciaHoras = this.totalHoras;
                     while (auxDiferenciaHoras > 23) {
                         diasDif++;
@@ -409,7 +430,7 @@ export class cAccidenteMedic {
                     }
                     auxTotalDias = diasDif;
                 }
-                
+
                 var soloFechaSalida = auxSepararFechaSalida[0].split("-");
                 var soloHora = "";
                 newHoraFin = Number(soloHoraSalida[0]) + auxDiferenciaHoras;
@@ -441,6 +462,26 @@ export class cAccidenteMedic {
                     else this.fechaRegreso = this.fechaRegreso + auxNewDia + soloHora;
                 } else this.fechaRegreso = auxSepararFechaSalida[0] + soloHora;
             }
+        }
+    }
+
+    completarObject(dataIn: cAccidenteMedic) {
+        this.idAccidenteMedic = dataIn.idAccidenteMedic;
+        this.pacienteMedicId = dataIn.pacienteMedicId;
+        this.fechaRegistro=dataIn.fechaRegistro;
+        this.fechaRegreso=dataIn.fechaRegreso;
+        this.totalHoras = dataIn.totalHoras;
+        this.descripcion = dataIn.descripcion;
+        this.jefeInmediato = dataIn.jefeInmediato;
+        this.lugarAccidente = dataIn.lugarAccidente;
+        this.causaAccidente = dataIn.causaAccidente;
+        this.laborRealizaba = dataIn.laborRealizaba;
+
+        if (dataIn.listTestigosAccidente != null) {
+            this.listTestigosAccidente = dataIn.listTestigosAccidente;
+        }
+        if (dataIn.listGaleriaAccidente != null) {
+            this.listGaleriaAccidente = dataIn.listGaleriaAccidente;
         }
     }
 }

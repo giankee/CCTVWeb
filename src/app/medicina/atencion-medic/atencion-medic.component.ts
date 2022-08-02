@@ -6,6 +6,8 @@ import { AtencionService } from 'src/app/shared/medicina/atencion.service';
 import { cAtencionMedic } from 'src/app/shared/medicina/medicina';
 import { PermisoService } from 'src/app/shared/medicina/permiso.service';
 import listCie10 from 'src/assets/cie10code.json';
+import { jsPDF } from "jspdf";
+
 @Component({
   selector: 'app-atencion-medic',
   templateUrl: './atencion-medic.component.html',
@@ -46,13 +48,13 @@ export class AtencionMedicComponent implements OnInit {
   }
 
   onTerminar() {
-    if(this.permisoOpened==2){
+    if (this.permisoOpened == 2) {
       this._permisoMedicService.eliminarPermiso(this.atencionMedicService.formData.permisoIdOpcional).subscribe(
         (res: any) => {
           this.cerrar.emit(true);
         }
       );
-    }else this.cerrar.emit(true);
+    } else this.cerrar.emit(true);
   }
 
   onListCIE(value: string) {
@@ -66,7 +68,8 @@ export class AtencionMedicComponent implements OnInit {
   onChooseEnfermedad(data: any) {
     this.atencionMedicService.formData.spinnerLoading = true;
     this._atencionMedicService.formData.showSearchSelect = false;
-    this._atencionMedicService.formData.enfermedadCIE10 = data.code + ":" + data.description;
+    if (data != "Nuevo")
+      this._atencionMedicService.formData.enfermedadCIE10 = data.code + ":" + data.description;
   }
 
   onSubmit(form: NgForm) {
@@ -75,8 +78,10 @@ export class AtencionMedicComponent implements OnInit {
         (res: any) => {
           if (res.exito == 1) {
             this.toastr.success('Registro de atención satisfactorio', 'Atención Médica');
+            if(this.atencionMedicService.formData.prescripcion!="" ||this.atencionMedicService.formData.indicaciones!="")
+              this.onConvertPdf();
           } else this.toastr.error('Se ha producido un inconveniente', 'Error');
-          this.onTerminar();
+          this.cerrar.emit(true);
         }
       );
     }
@@ -88,13 +93,73 @@ export class AtencionMedicComponent implements OnInit {
   }
 
   recibirRes(salir: string) {
-    if(salir=='0'){
-      this.permisoOpened=0;
-      this.atencionMedicService.formData.reposo=false;
-    }else{
-      var aux=salir.split("-");
-      this.permisoOpened=Number(aux[0]);
-      this.atencionMedicService.formData.permisoIdOpcional=Number(aux[1]);
+    if (salir == '0') {
+      this.permisoOpened = 0;
+      this.atencionMedicService.formData.reposo = false;
+    } else {
+      var aux = salir.split("-");
+      this.permisoOpened = Number(aux[0]);
+      this.atencionMedicService.formData.permisoIdOpcional = Number(aux[1]);
     }
+  }
+
+  onConvertPdf() {
+    var y: number;
+    var doc = new jsPDF();
+    y = 5;
+    doc.line(5, y, 205, y);//up
+    doc.line(5, y, 5, (y + 138));//left
+    doc.line(105, y, 105, (y + 138));//mid
+    doc.line(205, y, 205, (y + 138));//right
+    doc.line(5, (y + 138), 205, (y + 138));//down
+    doc.line(1, (148), 209, (148));//downCut
+
+    doc.setFontSize(11);
+    doc.setFont("arial", "bold")
+    doc.text("DRA. VERONICA CHUMO ESTRELLA", 23, (y + 7));
+    doc.text("DRA. VERONICA CHUMO ESTRELLA", 123, (y + 7));
+    doc.setFontSize(10);
+    doc.text("Dra. Medicina y Cirugía General", 30, (y + 11));
+    doc.text("Dra. Medicina y Cirugía General", 130, (y + 11));
+    doc.text("Medicina Ocupacional", 40, (y + 15));
+    doc.text("Medicina Ocupacional", 140, (y + 15));
+    doc.text("Telef. 0983514650", 43, (y + 19));
+    doc.text("Telef. 0983514650", 143, (y + 19));
+    doc.setFont("arial", "normal")
+    doc.setFontSize(10);
+    y = 27;
+    doc.text("NOMBRE DE", 10, (y + 5));
+    doc.text("NOMBRE DE", 110, (y + 5));
+    doc.text("PACIENTE", 12, (y + 9));
+    doc.text("PACIENTE", 112, (y + 9));
+    doc.text(this.pacienteNombre, 35, (y + 7));
+    doc.text(this.pacienteNombre, 137, (y + 7));
+
+    doc.text("FECHA: Manta,   " + this._atencionMedicService.formData.fechaAtencion, 50, (y + 14));
+    doc.text("FECHA: Manta,   " + this._atencionMedicService.formData.fechaAtencion, 150, (y + 14));
+
+    doc.setFontSize(12);
+    doc.setFont("arial", "bold");
+    doc.text("Prescripción:", 10, (y + 18));
+    doc.text("Indicaciones:", 110, (y + 18));
+    doc.line(9, (y + 19), 35, (y + 19));//downCut
+    doc.line(109, (y + 19), 135, (y + 19));//downCut
+
+    doc.setFont("arial", "normal");
+    y = y + 30;
+
+    var lineaPrescripcion = doc.splitTextToSize(this.atencionMedicService.formData.prescripcion, (90));
+    var lineaIndicacion = doc.splitTextToSize(this.atencionMedicService.formData.indicaciones, (90));
+    doc.text(lineaPrescripcion, 10, (y));
+    doc.text(lineaIndicacion, 110, (y));
+
+    doc.setFontSize(11);
+    y=137
+    doc.line(20, (y), 90, (y));//downCut
+    doc.line(120, (y), 190, (y));//downCut
+    doc.text("FIRMA Y SELLO DEL MÉDICO", 28, (y + 4));
+    doc.text("FIRMA Y SELLO DEL MÉDICO", 128, (y + 4));
+
+    doc.save("ConsultaMedica_" + this.atencionMedicService.formData.fechaAtencion + "_" + this.pacienteNombre + ".pdf");
   }
 }

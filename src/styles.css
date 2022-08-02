@@ -851,3 +851,6 @@ body {
   overflow-y: auto;
   text-align:justify;
 }
+.scroll.v2{
+  height: 71vh;
+}

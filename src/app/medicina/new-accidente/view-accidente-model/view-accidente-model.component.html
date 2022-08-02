@@ -1,0 +1,102 @@
+<mat-dialog-content id="ModalFix">
+  <div class="jumtron" *ngIf="accidenteMedicService.formData!=null">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <h1 class="display-4 text-center">Accidente de {{dato.auxPacienteNombre}}</h1>
+      </div>
+    </div>
+    <div class="row boxForm py-1">
+      <div class="col-12 col-md-7">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="form-group">
+              <div class="title ml-3"><strong>Descripción:</strong></div>
+              <textarea name="descripcion" #descripcion="ngModel" style="height: calc(5.5rem + 0.7rem + 2px);"
+                [(ngModel)]="accidenteMedicService.formData.descripcion" class="form-control"
+                disabled>{{accidenteMedicService.formData.descripcion}}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row">
+              <div class="col-12">
+                <div><strong>Fecha Registro:</strong> {{accidenteMedicService.formData.fechaRegistro}}</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Fecha Regreso:</strong> {{accidenteMedicService.formData.fechaRegreso}}</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Jefe Inmediato:</strong> {{accidenteMedicService.formData.jefeInmediato}}</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Lugar Accidente:</strong> {{accidenteMedicService.formData.lugarAccidente}}</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Causa Accidente:</strong> {{accidenteMedicService.formData.causaAccidente}}</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Labor Realizaba:</strong> {{accidenteMedicService.formData.laborRealizaba}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row boxForm py-1">
+      <div class="col-12">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group" id="utilitarioI">
+                  <div class="title ml-3"><strong>Galería de Evidencia</strong></div>
+                  <div class="row justify-content-center mb-3 mx-3 cardGalery">
+                    <ngx-gallery [options]="galleryOptions" [images]="galleryImages" #gallery></ngx-gallery>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row boxForm py-1">
+      <div class="col-12">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div id="ordenarS" class="card-header d-flex justify-content-between">
+                    <h5>Lista de Testigos</h5>
+                  </div>
+                  <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+                    <table class="table">
+                      <thead>
+                        <tr class="text-center">
+                          <th>Nombre de Testigo</th>
+                          <th>Relato</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          *ngFor="let datoT of accidenteMedicService.formData.listTestigosAccidente let indice=index"
+                          [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                          <td>{{datoT.nombreTestigo}}</td>
+                          <td>{{datoT.relato}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

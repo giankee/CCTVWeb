@@ -26,4 +26,12 @@ export class PermisoService {
   eliminarPermiso(permisoIdIn: number): Observable<cPermisoMedic> {
     return this.http.delete<cPermisoMedic>(this.serverUrl  + '/' + permisoIdIn);
   }
+
+  getOnePermiso(permisoId: number): Observable<cPermisoMedic> {//modl view
+    return this.http.get<cPermisoMedic>(this.serverUrl + '/' + permisoId);
+  }
+
+  getListPermisosPersona(pacienteId: number): Observable<cPermisoMedic[]> {//modl view
+    return this.http.get<cPermisoMedic[]>(this.serverUrl  + '/getListPermisosPersona/'+ pacienteId);
+  }
 }
