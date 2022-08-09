@@ -167,33 +167,33 @@ export class cFecha {
         if (Number(separarA[0]) < Number(separarB[0]))
             difAnio = Number(separarB[0]) - Number(separarA[0]);
         if (difAnio != 0)
-            difMes= (12-Number(separarA[1]))+Number(separarB[1]);
-        else difMes=(Number(separarB[1])-Number(separarA[1]));
-        if(difMes!=0){
-            if(Number(separarA[2]) < Number(separarB[2]))
-                difDia= (difMes*30)+(Number(separarB[2])-Number(separarA[2]));
-            else difDia=(difMes*30)+(Number(separarA[2])-Number(separarB[2]));
-        }else difDia=Number(separarB[2]) - Number(separarA[2]);
+            difMes = (12 - Number(separarA[1])) + Number(separarB[1]);
+        else difMes = (Number(separarB[1]) - Number(separarA[1]));
+        if (difMes != 0) {
+            if (Number(separarA[2]) < Number(separarB[2]))
+                difDia = (difMes * 30) + (Number(separarB[2]) - Number(separarA[2]));
+            else difDia = (difMes * 30) + (Number(separarA[2]) - Number(separarB[2]));
+        } else difDia = Number(separarB[2]) - Number(separarA[2]);
         return difDia;
     }
 
-    sacarEdad(strFechaA: string, strFechaB: string, opTipo:string) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
+    sacarEdad(strFechaA: string, strFechaB: string, opTipo: string) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
         var separarA = strFechaA.split("-");
         var separarB = strFechaB.split("-");
-        var difAnio =  (Number(separarB[0]) - Number(separarA[0]));;
+        var difAnio = (Number(separarB[0]) - Number(separarA[0]));;
         var difMes = 0;
 
-        if (Number(separarA[1]) >= Number(separarB[1])){
-            if((Number(separarA[1]) == Number(separarB[1]))&&(Number(separarA[2]) < Number(separarB[2]))){
-                difMes= (Number(separarB[1])-Number(separarA[1]));
-            }else {
+        if (Number(separarA[1]) >= Number(separarB[1])) {
+            if ((Number(separarA[1]) == Number(separarB[1])) && (Number(separarA[2]) < Number(separarB[2]))) {
+                difMes = (Number(separarB[1]) - Number(separarA[1]));
+            } else {
                 difAnio--;
-                difMes= (12-(Number(separarA[1])-Number(separarB[1])));
+                difMes = (12 - (Number(separarA[1]) - Number(separarB[1])));
             }
-        }else difMes= (Number(separarB[1])-Number(separarA[1]));
-        if(opTipo=="string")
-        return (difAnio + " años con "+ difMes+ " meses");
-        else return difAnio+"";
+        } else difMes = (Number(separarB[1]) - Number(separarA[1]));
+        if (opTipo == "string")
+            return (difAnio + " años con " + difMes + " meses");
+        else return difAnio + "";
     }
 }
 
@@ -206,19 +206,32 @@ export class cParemetos {
     strProducto: string = "";
     productoCodigo: string = "null";
     strLugar: string = "";
+    actOrigen: boolean = false;
+    actDestino: boolean = true;
     numGuia: number = undefined;
+
+    fechaH:string;
+    fechaA:string;
+    fechaB:string;
+
     spinLoadingG: number = 0;//0 offf, 1 es personal, 2 varios ,3 producto,4 guia
     showSearchSelectG: number = 0;//0 offf, 1 es personal, 2 varios, 3 producto
 
     constructor() {
+        this.actOrigen = false;
+        this.actDestino = true;
+        var fechaHoy = new cFecha();
+        this.fechaH = fechaHoy.strFecha;
+        this.fechaA = fechaHoy.inDesde;
+        this.fechaB = fechaHoy.inHasta;
 
     }
-    transformarParametro(fDesdeIn: string, fHastaIn: string): string {
-        var strparam = this.tipoO + "@" + fDesdeIn + "@" + fHastaIn + "@" + this.tipoPersona + "@" + this.personaCodigo + "@" + this.tipoProducto + "@" + this.productoCodigo + "@"
+    transformarParametro(): string {
+        var strparam = this.tipoO + "@" + this.fechaA + "@" + this.fechaB + "@" + this.tipoPersona + "@" + this.personaCodigo + "@" + this.tipoProducto + "@" + this.productoCodigo + "@"
         if (this.strLugar != "")
             strparam = strparam + this.strLugar;
-        else strparam = strparam + "null"
-        return strparam;
+        else strparam = strparam + "null";
+        return strparam+"@"+this.actOrigen+"@"+this.actDestino;;
     }
 }
 
@@ -286,7 +299,7 @@ export class cEnterpriceDocumento {
     rS_Cliente: string;
     crp_Cliente: string = "";
     nro_contespecial: string = "";
-    anulado:number;
+    anulado: number;
 
     listCompraO: cEnterpriceArticulosDocumento[];
 
@@ -305,7 +318,7 @@ export class cEnterpriceDocumento {
         this.rS_Cliente = dataIn.rS_Cliente;
         this.crp_Cliente = dataIn.crp_Cliente;
         this.nro_contespecial = dataIn.nro_contespecial;
-        this.anulado=dataIn.anulado;
+        this.anulado = dataIn.anulado;
     }
 }
 
@@ -421,57 +434,57 @@ export class cEnterpricePersonal {
     departamento: string;
     funcion: string;
     barco: string;
-    enrolar:number;
-    idEmpresa:number;
+    enrolar: number;
+    idEmpresa: number;
 
     /**Control */
-    edad:string;
+    edad: string;
 
-    constructor(){
-        this.idEmpleado=undefined;
-        this.empleado="";
-        this.cedula="";
-        this.nombres="";
-        this.apellidos="";
-        this.fecha_Nacido="";
-        this.tipoSangre="SIN ASIGNAR";
-        this.sexo="";
-        this.telf_Movil="";
-        this.direccion="";
-        this.estadoCivil="";
-        this.departamento="";
-        this.funcion="";
-        this.barco="";
-        this.enrolar=undefined;
-        this.idEmpresa=undefined;
+    constructor() {
+        this.idEmpleado = undefined;
+        this.empleado = "";
+        this.cedula = "";
+        this.nombres = "";
+        this.apellidos = "";
+        this.fecha_Nacido = "";
+        this.tipoSangre = "SIN ASIGNAR";
+        this.sexo = "";
+        this.telf_Movil = "";
+        this.direccion = "";
+        this.estadoCivil = "";
+        this.departamento = "";
+        this.funcion = "";
+        this.barco = "";
+        this.enrolar = undefined;
+        this.idEmpresa = undefined;
 
-        this.edad="";
+        this.edad = "";
     }
 
-    completarObj(dataIn:cEnterpricePersonal){
-        this.idEmpleado=dataIn.idEmpleado;
-        this.empleado=dataIn.empleado;
-        this.cedula=dataIn.cedula;
-        this.nombres=dataIn.nombres;
-        this.apellidos=dataIn.apellidos;
-        this.fecha_Nacido=dataIn.fecha_Nacido.substring(0, 10);
-        this.tipoSangre=dataIn.tipoSangre;
-        this.idEmpresa=dataIn.idEmpresa;
+    completarObj(dataIn: cEnterpricePersonal) {
+        this.idEmpleado = dataIn.idEmpleado;
+        this.empleado = dataIn.empleado;
+        this.cedula = dataIn.cedula;
+        this.nombres = dataIn.nombres;
+        this.apellidos = dataIn.apellidos;
+        this.fecha_Nacido = dataIn.fecha_Nacido.substring(0, 10);
+        this.tipoSangre = dataIn.tipoSangre;
+        this.idEmpresa = dataIn.idEmpresa;
 
-        if(dataIn.sexo=="F")
-        this.sexo="Femenino";
-        else this.sexo="Masculino";
+        if (dataIn.sexo == "F")
+            this.sexo = "Femenino";
+        else this.sexo = "Masculino";
 
-        this.telf_Movil=dataIn.telf_Movil;
-        this.direccion=dataIn.direccion;
-        this.estadoCivil=dataIn.estadoCivil;
-        this.departamento=dataIn.departamento;
-        this.funcion=dataIn.funcion;
-        this.barco=dataIn.barco;
-        this.enrolar=dataIn.enrolar;
+        this.telf_Movil = dataIn.telf_Movil;
+        this.direccion = dataIn.direccion;
+        this.estadoCivil = dataIn.estadoCivil;
+        this.departamento = dataIn.departamento;
+        this.funcion = dataIn.funcion;
+        this.barco = dataIn.barco;
+        this.enrolar = dataIn.enrolar;
 
-        var fechaHoy=new cFecha();
-        this.edad=fechaHoy.sacarEdad(this.fecha_Nacido,fechaHoy.strFecha,'string');
+        var fechaHoy = new cFecha();
+        this.edad = fechaHoy.sacarEdad(this.fecha_Nacido, fechaHoy.strFecha, 'string');
     }
 }
 
@@ -486,9 +499,9 @@ export class cParemetosGeneral {
     numCampoC: number = undefined;
     numCampoD: number = undefined;
 
-    fechaH:string;
-    fechaA:string;
-    fechaB:string;
+    fechaH: string;
+    fechaA: string;
+    fechaB: string;
 
     spinLoadingG: string = '0';//0 offf, strA o numA
     showSearchSelectG: string = '0';//0 offf, strA o numA
@@ -507,20 +520,25 @@ export class cParemetosGeneral {
         this.numCampoB = undefined;
         this.numCampoC = undefined;
         this.numCampoD = undefined;
-    
+
         var fechaHoy = new cFecha();
-        this.fechaH=fechaHoy.strFecha;
-        this.fechaA=fechaHoy.inDesde;
-        this.fechaB=fechaHoy.inHasta;
-    
+        this.fechaH = fechaHoy.strFecha;
+        this.fechaA = fechaHoy.inDesde;
+        this.fechaB = fechaHoy.inHasta;
+
         this.spinLoadingG = '0';
         this.showSearchSelectG = '0';
     }
-    /*transformarParametro(fDesdeIn: string, fHastaIn: string): string {
-        var strparam = "P MANACRIPEX@" + this.tipoO + "@" + fDesdeIn + "@" + fHastaIn + "@" + this.strBodegaOrigen + "@" + this.strArea + "@" + this.productoCodigo + "@";
-        if (this.strPersona != "")
-            strparam = strparam + this.strPersona;
-        else strparam = strparam + "null";
-        return strparam;
-    }*/
+}
+
+export class cAuxMedicamentos {
+    medicamentoId: number;
+    nombreMedicamento: string;
+    cantidadOcupada: number;
+
+    constructor(medicamentoIdIn:number, nombreMedicamentoIn:string, cantidadIn:number){
+        this.medicamentoId=medicamentoIdIn;
+        this.nombreMedicamento=nombreMedicamentoIn;
+        this.cantidadOcupada=cantidadIn;
+    }
 }

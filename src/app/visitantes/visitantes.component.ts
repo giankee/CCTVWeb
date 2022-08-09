@@ -13,6 +13,7 @@ import { PersonalService } from '../shared/personal.service';
 import { ProductoService } from '../shared/producto.service';
 import { VariosService } from '../shared/otrosServices/varios.service';
 import { MatDialog } from '@angular/material/dialog';
+import { cUsuario } from '../shared/user-info';
 
 @Component({
   selector: 'app-visitantes',
@@ -113,7 +114,15 @@ export class VisitantesComponent implements OnInit {
   ngOnInit(): void {
     this.mIniciarConexion();
     if (this._userService.estaLogueado) {
-      this.cargarDataUser();
+      this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
+        (res: any) => {
+          this._conexcionService.UserR = new cUsuario();
+          this._conexcionService.UserR.objCompletar(res);
+        },
+        err => {
+          console.log(err);
+        },
+      );
     }
     else
       this.router.navigate(["/user-Login"]);
@@ -143,19 +152,5 @@ export class VisitantesComponent implements OnInit {
 
   logOut() {
     this._userService.logout();
-  }
-
-  cargarDataUser() {
-    this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
-      (res: any) => {
-        this._conexcionService.UserR = {
-          UserName: res.userName,
-          rolAsignado: res.rolAsignado
-        }
-      },
-      err => {
-        console.log(err);
-      },
-    );
   }
 }

@@ -812,6 +812,15 @@ body {
   /*en el caso de q quieran poner dos cosas*/
 }
 
+#inputSearchP .results div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  /*en el caso de q quieran poner dos cosas*/
+}
+
+
 #inputSearchP .results ul li.titulo {
   justify-content: center;
   font-weight: 400;

@@ -58,9 +58,9 @@ export class RegistroComponent implements OnInit, PuedeDesactivar {
     if (form != null)
       form.resetForm();
     this._userService.formData = {
-      UserName: "",
+      userName: "",
       Email: null,
-      PhoneNumber: "593-",
+      phoneNumber: "593-",
       PasswordHash: "",
       ConfirmPassword: "",
       estado: 1,
@@ -123,7 +123,7 @@ export class RegistroComponent implements OnInit, PuedeDesactivar {
   }
 
   salirDeRuta(): boolean | import("rxjs").Observable<boolean> | Promise<boolean> {//Para que pueda salir
-    if (this.userService.formData.UserName == "" && this.userService.formData.Email == "") {
+    if (this.userService.formData.userName == "" && this.userService.formData.Email == "") {
       return true;
     } else {
       if (this.internetStatus == "nline") {

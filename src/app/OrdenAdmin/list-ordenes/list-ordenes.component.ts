@@ -94,7 +94,6 @@ export class ListOrdenesComponent implements OnInit {
 
   /**Para pagination y fecha Entrada*/
   paginacion = new cPaginacion(25);
-  fechaHoy = new cFecha();
   /**Fin paginatacion */
 
   /**Actualizar listProgresivas */
@@ -184,7 +183,7 @@ export class ListOrdenesComponent implements OnInit {
   onListLugares(value: string) {
     this.parametrosBusqueda.spinLoadingG = 2;
     this.parametrosBusqueda.showSearchSelectG = 2;
-    this.parametrosBusqueda.strLugar = "null";
+    this.parametrosBusqueda.strLugar = value;
     var params = "SE@" + value;
     if (value == "")
       params = "SE@DatoNull";
@@ -288,7 +287,7 @@ export class ListOrdenesComponent implements OnInit {
 
   onFiltrarOrdenes() {
     this.spinnerOnOff = true;
-    var strParametros: string = this.parametrosBusqueda.transformarParametro(this.fechaHoy.inDesde, this.fechaHoy.inHasta);
+    var strParametros: string = this.parametrosBusqueda.transformarParametro();
     this.listOrdenesMostrar$ = this._ordenESService.getFiltroOrdenes(strParametros).pipe(
       map((x: cOrdenEs[]) => {
         x.forEach(y => {
@@ -640,8 +639,8 @@ export class ListOrdenesComponent implements OnInit {
           break;
       }
       doc.text("Tipo de Orden: " + auxTorden, 20, (y + 15));
-      doc.text("Fecha desde: " + this.fechaHoy.inDesde, 20, (y + 20));
-      doc.text("Fecha hasta: " + this.fechaHoy.inHasta, 105, (y + 20));
+      doc.text("Fecha desde: " + this.parametrosBusqueda.fechaA, 20, (y + 20));
+      doc.text("Fecha hasta: " + this.parametrosBusqueda.fechaB, 105, (y + 20));
 
       if (this, this.parametrosBusqueda.personaCodigo != "null") {
         doc.text("Persona: " + this.parametrosBusqueda.strPersona, 20, (y + 25));
@@ -798,7 +797,7 @@ export class ListOrdenesComponent implements OnInit {
         doc.line(9, y, 199, y);//down +10y1y2
       }
 
-      doc.save("ListaOrdenes" + this.fechaHoy.strFecha + ".pdf");
+      doc.save("ListaOrdenes" + this.parametrosBusqueda.fechaH + ".pdf");
     }
   }
 }

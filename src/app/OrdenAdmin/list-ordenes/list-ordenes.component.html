@@ -25,7 +25,7 @@
           </div>
           <div class="mt-2 px-4 py-2 boxForm collapse" id="FiltroList">
             <div class="row">
-              <div class="col-12 col-md-4">
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Tipo de Orden:</strong></div>
                   <select class="form-control" name="selectTipoOrden" #selectTipoOrden="ngModel"
@@ -35,7 +35,9 @@
                     <option value="Salida">Solo Salida</option>
                     <option value="EntradaSalida">Entradas/Salidas</option>
                     <option value="Sretorno">Solo Retornos</option>
-                    <option value="Pretorno">Pendientes de Retorno</option>
+                    <option value="PretornoG">Pendientes de Retorno General</option>
+                    <option value="PretornoE">Pendientes de Retorno Entrada</option>
+                    <option value="PretornoS">Pendientes de Retorno Salida</option>
                     <option value="Pverificacion">Pendientes de Verificación</option>
                     <option value="Materia Prima">Entrada de Proveedores</option>
                     <option value="PR_fotos"
@@ -47,25 +49,9 @@
                   </select>
                 </div>
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="form-group inputForm">
-                  <div class="title"><strong> Desde:</strong></div>
-                  <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="fechaHoy.inDesde"
-                    class="form-control" min="1900-01-01" max="{{fechaHoy.inHasta}}">
-                </div>
-              </div>
-              <div class="col-6 col-md-4">
-                <div class="form-group inputForm">
-                  <div class="title"><strong>Hasta:</strong></div>
-                  <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="fechaHoy.inHasta"
-                    class="form-control" min="{{fechaHoy.inDesde}}" max="{{fechaHoy.strFecha}}">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-12 col-sm-6 col-md-4">
-                <div class="form-group">
-                  <div class="title">Persona</div>
+                  <div class="title"><strong>Persona</strong></div>
                   <div id="inputSearchP">
                     <div class="wrapper">
                       <div class="limit-width">
@@ -76,8 +62,9 @@
                         <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==1">
                           <ul>
                             <li *ngFor="let data of listPersonalFiltros$ | async">
-                              <a (click)="onChoosePersonal('P',data)" class="name">{{data.nombreP}}</a>
-                              <label>{{data.tipoPersona}}</label>
+                              <div (click)="onChoosePersonal('P',data)" >
+                                <a class="name">{{data.nombreP}}</a> {{data.tipoPersona}}
+                              </div>
                             </li>
                             <li>
                               <a (click)="onChoosePersonal('null')" class="name">--Sin Asignar--</a>
@@ -86,8 +73,9 @@
                           <ul>
                             <li class="titulo"> Lista Choferes</li>
                             <li *ngFor="let datoC of listChoferesIn">
-                              <a (click)="onChoosePersonal('C',datoC)" class="name">{{datoC.empleado}}</a>
-                              <label>Chofer</label>
+                              <div (click)="onChoosePersonal('C',datoC)" >
+                                <a class="name">{{datoC.empleado}}</a> Chofer
+                              </div>
                             </li>
                           </ul>
                         </div>
@@ -96,9 +84,25 @@
                   </div>
                 </div>
               </div>
+              <div class="col-6 col-md-2 col-lg-3">
+                <div class="form-group inputForm">
+                  <div class="title"><strong> Desde:</strong></div>
+                  <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="parametrosBusqueda.fechaA"
+                    class="form-control" min="1900-01-01" max="{{parametrosBusqueda.fechaB}}">
+                </div>
+              </div>
+              <div class="col-6 col-md-2 col-lg-3">
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Hasta:</strong></div>
+                  <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="parametrosBusqueda.fechaB"
+                    class="form-control" min="{{parametrosBusqueda.fechaA}}" max="{{parametrosBusqueda.fechaH}}">
+                </div>
+              </div>
+            </div>
+            <div class="row">
               <div class="col-12 col-sm-6 col-md-4">
-                <div class="form-group">
-                  <div class="title">Producto</div>
+                <div class="form-group inputForm">
+                  <div class="title"><strong>Producto</strong> </div>
                   <div id="inputSearchP">
                     <div class="wrapper">
                       <div class="limit-width">
@@ -110,8 +114,9 @@
                         <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==3">
                           <ul>
                             <li *ngFor="let data of listProdFiltros$ | async">
-                              <a (click)="onChooseElemente(data)" class="name">{{data.nombre}}</a>
-                              <label>{{data.fuente}}</label>
+                              <div (click)="onChooseElemente(data)">
+                                <a class="name">{{data.nombre}}</a>{{data.fuente}}
+                              </div>
                             </li>
                             <li>
                               <a (click)="onChooseElemente('null')" class="name">--Sin Asignar--</a>
@@ -123,43 +128,66 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-4">
-                <div class="form-group">
-                  <div class="title">Lugar</div>
-                  <div id="inputSearchP">
-                    <div class="wrapper">
-                      <div class="limit-width">
-                        <input name="selectDestinoArticulo" #selectDestinoArticulo="ngModel"
-                          [(ngModel)]="parametrosBusqueda.strLugar"
-                          (ngModelChange)="onListLugares(parametrosBusqueda.strLugar=$event.toUpperCase())"
-                          maxlength="100" placeholder="Lugar" class="form-control"
-                          [ngClass]="{'loading':parametrosBusqueda.spinLoadingG==2}">
-                        <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==2">
-                          <ul>
-                            <li *ngFor="let data of listVariosFiltros$ | async">
-                              <a (click)="onChooseLugar(data)" class="name">{{data.nombre}}</a>
-                            </li>
-                            <li>
-                              <a (click)="onChooseLugar('null')" class="name">--Sin Asignar--</a>
-                            </li>
-                          </ul>
-                          <ul>
-                            <li class="titulo"> El Puerto de Manta</li>
-                            <li *ngFor="let datoPrio of listLugarPrioridadIn  |lugaresCat:'cVario':'Puerto'">
-                              <a (click)="onChooseLugar(datoPrio)" class="name">{{datoPrio.nombre}}</a>
-                            </li>
-                          </ul>
-                          <ul>
-                            <li class="titulo"> Areas de Planta</li>
-                            <li *ngFor="let datoPrio of listLugarPrioridadIn |lugaresCat:'cVario':'Planta'">
-                              <a (click)="onChooseLugar(datoPrio)" class="name">{{datoPrio.nombre}}</a>
-                            </li>
-                          </ul>
+              <div class="col-12 col-sm-6 col-md-8">
+                <div class="row">
+                  <div class="col-2 justify-content-center text-center">
+                    <div class="title mb-2"><strong>Origen</strong></div>
+                    <mat-checkbox id="idOrigen" name="actvOrigen" #actvOrigen="ngModel" color="primary"
+                      [(ngModel)]="parametrosBusqueda.actOrigen" [disabled]="parametrosBusqueda.actOrigen && !parametrosBusqueda.actDestino">
+                    </mat-checkbox>
+                  </div>
+                  <div class="col-8">
+                    <div class="form-group inputForm">
+                      <div class="title"><strong>Lugar</strong></div>
+                      <div id="inputSearchP">
+                        <div class="wrapper">
+                          <div class="limit-width">
+                            <input name="selectDestinoArticulo" #selectDestinoArticulo="ngModel"
+                              [(ngModel)]="parametrosBusqueda.strLugar"
+                              (ngModelChange)="onListLugares(parametrosBusqueda.strLugar=$event.toUpperCase())"
+                              maxlength="100" placeholder="Lugar" class="form-control"
+                              [ngClass]="{'loading':parametrosBusqueda.spinLoadingG==2}">
+                            <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==2">
+                              <ul>
+                                <li *ngFor="let data of listVariosFiltros$ | async">
+                                  <div (click)="onChooseLugar(data)">
+                                    <a  class="name">{{data.nombre}}</a>
+                                  </div>
+                                </li>
+                                <li>
+                                  <a (click)="onChooseLugar('null')" class="name">--Sin Asignar--</a>
+                                </li>
+                              </ul>
+                              <ul>
+                                <li class="titulo"> El Puerto de Manta</li>
+                                <li *ngFor="let datoPrio of listLugarPrioridadIn  |lugaresCat:'cVario':'Puerto'">
+                                  <div (click)="onChooseLugar(datoPrio)">
+                                    <a  class="name">{{datoPrio.nombre}}</a>
+                                  </div>
+                                </li>
+                              </ul>
+                              <ul>
+                                <li class="titulo"> Areas de Planta</li>
+                                <li *ngFor="let datoPrio of listLugarPrioridadIn |lugaresCat:'cVario':'Planta'">
+                                  <div (click)="onChooseLugar(datoPrio)">
+                                    <a class="name">{{datoPrio.nombre}}</a>
+                                  </div>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                  <div class="col-2 justify-content-center text-center">
+                    <div class="title mb-2"><strong>Destino</strong></div>
+                    <mat-checkbox id="idDestino" name="actvDestino" #actvDestino="ngModel" color="primary"
+                      [(ngModel)]="parametrosBusqueda.actDestino" [disabled]="parametrosBusqueda.actDestino && !parametrosBusqueda.actOrigen">
+                    </mat-checkbox>
+                  </div>
                 </div>
+
               </div>
             </div>
             <div class="row justify-content-center">
@@ -218,127 +246,129 @@
             </div>
           </div>
           <div *ngIf="(listOrdenesMostrar$ | async | search:filtroOrden:'cOrdenES')  as resultBusquedaMostrar">
-          <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
-            <table class="table">
-              <thead>
-                <tr class="text-center">
-                  <th>#</th>
-                  <th>Entrada/Salida</th>
-                  <th>
-                    <div class="d-inline-block" style="margin-right: 0.5rem;">Documentación</div>
-                    <div id="ordenarS" class="d-inline-block">
-                      <a class="badge text-dark2" (click)="onOrdenNombre('Guia')">
-                        <fa-icon [icon]="sort"></fa-icon>
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th>#</th>
+                    <th>Entrada/Salida</th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Documentación</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenNombre('Guia')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Persona</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenNombre('Nombre')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th>Fecha Registro</th>
+                    <th>Descripción</th>
+                    <th>Estado Proceso</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div style="display: none;">{{getDataFiltro(resultBusquedaMostrar)}}</div>
+                  <tr *ngIf="resultBusquedaMostrar.length==0">
+                    <td class="font-italic text-center" colspan="8">
+                      No existen ordenes registradas con esos parámetros de busqueda
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let dato of resultBusquedaMostrar |sort:ordenGuia:'cOrdenES' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{indice+1}}</td>
+                    <td *ngIf="dato.tipoOrden =='Entrada'">{{dato.tipoOrden}} a {{dato.planta}} desde
+                      {{dato.destinoProcedencia}}</td>
+                    <td *ngIf="dato.tipoOrden =='Salida'">{{dato.tipoOrden}} desde {{dato.planta}} a
+                      {{dato.destinoProcedencia}}</td>
+                    <td *ngIf="dato.tipoOrden =='Materia Prima'">{{dato.tipoOrden}} por {{dato.destinoProcedencia}}</td>
+                    <td>{{dato.numDocumentacion}}</td>
+                    <td><strong>{{dato.persona.nombreP}}</strong></td>
+                    <td>{{dato.fechaRegistro}} {{dato.horaRegistro}}</td>
+                    <td>
+                      <div *ngFor="let datoItems of dato.listArticulosO">
+                        <ul id="utilitarioI">
+                          <li *ngIf="datoItems.productoId!=null"
+                            [ngClass]="{'bg-warning':datoItems.retorna && (datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno') , 'bg-success': datoItems.retorna && (datoItems.estadoProducto=='Procesada') }">
+                            {{datoItems.cantidad}} {{datoItems.producto.nombre}}</li>
+                          <li *ngIf="datoItems.inventarioId!=null"
+                            [ngClass]="{'bg-warning':datoItems.retorna && (datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno') , 'bg-success': datoItems.retorna && (datoItems.estadoProducto=='Procesada') }">
+                            {{datoItems.cantidad}} {{datoItems.inventario.nombre}}</li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td *ngIf="dato.estadoProceso!='Procesada Retorno'&& dato.estadoProceso!='Procesada Retorno V'">
+                      {{dato.estadoProceso}}</td>
+                    <td *ngIf="dato.estadoProceso=='Procesada Retorno'||dato.estadoProceso=='Procesada Retorno V'">
+                      <a class="badge hiper" (click)="onBuscarPareja(dato)"
+                        matTooltip="Te permite visualizar la orden relacionada al retorno" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        {{dato.estadoProceso}}
                       </a>
-                    </div>
-                  </th>
-                  <th>
-                    <div class="d-inline-block" style="margin-right: 0.5rem;">Persona</div>
-                    <div id="ordenarS" class="d-inline-block">
-                      <a class="badge text-dark2" (click)="onOrdenNombre('Nombre')">
-                        <fa-icon [icon]="sort"></fa-icon>
+                    </td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato,1)"
+                        matTooltip="Te permite visualizar a detalladamente la orden seleccionada"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeye"></fa-icon>
                       </a>
-                    </div>
-                  </th>
-                  <th>Fecha Registro</th>
-                  <th>Descripción</th>
-                  <th>Estado Proceso</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <div style="display: none;">{{getDataFiltro(resultBusquedaMostrar)}}</div>
-                <tr *ngIf="resultBusquedaMostrar.length==0">
-                  <td class="font-italic text-center" colspan="8">
-                    No existen ordenes registradas con esos parámetros de busqueda
-                  </td>
-                </tr>
-                <tr
-                  *ngFor="let dato of resultBusquedaMostrar |sort:ordenGuia:'cOrdenES' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
-                  [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
-                  <td class="indice">{{indice+1}}</td>
-                  <td *ngIf="dato.tipoOrden =='Entrada'">{{dato.tipoOrden}} a {{dato.planta}} desde
-                    {{dato.destinoProcedencia}}</td>
-                  <td *ngIf="dato.tipoOrden =='Salida'">{{dato.tipoOrden}} desde {{dato.planta}} a
-                    {{dato.destinoProcedencia}}</td>
-                  <td *ngIf="dato.tipoOrden =='Materia Prima'">{{dato.tipoOrden}} por {{dato.destinoProcedencia}}</td>
-                  <td>{{dato.numDocumentacion}}</td>
-                  <td><strong>{{dato.persona.nombreP}}</strong></td>
-                  <td>{{dato.fechaRegistro}} {{dato.horaRegistro}}</td>
-                  <td>
-                    <div *ngFor="let datoItems of dato.listArticulosO">
-                      <ul id="utilitarioI">
-                        <li *ngIf="datoItems.productoId!=null"
-                          [ngClass]="{'bg-warning':datoItems.retorna && (datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno') , 'bg-success': datoItems.retorna && (datoItems.estadoProducto=='Procesada') }">
-                          {{datoItems.cantidad}} {{datoItems.producto.nombre}}</li>
-                        <li *ngIf="datoItems.inventarioId!=null"
-                          [ngClass]="{'bg-warning':datoItems.retorna && (datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno') , 'bg-success': datoItems.retorna && (datoItems.estadoProducto=='Procesada') }">
-                          {{datoItems.cantidad}} {{datoItems.inventario.nombre}}</li>
-                      </ul>
-                    </div>
-                  </td>
-                  <td *ngIf="dato.estadoProceso!='Procesada Retorno'&& dato.estadoProceso!='Procesada Retorno V'">
-                    {{dato.estadoProceso}}</td>
-                  <td *ngIf="dato.estadoProceso=='Procesada Retorno'||dato.estadoProceso=='Procesada Retorno V'">
-                    <a class="badge hiper" (click)="onBuscarPareja(dato)"
-                      matTooltip="Te permite visualizar la orden relacionada al retorno" matTooltipPosition="left"
-                      matTooltipClass="tooltipBlack">
-                      {{dato.estadoProceso}}
+                      <a *ngIf="conexcionService.UserR.rolAsignado=='admin'||conexcionService.UserR.rolAsignado=='gpv-o'"
+                        class="badge text-primario d-none d-sm-block" (click)="onModal(dato,2)"
+                        matTooltip="Te permite modificar orden seleccionada" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeraser"></fa-icon>
+                      </a>
+                      <a class="badge text-primario d-block d-sm-none" (click)="onConvertPdfOne(dato)"
+                        matTooltip="Te permite descagar un archivo pdf de la orden de entrada seleccionada"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faprint"></fa-icon>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="paginationPadre mt-2">
+              <nav aria-label="pagination">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item d-none d-sm-block">
+                    <select class="form-control" (change)="onUpdateSelect($event.target)">
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </li>
+                  <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">
+                      <fa-icon [icon]="faArLeft"></fa-icon>
                     </a>
-                  </td>
-                  <td class="text-center" id="utilitarioI">
-                    <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato,1)"
-                      matTooltip="Te permite visualizar a detalladamente la orden seleccionada"
-                      matTooltipPosition="left" matTooltipClass="tooltipBlack">
-                      <fa-icon [icon]="faeye"></fa-icon>
+                  </li>
+                  <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">
+                      <fa-icon [icon]="faArRight"></fa-icon>
                     </a>
-                    <a *ngIf="conexcionService.UserR.rolAsignado=='admin'||conexcionService.UserR.rolAsignado=='gpv-o'"
-                      class="badge text-primario d-none d-sm-block" (click)="onModal(dato,2)"
-                      matTooltip="Te permite modificar orden seleccionada" matTooltipPosition="left"
-                      matTooltipClass="tooltipBlack">
-                      <fa-icon [icon]="faeraser"></fa-icon>
-                    </a>
-                    <a class="badge text-primario d-block d-sm-none" (click)="onConvertPdfOne(dato)"
-                      matTooltip="Te permite descagar un archivo pdf de la orden de entrada seleccionada"
-                      matTooltipPosition="left" matTooltipClass="tooltipBlack">
-                      <fa-icon [icon]="faprint"></fa-icon>
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </div>
-          <div class="paginationPadre mt-2">
-            <nav aria-label="pagination">
-              <ul class="pagination justify-content-center">
-                <li class="page-item d-none d-sm-block">
-                  <select class="form-control" (change)="onUpdateSelect($event.target)">
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                  </select>
-                </li>
-                <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
-                  <a class="page-link d-none d-sm-block"
-                    (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
-                  <a class="page-link d-block d-sm-none" (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">
-                    <fa-icon [icon]="faArLeft"></fa-icon>
-                  </a>
-                </li>
-                <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
-                  [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
-                  <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
-                <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
-                  <a class="page-link d-none d-sm-block"
-                    (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
-                  <a class="page-link d-block d-sm-none" (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">
-                    <fa-icon [icon]="faArRight"></fa-icon>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { cUsuario } from '../shared/user-info';
 import { cWhatsapp } from '../shared/otrosServices/varios';
 import { WhatsappService } from '../shared/otrosServices/whatsapp.service';
+import { ConexionService } from '../shared/otrosServices/conexion.service';
 
 @Component({
   selector: 'app-user',
@@ -28,7 +29,7 @@ export class UserComponent implements OnInit {
   }
 
   modoActualizar: boolean = false;
-  constructor(private _userService: UserService, private router: Router, private toastr: ToastrService, private _whatsappService: WhatsappService) { }
+  constructor(private _userService: UserService, private router: Router, private toastr: ToastrService,private conexcionService: ConexionService, private _whatsappService: WhatsappService) { }
 
   ngOnInit(): void {
     if (localStorage.getItem('token') != null)//Si es que existe un token! carga datos del usuario
@@ -40,11 +41,7 @@ export class UserComponent implements OnInit {
   resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
     if (form != null)
       form.resetForm();
-    this._userService.formData = {
-      UserName: "",
-      PasswordHash: "",
-      ConfirmPassword: ""
-    }
+    this._userService.formData = new cUsuario();
   }
 
   onSubmit() {//Pasa los datos del formulario y llama al servicio login 
@@ -79,8 +76,10 @@ export class UserComponent implements OnInit {
         if (res.temporalPassword) {
           this.resetForm();
           this.modoActualizar = true;
-          this._userService.formData.UserName = res.userName;
+          this._userService.formData.userName = res.userName;
         } else {
+          this.conexcionService.UserR=new cUsuario();
+          this.conexcionService.UserR.objCompletar(res);
           switch (res.rolAsignado) {
             case 'admin':
             case 'supervisor':
@@ -145,7 +144,7 @@ export class UserComponent implements OnInit {
     }).then((result) => {//la respuesta de los inputs
       if (result.value) {//si recive una respuesta positiva osea Ok
         var auxUserRecuperar: cUsuario = {
-          UserName: auxNombreUsuario
+          userName: auxNombreUsuario
         }
         this._userService.changePass(auxUserRecuperar).subscribe(//cambia el password anterior y te regresa un codigo temporal para poder iniciar sesion
           (res: any) => {

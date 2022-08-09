@@ -227,6 +227,8 @@ export class PermisosComponent implements OnInit {
     doc.text("Fecha de emisión:", 10, (139));
     doc.setFont("arial", "bold");
     doc.text(fechaHoy.strFecha, 43, (139));
+    doc.line(70, (121), 140, (121));//downCut
+    doc.text("FIRMA Y SELLO DEL MÉDICO", 74, (125));
 
     if (this.permisoMedicService.formData.totalDias > 0){
       doc.setFont("arial", "normal");

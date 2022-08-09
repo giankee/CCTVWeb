@@ -1,0 +1,64 @@
+<section>
+  <div class="p-1">
+    <form #formFaltante="ngForm" autocomplete="off" (submit)="onSubmit(formFaltante)">
+      <div class="bodyCard" *ngIf="consultaMedicService.formData">
+        <div class="row">
+          <div class="col-12">
+            <h4 class="text-center">Reportar Compra Medicamento - {{consultaMedicService.formData.bodegaOrigen}} -
+              Marea: #{{consultaMedicService.formData.marea}}</h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header boxForm d-flex justify-content-between">
+                <h5 class="text-dark2" style="padding-top: 9px;">Lista de Irregularidades</h5>
+              </div>
+              <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px; height: 100%;">
+                <table class="table">
+                  <thead>
+                    <tr class="text-center">
+                      <th scope="col" style="width:60%;">Producto</th>
+                      <th scope="col" style="width:15%;">Cantidad Enviada</th>
+                      <th scope="col" style="width:25%;">Cantidad Recibida</th>
+                    </tr>
+                  </thead>
+                  <tbody *ngIf="consultaMedicService.formData.listReceta.length>0">
+                    <tr *ngFor="let datoListP of consultaMedicService.formData.listReceta; let indiceNewP=index"
+                      [ngClass]="{'filaPar':(((indiceNewP+1)%2)==0)}">
+                      <td  id="inputSearchP">
+                        <input name="in{{indiceNewP}}nombre" #producto{{indiceNewP}}nombre="ngModel" disabled
+                          [(ngModel)]="consultaMedicService.formData.listReceta[indiceNewP].inventario.nombre"
+                          class="form-control input-src">
+                      </td>
+                      <td class="text-center" >{{consultaMedicService.formData.listReceta[indiceNewP].cantidad}}</td>
+                      <td  id="inputSearchP">
+                        <input name="in{{indiceNewP}}cantidadReal" type="number" min="0" maxlength="10" placeholder="#"
+                          class="form-control  input-src"
+                          onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                          pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" required #in{{indiceNewP}}cantidadReal="ngModel"
+                          [(ngModel)]="consultaMedicService.formData.listReceta[indiceNewP].newCantidadReal">
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm justify-content-around my-2">
+          <div class="col-12 col-sm-6 col-md-4 mb-2">
+            <a [routerLink] (click)="onTerminar(0)" class="btn bttn-Primario btn-block">
+              <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+            </a>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4">
+            <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formFaltante.invalid">
+              <fa-icon [icon]="fasave"></fa-icon> Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

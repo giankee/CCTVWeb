@@ -78,10 +78,10 @@
                   <div class="input-group">
                     <span class="input-group-text"><input name="isCheck" #isCheck="ngModel" type="checkbox" [(ngModel)]="parametrosBusqueda.disableCheck" ></span>
                     <input name="marea" #marea="ngModel" type="number" [(ngModel)]="parametrosBusqueda.marea"
-                      class="form-control input-src" placeholder="Solo Número" [disabled]="parametrosBusqueda.disableCheck"
+                      class="form-control input-src" placeholder="Solo Número" [disabled]="!parametrosBusqueda.disableCheck"
                       onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
                     <span class="input-group-text">AÑO</span>
-                    <input name="anio" #anio="ngModel" type="number" [(ngModel)]="parametrosBusqueda.anio" [disabled]="parametrosBusqueda.disableCheck"
+                    <input name="anio" #anio="ngModel" type="number" [(ngModel)]="parametrosBusqueda.anio" [disabled]="!parametrosBusqueda.disableCheck"
                       class="form-control input-src" min="2022" step="1" value="parametrosBusqueda.anio" />
                   </div>
                 </div>

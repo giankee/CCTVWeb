@@ -2,7 +2,7 @@
   *ngIf="conexcionService.UserR!=null">
   <div class="sidenav-header d-flex align-items-center justify-content-center">
     <div class="sidenav-header-inner text-center"><img src="/assets/img/logo2.png" class="img-fluid">
-      <h2 class="h5">{{conexcionService.UserR.UserName}}</h2><span>{{conexcionService.UserR.rolAsignado}}</span>
+      <h2 class="h5">{{conexcionService.UserR.userName}}</h2><span>{{conexcionService.UserR.rolAsignado}}</span>
     </div>
     <div>
       <a [routerLink]='["/OrdenSupervisor"]' class="brand-small text-center"><strong>B&B</strong></a>

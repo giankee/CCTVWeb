@@ -196,6 +196,7 @@ export class cRecetaMedic {
     /**Variables de control */
     spinnerLoading: boolean = false;
     showSearchSelect: number = 0;
+    newCantidadReal:number=0;
 
     constructor() {
     }

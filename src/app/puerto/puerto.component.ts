@@ -11,6 +11,7 @@ import { cPersonal } from '../shared/basicos';
 import { ApiEnterpriceService } from '../shared/otrosServices/api-enterprice.service';
 import Swal from 'sweetalert2';
 import { cPaginacion } from '../shared/otrosServices/paginacion';
+import { cUsuario } from '../shared/user-info';
 
 @Component({
   selector: 'app-puerto',
@@ -103,11 +104,8 @@ export class PuertoComponent implements OnInit {
   cargarDataUser() {
     this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
       (res: any) => {
-        this._conexcionService.UserR = {
-          UserName: res.userName,
-          rolAsignado: res.rolAsignado,
-          nombreU: res.nombreU
-        }
+        this._conexcionService.UserR = new cUsuario();
+        this.conexcionService.UserR.objCompletar(res);
         this.cargarDataChoferes();
       },
       err => {

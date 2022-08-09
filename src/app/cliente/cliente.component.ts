@@ -24,6 +24,7 @@ import { cPaginacion } from '../shared/otrosServices/paginacion';
 import { finalize, map } from 'rxjs/operators';
 import { ProductoBService } from '../shared/bodega/producto-b.service';
 import { cProducto_B } from '../shared/bodega/ordenEC';
+import { cUsuario } from '../shared/user-info';
 
 
 @Component({
@@ -200,12 +201,8 @@ export class ClienteComponent implements OnInit {
   cargarDataUser() {
     this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
       (res: any) => {
-        this._conexcionService.UserR = {
-          UserName: res.userName,
-          rolAsignado: res.rolAsignado,
-          nombreU: res.nombreU,
-          PhoneNumber: res.phoneNumber
-        }
+        this._conexcionService.UserR = new cUsuario();
+        this.conexcionService.UserR.objCompletar(res);
         this.resetForm();
         this._variosService.getVariosPrioridad(res.rolAsignado)//parece q no lo usare
           .subscribe(dato => {
@@ -1478,10 +1475,10 @@ export class ClienteComponent implements OnInit {
         + '\n*Usuario Guardia:* ' + ordenES.guardiaCargoUser
         + '\n----------------------------------'
     }
-    if (this._conexcionService.UserR.UserName == "daniel3" || this._conexcionService.UserR.UserName == "mariazabalu")
+    if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "mariazabalu")
       aux.phone = "593999786121";
-    if (this._conexcionService.UserR.rolAsignado == "gpv-o" && this._conexcionService.UserR.PhoneNumber != null)
-      aux.phone = this._conexcionService.UserR.PhoneNumber;
+    if (this._conexcionService.UserR.rolAsignado == "gpv-o" && this._conexcionService.UserR.phoneNumber != null)
+      aux.phone = this._conexcionService.UserR.phoneNumber;
     this.whatsappService.sendMessageWhat(aux).subscribe(
       res => {
 
@@ -1515,10 +1512,10 @@ export class ClienteComponent implements OnInit {
       + '\n*Usuario Guardia:* ' + orden.guardiaCargoUser
       + '\n----------------------------------';
 
-    if (this._conexcionService.UserR.UserName == "daniel3")
+    if (this._conexcionService.UserR.userName == "daniel3")
       auxWhatsapp.phone = "593999786121";
     if (this._conexcionService.UserR.rolAsignado == "gpv-o")
-      auxWhatsapp.phone = this._conexcionService.UserR.PhoneNumber;
+      auxWhatsapp.phone = this._conexcionService.UserR.phoneNumber;
     this._whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
       res => {
         if (res.status != "error")
@@ -1550,7 +1547,7 @@ export class ClienteComponent implements OnInit {
         if (orden.tipoOrden == "Entrada")
           asunto = "entrada a *" + orden.planta + "* proveniente de *";
         if (orden.estadoProceso == "Pendiente" || orden.estadoProceso == "Pendiente Verificación") {
-          if (this._conexcionService.UserR.UserName == "daniel3" || this._conexcionService.UserR.UserName == "MARIAZABALU")
+          if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "MARIAZABALU")
             auxWhatsapp.chatname = "Prueba Muelle";
           else auxWhatsapp.chatname = "Despachos MCP-MUELLE";
 
@@ -1592,7 +1589,7 @@ export class ClienteComponent implements OnInit {
           }
         }
         if (orden.estadoProceso == "Pendiente" || orden.estadoProceso == "Pendiente Retorno") {
-          if (this._conexcionService.UserR.UserName == "daniel3" || this._conexcionService.UserR.UserName == "MARIAZABALU")
+          if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "MARIAZABALU")
             auxWhatsapp.chatname = "Prueba ES";
           else auxWhatsapp.chatname = "MCPx Seguimiento ES";
           auxWhatsapp.message = encabezado
@@ -1627,7 +1624,7 @@ export class ClienteComponent implements OnInit {
           var auxRC = retornaCompleto.split("R-");
           asunto2 = "\nLa " + auxRC[1] + " se encuentra *Procesada* :white_check_mark: terminando así el seguimiento de la orden."
         }
-        if (this._conexcionService.UserR.UserName == "daniel3" || this._conexcionService.UserR.UserName == "MARIAZABALU")
+        if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "MARIAZABALU")
           auxWhatsapp.chatname = "Prueba ES";
         else auxWhatsapp.chatname = "MCPx Seguimiento ES";
 
@@ -1671,7 +1668,7 @@ export class ClienteComponent implements OnInit {
         encabezado = ':bell: *Notificación Salida Baldes' + ' Planta MANACRIPEX* :bell:';
         asunto = "salida de *P MANACRIPEX* con destino a *";
 
-        if (this._conexcionService.UserR.UserName == "daniel3")
+        if (this._conexcionService.UserR.userName == "daniel3")
           auxWhatsapp.chatname = "Prueba ES"
         else auxWhatsapp.chatname = "MCPx Tinas Seguimiento";
 
@@ -1709,7 +1706,7 @@ export class ClienteComponent implements OnInit {
           asunto = "salida con destino a *";
         }
 
-        if (this._conexcionService.UserR.UserName == "daniel3")
+        if (this._conexcionService.UserR.userName == "daniel3")
           auxWhatsapp.chatname = "Prueba ES"
         else auxWhatsapp.chatname = "MCPx Tinas Seguimiento";
 

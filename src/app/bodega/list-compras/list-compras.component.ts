@@ -40,7 +40,7 @@ export class ListComprasComponent implements OnInit {
 
   listOrdenesMostrar$: Observable<cOrdenEC[]>;
   dataOrdenesResult: cOrdenEC[] = [];
-
+  auxPlanta:string;
   /**Para pagination y fecha Entrada*/
   paginacion = new cPaginacion(25);
   fechaHoy = new cFecha();
@@ -48,7 +48,14 @@ export class ListComprasComponent implements OnInit {
 
   faquestion = faQuestion; sort = faSort; fapencilAlt = faPencilAlt; faeye = faEye; faeraser = faEraser; fasave = faSave; fatimesCircle = faTimesCircle; fasearch = faSearch;
   faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
-  constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private dialog: MatDialog, private ordenarPipe: SortPipe) { }
+  constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private dialog: MatDialog, private ordenarPipe: SortPipe) { 
+    if(this.conexcionService.UserR.rolAsignado=="tinabg-m"||this.conexcionService.UserR.rolAsignado=="bodega_verificador-m")
+    this.auxPlanta = "P MANACRIPEX";
+    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+    this.auxPlanta = "OFICINAS";
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+    this.auxPlanta = "ENFERMERIA";
+  }
 
   ngOnInit(): void {
     this._conexcionService.msg$.subscribe(mensajeStatus => {
@@ -58,14 +65,8 @@ export class ListComprasComponent implements OnInit {
   }
 
   cargarData() {//Datos de los ordenes traidos desde db
-    var strParametro = "P MANACRIPEX";
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
-      strParametro = "OFICINAS";
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
-      strParametro = "ENFERMERIA";
-
     this.spinnerOnOff = true;
-    this.listOrdenesMostrar$ = this._ordenECService.getListOrdenesCompra(strParametro).pipe(
+    this.listOrdenesMostrar$ = this._ordenECService.getListOrdenesCompra(this.auxPlanta).pipe(
       map((x: cOrdenEC[]) => {
         x.forEach(y => {
           y.fechaRegistroBodega = y.fechaRegistroBodega.substring(0, 10);
@@ -79,12 +80,7 @@ export class ListComprasComponent implements OnInit {
 
   onListParam(value: string) {
     this.spinnerOnOff = true;
-    var strParametro = "P MANACRIPEX@";
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
-      strParametro = "OFICINAS@";
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
-      strParametro = "ENFERMERIA@";
-    strParametro = strParametro+this.fechaHoy.inDesde + "@" + this.fechaHoy.inHasta+"@"
+    var strParametro = this.auxPlanta+"@"+this.fechaHoy.inDesde + "@" + this.fechaHoy.inHasta+"@"
     if (value != "") {
       const regex = /^[0-9]*$/;
       if (regex.test(value))

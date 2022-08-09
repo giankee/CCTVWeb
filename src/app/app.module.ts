@@ -87,6 +87,7 @@ import { ViewAtencionModalComponent } from './medicina/atencion-medic/view-atenc
 import { ListPermisosComponent } from './medicina/list-historial-persona/list-permisos/list-permisos.component';
 import { ListAccidentesComponent } from './medicina/list-historial-persona/list-accidentes/list-accidentes.component';
 import { ViewAccidenteModelComponent } from './medicina/new-accidente/view-accidente-model/view-accidente-model.component';
+import { AvisoFaltanteComponent } from './bodega/compra-proveedor/compras-verificacion/aviso-faltante/aviso-faltante.component';
 
 /*import { ServiceWorkerModule } from '@angular/service-worker';
 */
@@ -156,7 +157,8 @@ import { ViewAccidenteModelComponent } from './medicina/new-accidente/view-accid
     ViewAtencionModalComponent,
     ListPermisosComponent,
     ListAccidentesComponent,
-    ViewAccidenteModelComponent
+    ViewAccidenteModelComponent,
+    AvisoFaltanteComponent
   ],
   imports: [
     BrowserModule,

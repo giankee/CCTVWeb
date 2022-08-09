@@ -1,4 +1,4 @@
-<section class="dashboard-header">
+<section class="dashboard-header" *ngIf="!openReporte">
   <div class="container-fluid  mt-3 mt-sm-4 px-1 px-md-5">
     <div class="row">
       <div class="col-lg-12 col-md-12 col-sm-12 col-12">
@@ -107,3 +107,7 @@
     </div>
   </div>
 </section>
+<div id="open" *ngIf="openReporte">
+  <app-aviso-faltante [isOpen]="openReporte" (cerrar)="recibirRes($event)">
+  </app-aviso-faltante>
+</div>

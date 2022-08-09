@@ -4,11 +4,14 @@ import { Router } from '@angular/router';
 import { ConexionService } from '../shared/otrosServices/conexion.service';
 import { Observable, Subscription, fromEvent } from 'rxjs';
 
-import { faBars,faCircle,faSignOutAlt, faBell, faTasks, faCar, faUserPlus,faTools, faUsers, faEnvelope,faExchangeAlt,faClipboardCheck,
-   faShoppingCart, faBoxes,faDolly,faDollyFlatbed, faFileMedical, faMedkit, faBookMedical, faLaptopMedical, faCarCrash, faObjectGroup, faIdCardAlt, faPrescriptionBottleAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faBars, faCircle, faSignOutAlt, faBell, faTasks, faCar, faUserPlus, faTools, faUsers, faEnvelope, faExchangeAlt, faClipboardCheck,
+  faShoppingCart, faBoxes, faDolly, faDollyFlatbed, faFileMedical, faMedkit, faBookMedical, faLaptopMedical, faCarCrash, faObjectGroup, faIdCardAlt, faPrescriptionBottleAlt
+} from '@fortawesome/free-solid-svg-icons';
 import { cNotificacion } from '../shared/ordenEs';
 import { NotificacionService } from '../shared/notificacion.service';
 import { faPlusSquare } from '@fortawesome/free-regular-svg-icons';
+import { cUsuario } from '../shared/user-info';
 
 @Component({
   selector: 'app-menu',
@@ -41,11 +44,11 @@ export class MenuComponent implements OnInit, OnDestroy {
     this._tooglebtn = value;
   }
   /**Icon */
-  fabars=faBars;facircle=faCircle;fasignOut=faSignOutAlt;fabell=faBell;fatasks=faTasks;facar=faCar;fauserplus=faUserPlus;
-  fatools=faTools; fausers=faUsers;faenvelope=faEnvelope;faexchangeAlt=faExchangeAlt;faclipboardCheck=faClipboardCheck;
-  fashoppingCart=faShoppingCart;faboxes=faBoxes;fadolly=faDolly;fadollyflatbed=faDollyFlatbed;fasquareplus=faPlusSquare;
-  fafilemedical=faFileMedical;fakitmedical=faMedkit;fabookmedical=faBookMedical;falaptopmedic=faLaptopMedical;facarcrash=faCarCrash;
-  faobjerctunicion= faObjectGroup;faidcardalt=faIdCardAlt;faprescription=faPrescriptionBottleAlt;
+  fabars = faBars; facircle = faCircle; fasignOut = faSignOutAlt; fabell = faBell; fatasks = faTasks; facar = faCar; fauserplus = faUserPlus;
+  fatools = faTools; fausers = faUsers; faenvelope = faEnvelope; faexchangeAlt = faExchangeAlt; faclipboardCheck = faClipboardCheck;
+  fashoppingCart = faShoppingCart; faboxes = faBoxes; fadolly = faDolly; fadollyflatbed = faDollyFlatbed; fasquareplus = faPlusSquare;
+  fafilemedical = faFileMedical; fakitmedical = faMedkit; fabookmedical = faBookMedical; falaptopmedic = faLaptopMedical; facarcrash = faCarCrash;
+  faobjerctunicion = faObjectGroup; faidcardalt = faIdCardAlt; faprescription = faPrescriptionBottleAlt;
 
   /**Parte Online/OffLine */
   public onlineEvent: Observable<Event>;
@@ -55,15 +58,20 @@ export class MenuComponent implements OnInit, OnDestroy {
   /**Parte Navbar */
   _tooglebtn: boolean = true;
   listNotificacion: cNotificacion[] = [];
-  strFecha:string="";
-  constructor(private _userService: UserService, private router: Router, private _conexcionService: ConexionService, private _notificacionService: NotificacionService) {}
+  constructor(private _userService: UserService, private router: Router, private _conexcionService: ConexionService, private _notificacionService: NotificacionService) { }
 
   ngOnInit(): void {
     this.mIniciarConexion();
-    if (this._userService.estaLogueado){
-      this.cargarDataUser();
-      this.fechaActual();
-      //this.cargarNoti();
+    if (this._userService.estaLogueado) {
+      this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
+        (res: any) => {
+          this._conexcionService.UserR = new cUsuario();
+          this._conexcionService.UserR.objCompletar(res);
+        },
+        err => {
+          console.log(err);
+        },
+      );
     }
     else
       this.router.navigate(["/user-Login"]);
@@ -93,83 +101,6 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   logOut() {
     this._userService.logout();
-  }
-
-  cargarDataUser() {
-    this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
-      (res: any) => {
-        this._conexcionService.UserR = {
-          UserName: res.userName,
-          rolAsignado: res.rolAsignado,
-          nombreU:res.nombreU
-        }
-      },
-      err => {
-        console.log(err);
-      },
-    );
-  }
-
-  cargarNoti(){
-    this.notificacionService.getNotifi(this.strFecha).subscribe(
-      dato => {
-      
-        //this.filtrarNotificaciones(res);
-        this.listNotificacion = [];
-        this.listNotificacion = JSON.parse(JSON.stringify(dato));
-        for(var i=0;i<this.listNotificacion.length;i++){
-          this.listNotificacion[i].fechaCreacion=this.listNotificacion[i].fechaCreacion.substr(0,10)
-        }
-      },
-      err => {
-        console.log(err);
-      },
-    );
-  }
-  /*filtrarNotificaciones(list: cNotificacion[]) {
-    var auxFecha;
-    var fechaU = this.strFecha.split("-");
-    var diaDiferencia;
-    for (var i = 0; i < list.length; i++) {
-      auxFecha = list[i].recordatorioHasta.split("-");
-      if (list[i].estadoProceso == "Pendiente") {
-        diaDiferencia = this.compararFechas(fechaU, auxFecha, true);
-        this.listNotificacion.push(list[i]);
-      } else {
-        diaDiferencia = this.compararFechas(fechaU, auxFecha, false);
-        if (diaDiferencia <= 0) {
-          list[i].estadoProceso = "Pendiente";
-          this.listNotificacion.push(list[i]);
-          diaDiferencia = diaDiferencia * -1;
-          this.notificacionService.actualizarNotificacion(list[i]).subscribe(
-            res => { },
-            err => {
-              console.log(err);
-            }
-          )
-        }
-      }
-      list[i].tiempoCreacion = diaDiferencia + " dias atras";
-    }
-  }*/
-
-  //Listo
-  fechaActual() {
-    let hoy = new Date();
-    let dia = hoy.getDate();
-    let anio = hoy.getFullYear();
-    let mes = hoy.getMonth() + 1;
-    var strmonth = "";
-    var strday = "";
-    if (mes < 10)
-      strmonth = "0" + mes;
-    else
-      strmonth = "" + mes;
-    if (dia < 10)
-      strday = "0" + dia;
-    else
-      strday = "" + dia;
-    this.strFecha = anio + '-' + strmonth + '-' + strday;
   }
 
   ngOnDestroy(): void {
