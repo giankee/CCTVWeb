@@ -26,10 +26,10 @@
                     <ul>
                       <li
                         *ngFor="let data of listPacienteFiltros$ | async">
-                        <a (click)="onChoosePaciente(data)"
-                          class="name">{{data.empleado}}</a>
+                        <div (click)="onChoosePaciente(data)">
+                          <a class="name">{{data.empleado}}</a>
+                        </div>
                       </li>
-                      
                     </ul>
                   </div>
                 </div>
@@ -49,8 +49,9 @@
                     <ul>
                       <li
                         *ngFor="let data of listCie10Array | filtrarCie10:permisoMedicService.formData.enfermedadCIE10">
-                        <a (click)="onChooseEnfermedad(data)"
-                          class="name"><strong>{{data.code}}:</strong>{{data.description}}</a>
+                        <div  (click)="onChooseEnfermedad(data)">
+                          <a class="name"><strong>{{data.code}}: </strong> {{data.description}}</a>
+                        </div>
                       </li>
                       <li>
                         <a (click)="onChooseEnfermedad('Nuevo')"

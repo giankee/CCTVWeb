@@ -13,6 +13,7 @@ import { SortPipe } from 'src/app/pipes/sort.pipe';
 import { PermisoService } from 'src/app/shared/medicina/permiso.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ViewAtencionModalComponent } from '../atencion-medic/view-atencion-modal/view-atencion-modal.component';
+import { PacienteService } from 'src/app/shared/medicina/paciente.service';
 
 @Component({
   selector: 'app-list-atenciones',
@@ -50,18 +51,27 @@ export class ListAtencionesComponent implements OnInit {
 
   sort = faSort; faeye = faEye; fasearch = faSearch; faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArRight = faArrowAltCircleRight; faArLeft = faArrowAltCircleLeft;
   //fatimesCircle = faTimesCircle;  
-  constructor(private _atencionMedicService: AtencionService, private _enterpriceService: ApiEnterpriceService, private consultaPipe: SortPipe, private permisoMedicService: PermisoService, private dialog: MatDialog) { }
+  constructor(private _atencionMedicService: AtencionService,private pacienteService: PacienteService, private _enterpriceService: ApiEnterpriceService, private consultaPipe: SortPipe, private permisoMedicService: PermisoService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.cargarData();
   }
 
-  cargarData() {//Datos de los ordenes traidos desde db
+  cargarData() {
     this.spinnerOnOff = true;
     this.listAtencionesMostrar$ = this.atencionMedicService.getListAtenciones().pipe(
       map((x: cAtencionMedic[]) => {
         x.forEach(y => {
           y.fechaAtencion = y.fechaAtencion.substring(0, 10);
+          this.pacienteService.getPacienteById(y.pacienteMedic.empleadoId).subscribe((dato: any) => {
+            if (dato.exito == 1) {
+              if (dato.message == "Ok")
+                if(y.pacienteMedicId==dato.data.idPacienteMedic){
+                  y.pacienteMedic.empleado=dato.data.empleado;
+                  y.pacienteMedic.idEmpresa=dato.data.idEmpresa;
+                }
+            }
+          });
           if (y.reposo && y.permisoIdOpcional != 0) {
             this.permisoMedicService.getOnePermiso(y.permisoIdOpcional).subscribe(
               (res: any) => {
@@ -93,6 +103,12 @@ export class ListAtencionesComponent implements OnInit {
       map((x: cAtencionMedic[]) => {
         x.forEach(y => {
           y.fechaAtencion = y.fechaAtencion.substring(0, 10);
+          this.pacienteService.getPacienteById(y.pacienteMedic.empleadoId).subscribe((dato: any) => {
+            if (dato.exito == 1) {
+              if (dato.message == "Ok")
+                y.pacienteMedic.empleado=dato.data.empleado;
+            }
+          });
           if (y.reposo && y.permisoIdOpcional != 0) {
             this.permisoMedicService.getOnePermiso(y.permisoIdOpcional).subscribe(
               (res: any) => {
@@ -128,7 +144,7 @@ export class ListAtencionesComponent implements OnInit {
   onChooseEnfermedad(data: any) {
     this.parametrosBusqueda.spinLoadingG = "0";
     this.parametrosBusqueda.showSearchSelectG = "0";
-    this.parametrosBusqueda.strCampoB = data.code + ":" + data.description;
+    this.parametrosBusqueda.strCampoB = data.code + ": " + data.description;
     this.parametrosBusqueda.strCampoD = data.code;
   }
 
@@ -154,7 +170,7 @@ export class ListAtencionesComponent implements OnInit {
     this.parametrosBusqueda.spinLoadingG = '0';
     this.parametrosBusqueda.showSearchSelectG = '0';
     this.parametrosBusqueda.strCampoA = dataIn.empleado;
-    this.parametrosBusqueda.strCampoC = dataIn.cedula;
+    this.parametrosBusqueda.strCampoC = dataIn.idEmpleado.toString();
   }
 
   onOrdenAtencion(tipo: string) {// cambia el orden por medio de un pipe
@@ -251,7 +267,7 @@ export class ListAtencionesComponent implements OnInit {
       var lineaEnfermedad;
       var lineaMotivo;
       for (var index = 0; index < this.dataAtencionesResult.length; index++) {
-        lineaPaciente = doc.splitTextToSize(this.dataAtencionesResult[index].pacienteMedic.nombreEmpleado, (50));
+        lineaPaciente = doc.splitTextToSize(this.dataAtencionesResult[index].pacienteMedic.empleado, (50));
         lineaEnfermedad = doc.splitTextToSize(this.dataAtencionesResult[index].enfermedadCIE10, (65));
         lineaMotivo = doc.splitTextToSize(this.dataAtencionesResult[index].motivoAtencion, (65));
 
@@ -333,12 +349,12 @@ export class ListAtencionesComponent implements OnInit {
 
   onModal(dataIn: cAtencionMedic) {
     var auxId = dataIn.idAtencionMedic;
+    this._atencionMedicService.formData = new cAtencionMedic();
+    this.atencionMedicService.formData.completarObject(dataIn);
     const dialoConfig = new MatDialogConfig();
     dialoConfig.autoFocus = true;
     dialoConfig.disableClose = false;
     dialoConfig.data = { auxId }
     this.dialog.open(ViewAtencionModalComponent, dialoConfig);
-    this._atencionMedicService.formData = new cAtencionMedic();
-    this.atencionMedicService.formData.completarObject(dataIn);
   }
 }

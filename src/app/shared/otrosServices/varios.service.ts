@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { cEnterpriceArticulosDocumento, cVario, cVistaSalida } from './varios';
+import { cVario, cVistaSalida } from './varios';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -20,7 +20,7 @@ export class VariosService {
       this.serverUrl=environment.baseUrlCCTVP + 'cctv_vario';
       this.serverUrl2=environment.baseUrlCCTVP+'vcctv_salidaConProveedor';
     }
-    if (URLactual.hostname == '192.168.2.115') {
+    if (URLactual.hostname == '192.168.2.105'||URLactual.hostname == '192.168.2.106') {
       this.serverUrl2 = 'http://192.168.2.97:5005/api/vcctv_salidaConProveedor';
     }
    }

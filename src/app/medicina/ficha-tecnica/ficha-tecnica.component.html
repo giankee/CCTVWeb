@@ -40,7 +40,7 @@
               </div>
             </div>
             <div *ngIf="(listPacienteFiltros$ | async)  as resultBusquedaMostrar">
-              <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <div class="table-responsive scroll" style="border: 1px solid #dddddd; padding-top: 2px;">
                 <table class="table">
                   <thead>
                     <tr class="text-center">
@@ -294,8 +294,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Antecendentes Personales (Quirúrgico y Ginecológico)</div>
                       <textarea name="inBantecedenteP" #inBantecedenteP="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.antPersonales"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.antPersonales = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.antPersonales"
+                        (ngModelChange)="datoPersona.datosPaciente.antPersonales = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -303,8 +303,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Antecedentes Familiares</div>
                       <textarea name="inBantFamiliares" #inBantFamiliares="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.antFamiliares"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.antFamiliares = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.antFamiliares"
+                        (ngModelChange)="datoPersona.datosPaciente.antFamiliares = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -312,8 +312,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Alergias Medicamento</div>
                       <textarea name="inBaalergiaMedicamento" #inBaalergiaMedicamento="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.alergiaMedicamento"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.alergiaMedicamento = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.alergiaMedicamento"
+                        (ngModelChange)="datoPersona.datosPaciente.alergiaMedicamento = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -321,8 +321,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Hábitos y Encuesta Social</div>
                       <textarea name="inBhabitos" #inBhabitos="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.habitos"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.habitos = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.habitos"
+                        (ngModelChange)="datoPersona.datosPaciente.habitos = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -330,8 +330,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Historia Laboral</div>
                       <textarea name="inBhistoriaLaboral" #inBhistoriaLaboral="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.historiaLaboral"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.historiaLaboral = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.historiaLaboral"
+                        (ngModelChange)="datoPersona.datosPaciente.historiaLaboral = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -339,8 +339,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Examen físico general de inicio</div>
                       <textarea name="inBexamenInicio" #inBexamenInicio="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.examenInicio"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.examenInicio = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.examenInicio"
+                        (ngModelChange)="datoPersona.datosPaciente.examenInicio = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -348,8 +348,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Tareas que desempeñaba antes de pertenecer a la empresa</div>
                       <textarea name="inBtareasAntTrabajo" #inBtareasAntTrabajo="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.tareasAntTrabajo"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.tareasAntTrabajo = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.tareasAntTrabajo"
+                        (ngModelChange)="datoPersona.datosPaciente.tareasAntTrabajo = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -357,8 +357,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Medidas de Prevención</div>
                       <textarea name="inBmedidasPrevencion" #inBmedidasPrevencion="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antecedentes.medidasPrevencion"
-                        (ngModelChange)="datoPersona.datosPaciente.antecedentes.medidasPrevencion = $event?.toUpperCase()"
+                        [(ngModel)]="datoPersona.datosPaciente.medidasPrevencion"
+                        (ngModelChange)="datoPersona.datosPaciente.medidasPrevencion = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -403,6 +403,8 @@
     </div>
     <div class="boxCliente" id="open" *ngIf="strFases=='Atencion'&& datoPersona.datosPaciente.idPacienteMedic!=0">
       <app-atencion-medic [isOpen]="atencionIsOpened" [idPacienteIn]="datoPersona.datosPaciente.idPacienteMedic"
+        [edad]="datoPersona.datosEnterprice.edad" [peso]="datoPersona.datosPaciente.ultimoPeso"
+        [altura]="datoPersona.datosPaciente.ultimaAltura" [empresa]="datoPersona.datosEnterprice.idEmpresa"
         [pacienteNombre]="datoPersona.datosEnterprice.empleado" (cerrar)="recibirRes($event, 'atencion')">
       </app-atencion-medic>
     </div>

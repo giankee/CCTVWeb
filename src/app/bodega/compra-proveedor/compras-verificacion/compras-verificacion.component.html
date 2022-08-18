@@ -49,7 +49,7 @@
                             [(ngModel)]="listOrdenesMostrar[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].listPcomprasO[indice2].marcar">
                           </mat-checkbox>
                           <div *ngIf="datoItems.contenidoNeto==1" class="mr-2">{{datoItems.cantidad}}</div>
-                          <div *ngIf="datoItems.contenidoNeto!=1" class="mr-2">{{datoItems.cantidad*datoItems.producto.contenidoNeto}}</div>
+                          <div *ngIf="datoItems.contenidoNeto!=1" class="mr-2">{{datoItems.cantidad*datoItems.producto.contenidoNeto | number:'1.0-0'}}</div>
                           {{datoItems.producto.nombre}}
                         </ul>
                       </div>

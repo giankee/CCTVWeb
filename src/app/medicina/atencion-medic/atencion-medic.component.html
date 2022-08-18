@@ -32,12 +32,12 @@
                   <ul>
                     <li
                       *ngFor="let data of listCie10Array | filtrarCie10:atencionMedicService.formData.enfermedadCIE10">
-                      <a (click)="onChooseEnfermedad(data)"
-                        class="name"><strong>{{data.code}}:</strong>{{data.description}}</a>
+                      <div (click)="onChooseEnfermedad(data)">
+                        <a class="name"><strong>{{data.code}}: </strong> {{data.description}}</a>
+                      </div>
                     </li>
                     <li>
-                      <a (click)="onChooseEnfermedad('Nuevo')"
-                        class="name"><strong>--Nuevo--</strong></a>
+                      <a (click)="onChooseEnfermedad('Nuevo')" class="name"><strong>--Nuevo--</strong></a>
                     </li>
                   </ul>
                 </div>
@@ -79,9 +79,20 @@
             <div class="col-12 col-sm-6 col-md-3">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>Presión:</strong></div>
-                <input type="number" name="presion" #presion="ngModel" min="4" pattern="[0-9]{4}" maxlength="4" required placeholder="00/00"
-                  onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                  [(ngModel)]="atencionMedicService.formData.presion" class="form-control input-src">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <input type="number" name="presionA" #presionA="ngModel" min="3" pattern="[0-9]{3}" maxlength="3"
+                      required placeholder="000"
+                      onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      [(ngModel)]="atencionMedicService.formData.presionA" class="form-control input-src">
+                    <span class="input-group-text" style="height: 1.8rem;">/</span>
+                    <input type="number" name="presionB" #presionB="ngModel" min="1" pattern="[0-9]{1,2}" maxlength="2"
+                    required placeholder="00"
+                    onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                    [(ngModel)]="atencionMedicService.formData.presionB" class="form-control input-src">
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -91,7 +102,8 @@
             <div class="col-12 col-sm-6 col-md-4 col-lg-4">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>F. Cardiaca:</strong></div>
-                <input type="number" name="fcardiaca" #fcardiaca="ngModel" min="0" pattern="[0-9]*" maxlength="10" required placeholder="0"
+                <input type="number" name="fcardiaca" #fcardiaca="ngModel" min="0" pattern="[0-9]*" maxlength="10"
+                  required placeholder="0"
                   onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                   [(ngModel)]="atencionMedicService.formData.fCardiaca" class="form-control input-src">
               </div>
@@ -108,7 +120,8 @@
             <div class="col-12 col-sm-12 col-md-4 col-lg-4">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>Sp02:</strong></div>
-                <input type="number" name="sp02" #sp02="ngModel" min="0" pattern="[0-9]*" maxlength="10" required placeholder="0%"
+                <input type="number" name="sp02" #sp02="ngModel" min="0" pattern="[0-9]*" maxlength="10" required
+                  placeholder="0%"
                   onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                   [(ngModel)]="atencionMedicService.formData.sp02" class="form-control input-src">
               </div>
@@ -138,16 +151,14 @@
           <div class="form-group inputForm">
             <div class="title"><strong>Prescripción</strong></div>
             <textarea name="prescripcion" #prescripcion="ngModel"
-              [(ngModel)]="atencionMedicService.formData.prescripcion"
-              class="form-control"></textarea>
+              [(ngModel)]="atencionMedicService.formData.prescripcion" class="form-control"></textarea>
           </div>
         </div>
         <div class="col-12 col-sm-12 col-md-6 col-lg-6">
           <div class="form-group inputForm">
             <div class="title"><strong>Indicaciones</strong></div>
             <textarea name="indicaciones" #indicaciones="ngModel"
-              [(ngModel)]="atencionMedicService.formData.indicaciones"
-              class="form-control"></textarea>
+              [(ngModel)]="atencionMedicService.formData.indicaciones" class="form-control"></textarea>
           </div>
         </div>
       </div>
@@ -182,7 +193,7 @@
   </form>
 </div>
 <div id="open" *ngIf="atencionMedicService.formData.reposo && permisoOpened!=2">
-  <app-permisos [isOpen]="permisoOpened" [idPacienteIn]="idPacienteIn" [pacienteNombre]="pacienteNombre"
-    [enfermedadCIE10In]="atencionMedicService.formData.enfermedadCIE10"  (cerrar)="recibirRes($event)">
+  <app-permisos [isOpen]="permisoOpened" [idPacienteIn]="idPacienteIn" [pacienteNombre]="pacienteNombre" [empresa]="empresa"
+    [enfermedadCIE10In]="atencionMedicService.formData.enfermedadCIE10" (cerrar)="recibirRes($event)">
   </app-permisos>
 </div>

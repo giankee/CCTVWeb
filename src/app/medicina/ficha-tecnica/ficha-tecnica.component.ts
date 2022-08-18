@@ -31,7 +31,6 @@ export class FichaTecnicaComponent implements OnInit {
 
   listPacienteFiltros$: any;
   dataOrdenesResult: cEnterpricePersonal[] = [];
-  dataCopy: cEnterpricePersonal[] = [];
   datoPersona: cPacienteInfoCompleta = null;
   filtroPersona: string = "";
   filtroEmpresa: string = "SIN ASIGNAR";
@@ -61,18 +60,14 @@ export class FichaTecnicaComponent implements OnInit {
     if (value != "") {
       strParametro = "all@" + value + "@" + this.filtroEmpresa;
     } else this.spinnerLoading = 0;
-
     this.listPacienteFiltros$ = this._enterpriceService.getPersonalEnter2(strParametro).pipe(
       map((x: cEnterpricePersonal[]) => {
         var fechaHoy = new cFecha();
-
         x.forEach(y => {
           y.fecha_Nacido = y.fecha_Nacido.substring(0, 10);
           y.edad = fechaHoy.sacarEdad(y.fecha_Nacido, fechaHoy.strFecha, 'number');
         });
-        this.dataCopy = x;
-        return x.slice(0, 14)
-
+        return x;
       }),
       finalize(() => this.spinnerLoading = 0)
     );
@@ -80,15 +75,16 @@ export class FichaTecnicaComponent implements OnInit {
 
   onChoosePaciente(dataIn: cEnterpricePersonal) {
     this.datoPersona = new cPacienteInfoCompleta();
-    this._pacienteService.getPacienteCedula(dataIn.cedula).subscribe((dato: any) => {
+    this.datoPersona.datosEnterprice.completarObj(dataIn);
+    this._pacienteService.getPacienteById(dataIn.idEmpleado).subscribe((dato: any) => {
       if (dato.exito == 1) {
-        this.datoPersona.datosEnterprice.completarObj(dataIn);
         if (dato.message == "Ok")
           this.datoPersona.datosPaciente.completarObject(dato.data);
         else {
-          this.datoPersona.datosPaciente.cedula = this.datoPersona.datosEnterprice.cedula;
-          this.datoPersona.datosPaciente.nombreEmpleado = this.datoPersona.datosEnterprice.empleado;
-          this.datoPersona.datosPaciente.tipoSangre = this.datoPersona.datosEnterprice.tipoSangre;
+          this.datoPersona.datosPaciente.cedula = dataIn.cedula;
+          this.datoPersona.datosPaciente.empleadoId = dataIn.idEmpleado;
+          this.datoPersona.datosPaciente.empleado = dataIn.empleado;
+          this.datoPersona.datosPaciente.tipoSangre = dataIn.tipoSangre;
         }
       }
     });
@@ -118,14 +114,11 @@ export class FichaTecnicaComponent implements OnInit {
       }
       if (!this.datoPersona.datosPaciente.ecnt)
         this.datoPersona.datosPaciente.tipoECNT = "SIN ASIGNAR";
-
       if (this.datoPersona.datosPaciente.idPacienteMedic == undefined)
         this._pacienteService.insertarDataPaciente(this.datoPersona.datosPaciente).subscribe(
           (res: any) => {
             if (res.exito == 1) {
               this.datoPersona.datosPaciente.idPacienteMedic = res.data.idPacienteMedic;
-              this.datoPersona.datosPaciente.antecedentes.idAntecedente = res.data.antecedentes.idAntecedente;
-              this.datoPersona.datosPaciente.antecedentes.pacienteMedicId = res.data.antecedentes.pacienteMedicId;
               this.toastr.success('Actualización satisfactorio', 'Ficha Médica');
             }
             else this.toastr.error('Actualización de Ficha Médica', 'Error');
@@ -178,7 +171,7 @@ export class FichaTecnicaComponent implements OnInit {
     doc.text("Parámetros de Búsqueda", 15, (y + 10));
     doc.setFont("arial", "normal");
     doc.setFontSize(11);
-    doc.text("Número productos encontrados:" + this.dataCopy.length, 10, (y + 15));
+    doc.text("Número productos encontrados:" + this.dataOrdenesResult.length, 10, (y + 15));
     if (this.filtroPersona != "")
       doc.text("Palabra Clave: " + this.filtroPersona, 80, (y + 15));
     if (this.filtroEmpresa != "SIN ASIGNAR") {
@@ -227,19 +220,27 @@ export class FichaTecnicaComponent implements OnInit {
     var lineaCargo;
     var lineaFuncion;
 
-    for (var i = 0; i < this.dataCopy.length; i++) {
-      lineaNombre = doc.splitTextToSize(this.dataCopy[i].empleado, (55));
-      lineaCargo = doc.splitTextToSize(this.dataCopy[i].departamento, (40));
-      lineaFuncion = doc.splitTextToSize(this.dataCopy[i].funcion, (50));
+    for (var i = 0; i < this.dataOrdenesResult.length; i++) {
+      lineaNombre = doc.splitTextToSize(this.dataOrdenesResult[i].empleado, (56));
+      if(this.dataOrdenesResult[i].departamento.includes('  ')){
+        var sacar =this.dataOrdenesResult[i].departamento.split('  ');
+        this.dataOrdenesResult[i].departamento=sacar[0];
+      }
+      if(this.dataOrdenesResult[i].funcion.includes('  ')){
+        var sacar =this.dataOrdenesResult[i].funcion.split('  ');
+        this.dataOrdenesResult[i].funcion=sacar[0];
+      }
+      lineaCargo = doc.splitTextToSize(this.dataOrdenesResult[i].departamento, (40));
+      lineaFuncion = doc.splitTextToSize(this.dataOrdenesResult[i].funcion, (50));
       var lineaEmpresa = "MANACRIPEX";
-      if (this.dataCopy[i].idEmpresa == 3)
+      if (this.dataOrdenesResult[i].idEmpresa == 3)
         lineaEmpresa = "B&B TUNE";
-      if (this.dataCopy[i].idEmpresa == 4)
+      if (this.dataOrdenesResult[i].idEmpresa == 4)
         lineaEmpresa = "DANIEL BUEHS";
 
-      valorN = (3.5 * lineaNombre.length) + 4;
-      valorC = (3.5 * lineaCargo.length) + 4;
-      valorF = (3.5 * lineaFuncion.length) + 4;
+      valorN = (3* lineaNombre.length) + 4;
+      valorC = (3* lineaCargo.length) + 4;
+      valorF = (3* lineaFuncion.length) + 4;
 
       if (valorN >= valorC && valorN >= valorF) {
         valorG = valorN;
@@ -251,7 +252,6 @@ export class FichaTecnicaComponent implements OnInit {
         valorG = valorF;
       }
       y = y + valorG;
-
       if (y > 205) {
         doc.text("Pág. #" + Npag, 280, 207);
         Npag++;
@@ -289,14 +289,14 @@ export class FichaTecnicaComponent implements OnInit {
       doc.line(290, (y - valorG), 290, y);//right
       doc.line(5, y, 290, y);//down +10y1y2
 
-      doc.text(this.dataCopy[i].cedula, 10, (y - ((valorG - 3) / 2)));
+      doc.text(this.dataOrdenesResult[i].cedula, 10, (y - ((valorG - 3) / 2)));
       doc.line(30, (y - valorG), 30, y);//right
       auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
       doc.text(lineaNombre, 33, (y - valorG + auxLinea));
       doc.line(90, (y - valorG), 90, y);//right
-      doc.text(this.dataCopy[i].fecha_Nacido, 98, (y - ((valorG - 3) / 2)));
+      doc.text(this.dataOrdenesResult[i].fecha_Nacido, 98, (y - ((valorG - 3) / 2)));
       doc.line(120, (y - valorG), 120, y);//right
-      doc.text(this.dataCopy[i].edad, 128, (y - ((valorG - 3) / 2)));
+      doc.text(this.dataOrdenesResult[i].edad, 126, (y - ((valorG - 3) / 2)));
       doc.line(135, (y - valorG), 135, y);//right
       doc.text(lineaEmpresa, 140, (y - ((valorG - 3) / 2)));
       doc.line(165, (y - valorG), 165, y);//right
@@ -306,7 +306,7 @@ export class FichaTecnicaComponent implements OnInit {
       auxLinea = Number((valorG - (3 * lineaFuncion.length + (3 * (lineaFuncion.length - 1)))) / 2.5) + (2 + lineaFuncion.length);
       doc.text(lineaFuncion, 215, (y - valorG + auxLinea));
       doc.line(265, (y - valorG), 265, y);//right
-      doc.text(this.dataCopy[i].telf_Movil, 270, (y - ((valorG - 3) / 2)));
+      doc.text(this.dataOrdenesResult[i].telf_Movil, 270, (y - ((valorG - 3) / 2)));
     }
     doc.save("ListaPersonal.pdf");
   }

@@ -41,6 +41,7 @@ export class PermisosComponent implements OnInit {
   @Input() idPacienteIn: number = undefined;
   @Input() pacienteNombre: string = "";
   @Input() enfermedadCIE10In: string = "";
+  @Input() empresa: number;
 
   @Output()
   cerrar: EventEmitter<string> = new EventEmitter<string>();
@@ -61,7 +62,10 @@ export class PermisosComponent implements OnInit {
     if (this.isOpen == 1) {
       this.permisoMedicService.formData.pacienteMedicId = this.idPacienteIn;
       this.permisoMedicService.formData.enfermedadCIE10 = this.enfermedadCIE10In;
-    } else this.pacienteNombre = "";
+    } else {
+      this.pacienteNombre = "";
+      this.empresa = undefined;
+    };
   }
 
   onTerminar(op: number, reposoIdIn?: number) {
@@ -83,7 +87,7 @@ export class PermisosComponent implements OnInit {
     this.permisoMedicService.formData.spinnerLoading = 4;
     this.permisoMedicService.formData.showSearchSelect = 0;
     if (data != "Nuevo")
-      this.permisoMedicService.formData.enfermedadCIE10 = data.code + ":" + data.description;
+      this.permisoMedicService.formData.enfermedadCIE10 = data.code + ": " + data.description;
   }
 
   onListPasciente(value: string) {
@@ -105,16 +109,17 @@ export class PermisosComponent implements OnInit {
     this.permisoMedicService.formData.spinnerLoading = 3;
     this.permisoMedicService.formData.showSearchSelect = 0;
     this.pacienteNombre = dataIn.empleado;
+    this.empresa=dataIn.idEmpresa;
     this._pacienteService.formData = new cPacienteMedic();
-    this._pacienteService.getPacienteCedula(dataIn.cedula).subscribe((dato: any) => {
+    this._pacienteService.getPacienteById(dataIn.idEmpleado).subscribe((dato: any) => {
       if (dato.exito == 1) {
-        if (dato.message == "Ok") {
+        if (dato.message == "Ok")
           this._pacienteService.formData.completarObject(dato.data);
-          this.permisoMedicService.formData.pacienteMedicId = this.pacienteService.formData.idPacienteMedic;
-        } else {
-          this.pacienteService.formData.cedula = dataIn.cedula;
-          this.pacienteService.formData.nombreEmpleado = dataIn.empleado;
-          this.pacienteService.formData.tipoSangre = dataIn.tipoSangre;
+        else {
+          this._pacienteService.formData.cedula = dataIn.cedula;
+          this._pacienteService.formData.empleadoId = dataIn.idEmpleado;
+          this._pacienteService.formData.empleado = dataIn.empleado;
+          this._pacienteService.formData.tipoSangre = dataIn.tipoSangre;
         }
       }
     });
@@ -148,7 +153,7 @@ export class PermisosComponent implements OnInit {
 
   guardarPermiso() {
     this._permisoMedicService.insertarPermiso(this._permisoMedicService.formData).subscribe(
-      (res: any) => {
+      (res: any) => {console.table(res);
         if (res.exito == 1) {
           this.onConvertPdf();
           this.toastr.success('Registro de permiso satisfactorio', 'Permiso Médico');
@@ -167,10 +172,17 @@ export class PermisosComponent implements OnInit {
     var fechaHoy = new cFecha();
     var auxSepararInicio = this.permisoMedicService.formData.fechaSalida.split("T");
     var auxSepararRegreso = this.permisoMedicService.formData.fechaRegreso.split("T");
-    var auxImage= new Image();
-    auxImage.src="/assets/img/MANACRIPEX-LOGO.png";
-    doc.addImage(auxImage,"PNG", 9,10,38,28);
-    
+    var auxImage = new Image();
+    auxImage.src = "/assets/img/LOGO_"+this.empresa+".png";
+    if(this.empresa==1)
+    doc.addImage(auxImage, "PNG", 9, 10, 35, 25);
+
+    if(this.empresa==3)
+    doc.addImage(auxImage, "PNG", 10, 10, 33, 23);
+
+    if(this.empresa==4)
+    doc.addImage(auxImage, "PNG", 10, 10, 35, 25);
+
     doc.line(5, y, 205, y);//up
     doc.line(5, y, 5, (y + 138));//left
     doc.line(205, y, 205, (y + 138));//right
@@ -215,13 +227,13 @@ export class PermisosComponent implements OnInit {
       doc.text("Si", 93, (y + 21));
     else doc.text("No", 93, (y + 21));
 
-    y=y+35;
+    y = y + 35;
     doc.setFont("arial", "normal");
-    var lineaDiagnostico = doc.splitTextToSize("Diagnóstico: "+this.permisoMedicService.formData.enfermedadCIE10+".", (190));
-    var lineaObservacion = doc.splitTextToSize("Observación: "+this.permisoMedicService.formData.observacion+".", (190));
+    var lineaDiagnostico = doc.splitTextToSize("Diagnóstico: " + this.permisoMedicService.formData.enfermedadCIE10 + ".", (190));
+    var lineaObservacion = doc.splitTextToSize("Observación: " + this.permisoMedicService.formData.observacion + ".", (190));
     var valorD = (3.5 * lineaDiagnostico.length) + 4;
     doc.text(lineaDiagnostico, 10, y);
-    y= y+ valorD;
+    y = y + valorD;
     doc.text(lineaObservacion, 10, y);
 
     doc.text("Fecha de emisión:", 10, (139));
@@ -230,12 +242,12 @@ export class PermisosComponent implements OnInit {
     doc.line(70, (121), 140, (121));//downCut
     doc.text("FIRMA Y SELLO DEL MÉDICO", 74, (125));
 
-    if (this.permisoMedicService.formData.totalDias > 0){
+    if (this.permisoMedicService.formData.totalDias > 0) {
       doc.setFont("arial", "normal");
       doc.setFontSize(8);
       var lineaAviso = doc.splitTextToSize("(*)Este permiso tiene validez por un máximo de tres (3) días contínuos. De ser necesario un permiso por más días el trabajador deberá tomar consulta en el IESS.", (190));
       doc.text(lineaAviso, 10, (132));
     }
-    doc.save("PermisoMedico_" + this.pacienteNombre+"_"+fechaHoy.strFecha + ".pdf");
+    doc.save("PermisoMedico_" + this.pacienteNombre + "_" + fechaHoy.strFecha + ".pdf");
   }
 }

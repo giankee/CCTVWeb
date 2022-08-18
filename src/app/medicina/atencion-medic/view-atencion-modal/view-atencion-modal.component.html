@@ -18,7 +18,7 @@
                 <div><strong>Doctor (a):</strong> Dra. VERONICA CHUMO</div>
               </div>
               <div class="col-12">
-                <div><strong>Paciente:</strong> {{atencionMedicService.formData.pacienteMedic.nombreEmpleado}}</div>
+                <div><strong>Paciente:</strong> {{atencionMedicService.formData.pacienteMedic.empleado}}</div>
               </div>
               <div class="col-12">
                 <div><strong>Enfermedad:</strong> {{atencionMedicService.formData.enfermedadCIE10}}</div>
@@ -170,6 +170,16 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="row boxForm  justify-content-around mt-1 mt-sm-2 mb-1 mb-sm-2">
+      <div class="col-12 col-sm-10 col-md-6 col-lg-6 mb-2 ">
+        <a [routerLink] class="btn bttn-Primario btn-block" (click)="onConvertPdfOne()">
+          <fa-icon [icon]="faprint"></fa-icon> Descargar PDF
+        </a>
+      </div>
+      <div class="col-12 col-sm-10 col-md-6 col-lg-6">
+        <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
       </div>
     </div>
   </div>

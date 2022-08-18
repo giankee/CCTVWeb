@@ -20,7 +20,9 @@
                 <div class="results" *ngIf="accidenteMedicService.formData.showSearchSelect">
                   <ul>
                     <li *ngFor="let data of listPacienteFiltros$ | async">
-                      <a (click)="onChoosePaciente(data)" class="name">{{data.empleado}}</a>
+                      <div (click)="onChoosePaciente(data)">
+                      <a  class="name">{{data.empleado}}</a>
+                    </div>
                     </li>
                   </ul>
                 </div>

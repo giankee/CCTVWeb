@@ -189,9 +189,8 @@ export class CompraProveedorComponent implements OnInit {
               this._ordenECService.formData.listPcomprasO.splice(i, 1);
               i--;
             } else {
-              if (this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock == undefined) {
+              if (this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock == undefined)
                 this._ordenECService.formData.listPcomprasO[i].producto.nombre = this._ordenECService.formData.listPcomprasO[i].descripcionProducto;
-              }
               if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "UNIDAD") {
                 this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto = 1;
                 this._ordenECService.formData.listPcomprasO[i].producto.precioNeto = 0;
@@ -200,8 +199,16 @@ export class CompraProveedorComponent implements OnInit {
                 if (this.ordenECService.formData.listPcomprasO[i].producto.precioNeto == 0)
                   this.onSepararContenidoNeto(i);
               }
-              if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "EQUIVALENCIA") {
+              if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "EQUIVALENCIA")
                 this._ordenECService.formData.listPcomprasO[i].producto.precioNeto = 0;
+
+              for (var j = i; j < this.ordenECService.formData.listPcomprasO.length - 1; j++) {
+                if (this.ordenECService.formData.listPcomprasO[i].producto.codigo == this.ordenECService.formData.listPcomprasO[j + 1].producto.codigo && this.ordenECService.formData.listPcomprasO[i].descripcionProducto == this.ordenECService.formData.listPcomprasO[j + 1].descripcionProducto) {
+                  this.ordenECService.formData.listPcomprasO[i].cantidad = this.ordenECService.formData.listPcomprasO[i].cantidad + this.ordenECService.formData.listPcomprasO[j + 1].cantidad;
+                  this.ordenECService.formData.listPcomprasO[i].calcularPrecio();
+                  this._ordenECService.formData.listPcomprasO.splice(j + 1, 1);
+                  j--;
+                }
               }
             }
           }
@@ -226,14 +233,14 @@ export class CompraProveedorComponent implements OnInit {
               var auxNumber = this.listBodega.find(x => x.nombre == this.selectBarcoCompra).telefonoEncargado;
               this.sendMediaMessageMedic(this.ordenECService.formData, auxNumber);
             }
-            if(this._ordenECService.formData.planta=="P MANACRIPEX"){
-              var auxBodegas:cVario[]=[];
+            if (this._ordenECService.formData.planta == "P MANACRIPEX") {
+              var auxBodegas: cVario[] = [];
               for (var i = 0; i < this._ordenECService.formData.listPcomprasO.length; i++) {
-                var auxBodega=this.listBodega.find(x => x.nombre == this._ordenECService.formData.listPcomprasO[i].destinoBodega);
-                if (auxBodega.encargadoBodega != this._conexcionService.UserR.nombreU){
-                  if(auxBodegas.find(x=>x.nombre==auxBodega.nombre)==undefined){
+                var auxBodega = this.listBodega.find(x => x.nombre == this._ordenECService.formData.listPcomprasO[i].destinoBodega);
+                if (auxBodega.encargadoBodega != this._conexcionService.UserR.nombreU) {
+                  if (auxBodegas.find(x => x.nombre == auxBodega.nombre) == undefined) {
                     auxBodegas.push(auxBodega);
-                    this.sendMediaMessageTraspaso(this._ordenECService.formData,auxBodega);
+                    this.sendMediaMessageTraspaso(this._ordenECService.formData, auxBodega);
                   }
                 }
               }
@@ -407,7 +414,6 @@ export class CompraProveedorComponent implements OnInit {
 
             if (dato.message == "Ok") {
               if ((indexP = dato.data.findIndex(x => x.codigo == datoCompra.listCompraO[i].codigoprincipal)) != -1) {
-                console.log("entro")
                 auxArticuloCompra.productoId = dato.data[indexP].idProductoStock;
                 auxArticuloCompra.rellenarProducto(dato.data[indexP]);
                 auxArticuloCompra.producto.precioUltima = auxArticuloCompra.producto.precioStandar;
@@ -596,13 +602,13 @@ export class CompraProveedorComponent implements OnInit {
 
     doc.setFontSize(18);
     doc.setFont("arial", "bold");
-    if(this._ordenECService.formData.planta=="ENFERMERIA")
-    doc.text("Inventario", 115, 15);
+    if (this._ordenECService.formData.planta == "ENFERMERIA")
+      doc.text("Inventario", 115, 15);
     else doc.text("Material Traspaso", 115, 15);
 
     doc.setFontSize(13);
-    if(this._ordenECService.formData.planta=="ENFERMERIA")
-    doc.text("Barco: " + this.selectBarcoCompra, 200, 25);
+    if (this._ordenECService.formData.planta == "ENFERMERIA")
+      doc.text("Barco: " + this.selectBarcoCompra, 200, 25);
     else doc.text("Bodega: " + bodegaIn, 20, 25);
     y = 30;
 
@@ -630,9 +636,9 @@ export class CompraProveedorComponent implements OnInit {
     doc.setFont("arial", "normal");
     var valorG: number = 10;
 
-    var auxListaCompras:cCompraO[]=this._ordenECService.formData.listPcomprasO;
-    if(bodegaIn!="SIN ASIGNAR")
-    auxListaCompras = this._ordenECService.formData.listPcomprasO.filter(x=>x.destinoBodega==bodegaIn);
+    var auxListaCompras: cCompraO[] = this._ordenECService.formData.listPcomprasO;
+    if (bodegaIn != "SIN ASIGNAR")
+      auxListaCompras = this._ordenECService.formData.listPcomprasO.filter(x => x.destinoBodega == bodegaIn);
 
     for (var i = 0; i < auxListaCompras.length; i++) {
       y = y + valorG;
@@ -714,7 +720,7 @@ export class CompraProveedorComponent implements OnInit {
     )
   }
 
-  sendMediaMessageTraspaso(orden: cOrdenEC, auxBodega:cVario) {
+  sendMediaMessageTraspaso(orden: cOrdenEC, auxBodega: cVario) {
     var auxBase = this.onConvertPdfOne(auxBodega.nombre).split('base64,');
     var auxWhatsapp: cWhatsapp;
     auxWhatsapp = {

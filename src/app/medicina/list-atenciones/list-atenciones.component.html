@@ -77,62 +77,6 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="row">
-              <div class="col-6 col-md-4" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
-                <div class="form-group inputForm">
-                  <div class="title"><strong>Bodega:</strong></div>
-                  <select class="form-control" name="selectBodega" #selectBodega="ngModel"
-                    [(ngModel)]="parametrosBusqueda.strBodegaOrigen">
-                    <option value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
-                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
-                      {{datobodega.nombre}}
-                    </option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-6 col-md-4"
-                *ngIf="parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL' && parametrosBusqueda.strBodegaOrigen != 'SIN ASIGNAR'">
-                <div class="form-group inputForm">
-                  <div class="title"><strong>Marea:</strong></div>
-                  <div class="input-group">
-                    <span class="input-group-text"><input name="isCheck" #isCheck="ngModel" type="checkbox"
-                        [(ngModel)]="parametrosBusqueda.disableCheck"></span>
-                    <input name="marea" #marea="ngModel" type="number" [(ngModel)]="parametrosBusqueda.marea"
-                      class="form-control input-src" placeholder="Solo Número"
-                      [disabled]="parametrosBusqueda.disableCheck"
-                      onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
-                    <span class="input-group-text">AÑO</span>
-                    <input name="anio" #anio="ngModel" type="number" [(ngModel)]="parametrosBusqueda.anio"
-                      [disabled]="parametrosBusqueda.disableCheck" class="form-control input-src" min="2022" step="1"
-                      value="parametrosBusqueda.anio" />
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-sm-6 col-md-4">
-                <div class="form-group inputForm">
-                  <div class="title"><strong>Medicamento</strong></div>
-                  <div id="inputSearchP">
-                    <div class="wrapper">
-                      <div class="limit-width">
-                        <input name="selectProducto" #selectProducto="ngModel"
-                          [(ngModel)]="parametrosBusqueda.strProducto"
-                          (ngModelChange)="onListProducto(parametrosBusqueda.strProducto=$event.toUpperCase())"
-                          maxlength="100" placeholder="Nombre del Medicamento" class="form-control"
-                          [ngClass]="{'loading':parametrosBusqueda.spinLoadingG==2}">
-                        <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==2">
-                          <ul>
-                            <li *ngFor="let data of listProdFiltros$ | async">
-                              <a (click)="onChooseElemente(data)" class="name">{{data.nombre}}</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> -->
             <div class="row justify-content-center">
               <div class="col-12 col-sm-6 col-md-4">
                 <a [routerLink] (click)="onFiltrarAtenciones()" class="btn bttn-Primario btn-block">
@@ -199,7 +143,7 @@
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
                     <td class="text-center">{{dato.fechaAtencion}}</td>
-                    <td>{{dato.pacienteMedic.nombreEmpleado}}</td>
+                    <td>{{dato.pacienteMedic.empleado}}</td>
                     <td>{{dato.enfermedadCIE10}}</td>
                     <td class="text-center">{{dato.reposo? 'Si' : 'No' }}</td>
                     <td class="text-center">{{dato.reposo && dato.permisoMedic!=null? dato.permisoMedic.totalDias : '---' }}</td>

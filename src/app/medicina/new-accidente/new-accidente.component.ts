@@ -117,15 +117,15 @@ export class NewAccidenteComponent implements OnInit {
     this.filtroPersona = dataIn.empleado;
 
     this._pacienteService.formData = new cPacienteMedic();
-    this._pacienteService.getPacienteCedula(dataIn.cedula).subscribe((dato: any) => {
+    this._pacienteService.getPacienteById(dataIn.idEmpleado).subscribe((dato: any) => {
       if (dato.exito == 1) {
-        if (dato.message == "Ok") {
+        if (dato.message == "Ok")
           this._pacienteService.formData.completarObject(dato.data);
-          this._accidenteMedicService.formData.pacienteMedicId = this.pacienteService.formData.idPacienteMedic;
-        } else {
-          this.pacienteService.formData.cedula = dataIn.cedula;
-          this.pacienteService.formData.nombreEmpleado=dataIn.empleado;
-          this.pacienteService.formData.tipoSangre=dataIn.tipoSangre;
+        else {
+          this._pacienteService.formData.cedula = dataIn.cedula;
+          this._pacienteService.formData.empleadoId = dataIn.idEmpleado;
+          this._pacienteService.formData.empleado = dataIn.empleado;
+          this._pacienteService.formData.tipoSangre = dataIn.tipoSangre;
         }
       }
     });

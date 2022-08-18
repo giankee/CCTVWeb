@@ -9,26 +9,26 @@ import { cPacienteMedic } from './medicina';
 })
 export class PacienteService {
 
-  serverUrl = environment.baseUrlCCTVL + 'cctv_pacienteMedic';
+  serverUrl = environment.baseUrlCCTVL;
   formData: cPacienteMedic;
 
   constructor(private http: HttpClient) {
     var URLactual = window.location;
     if (URLactual.hostname != '192.168.2.97') {
-      this.serverUrl = environment.baseUrlCCTVP + 'cctv_pacienteMedic';
+      this.serverUrl = environment.baseUrlCCTVP;
     }
   }
 
-  getPacienteCedula(strParametros:string): Observable<cPacienteMedic> { //ficha medica
-    return this.http.get<cPacienteMedic>(this.serverUrl+'/getPacienteCedula/'+strParametros);
+  getPacienteById(strParametros:number): Observable<cPacienteMedic> { //ficha medica
+    return this.http.get<cPacienteMedic>(this.serverUrl+'vcctv_pacienteUnificada/getPacienteById/'+strParametros);
   }
 
   insertarDataPaciente(formData:cPacienteMedic): Observable<cPacienteMedic>{//en ficha medica
-    return this.http.post<cPacienteMedic>(this.serverUrl,formData);
+    return this.http.post<cPacienteMedic>(this.serverUrl + 'cctv_pacienteMedic',formData);
   }
 
   actualizarPaciente(formData: cPacienteMedic): Observable<cPacienteMedic> {//en ficha Medica
-    return this.http.put<cPacienteMedic>(this.serverUrl  + '/' + formData.idPacienteMedic,formData);
+    return this.http.put<cPacienteMedic>(this.serverUrl + 'cctv_pacienteMedic/' + formData.idPacienteMedic,formData);
   } 
 
 }

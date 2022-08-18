@@ -488,7 +488,6 @@ export class cEnterpricePersonal {
     }
 }
 
-
 export class cParemetosGeneral {
     strCampoA: string = "";
     strCampoB: string = "";

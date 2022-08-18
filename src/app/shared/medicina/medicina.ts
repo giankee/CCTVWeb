@@ -2,8 +2,7 @@ import { cEnterpricePersonal, cFecha } from "../otrosServices/varios";
 
 export class cPacienteMedic {
     idPacienteMedic: number;
-    cedula: string;
-    nombreEmpleado: string;
+    empleadoId:number;
     embarazo: boolean;
     minusvalido: boolean;
     tipoMinusvalido: string;
@@ -15,18 +14,27 @@ export class cPacienteMedic {
     ultimaAltura: number;
     tipoSangre: string;
 
-    antecedentes: cAntecedentesMedic;
+    antPersonales: string;
+    antFamiliares: string;
+    alergiaMedicamento: string;
+    habitos: string;
+    historiaLaboral: string;
+    examenInicio: string;
+    tareasAntTrabajo: string;
+    medidasPrevencion: string;
+
     /*Listas*/
     listAccidentes: cAccidenteMedic[];
     listPermisos: cPermisoMedic[];
 
     /*Control*/
-
+    cedula: string;
+    empleado: string;
+    idEmpresa:number;
 
     constructor() {
         this.idPacienteMedic = undefined;
-        this.cedula = "";
-        this.nombreEmpleado = "";
+        this.empleadoId=undefined;
         this.embarazo = false;
         this.minusvalido = false;
         this.tipoMinusvalido = "SIN ASIGNAR";
@@ -37,13 +45,23 @@ export class cPacienteMedic {
         this.ultimaAltura = 0;
         this.tipoSangre = "SIN ASIGNAR";
 
-        this.antecedentes = new cAntecedentesMedic();
+        this.antPersonales = "";
+        this.antFamiliares = "";
+        this.alergiaMedicamento = "";
+        this.habitos = "";
+        this.historiaLaboral = "";
+        this.examenInicio = "";
+        this.tareasAntTrabajo = "";
+        this.medidasPrevencion = "";
+
+        this.cedula = "";
+        this.empleado = "";
+        this.idEmpresa=undefined;
     }
 
     completarObject(dataIn: cPacienteMedic) {
         this.idPacienteMedic = dataIn.idPacienteMedic;
-        this.cedula = dataIn.cedula;
-        this.nombreEmpleado = dataIn.nombreEmpleado;
+        this.empleadoId=dataIn.empleadoId;
         this.embarazo = dataIn.embarazo;
         this.minusvalido = dataIn.minusvalido;
         this.tipoMinusvalido = dataIn.tipoMinusvalido;
@@ -53,9 +71,19 @@ export class cPacienteMedic {
         this.ultimoPeso = dataIn.ultimoPeso;
         this.ultimaAltura = dataIn.ultimaAltura;
         this.tipoSangre = dataIn.tipoSangre;
+        this.antPersonales = dataIn.antPersonales;
+        this.antFamiliares = dataIn.antFamiliares;
+        this.alergiaMedicamento = dataIn.alergiaMedicamento;
+        this.habitos = dataIn.habitos;
+        this.historiaLaboral = dataIn.historiaLaboral;
+        this.examenInicio = dataIn.examenInicio;
+        this.tareasAntTrabajo = dataIn.tareasAntTrabajo;
+        this.medidasPrevencion = dataIn.medidasPrevencion;
 
-        if (dataIn.antecedentes != null)
-            this.antecedentes.completarObject(dataIn.antecedentes);
+        if(dataIn.cedula!=null && dataIn.empleado!=null && dataIn.idEmpresa!=0)
+        this.cedula=dataIn.cedula;
+        this.empleado=dataIn.empleado;
+        this.idEmpresa=dataIn.idEmpresa;
     }
 }
 
@@ -66,46 +94,6 @@ export class cPacienteInfoCompleta {
     constructor() {
         this.datosEnterprice = new cEnterpricePersonal();
         this.datosPaciente = new cPacienteMedic();
-    }
-}
-
-export class cAntecedentesMedic {
-    idAntecedente: number;
-    pacienteMedicId: number;
-    antPersonales: string;
-    antFamiliares: string;
-    alergiaMedicamento: string;
-    habitos: string;
-    historiaLaboral: string;
-    examenInicio: string;
-    tareasAntTrabajo: string;
-    medidasPrevencion: string;
-
-    constructor() {
-        this.idAntecedente = undefined;
-        this.pacienteMedicId = undefined;
-        this.antPersonales = "";
-        this.antFamiliares = "";
-        this.alergiaMedicamento = "";
-        this.habitos = "";
-        this.historiaLaboral = "";
-        this.examenInicio = "";
-        this.tareasAntTrabajo = "";
-        this.medidasPrevencion = "";
-    }
-
-    completarObject(dataIn: cAntecedentesMedic) {
-        this.idAntecedente = dataIn.idAntecedente;
-        this.pacienteMedicId = dataIn.pacienteMedicId;
-        this.antPersonales = dataIn.antPersonales;
-        this.antFamiliares = dataIn.antFamiliares;
-
-        this.alergiaMedicamento = dataIn.alergiaMedicamento;
-        this.habitos = dataIn.habitos;
-        this.historiaLaboral = dataIn.historiaLaboral;
-        this.examenInicio = dataIn.examenInicio;
-        this.tareasAntTrabajo = dataIn.tareasAntTrabajo;
-        this.medidasPrevencion = dataIn.medidasPrevencion;
     }
 }
 
@@ -247,7 +235,7 @@ export class cAtencionMedic {
     altura: number;
 
     temperatura: number;
-    presion: number;
+    presion: string;
     fCardiaca: number;
     fRespiratoria: number;
     sp02: number;
@@ -268,6 +256,8 @@ export class cAtencionMedic {
     auxIMC: number;
     spinnerLoading: boolean;
     showSearchSelect: boolean;
+    presionA:number;
+    presionB:number;
 
     constructor() {
         this.idAtencionMedic = undefined;
@@ -294,6 +284,8 @@ export class cAtencionMedic {
         this.auxIMC = 0;
         this.spinnerLoading = false;
         this.showSearchSelect = false;
+        this.presionA=undefined;
+        this.presionB=undefined;
     }
 
     completarObject(dataIn: cAtencionMedic) {
