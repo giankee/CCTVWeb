@@ -120,6 +120,11 @@
         </a>
       </li>
       <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Medicina/list_permisosGeneral"]'>
+          <fa-icon [icon]="fabookmedical"></fa-icon> Historial Permisos
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
         <a [routerLink]='["/Medicina/atencionList"]'>
           <fa-icon [icon]="fabookmedical"></fa-icon> Historial Atenciones
         </a>

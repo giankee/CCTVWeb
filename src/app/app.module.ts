@@ -78,20 +78,17 @@ import { AgruparInventarioComponent } from './bodega/list-producto-b/agrupar-inv
 import { FichaTecnicaComponent } from './medicina/ficha-tecnica/ficha-tecnica.component';
 import { PermisosComponent } from './medicina/permisos/permisos.component';
 import { AtencionMedicComponent } from './medicina/atencion-medic/atencion-medic.component';
+import { ListAtencionesComponent } from './medicina/list-atenciones/list-atenciones.component';
+import { ViewAtencionModalComponent } from './medicina/atencion-medic/view-atencion-modal/view-atencion-modal.component';
+import { ListPermisosPersonalesComponent } from './medicina/list-historial-persona/list-permisosPersonales/list-permisos-personales.component';
+import { ListAccidentesPersonalesComponent } from './medicina/list-historial-persona/list-accidentesPersonales/list-accidentes-personales.component';
+import { ViewAccidenteModelComponent } from './medicina/new-accidente/view-accidente-model/view-accidente-model.component';
+import { AvisoFaltanteComponent } from './bodega/compra-proveedor/compras-verificacion/aviso-faltante/aviso-faltante.component';
+import { ListPermisosComponent } from './medicina/list-permisos/list-permisos.component';
 /*Services*/
 import { CarroService } from './shared/carro.service';
 import { UserService } from './shared/user.service';
 import { ConexionService } from './shared/otrosServices/conexion.service';
-import { ListAtencionesComponent } from './medicina/list-atenciones/list-atenciones.component';
-import { ViewAtencionModalComponent } from './medicina/atencion-medic/view-atencion-modal/view-atencion-modal.component';
-import { ListPermisosComponent } from './medicina/list-historial-persona/list-permisos/list-permisos.component';
-import { ListAccidentesComponent } from './medicina/list-historial-persona/list-accidentes/list-accidentes.component';
-import { ViewAccidenteModelComponent } from './medicina/new-accidente/view-accidente-model/view-accidente-model.component';
-import { AvisoFaltanteComponent } from './bodega/compra-proveedor/compras-verificacion/aviso-faltante/aviso-faltante.component';
-
-/*import { ServiceWorkerModule } from '@angular/service-worker';
-*/
-
 
 
 @NgModule({
@@ -155,10 +152,11 @@ import { AvisoFaltanteComponent } from './bodega/compra-proveedor/compras-verifi
     FiltrarCie10Pipe,
     ListAtencionesComponent,
     ViewAtencionModalComponent,
-    ListPermisosComponent,
-    ListAccidentesComponent,
+    ListPermisosPersonalesComponent,
+    ListAccidentesPersonalesComponent,
     ViewAccidenteModelComponent,
-    AvisoFaltanteComponent
+    AvisoFaltanteComponent,
+    ListPermisosComponent
   ],
   imports: [
     BrowserModule,

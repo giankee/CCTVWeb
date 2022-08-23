@@ -34,4 +34,12 @@ export class PermisoService {
   getListPermisosPersona(pacienteId: number): Observable<cPermisoMedic[]> {//modl view
     return this.http.get<cPermisoMedic[]>(this.serverUrl  + '/getListPermisosPersona/'+ pacienteId);
   }
+
+  getListPermisos(): Observable<cPermisoMedic[]> {// listapermisos
+    return this.http.get<cPermisoMedic[]>(this.serverUrl);
+  }
+
+  getFiltroPermisos(strParametros):Observable<cPermisoMedic[]>{//list consulta permisos
+    return this.http.get<cPermisoMedic[]>(this.serverUrl  + '/getFiltroPermisos/'+strParametros);
+  }
 }

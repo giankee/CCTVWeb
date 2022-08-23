@@ -49,8 +49,7 @@ export class ListAtencionesComponent implements OnInit {
   /**Fin paginatacion */
 
 
-  sort = faSort; faeye = faEye; fasearch = faSearch; faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArRight = faArrowAltCircleRight; faArLeft = faArrowAltCircleLeft;
-  //fatimesCircle = faTimesCircle;  
+  sort = faSort; faeye = faEye; fasearch = faSearch; faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArRight = faArrowAltCircleRight; faArLeft = faArrowAltCircleLeft; 
   constructor(private _atencionMedicService: AtencionService,private pacienteService: PacienteService, private _enterpriceService: ApiEnterpriceService, private consultaPipe: SortPipe, private permisoMedicService: PermisoService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
@@ -92,8 +91,8 @@ export class ListAtencionesComponent implements OnInit {
   onFiltrarAtenciones() {
     this.spinnerOnOff = true;
     var strParametosOut = this.parametrosBusqueda.fechaA + "@" + this.parametrosBusqueda.fechaB + "@";
-    if (this.parametrosBusqueda.strCampoA != '' && this.parametrosBusqueda.strCampoC != "")
-      strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoC + "@";
+    if (this.parametrosBusqueda.strCampoA != '' && this.parametrosBusqueda.numCampoA != undefined)
+      strParametosOut = strParametosOut + this.parametrosBusqueda.numCampoA + "@";
     else strParametosOut = strParametosOut + "datoNull@";
     if (this.parametrosBusqueda.strCampoB != "" && this.parametrosBusqueda.strCampoD != "")
       strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoD;
@@ -170,7 +169,7 @@ export class ListAtencionesComponent implements OnInit {
     this.parametrosBusqueda.spinLoadingG = '0';
     this.parametrosBusqueda.showSearchSelectG = '0';
     this.parametrosBusqueda.strCampoA = dataIn.empleado;
-    this.parametrosBusqueda.strCampoC = dataIn.idEmpleado.toString();
+    this.parametrosBusqueda.numCampoA = dataIn.idEmpleado;
   }
 
   onOrdenAtencion(tipo: string) {// cambia el orden por medio de un pipe
@@ -184,6 +183,12 @@ export class ListAtencionesComponent implements OnInit {
         this.ordenAtencion = "up-P";
       else this.ordenAtencion = "down-P";
     }
+  }
+
+  onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views
+    this.paginacion.selectPagination = Number(control.value);
+    this.paginacion.getNumberIndex(this.dataAtencionesResult.length);
+    this.paginacion.updateIndex(0);
   }
 
   onConvertPdfAll() {
@@ -214,7 +219,7 @@ export class ListAtencionesComponent implements OnInit {
       doc.text("Fecha desde: " + this.parametrosBusqueda.fechaA, 15, (y + 15));
       doc.text("Fecha hasta: " + this.parametrosBusqueda.fechaB, 85, (y + 15));
 
-      this.parametrosBusqueda.strCampoA != '' && this.parametrosBusqueda.strCampoC ? strAux = this.parametrosBusqueda.strCampoA : strAux = "SIN ESPECIFICAR";
+      this.parametrosBusqueda.strCampoA != '' && this.parametrosBusqueda.numCampoA!=undefined ? strAux = this.parametrosBusqueda.strCampoA : strAux = "SIN ESPECIFICAR";
       doc.text("Paciente: " + strAux, 180, (y + 15));
       this.parametrosBusqueda.strCampoB != '' && this.parametrosBusqueda.strCampoD ? strAux = this.parametrosBusqueda.strCampoB : strAux = "SIN ESPECIFICAR";
       doc.text("Enfermedad: " + strAux, 15, (y + 20));

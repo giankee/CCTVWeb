@@ -9,12 +9,12 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ViewAccidenteModelComponent } from '../../new-accidente/view-accidente-model/view-accidente-model.component';
 
 @Component({
-  selector: 'app-list-accidentes',
-  templateUrl: './list-accidentes.component.html',
+  selector: 'app-list-accidentes-personales',
+  templateUrl: './list-accidentes-personales.component.html',
   styles: [],
   providers: [SortPipe]
 })
-export class ListAccidentesComponent implements OnInit {
+export class ListAccidentesPersonalesComponent implements OnInit {
   public get accidenteMedicService(): AccidenteService {
     return this._accidenteMedicService;
   }

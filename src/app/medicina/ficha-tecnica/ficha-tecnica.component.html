@@ -10,7 +10,6 @@
                 <fa-icon [icon]="faprint"></fa-icon>
               </a>
             </div>
-
             <div class="mt-1 px-4 pt-2 boxForm">
               <div class="row">
                 <div class="col-8">
@@ -385,16 +384,16 @@
             </div>
             <div class="m-3" *ngIf="openSide=='Permisos'|| openSide=='Accidentes'">
               <div class="boxForm scroll v2" *ngIf="openSide=='Permisos'">
-                <app-list-permisos [isOpen]="listPermisosIsOpened"
+                <app-list-permisos-personales [isOpen]="listPermisosIsOpened"
                   [idPacienteIn]="datoPersona.datosPaciente.idPacienteMedic"
                   [pacienteNombre]="datoPersona.datosEnterprice.empleado">
-                </app-list-permisos>
+                </app-list-permisos-personales>
               </div>
               <div class="boxForm scroll v2" *ngIf="openSide=='Accidentes'">
-                <app-list-accidentes [isOpen]="listAccidnetesIsOpened"
+                <app-list-accidentes-personales [isOpen]="listAccidnetesIsOpened"
                   [idPacienteIn]="datoPersona.datosPaciente.idPacienteMedic"
                   [pacienteNombre]="datoPersona.datosEnterprice.empleado">
-                </app-list-accidentes>
+                </app-list-accidentes-personales>
               </div>
             </div>
           </div>

@@ -116,6 +116,8 @@ export class cPermisoMedic {
     auxHoraInicio: string;
     auxHoraFin: string;
 
+    pacienteMedic?: cPacienteMedic;
+
     constructor() {
         var fechaHoy = new cFecha();
 
@@ -149,6 +151,11 @@ export class cPermisoMedic {
         this.observacion = dataIn.observacion;
         this.regresaConsulta=dataIn.regresaConsulta;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
+
+        if (dataIn.pacienteMedic != null) {
+            this.pacienteMedic = new cPacienteMedic();
+            this.pacienteMedic.completarObject(dataIn.pacienteMedic);
+        }
     }
 
     changeHours(strInicio: number) {

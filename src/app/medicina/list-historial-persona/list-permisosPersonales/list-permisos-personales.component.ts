@@ -7,12 +7,12 @@ import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
 import { jsPDF } from "jspdf";
 
 @Component({
-  selector: 'app-list-permisos',
-  templateUrl: './list-permisos.component.html',
+  selector: 'app-list-permisos-personales',
+  templateUrl: './list-permisos-personales.component.html',
   styles: [],
   providers: [SortPipe]
 })
-export class ListPermisosComponent implements OnInit {
+export class ListPermisosPersonalesComponent implements OnInit {
   public get permisoMedicService(): PermisoService {
     return this._permisoMedicService;
   }

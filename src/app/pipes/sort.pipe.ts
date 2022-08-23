@@ -113,8 +113,8 @@ export class SortPipe implements PipeTransform {
             case "default": return value;
             case "up-E": return _.sortBy(value, function (dato) { return dato.enfermedadCIE10 });
             case "down-E": return _.sortBy(value, function (dato) { return dato.enfermedadCIE10 }).reverse();
-            case "up-P": return _.sortBy(value, function (dato) { return dato.pacienteMedic.nombreEmpleado });
-            case "down-P": return _.sortBy(value, function (dato) { return dato.pacienteMedic.nombreEmpleado }).reverse();
+            case "up-P": return _.sortBy(value, function (dato) { return dato.pacienteMedic.empleado });
+            case "down-P": return _.sortBy(value, function (dato) { return dato.pacienteMedic.empleado }).reverse();
           }
           break;
           case 'cAccidenteMedic':
@@ -130,6 +130,8 @@ export class SortPipe implements PipeTransform {
             case "default": return value;
             case "up-E": return _.sortBy(value, function (dato) { return dato.enfermedadCIE10 });
             case "down-E": return _.sortBy(value, function (dato) { return dato.enfermedadCIE10 }).reverse();
+            case "up-P": return _.sortBy(value, function (dato) { return dato.pacienteMedic.empleado });
+            case "down-P": return _.sortBy(value, function (dato) { return dato.pacienteMedic.empleado }).reverse();
             case "up-T": return _.sortBy(value, function (dato) { return dato.tipoPermiso });
             case "down-T": return _.sortBy(value, function (dato) { return dato.tipoPermiso }).reverse();
           }
