@@ -136,6 +136,15 @@ export class SortPipe implements PipeTransform {
             case "down-T": return _.sortBy(value, function (dato) { return dato.tipoPermiso }).reverse();
           }
           break;
+          case 'cReportGeneralMedic':
+            switch (arg) {
+              case "default": return value;
+              case "up-E": return _.sortBy(value, function (dato) { return dato.enfermedadCIE10 });
+              case "down-E": return _.sortBy(value, function (dato) { return dato.enfermedadCIE10 }).reverse();
+              case "up-C": return _.sortBy(value, function (dato) { return dato.contadorOcurrencia });
+              case "down-C": return _.sortBy(value, function (dato) { return dato.contadorOcurrencia }).reverse();
+            }
+            break;
       }
     } else return value;
   }

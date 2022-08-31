@@ -155,6 +155,11 @@
   <div class="admin-menu">
     <h5 class="sidenav-heading">Menú Extra</h5>
     <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+        <a [routerLink]='["/Medicina/reportes"]'>
+          <fa-icon [icon]="faheartbeat"></fa-icon> Reportes Médicos
+        </a>
+      </li>
       <li [routerLinkActive]="['active']"
         *ngIf="conexcionService.UserR.rolAsignado!='bodega_verificador-m' && conexcionService.UserR.rolAsignado!='tinabg-m' && conexcionService.UserR.rolAsignado!='enfermeria'&& conexcionService.UserR.rolAsignado!='verificador-medic' && conexcionService.UserR.rolAsignado!='verificador-bodeguero'">
         <a [routerLink]='["/Entrada-Salida"]'>

@@ -36,6 +36,7 @@ import { ListAtencionesComponent } from './medicina/list-atenciones/list-atencio
 import { ListPermisosPersonalesComponent } from './medicina/list-historial-persona/list-permisosPersonales/list-permisos-personales.component';
 import { ListAccidentesPersonalesComponent } from './medicina/list-historial-persona/list-accidentesPersonales/list-accidentes-personales.component';
 import { ListPermisosComponent } from './medicina/list-permisos/list-permisos.component';
+import { ReportesMedicComponent } from './medicina/reportes-medic/reportes-medic.component';
 
 const routes: Routes = [
 
@@ -88,6 +89,7 @@ const routes: Routes = [
           { path: 'list_permisosPersonales', data: { permittedRoles: ['enfermeria'] }, component: ListPermisosPersonalesComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'list_accidentesPersonales', data: { permittedRoles: ['enfermeria'] }, component: ListAccidentesPersonalesComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'list_permisosGeneral', data: { permittedRoles: ['enfermeria'] }, component: ListPermisosComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'reportes', data: { permittedRoles: ['enfermeria'] }, component: ReportesMedicComponent, canDeactivate: [CanDeactivateGuard] },
         ]
       },
       {

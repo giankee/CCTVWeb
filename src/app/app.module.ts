@@ -89,6 +89,11 @@ import { ListPermisosComponent } from './medicina/list-permisos/list-permisos.co
 import { CarroService } from './shared/carro.service';
 import { UserService } from './shared/user.service';
 import { ConexionService } from './shared/otrosServices/conexion.service';
+import { ReportesMedicComponent } from './medicina/reportes-medic/reportes-medic.component';
+import { EnfermedadReportComponent } from './medicina/reportes-medic/enfermedad-report/enfermedad-report.component';
+import { AusentisimoReportComponent } from './medicina/reportes-medic/ausentisimo-report/ausentisimo-report.component';
+import { ReportEnfermedadesPipe } from './pipes/report-enfermedades.pipe';
+import { NullDepartamentosPipe } from './pipes/null-departamentos.pipe';
 
 
 @NgModule({
@@ -156,7 +161,12 @@ import { ConexionService } from './shared/otrosServices/conexion.service';
     ListAccidentesPersonalesComponent,
     ViewAccidenteModelComponent,
     AvisoFaltanteComponent,
-    ListPermisosComponent
+    ListPermisosComponent,
+    ReportesMedicComponent,
+    EnfermedadReportComponent,
+    AusentisimoReportComponent,
+    ReportEnfermedadesPipe,
+    NullDepartamentosPipe
   ],
   imports: [
     BrowserModule,

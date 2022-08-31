@@ -109,7 +109,7 @@ export class PedirMedicamentoComponent implements OnInit {
 
           y = y + 8;
 
-          if (y > 205) {
+          if (y > 200) {
             doc.text("Pág. #" + Npag, 280, 207);
             Npag++;
             doc.addPage();

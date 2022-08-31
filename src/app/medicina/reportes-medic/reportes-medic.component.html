@@ -1,0 +1,98 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div id="ordenarS" class="card-header d-flex justify-content-between">
+        <h5><a class="text-dark2" data-toggle="collapse" href="#FiltroList">Tipo de Reporte</a></h5>
+        <a class="text-dark2" data-toggle="collapse" href="#FiltroList" (click)="iconDownLeft=!iconDownLeft">
+          <fa-icon [icon]="faangleleft" [class]="{'ocultarObj':!iconDownLeft}"></fa-icon>
+          <fa-icon [icon]="faangledown" [class]="{'ocultarObj':iconDownLeft}"></fa-icon>
+        </a>
+      </div>
+      <div class="mt-2 px-4 py-2 boxForm collapse show" id="FiltroList">
+        <div class="row">
+          <div class="col-3">
+            <div class="form-group inputForm">
+              <div class="title"><strong>Tipo de Reporte:</strong></div>
+              <select class="form-control" name="selectTipoReporte" #selectTipoReporte="ngModel"
+                [(ngModel)]="parametrosBusqueda.tipoR">
+                <option selected disabled value="SIN ASIGNAR">--Seleccionar--</option>
+                <option value="caseA">Enfermedades Más Frecuentes General</option>
+                <option value="caseB">Registro de Morbilidad</option>
+                <option value="caseC">Reporte de Ausentismo</option>
+                <option value="caseD">Horas no trabajadas Periódicamente</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="form-group inputForm">
+              <div class="title"><strong>Empresa:</strong></div>
+              <select class="form-control" name="selectEmpresa" #selectEmpresa="ngModel"
+                [(ngModel)]="parametrosBusqueda.idEmpresa">
+                <option selected disabled value="undefined">-Seleccionar-</option>
+                <option value="3">B&B TUNE</option>
+                <option value="4">DANIEL BUEHS</option>
+                <option value="1">MANACRIPEX</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-3" *ngIf="parametrosBusqueda.tipoR!='SIN ASIGNAR' && parametrosBusqueda.tipoR!='caseA' && parametrosBusqueda.tipoR!='caseC'">
+            <div class="form-group inputForm">
+                <div class="title"><strong> Período:</strong></div>
+                <input name="fechaBusqueda" type="month" #fechaBusqueda="ngModel" [(ngModel)]="parametrosBusqueda.strPeriodo"
+                  class="form-control" min="2020-01">
+              </div>
+          </div>
+          <div class="col-3" *ngIf="parametrosBusqueda.tipoR!='SIN ASIGNAR' && parametrosBusqueda.tipoR!='caseA' && parametrosBusqueda.tipoR!='caseC'">
+            <div class="form-group inputForm mr-2">
+                <div class="title"><strong>Área:</strong></div>
+                <select name="selectArea" #selectArea="ngModel" [(ngModel)]="parametrosBusqueda.strArea"
+                  class="form-control">
+                  <option selected value="SIN ASIGNAR">--Seleccionar--</option>
+                  <option value="Administración">Administración</option>
+                  <option value="Albañiles">Albañiles</option>
+                  <option value="Bodega">Bodega</option>
+                  <option value="Calidad">Calidad</option>
+                  <option value="Cámara">Cámara</option>
+                  <option value="Cocina y Limpieza">Cocina y Limpieza</option>
+                  <option value="Compresores">Compresores</option>
+                  <option value="Contratados">Contratados</option>
+                  <option value="Flota Pesquera">Flota Pesquera</option>
+                  <option value="Mantenimiento">Mantenimiento</option>
+                  <option value="Mantenimiento Barcos">Mantenimiento Barcos</option>
+                  <option value="Medico">Medico</option>
+                  <option value="Operativo">Operativo</option>
+                  <option value="Seguridad Física">Seguridad Física</option>
+                  <option value="Seguridad">Seguridad</option>
+                  <option value="Taller">Taller</option>
+                  <option value="Tripulantes">Tripulantes</option>
+                </select>
+              </div>
+          </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+          <div class="col-8 col-sm-6 col-md-4 my-1">
+            <a [routerLink] (click)="onGenerarR()" class="btn bttn-Primario btn-block"
+              [ngClass]="{'disabled':parametrosBusqueda.tipoR=='null'}">
+              <fa-icon [icon]="fasearch"></fa-icon> Generar Reporte
+            </a>
+          </div>
+        </div>
+        <div class="text-center my-3" *ngIf="spinnerOnOff==1">
+          <div class="d-flex justify-content-center">
+            <mat-spinner color="accent"></mat-spinner>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="my-2 px-2" *ngIf="spinnerOnOff==2">
+  <div *ngIf="parametrosBusqueda.tipoR=='caseA'||parametrosBusqueda.tipoR=='caseB'">
+    <app-enfermedad-report [listEnfermedadesIn]="listResultadosAB" [tipoR]="parametrosBusqueda.tipoR">
+    </app-enfermedad-report>
+  </div>
+  <div *ngIf="parametrosBusqueda.tipoR=='caseC'||parametrosBusqueda.tipoR=='caseD'">
+    <app-ausentisimo-report [listAusentisismoIn]="listResultadosCD" [tipoR]="parametrosBusqueda.tipoR">
+    </app-ausentisimo-report>
+  </div>
+</div>

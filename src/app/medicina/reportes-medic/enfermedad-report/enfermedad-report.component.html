@@ -1,0 +1,158 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div id="ordenarS" class="card-header d-flex justify-content-between">
+        <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Enfermedades</a></h5>
+        <a class="text-dark2" (click)="onConvertPdfAll()">
+          <fa-icon [icon]="faprint"></fa-icon>
+        </a>
+      </div>
+      <div class="mt-2 px-4 pt-2 boxForm">
+        <div class="row">
+          <div class="col-4">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <fa-icon [icon]="fasearch"></fa-icon>
+                </span>
+              </div>
+              <input type="text" class="form-control" #filtroEnfermedadIn="ngModel" name="filtroEnfermedadIn"
+                maxlength="30" placeholder="Buscar.." [(ngModel)]="paramsReport.filtroEnfermedad"
+                (ngModelChange)="paramsReport.filtroEnfermedad = $event.toUpperCase()">
+            </div>
+          </div>
+          <div class="col-3  d-flex justify-content-around pt-2">
+            <mat-checkbox name="checkNormal" #checkNormal="ngModel" color="primary" [disabled]="!paramsReport.isControl"
+              [(ngModel)]="paramsReport.isNormal">Normal</mat-checkbox>
+            <mat-checkbox name="checkControl" #checkControl="ngModel" color="primary"
+              [disabled]="!paramsReport.isNormal" [(ngModel)]="paramsReport.isControl">Control</mat-checkbox>
+          </div>
+          <div class="col-4 d-flex justify-content-around pt-2">
+            <div> Total Normal: {{paramsReport.contEnfermedadesNormal}}</div>
+            <div> Total Control: {{paramsReport.contEnfermedadesControl}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="listEnfermedadesIn==null" class="d-flex justify-content-center mt-3">
+        <strong>No existen datos con esos parámetros de búsqueda </strong>
+    </div>
+    <div *ngIf="listEnfermedadesIn!=null">
+      <div *ngIf="tipoR=='caseA'||(tipoR=='caseB'&&  listDepartamentosIn.length==0)">
+        <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th>#</th>
+                <th style="width: 70%;">
+                  <div class="d-inline-block" style="margin-right: 0.5rem;">Enfermedades</div>
+                  <div id="ordenarS" class="d-inline-block">
+                    <a class="badge text-dark2" (click)="onOrdenListBy(1)">
+                      <fa-icon [icon]="sort"></fa-icon>
+                    </a>
+                  </div>
+                </th>
+                <th style="width: 20%;">
+                  <div class="d-inline-block" style="margin-right: 0.5rem;">Ocurrencia</div>
+                  <div id="ordenarS" class="d-inline-block">
+                    <a class="badge text-dark2" (click)="onOrdenListBy(2)">
+                      <fa-icon [icon]="sort"></fa-icon>
+                    </a>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody *ngIf="listEnfermedadesIn | reportEnfermedades:paramsReport as resultBusqueda">
+              <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+              <tr *ngIf="resultBusqueda.length==0">
+                <td class="font-italic text-center" colspan="3">
+                  No existen registros
+                </td>
+              </tr>
+              <tr *ngFor="let datoC of resultBusqueda |sort:ordenBy:'cReportGeneralMedic'; let indice=index"
+                [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                <td class="indice">{{indice+1}}</td>
+                <td>{{datoC.enfermedadCIE10}}</td>
+                <td class="text-center">{{datoC.contadorOcurrencia}}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr *ngIf="paramsReport.isNormal">
+                <td class="pl-3" colspan="2"><strong>TOTAL OCURRENCIAS NORMALES</strong></td>
+                <td class="text-center"><strong>{{paramsReport.contOcurrenciaNormal}}</strong></td>
+              </tr>
+              <tr *ngIf="paramsReport.isControl">
+                <td class="pl-3" colspan="2"><strong>TOTAL OCURRENCIAS CONTROL</strong></td>
+                <td class="text-center"><strong>{{paramsReport.contOcurrenciaControl}}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div *ngIf="tipoR=='caseB'&& listDepartamentosIn.length>0">
+        <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+            <table class="table">
+              <thead>
+                <tr class="text-center">
+                  <th>#</th>
+                  <th style="width: 30%;">
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">Enfermedades</div>
+                    <div id="ordenarS" class="d-inline-block">
+                      <a class="badge text-dark2" (click)="onOrdenListBy(1)">
+                        <fa-icon [icon]="sort"></fa-icon>
+                      </a>
+                    </div>
+                  </th>
+                  <th *ngFor="let datoD of listDepartamentosIn; let indiceD=index">{{datoD.departamento}}</th>
+                  <th style="width: 20%;">
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">Ocurrencia</div>
+                    <div id="ordenarS" class="d-inline-block">
+                      <a class="badge text-dark2" (click)="onOrdenListBy(2)">
+                        <fa-icon [icon]="sort"></fa-icon>
+                      </a>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody *ngIf="listEnfermedadesIn | reportEnfermedades:paramsReport as resultBusqueda">
+                <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+                <tr *ngIf="resultBusqueda.length==0">
+                  <td class="font-italic text-center" colspan="3">
+                    No existen registros
+                  </td>
+                </tr>
+                <tr *ngFor="let datoC of resultBusqueda |sort:ordenBy:'cReportGeneralMedic'; let indice=index"
+                  [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                  <td class="indice">{{indice+1}}</td>
+                  <td>{{datoC.enfermedadCIE10}}</td>
+                  <td class="text-center" *ngFor="let datoD of listDepartamentosIn; let indiceD=index">
+                    <div *ngFor="let datoC2 of datoC|nullDepartamentos:listDepartamentosIn[indiceD]; let indiceC2=index">
+                        <div>{{datoC2.contadorOcurrencia}}</div>
+                    </div>
+                  </td>
+                  <td class="text-center">{{datoC.contadorOcurrencia}}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="pl-3" colspan="2"><strong>TOTALES POR DEPARTAMENTO</strong></td>
+                  <td class="text-center" *ngFor="let datoD of listDepartamentosIn; let indiceD=index">{{datoD.contOcurrenciaTotal/4}}</td>
+                  <td class="text-center"><strong>{{paramsReport.contOcurrenciaNormal+paramsReport.contOcurrenciaControl}}</strong></td>
+                </tr>
+                <tr *ngIf="paramsReport.isNormal">
+                  <td class="pl-3" colspan="2"><strong>TOTAL OCURRENCIAS NORMALES</strong></td>
+                  <td class="text-center" *ngFor="let datoD of listDepartamentosIn; let indiceD=index">{{datoD.contOcurrenciaNormal/4}}</td>
+                  <td class="text-center"><strong>{{paramsReport.contOcurrenciaNormal}}</strong></td>
+                </tr>
+                <tr *ngIf="paramsReport.isControl">
+                  <td class="pl-3" colspan="2"><strong>TOTAL OCURRENCIAS CONTROL</strong></td>
+                  <td class="text-center" *ngFor="let datoD of listDepartamentosIn; let indiceD=index">{{datoD.contOcurrenciaControl/4}}</td>
+                  <td class="text-center"><strong>{{paramsReport.contOcurrenciaControl}}</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

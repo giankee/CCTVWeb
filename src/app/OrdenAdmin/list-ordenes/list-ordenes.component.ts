@@ -376,208 +376,6 @@ export class ListOrdenesComponent implements OnInit {
     );
   }
 
-  onConvertPdfOne(dataIn: cOrdenEs) {
-    var y: number;
-    var doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.setFont("arial", "bold")
-    doc.text("Orden de " + dataIn.tipoOrden, 75, 25);
-
-    y = 36;
-    doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 35));//left
-    doc.line(199, y, 199, (y + 35));//right
-    doc.line(9, (y + 35), 199, (y + 35));//down
-    doc.setFontSize(14);
-    doc.text("Datos de la orden", 15, (y + 10));
-    doc.setFont("arial", "normal")
-    doc.setFontSize(12);
-    doc.text("Fecha de " + dataIn.tipoOrden + ": " + dataIn.fechaRegistro, 20, (y + 20));
-    doc.text("Documentación " + dataIn.numDocumentacion, 20, (y + 25));
-    doc.text("Responsable de la " + dataIn.tipoOrden + ": " + dataIn.responsableES, 20, (y + 30));
-    doc.text("Hora de Registro: " + dataIn.horaRegistro, 105, (y + 20));
-    if (dataIn.tipoOrden == "Salida")
-      doc.text("Lugar de Destino: " + dataIn.destinoProcedencia, 105, (y + 25));
-    if (dataIn.tipoOrden == "Entrada")
-      doc.text("Lugar de Procedencia: " + dataIn.destinoProcedencia, 105, (y + 25));
-    if (dataIn.tipoOrden == "Materia Prima")
-      doc.text("Suministrado por: " + dataIn.destinoProcedencia, 105, (y + 25));
-    doc.text("Estado de la Orden: " + dataIn.estadoProceso, 105, (y + 30));
-
-    y = y + 35;
-    doc.line(9, y, 9, (y + 35));//left
-    doc.line(199, y, 199, (y + 35));//right
-    doc.line(9, (y + 35), 199, (y + 35));//down
-    doc.setFontSize(14);
-    doc.setFont("arial", "bold")
-    doc.text("Datos de la persona", 15, (y + 10));
-    doc.setFontSize(12);
-    doc.setFont("arial", "normal")
-    doc.text("Cédula: " + dataIn.persona.cedula, 15, (y + 15));
-    doc.text("Nombre: " + dataIn.persona.nombreP, 15, (y + 20));
-    doc.text("Tipo de persona: " + dataIn.persona.tipoPersona, 15, (y + 25));
-    doc.text("Empresa: " + dataIn.persona.empresa, 15, (y + 30));
-
-    if (dataIn.carro != null) {
-      doc.setFontSize(14);
-      doc.setFont("arial", "bold")
-      doc.text("Datos del vehículo", 105, (y + 10));
-      doc.setFont("arial", "normal")
-      doc.setFontSize(12);
-      doc.text("Número de placa: " + dataIn.carro.numMatricula, 105, (y + 15));
-
-      if (dataIn.choferId != null)
-        doc.text("Propietario: " + dataIn.carro.propietario, 105, (y + 20));
-      else
-        doc.text("Tpo de Vehículo: Privado", 105, (y + 20));
-      if (dataIn.carro.marca != "Desconocido" && dataIn.carro.colorCarro != "Desconocido") {
-        doc.text("Marca: " + dataIn.carro.marca, 105, (y + 25));
-        doc.text("Color: " + dataIn.carro.colorCarro, 105, (y + 30));
-      }
-    }
-
-    y = y + 35;
-
-    doc.setFontSize(14);
-    doc.text("Lista de Productos", 80, (y + 10));
-    doc.line(9, y, 9, (y + 15));//left
-    doc.line(199, y, 199, (y + 15));//right
-    doc.setLineWidth(0.4);
-    doc.line(9, (y + 15), 199, (y + 15));//down
-    doc.setFontSize(12);
-    y = y + 15;
-
-    var auxCol1 = 25;
-    var auxCol2 = 0;
-    var auxCol3 = 0;
-    var auxCol4 = 0;
-    var auxCol5 = 0;
-
-    doc.line(9, (y + 10), 199, (y + 10));//down +10y1y2
-    doc.line(9, y, 9, (y + 10));//left
-    doc.line(199, y, 199, (y + 10));//right
-    doc.text("#", 13, (y + 7));
-    doc.line(20, y, 20, (y + 10));//right
-    switch (dataIn.tipoOrden) {
-      case 'Entrada':
-        auxCol1 = 25;
-        auxCol2 = 62 + auxCol1;
-        auxCol3 = 50 + auxCol2;
-        auxCol4 = 0;
-        auxCol5 = auxCol3 + 25;
-        doc.line(auxCol3 - 5, y, auxCol3 - 5, (y + 10));//right
-        doc.text("Retorna", auxCol3, (y + 7));
-        break;
-      case 'Salida':
-        auxCol1 = 25;
-        auxCol2 = 48 + auxCol1;
-        auxCol3 = 38 + auxCol2;
-        auxCol4 = 24 + auxCol3;
-        auxCol5 = auxCol4 + 31;
-        doc.line(auxCol3 - 5, y, auxCol3 - 5, (y + 10));//right
-        doc.text("Retorna", auxCol3, (y + 7));
-        doc.line(auxCol4 - 5, y, auxCol4 - 5, (y + 10));//right
-        doc.text("Devolución", auxCol4, (y + 7));
-        break;
-      case "Materia Prima":
-        auxCol1 = 25;
-        auxCol2 = 75 + auxCol1;
-        auxCol3 = 0;
-        auxCol4 = 0;
-        auxCol5 = auxCol2 + 62;
-        break;
-    }
-    doc.text("Producto", auxCol1, (y + 7));
-    doc.line(auxCol2 - 5, y, auxCol2 - 5, (y + 10));//right
-    doc.text("Observación", auxCol2, (y + 7));
-    doc.line(auxCol5 - 5, y, auxCol5 - 5, (y + 10));//right
-    doc.text("Estado", auxCol5, (y + 7));
-    doc.setFontSize(10);
-    doc.setLineWidth(0.2);
-    y = y + 10;
-    var valorG: number = 0;
-    var valorO: number = 0;
-    var lineaDescripcion;
-    var lineaObservacion;
-    var auxPrueba: number;
-    var auxPrueba2: number;
-    for (var i = 0; i < dataIn.listArticulosO.length; i++) {
-      if (dataIn.listArticulosO[i].productoId != null)
-        lineaDescripcion = doc.splitTextToSize(dataIn.listArticulosO[i].producto.nombre, (auxCol2 - auxCol1));
-      else lineaDescripcion = doc.splitTextToSize(dataIn.listArticulosO[i].inventario.nombre, (auxCol2 - auxCol1));
-
-      lineaObservacion = doc.splitTextToSize(dataIn.listArticulosO[i].observacion, (auxCol3 - auxCol2 - 3));
-      if (dataIn.tipoOrden == "Materia Prima")
-        lineaObservacion = doc.splitTextToSize(dataIn.listArticulosO[i].observacion, (auxCol5 - auxCol2 - 3));
-      valorG = (3 * lineaDescripcion.length) + 8;
-      valorO = (3 * lineaObservacion.length) + 8;
-      if (valorO > valorG)
-        valorG = valorO;
-      y = y + valorG;
-
-      if (y > 280) {
-        doc.addPage();
-        doc.setLineWidth(0.4);
-        doc.setFontSize(12);
-        y = 30;
-
-        doc.line(9, y, 199, y);//down +10y1y2
-        doc.line(9, (y + 10), 199, (y + 10));//down +10y1y2
-        doc.line(9, y, 9, (y + 10));//left
-        doc.line(199, y, 199, (y + 10));//right
-        doc.text("#", 13, (y + 7));
-        doc.line(20, y, 20, (y + 10));//right
-        switch (dataIn.tipoOrden) {
-          case 'Entrada':
-            doc.line(auxCol3 - 5, y, auxCol3 - 5, (y + 10));//right
-            doc.text("Retorna", auxCol3, (y + 7));
-            break;
-          case 'Salida':
-            doc.line(auxCol3 - 5, y, auxCol3 - 5, (y + 10));//right
-            doc.text("Retorna", auxCol3, (y + 7));
-            doc.line(auxCol4 - 5, y, auxCol4 - 5, (y + 10));//right
-            doc.text("Devolución", auxCol4, (y + 7));
-            break;
-        }
-        doc.text("Producto", auxCol1, (y + 7));
-        doc.line(auxCol2 - 5, y, auxCol2 - 5, (y + 10));//right
-        doc.text("Observación", auxCol2, (y + 7));
-        doc.line(auxCol5 - 5, y, auxCol5 - 5, (y + 10));//right
-        doc.text("Estado", auxCol5, (y + 7));
-        y = y + 10 + valorG;
-        doc.setLineWidth(0.2);
-        doc.setFontSize(10);
-      }
-      auxPrueba = Number((valorG - (3 * lineaDescripcion.length + (3 * (lineaDescripcion.length - 1)))) / 2) + 3;//mega formula para centrar el texto en el espacio establecido
-      auxPrueba2 = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2) + 3;//mega formula para centrar el texto en el espacio establecido
-      doc.line(9, (y - valorG), 9, y);//left
-      doc.text(dataIn.listArticulosO[i].cantidad.toString(), 13, (y - ((valorG - 3) / 2)));
-      doc.line(20, (y - valorG), 20, y);//right
-      doc.text(lineaDescripcion, auxCol1, (y - valorG + auxPrueba));
-      doc.line(auxCol2 - 5, (y - valorG), auxCol2 - 5, y);//right
-      doc.text(lineaObservacion, auxCol2, (y - valorG + auxPrueba2));
-      doc.line(auxCol5 - 5, (y - valorG), auxCol5 - 5, y);//right
-      doc.text(dataIn.listArticulosO[i].estadoProducto, auxCol5, (y - ((valorG - 3) / 2)));
-      doc.line(199, (y - valorG), 199, y);//right
-
-      if (dataIn.tipoOrden == "Entrada") {
-        doc.line(auxCol3 - 5, (y - valorG), auxCol3 - 5, y);//right
-        if (dataIn.listArticulosO[i].retorna)
-          doc.text("SI", auxCol3 + 5, (y - ((valorG - 3) / 2)));
-        else doc.text("NO", auxCol3 + 5, (y - ((valorG - 3) / 2)));
-      }
-      if (dataIn.tipoOrden == "Salida") {
-        doc.line(auxCol3 - 5, (y - valorG), auxCol3 - 5, y);//right
-        if (dataIn.listArticulosO[i].retorna)
-          doc.text("SI", auxCol3 + 4, (y - ((valorG - 3) / 2)));
-        else doc.text("NO", auxCol3 + 4, (y - ((valorG - 3) / 2)));
-        doc.line(auxCol4 - 5, (y - valorG), auxCol4 - 5, y);//right
-      }
-      doc.line(9, y, 199, y);//down +10y1y2
-    }
-    doc.save(dataIn.tipoOrden + "_" + dataIn.fechaRegistro + "-" + dataIn.numDocumentacion + ".pdf");
-  }
-
   onConvertPdfAll() {
     if (this.dataOrdenesResult.length > 0) {
       var y: number;
@@ -619,7 +417,9 @@ export class ListOrdenesComponent implements OnInit {
         case "Sretorno":
           auxTorden = "Solo Retornos";
           break;
-        case "Pretorno":
+        case "PretornoG":
+        case "PretornoS":
+          case "PretornoE":
           auxTorden = "Pendientes de Retorno";
           this.dataOrdenesResult.forEach(function (orden) {
             orden.listArticulosO = orden.listArticulosO.filter(x => x.retorna && (x.estadoProducto == "Pendiente" || x.estadoProducto == "Pendiente Retorno"));
@@ -689,7 +489,7 @@ export class ListOrdenesComponent implements OnInit {
       doc.line(135, y, 135, (y + 10));//right
       doc.text("Descripción", 137, (y + 7));
       doc.line(171, y, 171, (y + 10));//right
-      doc.text("Estado Proceso", 173, (y + 7));
+      doc.text("Estado Orden", 173, (y + 7));
 
       y = y + 10;
       doc.setFontSize(8);
@@ -727,7 +527,12 @@ export class ListOrdenesComponent implements OnInit {
           else
             auxpalabra = this.dataOrdenesResult[index].listArticulosO[i].cantidad + " " + this.dataOrdenesResult[index].listArticulosO[i].inventario.nombre;
 
-          lineaDescripcion = doc.splitTextToSize(auxpalabra, (34));
+          if(this.dataOrdenesResult[index].listArticulosO[i].estadoProducto=="Pendiente"||this.dataOrdenesResult[index].listArticulosO[i].estadoProducto=="Pendiente Retorno"){
+            auxpalabra= auxpalabra + " || (" + this.dataOrdenesResult[index].listArticulosO[i].cantidadPendiente+")";
+            if(this.dataOrdenesResult[index].listArticulosO[i].cantidad!=this.dataOrdenesResult[index].listArticulosO[i].cantidadPendiente)
+            auxpalabra=auxpalabra + " ("+ (this.dataOrdenesResult[index].listArticulosO[i].cantidad-this.dataOrdenesResult[index].listArticulosO[i].cantidadPendiente) + ")";
+          }
+          lineaDescripcion = doc.splitTextToSize(auxpalabra, (32));
           for (var il = 0; il < lineaDescripcion.length; il++) {
             lineaDescripcionG.push(lineaDescripcion[il])
           }

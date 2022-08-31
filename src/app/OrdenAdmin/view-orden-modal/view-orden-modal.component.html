@@ -130,10 +130,11 @@
                     <table class="table">
                       <thead>
                         <tr class="text-center">
-                          <th scope="col" [ngStyle]="{'width:30%':verificadorCheack,'width:35%':!verificadorCheack }">
+                          <th scope="col" [ngStyle]="{'width:20%':verificadorCheack,'width:35%':!verificadorCheack }">
                             {{ordenESService.formData.tipoOrden=='Materia Prima' ? 'Material' : 'Producto'}}
                           </th>
                           <th scope="col" [ngStyle]="{'width:10%':verificadorCheack,'width:15%':!verificadorCheack }">Cantidad</th>
+                          <th *ngIf="ordenESService.formData.estadoProceso=='Pendiente'||ordenESService.formData.estadoProceso=='Pendiente Retorno'" scope="col" [ngStyle]="{'width:10%':verificadorCheack,'width:15%':!verificadorCheack }">Cantidad Pendiente</th>
                           <th scope="col" [ngStyle]="{'width:20%':verificadorCheack,'width:25%':!verificadorCheack }">Observación</th>
                           <th scope="col" style="width:5%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
                             Retorna</th>
@@ -147,6 +148,7 @@
                           [ngClass]="{'filaPar':(((indiceNewP+1)%2)==0)}">
                           <td>{{datoListP.producto?.nombre}}{{datoListP.inventario?.nombre}}</td>
                           <td class="text-center">{{datoListP.cantidad}}</td>
+                          <td class="text-center" *ngIf="ordenESService.formData.estadoProceso=='Pendiente'||ordenESService.formData.estadoProceso=='Pendiente Retorno'">{{datoListP.estadoProducto=='Pendiente'||datoListP.estadoProducto=='Pendiente Retorno'? datoListP.cantidadPendiente: '---'}}</td>
                           <td>{{datoListP.observacion}}</td>
                           <td *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'"
                             class="justify-content-center text-center">

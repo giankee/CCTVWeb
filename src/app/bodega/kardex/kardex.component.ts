@@ -192,7 +192,7 @@ export class KardexComponent implements OnInit {
       valorG = (3.5 * lineaDetalle.length) + 4;
       y = y + valorG;
 
-      if (y > 205) {
+      if (y > 200) {
         doc.text("Pág. #" + Npag, 280, 207);
         Npag++;
         doc.addPage();

@@ -21,6 +21,8 @@ export class SearchPipe implements PipeTransform {
         return list.filter(productoB => productoB.codigo.includes(inText) || productoB.marca.includes(inText) || productoB.nombre.includes(inText) || productoB.categoria.includes(inText) || productoB.proveedor.toLowerCase().includes(inText.toLowerCase()));
       case 'cBalde':
         return list.filter(balde => balde.numBalde.toString().includes(inText) || balde.ubicacionActual.includes(inText) || balde.actividad.toLowerCase().includes(inText.toLowerCase()) || balde.estadoBalde.toLowerCase().includes(inText.toLowerCase()));
+        case 'cReportGeneralMedic':
+        return list.filter(reportAB => reportAB.enfermedadCIE10.toLowerCase().includes(inText.toLowerCase()));
     }
   }
 

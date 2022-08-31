@@ -33,7 +33,9 @@
                         <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==1">
                           <ul>
                             <li *ngFor="let data of listPacienteFiltros$ | async">
-                              <a (click)="onChoosePaciente(data.empleado)" class="name">{{data.empleado}}</a>
+                              <div (click)="onChoosePaciente(data.empleado)">
+                                <a  class="name">{{data.empleado}}</a>
+                              </div>
                             </li>
                           </ul>
                         </div>
@@ -46,14 +48,14 @@
                 <div class="form-group inputForm">
                   <div class="title"><strong> Desde:</strong></div>
                   <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="fechaHoy.inDesde"
-                    class="form-control" min="2022-01-01" max="{{fechaHoy.inHasta}}">
+                    class="form-control" min="2022-01-01" max="{{fechaHoy.inHasta}}" [disabled]="parametrosBusqueda.disableCheck">
                 </div>
               </div>
               <div class="col-6 col-md-4">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Hasta:</strong></div>
                   <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="fechaHoy.inHasta"
-                    class="form-control" min="{{fechaHoy.inDesde}}" max="{{fechaHoy.strFecha}}">
+                    class="form-control" min="{{fechaHoy.inDesde}}" max="{{fechaHoy.strFecha}}" [disabled]="parametrosBusqueda.disableCheck">
                 </div>
               </div>
             </div>
@@ -100,7 +102,9 @@
                         <div class="results" *ngIf="parametrosBusqueda.showSearchSelectG==2">
                           <ul>
                             <li *ngFor="let data of listProdFiltros$ | async">
-                              <a (click)="onChooseElemente(data)" class="name">{{data.nombre}}</a>
+                              <div (click)="onChooseElemente(data)">
+                                <a  class="name">{{data.nombre}}</a>
+                              </div>
                             </li>
                           </ul>
                         </div>
@@ -125,7 +129,7 @@
       <div class="col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
-            <h5><a class="text-dark2">Lista Consultas Internas</a></h5>
+            <h5><a class="text-dark2">Lista Consultas</a></h5>
             <a class="text-dark2" (click)="onConvertPdfAll()">
               <fa-icon [icon]="faprint"></fa-icon>
             </a>
@@ -157,7 +161,7 @@
                         </a>
                       </div>
                     </th>
-                    <th *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">Marea</th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'||parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL'">Marea</th>
                     <th>
                       <div class="d-inline-block" style="margin-right: 0.5rem;"> Paciente</div>
                       <div id="ordenarS" class="d-inline-block">
@@ -166,6 +170,7 @@
                         </a>
                       </div>
                     </th>
+                    <th>Síntomas</th>
                     <th>Receta</th>
                     <th></th>
                   </tr>
@@ -183,8 +188,9 @@
                     <td class="indice">{{dato.numOrdenSecuencial}}</td>
                     <td>{{dato.fechaRegistro}}</td>
                     <td>{{dato.bodegaOrigen}}</td>
-                    <td *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">{{dato.marea}}</td>
+                    <td *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'||parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL'">{{dato.marea}}</td>
                     <td>{{dato.paciente}}</td>
+                    <td>{{dato.sintomas}}</td>
                     <td>
                       <div *ngFor="let datoItem of dato.listReceta">
                         <ul id="utilitarioI">
@@ -193,6 +199,7 @@
                         </ul>
                       </div>
                     </td>
+                    
                     <td class="text-center" id="utilitarioI">
                       <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato)"
                         matTooltip="Te permite visualizar a detalladamente la consulta médica" matTooltipPosition="left"

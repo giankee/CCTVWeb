@@ -63,6 +63,7 @@ export class PermisosComponent implements OnInit {
       this.permisoMedicService.formData.pacienteMedicId = this.idPacienteIn;
       this.permisoMedicService.formData.enfermedadCIE10 = this.enfermedadCIE10In;
     } else {
+      this._pacienteService.formData = new cPacienteMedic();
       this.pacienteNombre = "";
       this.empresa = undefined;
     };
@@ -109,13 +110,13 @@ export class PermisosComponent implements OnInit {
     this.permisoMedicService.formData.spinnerLoading = 3;
     this.permisoMedicService.formData.showSearchSelect = 0;
     this.pacienteNombre = dataIn.empleado;
-    this.empresa=dataIn.idEmpresa;
-    this._pacienteService.formData = new cPacienteMedic();
+    this.empresa = dataIn.idEmpresa;
     this._pacienteService.getPacienteById(dataIn.idEmpleado).subscribe((dato: any) => {
       if (dato.exito == 1) {
         if (dato.message == "Ok")
-          this._pacienteService.formData.completarObject(dato.data);
+          this.permisoMedicService.formData.pacienteMedicId = dato.data.idPacienteMedic;
         else {
+          this._pacienteService.formData = new cPacienteMedic();
           this._pacienteService.formData.cedula = dataIn.cedula;
           this._pacienteService.formData.empleadoId = dataIn.idEmpleado;
           this._pacienteService.formData.empleado = dataIn.empleado;
@@ -153,7 +154,7 @@ export class PermisosComponent implements OnInit {
 
   guardarPermiso() {
     this._permisoMedicService.insertarPermiso(this._permisoMedicService.formData).subscribe(
-      (res: any) => {console.table(res);
+      (res: any) => {
         if (res.exito == 1) {
           this.onConvertPdf();
           this.toastr.success('Registro de permiso satisfactorio', 'Permiso Médico');
@@ -173,15 +174,15 @@ export class PermisosComponent implements OnInit {
     var auxSepararInicio = this.permisoMedicService.formData.fechaSalida.split("T");
     var auxSepararRegreso = this.permisoMedicService.formData.fechaRegreso.split("T");
     var auxImage = new Image();
-    auxImage.src = "/assets/img/LOGO_"+this.empresa+".png";
-    if(this.empresa==1)
-    doc.addImage(auxImage, "PNG", 9, 10, 35, 25);
+    auxImage.src = "/assets/img/LOGO_" + this.empresa + ".png";
+    if (this.empresa == 1)
+      doc.addImage(auxImage, "PNG", 9, 10, 35, 25);
 
-    if(this.empresa==3)
-    doc.addImage(auxImage, "PNG", 10, 10, 33, 23);
+    if (this.empresa == 3)
+      doc.addImage(auxImage, "PNG", 10, 10, 33, 23);
 
-    if(this.empresa==4)
-    doc.addImage(auxImage, "PNG", 10, 10, 35, 25);
+    if (this.empresa == 4)
+      doc.addImage(auxImage, "PNG", 10, 10, 35, 25);
 
     doc.line(5, y, 205, y);//up
     doc.line(5, y, 5, (y + 138));//left

@@ -532,3 +532,51 @@ export class cGaleriaAccidente {
         this.rutaArchivo = dataIn.rutaArchivo;
     }
 }
+
+export class cParametroReporteMedic {
+    tipoR: string;
+    idEmpresa: number;
+    strPeriodo: string;
+    strArea: string;
+
+    constructor() {
+        var fechaHoy = new cFecha();
+        this.idEmpresa=undefined;
+        this.tipoR = "SIN ASIGNAR";
+        this.strPeriodo = fechaHoy.sacaSoloMes();
+        this.strArea = "SIN ASIGNAR";
+    }
+
+    resetObj() {
+        var fechaHoy = new cFecha();
+        this.idEmpresa=undefined;
+        this.tipoR = "SIN ASIGNAR";
+        this.strPeriodo = fechaHoy.sacaSoloMes();
+        this.strArea = "SIN ASIGNAR";
+    }
+}
+
+export class cReportGeneralMedic{
+    enfermedadCIE10:string;
+    contadorOcurrencia:number;
+    listDepartamentos:cReportGeneralMedicArea[];
+}
+
+export class cReportGeneralMedicArea{
+    departamento:string;
+    contadorOcurrencia:number;
+}
+
+export class cDepartamentoR {
+    departamento:string;
+    contOcurrenciaTotal: number;
+    contOcurrenciaNormal: number;
+    contOcurrenciaControl: number;
+
+    constructor(nombreIn){
+        this.departamento=nombreIn;
+        this.contOcurrenciaTotal=0;
+        this.contOcurrenciaNormal=0;
+        this.contOcurrenciaControl=0;
+    }
+  }

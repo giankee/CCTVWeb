@@ -123,6 +123,7 @@ export class cConsultaMedic {
     paciente: string = "";
     personaResponsable: string = "";
     guardiaCargoUser: string = "";
+    estadoConsulta:string="Pendiente";
     listReceta: cRecetaMedic[] = [];
 
     /**Variables de control */
@@ -148,6 +149,7 @@ export class cConsultaMedic {
         this.marea = "";
         this.paciente = "";
         this.personaResponsable = "";
+        this.estadoConsulta="Pendiente";
         this.listReceta = [];
 
         this.spinnerLoading = false;
@@ -164,6 +166,7 @@ export class cConsultaMedic {
         this.sintomas = dataIn.sintomas;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
         this.personaResponsable = dataIn.personaResponsable;
+        this.estadoConsulta=dataIn.estadoConsulta;
 
         if (dataIn.listReceta != null) {
             this.listReceta = [];

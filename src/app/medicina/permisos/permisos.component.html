@@ -91,7 +91,7 @@
             <div class="form-group inputForm" id="inputSearchP">
               <div class="title"><strong>Fecha Salida:</strong></div>
               <input class="form-control input-src" type="datetime-local" name="fechaSalida1" #fechaSalida1="ngModel"
-                [(ngModel)]="permisoMedicService.formData.fechaSalida" min="{{fechaHoy.strFecha}}T{{fechaHoy.strHoraA}}"
+                [(ngModel)]="permisoMedicService.formData.fechaSalida"
                 (change)="permisoMedicService.formData.changeHours(2)">
             </div>
           </div>

@@ -187,7 +187,6 @@
                     </mat-checkbox>
                   </div>
                 </div>
-
               </div>
             </div>
             <div class="row justify-content-center">
@@ -296,12 +295,11 @@
                     <td>
                       <div *ngFor="let datoItems of dato.listArticulosO">
                         <ul id="utilitarioI">
-                          <li *ngIf="datoItems.productoId!=null"
-                            [ngClass]="{'bg-warning':datoItems.retorna && (datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno') , 'bg-success': datoItems.retorna && (datoItems.estadoProducto=='Procesada') }">
-                            {{datoItems.cantidad}} {{datoItems.producto.nombre}}</li>
-                          <li *ngIf="datoItems.inventarioId!=null"
-                            [ngClass]="{'bg-warning':datoItems.retorna && (datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno') , 'bg-success': datoItems.retorna && (datoItems.estadoProducto=='Procesada') }">
-                            {{datoItems.cantidad}} {{datoItems.inventario.nombre}}</li>
+                          <li class="d-flex" [ngClass]="{'bg-success': datoItems.retorna && (datoItems.estadoProducto=='Procesada') }">
+                            <div  [ngClass]="{'bg-warning': datoItems.retorna && (datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno') }">{{datoItems.cantidad}} {{datoItems.productoId!=null? datoItems.producto.nombre: datoItems.inventario.nombre}}</div>
+                            <div class="bg-warning ml-2" *ngIf="datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno'">({{datoItems.cantidadPendiente}})</div>
+                            <div class="bg-success ml-2" *ngIf="(datoItems.estadoProducto=='Pendiente'|| datoItems.estadoProducto=='Pendiente Retorno')&& datoItems.cantidad!=datoItems.cantidadPendiente">({{datoItems.cantidad-datoItems.cantidadPendiente}})</div>
+                            </li>
                         </ul>
                       </div>
                     </td>

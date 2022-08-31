@@ -293,34 +293,41 @@ export class ListConsultaMedicComponent implements OnInit {
       doc.line(290, y, 290, (y + 10));//right
       doc.line(5, (y + 10), 290, (y + 10));//down
 
-      doc.text("#", 12, (y + 7));
-      doc.line(20, y, 20, (y + 10));//left
-      doc.text("Fecha Registro", 25, (y + 7));
-      doc.line(55, y, 55, (y + 10));//left
-      doc.text("Paciente", 85, (y + 7));
-      doc.line(130, y, 130, (y + 10));//left
-      doc.text("Bodega", 145, (y + 7));
-      doc.line(175, y, 175, (y + 10));//left
-      doc.text("Marea", 182, (y + 7));
-      doc.line(200, y, 200, (y + 10));//left
-      doc.text("Medicamentos", 225, (y + 7));
+      doc.text("#", 9, (y + 7));
+      doc.line(15, y, 15, (y + 10));//left
+      doc.text("Fecha Registro", 16, (y + 7));
+      doc.line(40, y, 40, (y + 10));//left
+      doc.text("Paciente", 60, (y + 7));
+      doc.line(100, y, 100, (y + 10));//left
+      doc.text("Bodega", 115, (y + 7));
+      doc.line(145, y, 145, (y + 10));//left
+      doc.text("Marea", 150, (y + 7));
+      doc.line(165, y, 165, (y + 10));//left
+      doc.text("Síntomas", 185, (y + 7));
+      doc.line(220, y, 220, (y + 10));//left
+      doc.text("Medicamentos", 240, (y + 7));
 
       y = y + 10;
       doc.setFontSize(8);
       doc.setFont("arial", "normal");
 
-      var valorP: number = 0;
-      var valorM: number = 0;
       var valorG: number = 0;
       var auxLinea: number;
       var lineaPaciente;
       var lineaMedicamento;
       var lineaMedicamentoG;
+      var lineaSintomas;
       var auxpalabra: string;
 
-      var auxListMedicamentos:cAuxMedicamentos[]=[];
+      var auxListMedicamentos: cAuxMedicamentos[] = [];
       for (var index = 0; index < this.dataOrdenesResult.length; index++) {
-        lineaPaciente = doc.splitTextToSize(this.dataOrdenesResult[index].paciente, (65));
+        lineaPaciente = doc.splitTextToSize(this.dataOrdenesResult[index].paciente, (55));
+        valorG = (3 * lineaPaciente.length) + 4;
+        lineaSintomas = doc.splitTextToSize(this.dataOrdenesResult[index].sintomas, (50));
+        if (((3 * lineaSintomas.length) + 4) > valorG)
+          valorG = (3 * lineaSintomas.length) + 4;
+
+
         lineaMedicamentoG = [];
 
         for (var i = 0; i < this.dataOrdenesResult[index].listReceta.length; i++) {
@@ -331,24 +338,19 @@ export class ListConsultaMedicComponent implements OnInit {
           }
 
           if (this.parametrosBusqueda.strBodegaOrigen != "SIN ASIGNAR" && this.parametrosBusqueda.strBodegaOrigen != "ENFERMERIA GENERAL") {
-            var auxIndex=-1;
-            if((auxIndex=auxListMedicamentos.findIndex(x=>x.medicamentoId==this.dataOrdenesResult[index].listReceta[i].inventarioId))!=-1){
-              auxListMedicamentos[auxIndex].cantidadOcupada=auxListMedicamentos[auxIndex].cantidadOcupada+this.dataOrdenesResult[index].listReceta[i].cantidad;
-            }else{
-              var newAuxMedicamento=new cAuxMedicamentos(this.dataOrdenesResult[index].listReceta[i].inventarioId,this.dataOrdenesResult[index].listReceta[i].inventario.nombre,this.dataOrdenesResult[index].listReceta[i].cantidad)
+            var auxIndex = -1;
+            if ((auxIndex = auxListMedicamentos.findIndex(x => x.medicamentoId == this.dataOrdenesResult[index].listReceta[i].inventarioId)) != -1) {
+              auxListMedicamentos[auxIndex].cantidadOcupada = auxListMedicamentos[auxIndex].cantidadOcupada + this.dataOrdenesResult[index].listReceta[i].cantidad;
+            } else {
+              var newAuxMedicamento = new cAuxMedicamentos(this.dataOrdenesResult[index].listReceta[i].inventarioId, this.dataOrdenesResult[index].listReceta[i].inventario.nombre, this.dataOrdenesResult[index].listReceta[i].cantidad)
               auxListMedicamentos.push(newAuxMedicamento);
             }
           }
         }
-
-        valorP = (3 * lineaPaciente.length) + 4;
-        valorM = (3 * lineaMedicamentoG.length) + 4;
-        if (valorM >= valorP)
-          valorG = valorM;
-        else valorG = valorP;
+        if (((3 * lineaMedicamentoG.length) + 4) > valorG)
+          valorG = (3 * lineaMedicamentoG.length) + 4;
         y = y + valorG;
-
-        if (y > 280) {
+        if (y > 200) {
           doc.text("Pág. #" + Npag, 280, 207);
           Npag++;
           doc.addPage();
@@ -361,38 +363,45 @@ export class ListConsultaMedicComponent implements OnInit {
           doc.line(290, y, 290, (y + 10));//right
           doc.line(5, (y + 10), 290, (y + 10));//down
 
-          doc.text("#", 12, (y + 7));
-          doc.line(20, y, 20, (y + 10));//left
-          doc.text("Fecha Registro", 25, (y + 7));
-          doc.line(55, y, 55, (y + 10));//left
-          doc.text("Paciente", 85, (y + 7));
-          doc.line(130, y, 130, (y + 10));//left
-          doc.text("Bodega", 145, (y + 7));
-          doc.line(175, y, 175, (y + 10));//left
-          doc.text("Marea", 182, (y + 7));
-          doc.line(200, y, 200, (y + 10));//left
-          doc.text("Medicamentos", 225, (y + 7));
+          doc.text("#", 9, (y + 7));
+          doc.line(15, y, 15, (y + 10));//left
+          doc.text("Fecha Registro", 16, (y + 7));
+          doc.line(40, y, 40, (y + 10));//left
+          doc.text("Paciente", 60, (y + 7));
+          doc.line(100, y, 100, (y + 10));//left
+          doc.text("Bodega", 115, (y + 7));
+          doc.line(145, y, 145, (y + 10));//left
+          doc.text("Marea", 150, (y + 7));
+          doc.line(165, y, 165, (y + 10));//left
+          doc.text("Síntomas", 185, (y + 7));
+          doc.line(220, y, 220, (y + 10));//left
+          doc.text("Medicamentos", 240, (y + 7));
 
           y = y + 10 + valorG;
           doc.setFontSize(8);
           doc.setFont("arial", "normal");
         }
+
         doc.line(5, (y - valorG), 5, y);//left
         doc.line(290, (y - valorG), 290, y);//right
         doc.line(5, y, 290, y);//down +10y1y2
-        doc.text(this.dataOrdenesResult[index].numOrdenSecuencial.toString(), 12, (y - ((valorG - 3) / 2)));
-        doc.line(20, (y - valorG), 20, y);//right
-        doc.text(this.dataOrdenesResult[index].fechaRegistro, 30, (y - ((valorG - 3) / 2)));
-        doc.line(55, (y - valorG), 55, y);//right
+
+        doc.text(this.dataOrdenesResult[index].numOrdenSecuencial.toString(), 8, (y - ((valorG - 3) / 2)));
+        doc.line(15, (y - valorG), 15, y);//right
+        doc.text(this.dataOrdenesResult[index].fechaRegistro, 20, (y - ((valorG - 3) / 2)));
+        doc.line(40, (y - valorG), 40, y);//right
         auxLinea = Number((valorG - (3 * lineaPaciente.length + (3 * (lineaPaciente.length - 1)))) / 2.5) + (2 + lineaPaciente.length);
-        doc.text(lineaPaciente, 60, (y - valorG + auxLinea));
-        doc.line(130, (y - valorG), 130, y);//right
-        doc.text(this.dataOrdenesResult[index].bodegaOrigen, 135, (y - ((valorG - 3) / 2)));
-        doc.line(175, (y - valorG), 175, y);//right
-        doc.text(this.dataOrdenesResult[index].marea != "" ? '' + this.dataOrdenesResult[index].marea : '---', 182, (y - ((valorG - 3) / 2)));
-        doc.line(200, (y - valorG), 200, y);//right
+        doc.text(lineaPaciente, 45, (y - valorG + auxLinea));
+        doc.line(100, (y - valorG), 100, y);//right
+        doc.text(this.dataOrdenesResult[index].bodegaOrigen, 105, (y - ((valorG - 3) / 2)));
+        doc.line(145, (y - valorG), 145, y);//right
+        doc.text(this.dataOrdenesResult[index].marea != "" ? '' + this.dataOrdenesResult[index].marea : '---', 152, (y - ((valorG - 3) / 2)));
+        doc.line(165, (y - valorG), 165, y);//right
+        auxLinea = Number((valorG - (3 * lineaSintomas.length + (3 * (lineaSintomas.length - 1)))) / 2.5) + (2 + lineaSintomas.length);
+        doc.text(lineaSintomas, 170, (y - valorG + auxLinea));
+        doc.line(220, (y - valorG), 220, y);//right
         auxLinea = Number((valorG - (3 * lineaMedicamentoG.length + (3 * (lineaMedicamentoG.length - 1)))) / 2.5) + (2 + lineaMedicamentoG.length);
-        doc.text(lineaMedicamentoG, 205, (y - valorG + auxLinea));
+        doc.text(lineaMedicamentoG, 225, (y - valorG + auxLinea));
       }
 
       if (this.parametrosBusqueda.strBodegaOrigen != "SIN ASIGNAR" && this.parametrosBusqueda.strBodegaOrigen != "ENFERMERIA GENERAL") {
@@ -407,24 +416,50 @@ export class ListConsultaMedicComponent implements OnInit {
         doc.line(5, y, 5, (y + 20));//left
         doc.line(290, y, 290, (y + 20));//right
         doc.line(5, (y + 10), 290, (y + 10));//down
-        
-        doc.text("Lista de medicamento ocupados en la marea: " + this.parametrosBusqueda.marea + "-" + this.parametrosBusqueda.anio + " del barco: "+this.parametrosBusqueda.strBodegaOrigen, 15, (y + 7));
+
+        doc.text("Lista de medicamento ocupados en la marea: " + this.parametrosBusqueda.marea + "-" + this.parametrosBusqueda.anio + " del barco: " + this.parametrosBusqueda.strBodegaOrigen, 15, (y + 7));
         doc.line(5, (y + 20), 290, (y + 20));//down
         doc.text("#", 12, (y + 17));
-        doc.line(20, (y+10), 20, (y + 20));//left
+        doc.line(20, (y + 10), 20, (y + 20));//left
         doc.text("Medicamento", 35, (y + 17));
-        doc.line(240, (y+10), 240, (y + 20));//left
+        doc.line(240, (y + 10), 240, (y + 20));//left
         doc.text("Utilizado", 255, (y + 17));
 
         doc.setFontSize(9);
         doc.setFont("arial", "normal")
-        y=y+20;
+        y = y + 20;
         for (var index = 0; index < auxListMedicamentos.length; index++) {
-          y=y+7;
-          doc.line(5, (y-7), 5, y);//left
+          y = y + 7;
+
+          if (y > 200) {
+            Npag++;
+            doc.addPage();
+            doc.text("Pág. #" + Npag, 280, 207);
+            doc.setFontSize(11);
+            doc.setFont("arial", "bold")
+            y = 15;
+            doc.line(5, (y), 290, (y));//up
+            doc.line(5, y, 5, (y + 20));//left
+            doc.line(290, y, 290, (y + 20));//right
+            doc.line(5, (y + 10), 290, (y + 10));//down
+
+            doc.text("Lista de medicamento ocupados en la marea: " + this.parametrosBusqueda.marea + "-" + this.parametrosBusqueda.anio + " del barco: " + this.parametrosBusqueda.strBodegaOrigen, 15, (y + 7));
+            doc.line(5, (y + 20), 290, (y + 20));//down
+            doc.text("#", 12, (y + 17));
+            doc.line(20, (y + 10), 20, (y + 20));//left
+            doc.text("Medicamento", 35, (y + 17));
+            doc.line(240, (y + 10), 240, (y + 20));//left
+            doc.text("Utilizado", 255, (y + 17));
+
+            doc.setFontSize(9);
+            doc.setFont("arial", "normal")
+            y = y + 27;
+          }
+
+          doc.line(5, (y - 7), 5, y);//left
           doc.line(290, (y - 7), 290, y);//right
           doc.line(5, y, 290, y);//down +10y1y2
-          doc.text((index+1).toString(), 11, (y - 2));
+          doc.text((index + 1).toString(), 11, (y - 2));
           doc.line(20, (y - 7), 20, y);//right
           doc.text(auxListMedicamentos[index].nombreMedicamento, 25, (y - 2));
           doc.line(240, (y - 7), 240, y);//right

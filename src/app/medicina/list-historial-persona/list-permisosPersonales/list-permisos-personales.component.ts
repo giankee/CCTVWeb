@@ -116,7 +116,7 @@ export class ListPermisosPersonalesComponent implements OnInit {
         else valorG=valorO;
         y = y + valorG;
 
-        if (y > 280) {
+        if (y > 200) {
           doc.text("Pág. #" + Npag, 280, 207);
           Npag++;
           doc.addPage();
