@@ -34,4 +34,8 @@ export class ConsultaMedicService {
   getOneConsulta(consultaId: number): Observable<cConsultaMedic> {//modl view
     return this.http.get<cConsultaMedic>(this.serverUrl + '/getOneConsulta/' + consultaId);
   }
+
+  actualizarConsulta(formData: cConsultaMedic): Observable<cConsultaMedic> {// para transformar consulta a atencionMedic
+    return this.http.put<cConsultaMedic>(this.serverUrl  + '/' + formData.idConsultaMedic.toString(),formData);
+  }
 }

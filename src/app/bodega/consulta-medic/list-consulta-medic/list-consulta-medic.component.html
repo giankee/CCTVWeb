@@ -200,12 +200,17 @@
                       </div>
                     </td>
                     
-                    <td class="text-center" id="utilitarioI">
+                    <td class="text-center d-flex justify-content-between" id="utilitarioI">
                       <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato)"
                         matTooltip="Te permite visualizar a detalladamente la consulta médica" matTooltipPosition="left"
                         matTooltipClass="tooltipBlack">
                         <fa-icon [icon]="faeye"></fa-icon>
                       </a>
+                      <a *ngIf="dato.estadoConsulta=='Pendiente' && conexcionService.UserR.rolAsignado == 'enfermeria' && dato.bodegaOrigen!='ENFERMERIA GENERAL'" class="badge text-primario d-none d-sm-block" (click)="onPrepararModalAtencion(dato)"
+                      matTooltip="Te permite transformar consulta a una atención médica" matTooltipPosition="left"
+                      matTooltipClass="tooltipBlack">
+                      <fa-icon [icon]="faexchange"></fa-icon>
+                    </a>
                     </td>
                   </tr>
                 </tbody>

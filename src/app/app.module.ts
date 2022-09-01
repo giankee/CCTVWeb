@@ -94,6 +94,7 @@ import { EnfermedadReportComponent } from './medicina/reportes-medic/enfermedad-
 import { AusentisimoReportComponent } from './medicina/reportes-medic/ausentisimo-report/ausentisimo-report.component';
 import { ReportEnfermedadesPipe } from './pipes/report-enfermedades.pipe';
 import { NullDepartamentosPipe } from './pipes/null-departamentos.pipe';
+import { TransConsultaAtencionComponent } from './bodega/consulta-medic/list-consulta-medic/trans-consulta-atencion/trans-consulta-atencion.component';
 
 
 @NgModule({
@@ -166,7 +167,8 @@ import { NullDepartamentosPipe } from './pipes/null-departamentos.pipe';
     EnfermedadReportComponent,
     AusentisimoReportComponent,
     ReportEnfermedadesPipe,
-    NullDepartamentosPipe
+    NullDepartamentosPipe,
+    TransConsultaAtencionComponent
   ],
   imports: [
     BrowserModule,

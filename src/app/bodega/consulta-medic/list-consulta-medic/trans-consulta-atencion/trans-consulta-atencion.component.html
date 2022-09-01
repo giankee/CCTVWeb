@@ -1,0 +1,144 @@
+<mat-dialog-content id="ModalFix">
+  <div class="jumtron" *ngIf="atencionMedicService.formData!=null">
+    <div class="row justify-content-center">
+      <div class="col-12  col-md-8">
+        <h1 class="display-4 text-center">Manacripex</h1>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="text-center">{{dato.auxData.bodegaOrigen}}</div>
+        <div class="text-center"><strong>Fecha Atención: </strong> {{atencionMedicService.formData.fechaAtencion}}</div>
+      </div>
+    </div>
+    <div class="row boxForm py-1">
+      <div class="col-12">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row mb-1">
+              <div class="col-12">
+                <div><strong>Encargado:</strong> {{dato.auxData.personaResponsable}}</div>
+              </div>
+              <div class="col-12">
+                <div><strong>Paciente:</strong> {{dato.auxData.paciente}}</div>
+              </div>
+              <div class="col-12">
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <div class="title"><strong>Enfermedad CIE10:</strong> </div>
+                      <input name="cie" #cie="ngModel" [(ngModel)]="atencionMedicService.formData.enfermedadCIE10"
+                        (ngModelChange)="onListCIE($event?.toUpperCase())" placeholder="Código o nombre de enfermedad"
+                        class="form-control input-src" required>
+                      <div class="results" *ngIf="atencionMedicService.formData.showSearchSelect">
+                        <ul>
+                          <li
+                            *ngFor="let data of listCie10Array | filtrarCie10:atencionMedicService.formData.enfermedadCIE10">
+                            <div (click)="onChooseEnfermedad(data)">
+                              <a class="name"><strong>{{data.code}}: </strong> {{data.description}}</a>
+                            </div>
+                          </li>
+                          <li>
+                            <a (click)="onChooseEnfermedad('Nuevo')" class="name"><strong>--Nuevo--</strong></a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row boxForm py-1">
+      <div class="col-12">
+        <div class="form-group">
+          <div class="subForm">
+            <div class="row mb-1">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <div class="title ml-2"><strong>Motivo de atención:</strong></div>
+                  <div class="subForm">
+                    <div class="row mb-1">
+                      <div class="col-12">
+                        <textarea name="motivoAtencion" #motivoAtencion="ngModel"
+                          style="height: calc(3rem + 0.7rem + 2px);"
+                          [(ngModel)]="atencionMedicService.formData.motivoAtencion" class="form-control"
+                          disabled>{{atencionMedicService.formData.motivoAtencion}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <div class="title ml-2"><strong>Enfermedades Actuales:</strong></div>
+                  <div class="subForm">
+                    <div class="row mb-1">
+                      <div class="col-12">
+                        <textarea name="enfermedadesActuales" #enfermedadesActuales="ngModel"
+                          style="height: calc(3rem + 0.7rem + 2px);"
+                          [(ngModel)]="atencionMedicService.formData.enfermedadesActuales" class="form-control"
+                          disabled>{{atencionMedicService.formData.enfermedadesActuales}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <div class="title ml-2"><strong>Prescripción:</strong></div>
+                  <div class="subForm">
+                    <div class="row mb-1">
+                      <div class="col-12">
+                        <textarea name="prescripcion" #prescripcion="ngModel" style="height: calc(3rem + 0.7rem + 2px);"
+                          [(ngModel)]="atencionMedicService.formData.prescripcion" class="form-control"
+                          disabled>{{atencionMedicService.formData.prescripcion}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <div class="title ml-2"><strong>Indicaciones:</strong></div>
+                  <div class="subForm">
+                    <div class="row mb-1">
+                      <div class="col-12">
+                        <textarea name="indicaciones" #indicaciones="ngModel" style="height: calc(3rem + 0.7rem + 2px);"
+                          [(ngModel)]="atencionMedicService.formData.indicaciones" class="form-control">{{atencionMedicService.formData.indicaciones}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <div class="title ml-2"><strong>Observaciones:</strong></div>
+                  <div class="subForm">
+                    <div class="row mb-1">
+                      <div class="col-12">
+                        <textarea name="observacion" #observacion="ngModel" style="height: calc(3rem + 0.7rem + 2px);"
+                          [(ngModel)]="atencionMedicService.formData.observacion" class="form-control">{{atencionMedicService.formData.observacion}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row boxForm  justify-content-around mt-1 mt-sm-2 mb-1 mb-sm-2">
+      <div class="col-12 col-sm-10 col-md-6 col-lg-6 mb-2 ">
+        <a [routerLink] class="btn bttn-Primario btn-block" (click)="onSubmit()">
+          <fa-icon [icon]="fasave"></fa-icon> Guardar
+        </a>
+      </div>
+      <div class="col-12 col-sm-10 col-md-6 col-lg-6">
+        <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit(0)"> Salir</a>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

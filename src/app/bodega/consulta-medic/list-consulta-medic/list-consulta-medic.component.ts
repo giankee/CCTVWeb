@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, faEye, faEyeSlash, faPrint, faSearch, faSort, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, faExchangeAlt, faEye, faEyeSlash, faPrint, faSearch, faSort, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 import { ConsultaMedicService } from 'src/app/shared/bodega/consulta-medic.service';
@@ -15,6 +15,8 @@ import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterpric
 import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { SortPipe } from 'src/app/pipes/sort.pipe';
+import { ToastrService } from 'ngx-toastr';
+import { TransConsultaAtencionComponent } from './trans-consulta-atencion/trans-consulta-atencion.component';
 
 @Component({
   selector: 'app-list-consulta-medic',
@@ -70,9 +72,9 @@ export class ListConsultaMedicComponent implements OnInit {
   fechaHoy = new cFecha();
   /**Fin paginatacion */
 
-  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch;
+  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch;faexchange=faExchangeAlt;
   faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
-  constructor(private _conexcionService: ConexionService, private _consultaMedicService: ConsultaMedicService, private _variosService: VariosService, private dialog: MatDialog, private _enterpriceService: ApiEnterpriceService, private _productosBService: ProductoBService, private consultaPipe: SortPipe) {
+  constructor(private _conexcionService: ConexionService, private _consultaMedicService: ConsultaMedicService, private _variosService: VariosService, private dialog: MatDialog, private _enterpriceService: ApiEnterpriceService, private _productosBService: ProductoBService, private consultaPipe: SortPipe,private toastr: ToastrService) {
   }
 
   ngOnInit(): void {
@@ -145,6 +147,35 @@ export class ListConsultaMedicComponent implements OnInit {
     const auxId = dataIn.idConsultaMedic;
     dialoConfig.data = { auxId };
     this.dialog.open(ViewConsultaComponent, dialoConfig);
+  }
+
+  onPrepararModalAtencion(dataIn: cConsultaMedic){
+    var  strParametro = "Tripulantes@" + dataIn.paciente + "@SIN ASIGNAR";
+    this._enterpriceService.getPersonalEnter2(strParametro).subscribe(res => {
+      if(res.length>0){
+        const dialoConfig = new MatDialogConfig();
+        dialoConfig.autoFocus = true;
+        dialoConfig.disableClose = true;
+        dialoConfig.height = "85%";
+        dialoConfig.width = "90%";
+        const auxData = dataIn;
+        const auxIdPaciente= res[0].idEmpleado;
+        dialoConfig.data = { auxData, auxIdPaciente };
+        const dialogRef=this.dialog.open(TransConsultaAtencionComponent, dialoConfig);
+        dialogRef.afterClosed().subscribe((result: number) => {
+          if (result ==1) {
+            dataIn.estadoConsulta="Procesada";
+            this.consultaMedicService.actualizarConsulta(dataIn).subscribe(
+              (res: any) => {
+                if (res.message == "Ok") {
+                  this.toastr.success('Actualización satisfactoria', 'Consulta Procesada');
+                }
+              }
+            )
+          }
+        });
+      } else this.toastr.warning('No es un personal de la empresa', 'Aviso Importante');
+    });
   }
 
   onListProducto(value: string) {

@@ -2,7 +2,7 @@ import { cEnterpricePersonal, cFecha } from "../otrosServices/varios";
 
 export class cPacienteMedic {
     idPacienteMedic: number;
-    empleadoId:number;
+    empleadoId: number;
     embarazo: boolean;
     minusvalido: boolean;
     tipoMinusvalido: string;
@@ -30,11 +30,11 @@ export class cPacienteMedic {
     /*Control*/
     cedula: string;
     empleado: string;
-    idEmpresa:number;
+    idEmpresa: number;
 
     constructor() {
         this.idPacienteMedic = undefined;
-        this.empleadoId=undefined;
+        this.empleadoId = undefined;
         this.embarazo = false;
         this.minusvalido = false;
         this.tipoMinusvalido = "SIN ASIGNAR";
@@ -54,14 +54,15 @@ export class cPacienteMedic {
         this.tareasAntTrabajo = "";
         this.medidasPrevencion = "";
 
+        /**Control */
         this.cedula = "";
         this.empleado = "";
-        this.idEmpresa=undefined;
+        this.idEmpresa = undefined;
     }
 
     completarObject(dataIn: cPacienteMedic) {
         this.idPacienteMedic = dataIn.idPacienteMedic;
-        this.empleadoId=dataIn.empleadoId;
+        this.empleadoId = dataIn.empleadoId;
         this.embarazo = dataIn.embarazo;
         this.minusvalido = dataIn.minusvalido;
         this.tipoMinusvalido = dataIn.tipoMinusvalido;
@@ -80,10 +81,10 @@ export class cPacienteMedic {
         this.tareasAntTrabajo = dataIn.tareasAntTrabajo;
         this.medidasPrevencion = dataIn.medidasPrevencion;
 
-        if(dataIn.cedula!=null && dataIn.empleado!=null && dataIn.idEmpresa!=0)
-        this.cedula=dataIn.cedula;
-        this.empleado=dataIn.empleado;
-        this.idEmpresa=dataIn.idEmpresa;
+        if (dataIn.cedula != null && dataIn.empleado != null && dataIn.idEmpresa != 0)
+            this.cedula = dataIn.cedula;
+        this.empleado = dataIn.empleado;
+        this.idEmpresa = dataIn.idEmpresa;
     }
 }
 
@@ -107,7 +108,7 @@ export class cPermisoMedic {
     totalDias: number;
     totalHoras: number;
     observacion: string;
-    regresaConsulta:boolean;
+    regresaConsulta: boolean;
     guardiaCargoUser: string;
 
     /**Variables de control */
@@ -130,7 +131,7 @@ export class cPermisoMedic {
         this.totalDias = 0;
         this.totalHoras = 1;
         this.observacion = "";
-        this.regresaConsulta=false;
+        this.regresaConsulta = false;
         this.guardiaCargoUser = "VERONICA CHUMO";
 
         this.spinnerLoading = 0;
@@ -149,7 +150,7 @@ export class cPermisoMedic {
         this.totalDias = dataIn.totalDias;
         this.totalHoras = dataIn.totalHoras;
         this.observacion = dataIn.observacion;
-        this.regresaConsulta=dataIn.regresaConsulta;
+        this.regresaConsulta = dataIn.regresaConsulta;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
 
         if (dataIn.pacienteMedic != null) {
@@ -263,8 +264,8 @@ export class cAtencionMedic {
     auxIMC: number;
     spinnerLoading: boolean;
     showSearchSelect: boolean;
-    presionA:number;
-    presionB:number;
+    presionA: number;
+    presionB: number;
 
     constructor() {
         this.idAtencionMedic = undefined;
@@ -291,8 +292,8 @@ export class cAtencionMedic {
         this.auxIMC = 0;
         this.spinnerLoading = false;
         this.showSearchSelect = false;
-        this.presionA=undefined;
-        this.presionB=undefined;
+        this.presionA = undefined;
+        this.presionB = undefined;
     }
 
     completarObject(dataIn: cAtencionMedic) {
@@ -467,8 +468,8 @@ export class cAccidenteMedic {
     completarObject(dataIn: cAccidenteMedic) {
         this.idAccidenteMedic = dataIn.idAccidenteMedic;
         this.pacienteMedicId = dataIn.pacienteMedicId;
-        this.fechaRegistro=dataIn.fechaRegistro;
-        this.fechaRegreso=dataIn.fechaRegreso;
+        this.fechaRegistro = dataIn.fechaRegistro;
+        this.fechaRegreso = dataIn.fechaRegreso;
         this.totalHoras = dataIn.totalHoras;
         this.descripcion = dataIn.descripcion;
         this.jefeInmediato = dataIn.jefeInmediato;
@@ -541,7 +542,7 @@ export class cParametroReporteMedic {
 
     constructor() {
         var fechaHoy = new cFecha();
-        this.idEmpresa=undefined;
+        this.idEmpresa = undefined;
         this.tipoR = "SIN ASIGNAR";
         this.strPeriodo = fechaHoy.sacaSoloMes();
         this.strArea = "SIN ASIGNAR";
@@ -549,34 +550,34 @@ export class cParametroReporteMedic {
 
     resetObj() {
         var fechaHoy = new cFecha();
-        this.idEmpresa=undefined;
+        this.idEmpresa = undefined;
         this.tipoR = "SIN ASIGNAR";
         this.strPeriodo = fechaHoy.sacaSoloMes();
         this.strArea = "SIN ASIGNAR";
     }
 }
 
-export class cReportGeneralMedic{
-    enfermedadCIE10:string;
-    contadorOcurrencia:number;
-    listDepartamentos:cReportGeneralMedicArea[];
+export class cReportGeneralMedic {
+    enfermedadCIE10: string;
+    contadorOcurrencia: number;
+    listDepartamentos: cReportGeneralMedicArea[];
 }
 
-export class cReportGeneralMedicArea{
-    departamento:string;
-    contadorOcurrencia:number;
+export class cReportGeneralMedicArea {
+    departamento: string;
+    contadorOcurrencia: number;
 }
 
 export class cDepartamentoR {
-    departamento:string;
+    departamento: string;
     contOcurrenciaTotal: number;
     contOcurrenciaNormal: number;
     contOcurrenciaControl: number;
 
-    constructor(nombreIn){
-        this.departamento=nombreIn;
-        this.contOcurrenciaTotal=0;
-        this.contOcurrenciaNormal=0;
-        this.contOcurrenciaControl=0;
+    constructor(nombreIn) {
+        this.departamento = nombreIn;
+        this.contOcurrenciaTotal = 0;
+        this.contOcurrenciaNormal = 0;
+        this.contOcurrenciaControl = 0;
     }
-  }
+}

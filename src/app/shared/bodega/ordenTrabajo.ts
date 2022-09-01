@@ -114,44 +114,38 @@ export class cMaterialesO {
 }
 
 export class cConsultaMedic {
-    idConsultaMedic: number = undefined;
-    numOrdenSecuencial: number = undefined;
-    fechaRegistro: string = "";
-    bodegaOrigen: string = "";
-    sintomas: string = "";
-    marea: string = "";
-    paciente: string = "";
-    personaResponsable: string = "";
-    guardiaCargoUser: string = "";
-    estadoConsulta:string="Pendiente";
-    listReceta: cRecetaMedic[] = [];
+    idConsultaMedic: number;
+    numOrdenSecuencial: number;
+    fechaRegistro: string;
+    bodegaOrigen: string;
+    sintomas: string;
+    marea: string;
+    paciente: string;
+    personaResponsable: string;
+    guardiaCargoUser: string;
+    estadoConsulta:string;
+    listReceta: cRecetaMedic[];
 
     /**Variables de control */
-    spinnerLoading: boolean = false;
-    showSearchSelect: boolean = false;
+    spinnerLoading: boolean;
+    showSearchSelect: boolean;
 
     constructor(guardiaCargoIn: string, bodegaIn?: string) {
         let fechaHoy: cFecha = new cFecha();
-        this.guardiaCargoUser = guardiaCargoIn;
-        this.personaResponsable=guardiaCargoIn;
-        this.fechaRegistro = fechaHoy.strFecha;
-        if (bodegaIn != null)
-            this.bodegaOrigen = bodegaIn;
-    }
-
-    resetObject() {
-        let fechaHoy: cFecha = new cFecha();
         this.idConsultaMedic = undefined;
         this.numOrdenSecuencial = undefined;
-        this.fechaRegistro = fechaHoy.strFecha;
-        this.bodegaOrigen = "";
         this.sintomas = "";
         this.marea = "";
         this.paciente = "";
-        this.personaResponsable = "";
+        this.guardiaCargoUser = guardiaCargoIn;
+        this.personaResponsable=guardiaCargoIn;
+        this.fechaRegistro = fechaHoy.strFecha;
         this.estadoConsulta="Pendiente";
-        this.listReceta = [];
+        if (bodegaIn != null)
+            this.bodegaOrigen = bodegaIn;
+        else "SIN ASIGNAR";
 
+        this.listReceta = [];
         this.spinnerLoading = false;
         this.showSearchSelect = false;
     }

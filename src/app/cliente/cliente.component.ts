@@ -724,11 +724,8 @@ export class ClienteComponent implements OnInit {
 
   comunSubmit(form: NgForm) {
     if (this._ordenESService.formData.checkCarro) {
-      if (this.ordenESService.formData.carro.idCarro != null) {
-        this.ordenESService.formData.carroId = Number(this.ordenESService.formData.carro.idCarro);
-        if (this._ordenESService.formData.choferId != null) {
-          this._ordenESService.formData.carro.completarCarro(this.listFiltroCarrosC.find(x => x.idCarro == this.ordenESService.formData.carroId));
-        }
+      if (this.ordenESService.formData.carro.idCarro != undefined) {
+        this.ordenESService.formData.carroId = this.ordenESService.formData.carro.idCarro;
       }
       if (this.strFases == "Balde") {
         this._ordenESService.formData.carro.propietario = "Transportista";
@@ -825,6 +822,7 @@ export class ClienteComponent implements OnInit {
         }
       }
     }
+
     //if (1 == (1 - 1))
     this._ordenESService.insertarOrdenES(this.ordenESService.formData).subscribe(
       (res: any) => {
