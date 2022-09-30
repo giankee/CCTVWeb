@@ -158,7 +158,7 @@ export class cFecha {
         return this.arrayMes.find(x => x.id == (Number(strValor))).nombre;
     }
 
-    compararFechasDias(strFechaA: string, strFechaB: string) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
+    compararFechasDias(strFechaA: string, strFechaB: string, incluirFinSemana?: boolean) {//regla debe ingresar siempre A fecha menor y b Fecha mas actual
         var separarA = strFechaA.split("-");
         var separarB = strFechaB.split("-");
         var difAnio = 0;
@@ -170,10 +170,55 @@ export class cFecha {
             difMes = (12 - Number(separarA[1])) + Number(separarB[1]);
         else difMes = (Number(separarB[1]) - Number(separarA[1]));
         if (difMes != 0) {
-            if (Number(separarA[2]) < Number(separarB[2]))
-                difDia = (difMes * 30) + (Number(separarB[2]) - Number(separarA[2]));
-            else difDia = (difMes * 30) + (Number(separarA[2]) - Number(separarB[2]));
-        } else difDia = Number(separarB[2]) - Number(separarA[2]);
+            var a = 0;
+            var b = 0;
+            var starDay = 0;
+            var endDay = 0;
+            if (Number(separarA[1]) < Number(separarB[1])) {
+                a = Number(separarA[1]);
+                b = Number(separarB[1]);
+                starDay = Number(separarA[2]);
+                endDay = Number(separarB[2]);
+            } else {
+                a = Number(separarB[1]);
+                b = Number(separarA[1]);
+                starDay = Number(separarB[2]);
+                endDay = Number(separarA[2]);
+            }
+            for (var i = a; i <= b; i++) {
+                if (i == a) {
+                    for (var j = starDay; j <= this.arrayMes[i - 1].maxDias; j++) {
+                        if (incluirFinSemana == false) {
+                            if (this.sacarStrDiaLaboral(Number(separarB[0]), i, j))
+                                difDia++;
+                        } else difDia++;
+                    }
+                }
+                if (i != a && i != b) {
+                    for (var j = 1; j <= this.arrayMes[i - 1].maxDias; j++) {
+                        if (incluirFinSemana == false) {
+                            if (this.sacarStrDiaLaboral(Number(separarB[0]), i, j))
+                                difDia++;
+                        } else difDia++;
+                    }
+                }
+                if (i == b) {
+                    for (var j = 1; j <= endDay; j++) {
+                        if (incluirFinSemana == false) {
+                            if (this.sacarStrDiaLaboral(Number(separarB[0]), i, j))
+                                difDia++;
+                        } else difDia++;
+                    }
+                }
+            }
+        } else {
+            if (incluirFinSemana == false)
+                for (var i = Number(separarA[2]) + 1; i <= Number(separarB[2]); i++) {
+                    if (this.sacarStrDiaLaboral(Number(separarB[0]), Number(separarB[1]), i))
+                        difDia++;
+                }
+            else difDia = Number(separarB[2]) - Number(separarA[2]);
+        }
         return difDia;
     }
 
@@ -195,6 +240,14 @@ export class cFecha {
             return (difAnio + " años con " + difMes + " meses");
         else return difAnio + "";
     }
+
+    sacarStrDiaLaboral(anio: number, mes: number, dia: number): boolean {
+        var fecha = new Date();
+        fecha.setFullYear(anio, mes - 1, dia);
+        if ((fecha.toString().slice(0, 3) == 'Sat') || (fecha.toString().slice(0, 3) == 'Sun'))
+            return false;
+        return true;
+    }
 }
 
 export class cParemetos {
@@ -210,9 +263,9 @@ export class cParemetos {
     actDestino: boolean = true;
     numGuia: number = undefined;
 
-    fechaH:string;
-    fechaA:string;
-    fechaB:string;
+    fechaH: string;
+    fechaA: string;
+    fechaB: string;
 
     spinLoadingG: number = 0;//0 offf, 1 es personal, 2 varios ,3 producto,4 guia
     showSearchSelectG: number = 0;//0 offf, 1 es personal, 2 varios, 3 producto
@@ -231,7 +284,7 @@ export class cParemetos {
         if (this.strLugar != "")
             strparam = strparam + this.strLugar;
         else strparam = strparam + "null";
-        return strparam+"@"+this.actOrigen+"@"+this.actDestino;;
+        return strparam + "@" + this.actOrigen + "@" + this.actDestino;;
     }
 }
 
@@ -436,6 +489,9 @@ export class cEnterpricePersonal {
     barco: string;
     enrolar: number;
     idEmpresa: number;
+    recesoS: string;
+    recesoE: string;
+    horaS: string;
 
     /**Control */
     edad: string;
@@ -457,6 +513,9 @@ export class cEnterpricePersonal {
         this.barco = "";
         this.enrolar = undefined;
         this.idEmpresa = undefined;
+        this.recesoS = null;
+        this.recesoS = null;
+        this.horaS = null;
 
         this.edad = "";
     }
@@ -482,6 +541,9 @@ export class cEnterpricePersonal {
         this.funcion = dataIn.funcion;
         this.barco = dataIn.barco;
         this.enrolar = dataIn.enrolar;
+        this.recesoS = dataIn.recesoS;
+        this.recesoE = dataIn.recesoE;
+        this.horaS = dataIn.horaS;
 
         var fechaHoy = new cFecha();
         this.edad = fechaHoy.sacarEdad(this.fecha_Nacido, fechaHoy.strFecha, 'string');
@@ -535,10 +597,10 @@ export class cAuxMedicamentos {
     nombreMedicamento: string;
     cantidadOcupada: number;
 
-    constructor(medicamentoIdIn:number, nombreMedicamentoIn:string, cantidadIn:number){
-        this.medicamentoId=medicamentoIdIn;
-        this.nombreMedicamento=nombreMedicamentoIn;
-        this.cantidadOcupada=cantidadIn;
+    constructor(medicamentoIdIn: number, nombreMedicamentoIn: string, cantidadIn: number) {
+        this.medicamentoId = medicamentoIdIn;
+        this.nombreMedicamento = nombreMedicamentoIn;
+        this.cantidadOcupada = cantidadIn;
     }
 }
 

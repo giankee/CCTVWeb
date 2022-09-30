@@ -10,16 +10,16 @@
       </div>
       <div class="mt-2 px-4 py-2 boxForm collapse show" id="FiltroList">
         <div class="row">
-          <div class="col-3">
+          <div class="col-6 col-sm-3">
             <div class="form-group inputForm">
               <div class="title"><strong>Tipo de Reporte:</strong></div>
               <select class="form-control" name="selectTipoReporte" #selectTipoReporte="ngModel"
-                [(ngModel)]="parametrosBusqueda.tipoR">
+                [(ngModel)]="parametrosBusqueda.tipoR" (ngModelChange)="spinnerOnOff=0">
                 <option selected disabled value="SIN ASIGNAR">--Seleccionar--</option>
                 <option value="caseA">Enfermedades Más Frecuentes General</option>
                 <option value="caseB">Registro de Morbilidad</option>
-                <option value="caseC">Reporte de Ausentismo</option>
-                <option value="caseD">Horas no trabajadas Periódicamente</option>
+                <option *ngIf="parametrosBusqueda.tipoR!='caseD'" value="caseC">Reporte de Ausentismo</option>
+                <option *ngIf="parametrosBusqueda.tipoR=='caseD'" value="caseD">Reporte de Ausentismo</option>
               </select>
             </div>
           </div>
@@ -35,38 +35,65 @@
               </select>
             </div>
           </div>
-          <div class="col-3" *ngIf="parametrosBusqueda.tipoR!='SIN ASIGNAR' && parametrosBusqueda.tipoR!='caseA' && parametrosBusqueda.tipoR!='caseC'">
+          <div class="col-3" *ngIf="parametrosBusqueda.tipoR=='caseB'">
             <div class="form-group inputForm">
-                <div class="title"><strong> Período:</strong></div>
-                <input name="fechaBusqueda" type="month" #fechaBusqueda="ngModel" [(ngModel)]="parametrosBusqueda.strPeriodo"
-                  class="form-control" min="2020-01">
-              </div>
+              <div class="title"><strong> Período:</strong></div>
+              <input name="fechaBusqueda" type="month" #fechaBusqueda="ngModel"
+                [(ngModel)]="parametrosBusqueda.strPeriodo" class="form-control" min="2020-01">
+            </div>
           </div>
-          <div class="col-3" *ngIf="parametrosBusqueda.tipoR!='SIN ASIGNAR' && parametrosBusqueda.tipoR!='caseA' && parametrosBusqueda.tipoR!='caseC'">
-            <div class="form-group inputForm mr-2">
-                <div class="title"><strong>Área:</strong></div>
-                <select name="selectArea" #selectArea="ngModel" [(ngModel)]="parametrosBusqueda.strArea"
-                  class="form-control">
-                  <option selected value="SIN ASIGNAR">--Seleccionar--</option>
-                  <option value="Administración">Administración</option>
-                  <option value="Albañiles">Albañiles</option>
-                  <option value="Bodega">Bodega</option>
-                  <option value="Calidad">Calidad</option>
-                  <option value="Cámara">Cámara</option>
-                  <option value="Cocina y Limpieza">Cocina y Limpieza</option>
-                  <option value="Compresores">Compresores</option>
-                  <option value="Contratados">Contratados</option>
-                  <option value="Flota Pesquera">Flota Pesquera</option>
-                  <option value="Mantenimiento">Mantenimiento</option>
-                  <option value="Mantenimiento Barcos">Mantenimiento Barcos</option>
-                  <option value="Medico">Medico</option>
-                  <option value="Operativo">Operativo</option>
-                  <option value="Seguridad Física">Seguridad Física</option>
-                  <option value="Seguridad">Seguridad</option>
-                  <option value="Taller">Taller</option>
-                  <option value="Tripulantes">Tripulantes</option>
+          <div class="col-12 col-sm-3 col-md-5" *ngIf="parametrosBusqueda.tipoR=='caseC'|| parametrosBusqueda.tipoR=='caseD'">
+            <div class="form-group inputForm">
+              <div class="title"><strong> Período:</strong></div>
+              <div class="input-group">
+                <span class="input-group-text">MES</span>
+                <select class="form-control" name="selectMes" #selectMes="ngModel"
+                  [(ngModel)]="parametrosBusqueda.soloMes">
+                  <option value=0>-SIN ASIGNAR-</option>
+                  <option value=1>Enero</option>
+                  <option value=2>Febrero</option>
+                  <option value=3>Marzo</option>
+                  <option value=4>Abril</option>
+                  <option value=5>Mayo</option>
+                  <option value=6>Junio</option>
+                  <option value=7>Julio</option>
+                  <option value=8>Agosto</option>
+                  <option value=9>Septiembre</option>
+                  <option value=10>Octubre</option>
+                  <option value=11>Nomviembre</option>
+                  <option value=12>Diciembre</option>
                 </select>
+                <span class="input-group-text">AÑO</span>
+                <input name="anio" #anio="ngModel" type="number" [(ngModel)]="parametrosBusqueda.soloAnio" pattern="^[0-9]{4}"
+                  class="form-control input-src" min="2022" step="1" value="parametrosBusqueda.soloAnio" onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
               </div>
+            </div>
+          </div>
+          <div class="col-3" *ngIf="parametrosBusqueda.tipoR=='caseB'">
+            <div class="form-group inputForm mr-2">
+              <div class="title"><strong>Área:</strong></div>
+              <select name="selectArea" #selectArea="ngModel" [(ngModel)]="parametrosBusqueda.strArea"
+                class="form-control">
+                <option selected value="SIN ASIGNAR">--Seleccionar--</option>
+                <option value="Administración">Administración</option>
+                <option value="Albañiles">Albañiles</option>
+                <option value="Bodega">Bodega</option>
+                <option value="Calidad">Calidad</option>
+                <option value="Cámara">Cámara</option>
+                <option value="Cocina y Limpieza">Cocina y Limpieza</option>
+                <option value="Compresores">Compresores</option>
+                <option value="Contratados">Contratados</option>
+                <option value="Flota Pesquera">Flota Pesquera</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Mantenimiento Barcos">Mantenimiento Barcos</option>
+                <option value="Medico">Medico</option>
+                <option value="Operativo">Operativo</option>
+                <option value="Seguridad Física">Seguridad Física</option>
+                <option value="Seguridad">Seguridad</option>
+                <option value="Taller">Taller</option>
+                <option value="Tripulantes">Tripulantes</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="row d-flex justify-content-center">
@@ -88,11 +115,11 @@
 </div>
 <div class="my-2 px-2" *ngIf="spinnerOnOff==2">
   <div *ngIf="parametrosBusqueda.tipoR=='caseA'||parametrosBusqueda.tipoR=='caseB'">
-    <app-enfermedad-report [listEnfermedadesIn]="listResultadosAB" [tipoR]="parametrosBusqueda.tipoR">
+    <app-enfermedad-report [listEnfermedadesIn]="listResultados" [tipoR]="parametrosBusqueda.tipoR">
     </app-enfermedad-report>
   </div>
   <div *ngIf="parametrosBusqueda.tipoR=='caseC'||parametrosBusqueda.tipoR=='caseD'">
-    <app-ausentisimo-report [listAusentisismoIn]="listResultadosCD" [tipoR]="parametrosBusqueda.tipoR">
+    <app-ausentisimo-report [listAusentisismoIn]="listResultados" [tipoR]="parametrosBusqueda.tipoR">
     </app-ausentisimo-report>
   </div>
 </div>

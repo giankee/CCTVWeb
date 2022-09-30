@@ -220,7 +220,7 @@ export class ClienteComponent implements OnInit {
     this.spinLoadingG = 1;
     this.showSearchSelectG = 1;
     this.resetFormCarro();
-    this.ordenESService.formData.persona.resetPersonal();
+    this.ordenESService.formData.persona = new cPersonal();
     this.ordenESService.formData.personaId = null;
     this.ordenESService.formData.choferId = null;
     if (this._ordenESService.formData.tipoOrden == "Balde")
@@ -246,12 +246,12 @@ export class ClienteComponent implements OnInit {
   onChoosePersonal(data: any, tipo: string) {
     this.disableBtnPersonal = true;
     if (tipo == 'Chofer') {
+      this._ordenESService.formData.checkCarro = true;
       this._ordenESService.formData.persona.nombreP = data.empleado;
       this._ordenESService.formData.persona.tipoPersona = data.grupo;
       this._ordenESService.formData.persona.idPersona = data.idEmpleado;
       this._ordenESService.formData.persona.cedula = data.cedula;
-      this._ordenESService.formData.checkCarro = true;
-      this._ordenESService.formData.choferId = data.idEmpleado;
+      this._ordenESService.formData.choferId = Number(data.idEmpleado);
       if (this.listCarrosIn.filter(x => x.propietario == this._ordenESService.formData.persona.nombreP) != undefined)
         this.listCarrosChofer = JSON.parse(JSON.stringify(this.listCarrosIn.filter(x => x.propietario == this._ordenESService.formData.persona.nombreP)));
     }
@@ -445,7 +445,7 @@ export class ClienteComponent implements OnInit {
     this.disableBtnCarro = true;
     this._ordenESService.formData.checkCarro = false;
     this.listCarrosChofer = [];
-    this._ordenESService.formData.carro.resetCarro();
+    this._ordenESService.formData.carro = new cCarro();
   }
 
   onAntSig(opAntSig: string) {//debe Arreglarse a futuro
@@ -487,18 +487,20 @@ export class ClienteComponent implements OnInit {
           break;
         case 1://cedula 
           this.controlCampos[i] = false;
-          if ((this._ordenESService.formData.persona.cedula == "" || this._ordenESService.formData.persona.cedula.length != 10) && this._ordenESService.formData.tipoOrden != "Balde")
-            this.controlCampos[i] = true;
+          if (this._ordenESService.formData.tipoOrden != "Balde")
+            if ((this._ordenESService.formData.persona.cedula == "" || this._ordenESService.formData.persona.cedula.length != 10))
+              this.controlCampos[i] = true;
           break;
         case 3://carro
           this.controlCampos[i] = false;
           if (this._ordenESService.formData.checkCarro || this._ordenESService.formData.tipoOrden == "Balde") {
             if (this._ordenESService.formData.persona.tipoPersona == 'Choferes' && this._ordenESService.formData.carro.idCarro == null)
               this.controlCampos[i] = true;
-            if (this._ordenESService.formData.persona.tipoPersona != 'Choferes' || (this._ordenESService.formData.persona.tipoPersona == 'Choferes' && this._ordenESService.formData.carro.idCarro == 0)) {
+            if (this._ordenESService.formData.persona.tipoPersona != 'Choferes' || (this._ordenESService.formData.persona.tipoPersona == 'Choferes' && this._ordenESService.formData.carro.idCarro == undefined)) {
               let algo: any = document.getElementsByName('numMatricula');
-              if (this._ordenESService.formData.carro.numMatricula == "" || !algo[0].validity.valid)
+              if (this._ordenESService.formData.carro.numMatricula == "" || !algo[0].validity.valid) {
                 this.controlCampos[i] = true;
+              }
             }
           }
           break;
@@ -725,7 +727,11 @@ export class ClienteComponent implements OnInit {
   comunSubmit(form: NgForm) {
     if (this._ordenESService.formData.checkCarro) {
       if (this.ordenESService.formData.carro.idCarro != undefined) {
+        this.ordenESService.formData.carro.idCarro = Number(this.ordenESService.formData.carro.idCarro);
         this.ordenESService.formData.carroId = this.ordenESService.formData.carro.idCarro;
+        if (this.ordenESService.formData.choferId != null) {
+          this.ordenESService.formData.carro.numMatricula = this.listFiltroCarrosC.find(x => x.idCarro == this.ordenESService.formData.carroId).numMatricula;
+        }
       }
       if (this.strFases == "Balde") {
         this._ordenESService.formData.carro.propietario = "Transportista";
@@ -822,7 +828,6 @@ export class ClienteComponent implements OnInit {
         }
       }
     }
-
     //if (1 == (1 - 1))
     this._ordenESService.insertarOrdenES(this.ordenESService.formData).subscribe(
       (res: any) => {
@@ -982,7 +987,6 @@ export class ClienteComponent implements OnInit {
                 indexEncontrada = this._ordenESService.formData.listArticulosO.findIndex(x => x.inventarioId == dato.auxData.listArticulosO[i].inventarioId);
               else indexEncontrada = this._ordenESService.formData.listArticulosO.findIndex(x => x.productoId == dato.auxData.listArticulosO[i].productoId);
               if (indexEncontrada != -1) {//no esta entrando debido a q al momento de salir no se pone la de pendiente de Verificación y en la base solo me trae los que tienen pendiente de revición
-                console.log("la cant es: " + dato.auxData.listArticulosO[i].cantidad)
                 this._ordenESService.formData.listArticulosO[indexEncontrada].cantidad = dato.auxData.listArticulosO[i].cantidad;
                 this._ordenESService.formData.listArticulosO[indexEncontrada].retorna = true;
               } else {
@@ -1574,7 +1578,7 @@ export class ClienteComponent implements OnInit {
                 }
               );
           } else {
-            auxWhatsapp.phone ='593-939335731';
+            auxWhatsapp.phone = '593-939335731';
             this._whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
               res => {
                 if (res.status != "error")

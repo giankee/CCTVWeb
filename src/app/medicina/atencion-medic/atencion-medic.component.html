@@ -14,7 +14,7 @@
       <div class="row boxForm mt-2">
         <div class="col-6">
           <div>
-            <strong>{{pacienteNombre}}</strong>
+            <strong>{{pacienteService.datoPersona.datosEnterprice.empleado}}</strong>
           </div>
           <div> <strong>I.M.C:</strong>
             {{atencionMedicService.formData.auxIMC!=0 ? atencionMedicService.formData.auxIMC : ' ' }}
@@ -140,7 +140,7 @@
         </div>
         <div class="col-12 col-sm-12 col-md-6 col-lg-6">
           <div class="form-group inputForm">
-            <div class="title"><strong>Enfermedades actuales</strong></div>
+            <div class="title"><strong>Enfermedad actual</strong></div>
             <textarea name="enfermedades" #enfermedades="ngModel"
               [(ngModel)]="atencionMedicService.formData.enfermedadesActuales"
               (ngModelChange)="atencionMedicService.formData.enfermedadesActuales = $event?.toUpperCase()"
@@ -163,12 +163,27 @@
         </div>
       </div>
       <div class="row boxForm my-1">
-        <div class="col-12">
+        <div class="col-4">
           <div class="custom-control custom-switch ml-3">
             <input type="checkbox" name="reposo" #reposo="ngModel" class="custom-control-input" id="customSwitch1"
               [disabled]="permisoOpened==2 ||!atencionMedicService.formData.spinnerLoading"
               [(ngModel)]="atencionMedicService.formData.reposo" (ngModelChange)="onChangePermiso()">
             <label class="custom-control-label" for="customSwitch1">Reposo</label>
+          </div>
+        </div>
+        <!-- <div class="col-4">
+          <div class="custom-control custom-switch ml-3">
+            <input type="checkbox" name="accidente" #accidente="ngModel" class="custom-control-input" id="customSwitch2"
+              [disabled]="permisoOpened==2 ||!atencionMedicService.formData.spinnerLoading"
+              [(ngModel)]="atencionMedicService.formData.accidente" (ngModelChange)="onChangePermiso()">
+            <label class="custom-control-label" for="customSwitch2">Accidente</label>
+          </div>
+        </div> -->
+        <div class="col-4">
+          <div class="custom-control custom-switch ml-3">
+            <input type="checkbox" name="permisoIESS" #permisoIESS="ngModel" class="custom-control-input" id="customSwitch3"
+              [(ngModel)]="atencionMedicService.formData.citaIESS">
+            <label class="custom-control-label" for="customSwitch3">Cita IESS</label>
           </div>
         </div>
       </div>
@@ -193,7 +208,7 @@
   </form>
 </div>
 <div id="open" *ngIf="atencionMedicService.formData.reposo && permisoOpened!=2">
-  <app-permisos [isOpen]="permisoOpened" [idPacienteIn]="idPacienteIn" [pacienteNombre]="pacienteNombre" [empresa]="empresa"
+  <app-permisos [isOpen]="permisoOpened" [idPacienteIn]="pacienteService.datoPersona.datosPaciente.idPacienteMedic"
     [enfermedadCIE10In]="atencionMedicService.formData.enfermedadCIE10" (cerrar)="recibirRes($event)">
   </app-permisos>
 </div>

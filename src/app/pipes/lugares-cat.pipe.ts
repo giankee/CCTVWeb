@@ -20,8 +20,11 @@ export class LugaresCatPipe implements PipeTransform {
         }else return list.filter(x => x.categoria == inText);
       }
       if (tDato == "cVistaSalida") {
-        if (inText == 'notAll')
-          return list.filter(x => x.subCat != "Planta" && x.subCat != "Puerto" && x.cat =="Lugar");
+        if (inText == 'notAll'||inText == 'notAllB'){
+          if(inText == 'notAll')
+          return list.filter(x => x.subCat != "Planta" && x.subCat != "Puerto" && x.cat=="Lugar");
+          else return list.filter(x => x.subCat != "Planta" && x.subCat != "Puerto" && x.cat =="Area");
+        }
         else {
             if(inText=="Proveedor")
               return list.filter(x => x.cat == "Proveedor");  

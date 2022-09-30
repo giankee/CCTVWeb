@@ -103,14 +103,11 @@ export class ViewOrdenModalComponent implements OnInit {
   cargarDataChofer() {//Datos del choferes traidos desde db
     this._enterpriceService.getOnePersona(this._ordenESService.formData.choferId.toString())
       .subscribe(datoE => {
-        var aux: cPersonal = {
-          nombreP: datoE.empleado,
-          cedula: datoE.cedula,
-          tipoPersona: "Chofer",
-          estado: 1,
-          empresa: "Empleado",
-        }
-        this._ordenESService.formData.persona = JSON.parse(JSON.stringify(aux));
+        this._ordenESService.formData.persona = new cPersonal();
+        this.ordenESService.formData.persona.nombreP=datoE.empleado;
+        this.ordenESService.formData.persona.cedula=datoE.cedula;
+        this.ordenESService.formData.persona.tipoPersona="Chofer";
+        this.ordenESService.formData.persona.empresa="Empleado";
       },
         error => console.error(error));
   }

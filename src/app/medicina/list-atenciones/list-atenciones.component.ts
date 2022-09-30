@@ -62,7 +62,7 @@ export class ListAtencionesComponent implements OnInit {
       map((x: cAtencionMedic[]) => {
         x.forEach(y => {
           y.fechaAtencion = y.fechaAtencion.substring(0, 10);
-          this.pacienteService.getPacienteById(y.pacienteMedic.empleadoId).subscribe((dato: any) => {
+          this.pacienteService.getPacienteById("enterprice@"+y.pacienteMedic.empleadoId).subscribe((dato: any) => {
             if (dato.exito == 1) {
               if (dato.message == "Ok")
                 if(y.pacienteMedicId==dato.data.idPacienteMedic){
@@ -102,7 +102,7 @@ export class ListAtencionesComponent implements OnInit {
       map((x: cAtencionMedic[]) => {
         x.forEach(y => {
           y.fechaAtencion = y.fechaAtencion.substring(0, 10);
-          this.pacienteService.getPacienteById(y.pacienteMedic.empleadoId).subscribe((dato: any) => {
+          this.pacienteService.getPacienteById("enterprice@"+y.pacienteMedic.empleadoId).subscribe((dato: any) => {
             if (dato.exito == 1) {
               if (dato.message == "Ok")
                 y.pacienteMedic.empleado=dato.data.empleado;

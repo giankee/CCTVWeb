@@ -49,7 +49,7 @@ export class ListPermisosComponent implements OnInit {
         x.forEach(y => {
           y.fechaSalida = y.fechaSalida.substring(0, 10) + " - " + y.fechaSalida.substring(11, 16);
           y.fechaRegreso = y.fechaRegreso.substring(0, 10) + " - " + y.fechaRegreso.substring(11, 16);;
-          this.pacienteService.getPacienteById(y.pacienteMedic.empleadoId).subscribe((dato: any) => {
+          this.pacienteService.getPacienteById("enterprice@"+y.pacienteMedic.empleadoId).subscribe((dato: any) => {
             if (dato.exito == 1) {
               if (dato.message == "Ok")
                 if (y.pacienteMedicId == dato.data.idPacienteMedic) {
@@ -154,7 +154,7 @@ export class ListPermisosComponent implements OnInit {
         x.forEach(y => {
           y.fechaSalida = y.fechaSalida.substring(0, 10) + " - " + y.fechaSalida.substring(11, 16);
           y.fechaRegreso = y.fechaRegreso.substring(0, 10) + " - " + y.fechaRegreso.substring(11, 16);;
-          this.pacienteService.getPacienteById(y.pacienteMedic.empleadoId).subscribe((dato: any) => {
+          this.pacienteService.getPacienteById("enterprice@"+y.pacienteMedic.empleadoId).subscribe((dato: any) => {
             if (dato.exito == 1) {
               if (dato.message == "Ok")
                 y.pacienteMedic.empleado = dato.data.empleado;

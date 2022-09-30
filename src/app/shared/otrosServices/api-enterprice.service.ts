@@ -18,9 +18,9 @@ export class ApiEnterpriceService {
     if (URLactual.hostname != '192.168.2.97') {
       this.serverUrl = environment.baseUrlCCTVP;
     }
-    if (URLactual.hostname == '192.168.2.105'||URLactual.hostname == '192.168.2.106') {
+    /*if (URLactual.hostname == '192.168.2.105'||URLactual.hostname == '192.168.2.106') {
       this.serverUrl = 'http://192.168.2.97:5005/api/';
-    }
+    }*/
   }
 
   getPersonalEnter(tipo: string): Observable<cEnterpriceEmpleados[]> {

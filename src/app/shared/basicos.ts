@@ -9,9 +9,6 @@ export class cCarro {
     estado: number = 2;
 
     constructor() {
-
-    }
-    resetCarro?() {
         this.idCarro = undefined;
         this.numMatricula = "";
         this.colorCarro = "Desconocido";
@@ -19,7 +16,8 @@ export class cCarro {
         this.propietario = undefined;
         this.estado = 1;
     }
-    completarCarro?(objCarroIn: cCarro) {
+
+    completarCarro(objCarroIn: cCarro) {
         this.idCarro = objCarroIn.idCarro;
         this.numMatricula = objCarroIn.numMatricula;
         this.colorCarro = objCarroIn.colorCarro;
@@ -38,10 +36,6 @@ export class cPersonal {
     estado: number = 2;
 
     constructor() {
-
-    }
-
-    resetPersonal?() {
         this.idPersona = undefined;
         this.cedula = undefined;
         this.nombreP = undefined;
@@ -49,7 +43,8 @@ export class cPersonal {
         this.empresa = "Desconocido";
         this.estado = 2;
     }
-    resetChofer?(cedulaIn, nombreIn) {
+
+    resetChofer(cedulaIn, nombreIn) {
         this.idPersona = undefined;
         this.cedula = cedulaIn;
         this.nombreP = nombreIn;
@@ -58,7 +53,7 @@ export class cPersonal {
         this.estado = 2;
     }
 
-    completarPersonal?(objPersonaIn: cPersonal) {
+    completarPersonal(objPersonaIn: cPersonal) {
         this.idPersona = objPersonaIn.idPersona;
         this.cedula = objPersonaIn.cedula;
         this.nombreP = objPersonaIn.nombreP;

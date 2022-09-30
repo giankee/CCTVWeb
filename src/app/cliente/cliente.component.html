@@ -196,8 +196,16 @@
                             matTooltip="Campo Obligatorio*" matTooltipPosition="above" matTooltipClass="tooltipRed"
                             [matTooltipDisabled]="(!controlCampos[9])">
                           <div class="results" *ngIf="showSearchSelectG=='2'">
-                            <ul>
+                            <ul *ngIf="ordenESService.formData.tipoOrden!='Balde'">
                               <li *ngFor="let data of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'notAll' ">
+                                <a (click)="onChooseLugar(data)" class="name">{{data.nombreLugar}}</a>
+                              </li>
+                              <li>
+                                <a (click)="showSearchSelectG=0" class="name">Nuevo Lugar</a>
+                              </li>
+                            </ul>
+                            <ul *ngIf="ordenESService.formData.tipoOrden=='Balde'">
+                              <li *ngFor="let data of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'notAll2' ">
                                 <a (click)="onChooseLugar(data)" class="name">{{data.nombreLugar}}</a>
                               </li>
                               <li>
@@ -358,12 +366,6 @@
                             {{datoCarros.marca}} - {{datoCarros.numMatricula}}
                           </mat-option>
                         </mat-optgroup>
-                        <!-- <mat-optgroup label="Vehículos Personales">
-                          <mat-option value=0>Nuevo Registro</mat-option>
-                          <mat-option *ngFor="let datoCarros2 of listCarrosChofer" value="{{datoCarros2.idCarro}}">
-                            {{datoCarros2.numMatricula}}
-                          </mat-option>
-                        </mat-optgroup> -->
                       </mat-select>
                     </mat-form-field>
                   </div>

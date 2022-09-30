@@ -8,46 +8,48 @@ import { cReportGeneralMedic } from '../shared/medicina/medicina';
 export class ReportEnfermedadesPipe implements PipeTransform {
 
   transform(list: cReportGeneralMedic[], paramsIn: any): any[] {
-    var newList:cReportGeneralMedic[]=list;
+    var newList:cReportGeneralMedic[]=[];
     paramsIn.contEnfermedadesNormal=0;
     paramsIn.contEnfermedadesControl=0;
     paramsIn.contOcurrenciaNormal=0;
     paramsIn.contOcurrenciaControl=0;
-    if(paramsIn.filtroEnfermedad!=''){
-      newList=newList.filter(x => x.enfermedadCIE10.toLowerCase().includes(paramsIn.filtroEnfermedad.toLowerCase()));
-    }
+    if(paramsIn.filtroBusqueda!='')
+      newList=list.filter(x => x.objNameG.toLowerCase().includes(paramsIn.filtroBusqueda.toLowerCase()));
+    else newList=list;
     if(newList.length>0){
+      
       if(paramsIn.isNormal && paramsIn.isControl){
         newList.forEach(x=>{
-          var auxLetra=x.enfermedadCIE10.slice(0,1);
+          var auxLetra=x.objNameG.slice(0,1);
           if(auxLetra=='Z'){
             paramsIn.contEnfermedadesControl++;
-            paramsIn.contOcurrenciaControl=paramsIn.contOcurrenciaControl+x.contadorOcurrencia;
+            paramsIn.contOcurrenciaControl+=x.contadorG;
           } 
           else {
             paramsIn.contEnfermedadesNormal++;
-            paramsIn.contOcurrenciaNormal=paramsIn.contOcurrenciaNormal+x.contadorOcurrencia;
+            paramsIn.contOcurrenciaNormal+=x.contadorG;
           }
         })
-      }else{
-        newList= newList.filter(x=>
-          {
-            var auxLetra=x.enfermedadCIE10.slice(0,1);
-            if(!paramsIn.isNormal){
-              if(auxLetra=='Z'){
-                paramsIn.contEnfermedadesControl++;
-                paramsIn.contOcurrenciaControl=paramsIn.contOcurrenciaControl+x.contadorOcurrencia;
-                return x;
+      }else
+        if(paramsIn.isNormal || paramsIn.isControl){
+          newList= newList.filter(x=>
+            {
+              var auxLetra=x.objNameG.slice(0,1);
+              if(!paramsIn.isNormal){
+                if(auxLetra=='Z'){
+                  paramsIn.contEnfermedadesControl++;
+                  paramsIn.contOcurrenciaControl+=x.contadorG;
+                  return x;
+                }
+              }else{
+                if(auxLetra!='Z'){
+                  paramsIn.contEnfermedadesNormal++;
+                  paramsIn.contOcurrenciaNormal+=x.contadorG;
+                  return x;
+                }
               }
-            }else{
-              if(auxLetra!='Z'){
-                paramsIn.contEnfermedadesNormal++;
-                paramsIn.contOcurrenciaNormal=paramsIn.contOcurrenciaNormal+x.contadorOcurrencia;
-                return x;
-              }
-            }
-        });
-      }
+          });
+        }
     }
     return newList;
   }

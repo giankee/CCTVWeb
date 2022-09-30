@@ -31,7 +31,6 @@ export class FichaTecnicaComponent implements OnInit {
 
   listPacienteFiltros$: any;
   dataOrdenesResult: cEnterpricePersonal[] = [];
-  datoPersona: cPacienteInfoCompleta = null;
   filtroPersona: string = "";
   filtroEmpresa: string = "SIN ASIGNAR";
   spinnerLoading: number = 0;
@@ -51,7 +50,7 @@ export class FichaTecnicaComponent implements OnInit {
   }
 
   resetForm() {
-    this.datoPersona = new cPacienteInfoCompleta();
+    this.pacienteService.datoPersona= new cPacienteInfoCompleta();
   }
 
   onListPasciente(value: string) {
@@ -74,17 +73,17 @@ export class FichaTecnicaComponent implements OnInit {
   }
 
   onChoosePaciente(dataIn: cEnterpricePersonal) {
-    this.datoPersona = new cPacienteInfoCompleta();
-    this.datoPersona.datosEnterprice.completarObj(dataIn);
-    this._pacienteService.getPacienteById(dataIn.idEmpleado).subscribe((dato: any) => {
+    this.pacienteService.datoPersona= new cPacienteInfoCompleta();
+    this.pacienteService.datoPersona.datosEnterprice.completarObj(dataIn);
+    this._pacienteService.getPacienteById("enterprice@"+dataIn.idEmpleado).subscribe((dato: any) => {
       if (dato.exito == 1) {
         if (dato.message == "Ok")
-          this.datoPersona.datosPaciente.completarObject(dato.data);
+          this.pacienteService.datoPersona.datosPaciente.completarObject(dato.data);
         else {
-          this.datoPersona.datosPaciente.cedula = dataIn.cedula;
-          this.datoPersona.datosPaciente.empleadoId = dataIn.idEmpleado;
-          this.datoPersona.datosPaciente.empleado = dataIn.empleado;
-          this.datoPersona.datosPaciente.tipoSangre = dataIn.tipoSangre;
+          this.pacienteService.datoPersona.datosPaciente.cedula = dataIn.cedula;
+          this.pacienteService.datoPersona.datosPaciente.empleadoId = dataIn.idEmpleado;
+          this.pacienteService.datoPersona.datosPaciente.empleado = dataIn.empleado;
+          this.pacienteService.datoPersona.datosPaciente.tipoSangre = dataIn.tipoSangre;
         }
       }
     });
@@ -107,25 +106,25 @@ export class FichaTecnicaComponent implements OnInit {
   }
 
   onSubmit(form: NgForm) {
-    if (this.datoPersona.datosPaciente.cedula != "") {
-      if (!this.datoPersona.datosPaciente.minusvalido) {
-        this.datoPersona.datosPaciente.tipoMinusvalido = "SIN ASIGNAR";
-        this.datoPersona.datosPaciente.porcentajeMinusvalido = 0;
+    if (this.pacienteService.datoPersona.datosPaciente.cedula != "") {
+      if (!this.pacienteService.datoPersona.datosPaciente.minusvalido) {
+        this.pacienteService.datoPersona.datosPaciente.tipoMinusvalido = "SIN ASIGNAR";
+        this.pacienteService.datoPersona.datosPaciente.porcentajeMinusvalido = 0;
       }
-      if (!this.datoPersona.datosPaciente.ecnt)
-        this.datoPersona.datosPaciente.tipoECNT = "SIN ASIGNAR";
-      if (this.datoPersona.datosPaciente.idPacienteMedic == undefined)
-        this._pacienteService.insertarDataPaciente(this.datoPersona.datosPaciente).subscribe(
+      if (!this.pacienteService.datoPersona.datosPaciente.ecnt)
+        this.pacienteService.datoPersona.datosPaciente.tipoECNT = "SIN ASIGNAR";
+      if (this.pacienteService.datoPersona.datosPaciente.idPacienteMedic == undefined)
+        this._pacienteService.insertarDataPaciente(this.pacienteService.datoPersona.datosPaciente).subscribe(
           (res: any) => {
             if (res.exito == 1) {
-              this.datoPersona.datosPaciente.idPacienteMedic = res.data.idPacienteMedic;
+              this.pacienteService.datoPersona.datosPaciente.idPacienteMedic = res.data.idPacienteMedic;
               this.toastr.success('Actualización satisfactorio', 'Ficha Médica');
             }
             else this.toastr.error('Actualización de Ficha Médica', 'Error');
           }
         );
       else
-        this._pacienteService.actualizarPaciente(this.datoPersona.datosPaciente).subscribe(
+        this._pacienteService.actualizarPaciente(this.pacienteService.datoPersona.datosPaciente).subscribe(
           (res: any) => {
             if (res.exito == 1)
               this.toastr.success('Actualización satisfactorio', 'Ficha Médica');
@@ -144,7 +143,7 @@ export class FichaTecnicaComponent implements OnInit {
   }
 
   onStart(op: string) {
-    if (this.datoPersona.datosPaciente.idPacienteMedic != undefined) {
+    if (this._pacienteService.datoPersona.datosPaciente.idPacienteMedic != undefined) {
       this.strFases = op;
       if (op == "Atencion")
         this.atencionIsOpened = true;

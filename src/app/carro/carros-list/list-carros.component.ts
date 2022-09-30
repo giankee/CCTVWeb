@@ -94,42 +94,19 @@ export class ListCarrosComponent implements OnInit {
       form.resetForm();
       this.autoFocus = false;
     }
-    this._carroService.formData = {
-      numMatricula: "",
-      colorCarro: "",
-      marca: "",
-      propietario: null,
-      estado: 1
-    }
+    this._carroService.formData = new cCarro();
     this.modoEdicion = false;
     this.disableBtnPersonal = true;
-    this._personalService.formData = {
-      cedula: "",
-      nombreP: "",
-      tipoPersona: null,
-      estado: 1,
-      empresa: ""
-    }
+    this._personalService.formData = new cPersonal();
   }
 
   //listo
   completarForm(list: cCarro, form?: NgForm) {//Para LLenar la informacion al formulario
     if (form == null) {
-      this._carroService.formData = {
-        idCarro: list.idCarro,
-        numMatricula: list.numMatricula,
-        colorCarro: list.colorCarro,
-        marca: list.marca,
-        propietario: list.propietario,
-        estado: list.estado
-      }
-      this._personalService.formData = {
-        cedula: "",
-        nombreP: "",
-        tipoPersona: null,
-        estado: 1,
-        empresa:""
-      }
+      this._carroService.formData = new cCarro();
+      this.carroService.formData.completarCarro(list);
+
+      this._personalService.formData = new cPersonal();
     }
     this.modoEdicion = true;
     this.disableBtnPersonal = true;
@@ -222,13 +199,7 @@ export class ListCarrosComponent implements OnInit {
       }
       let aux: cPersonal = this.listPersonalIn.find(x => x.cedula == this._personalService.formData.cedula);
       if (aux != undefined) {
-        this._personalService.formData = {
-          cedula: aux.cedula,
-          nombreP: aux.nombreP,
-          tipoPersona: aux.tipoPersona,
-          estado: 1,
-          empresa:""
-        }
+        this._personalService.formData = new cPersonal();
         this.disableBtnPersonal = true;
       } else {
         this._personalService.formData.nombreP = "";

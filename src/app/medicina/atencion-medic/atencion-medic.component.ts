@@ -7,6 +7,7 @@ import { cAtencionMedic } from 'src/app/shared/medicina/medicina';
 import { PermisoService } from 'src/app/shared/medicina/permiso.service';
 import listCie10 from 'src/assets/cie10code.json';
 import { jsPDF } from "jspdf";
+import { PacienteService } from 'src/app/shared/medicina/paciente.service';
 
 @Component({
   selector: 'app-atencion-medic',
@@ -14,6 +15,12 @@ import { jsPDF } from "jspdf";
   styles: [],
 })
 export class AtencionMedicComponent implements OnInit {
+  public get pacienteService(): PacienteService {
+    return this._pacienteService;
+  }
+  public set pacienteService(value: PacienteService) {
+    this._pacienteService = value;
+  }
   public get permisoMedicService(): PermisoService {
     return this._permisoMedicService;
   }
@@ -28,14 +35,7 @@ export class AtencionMedicComponent implements OnInit {
   }
 
   @Input() isOpen: boolean;
-  @Input() idPacienteIn: number;
-  @Input() pacienteNombre: string;
-
-  @Input() peso: number;
-  @Input() altura: number;
-  @Input() empresa: number;
   @Input() edad: string;
-
   @Output()
   cerrar: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -45,13 +45,13 @@ export class AtencionMedicComponent implements OnInit {
   soloAnios: string;
 
   fasave = faSave; fatimescircle = faTimesCircle;
-  constructor(private _atencionMedicService: AtencionService, private toastr: ToastrService, private _permisoMedicService: PermisoService) { }
+  constructor(private _atencionMedicService: AtencionService, private toastr: ToastrService, private _permisoMedicService: PermisoService, private _pacienteService: PacienteService) { }
 
   ngOnInit(): void {
     this._atencionMedicService.formData = new cAtencionMedic();
-    this._atencionMedicService.formData.pacienteMedicId = this.idPacienteIn;
-    this._atencionMedicService.formData.peso = this.peso;
-    this._atencionMedicService.formData.altura = this.altura;
+    this._atencionMedicService.formData.pacienteMedicId = this.pacienteService.datoPersona.datosPaciente.idPacienteMedic;
+    this._atencionMedicService.formData.peso = this.pacienteService.datoPersona.datosPaciente.ultimoPeso;
+    this._atencionMedicService.formData.altura = this.pacienteService.datoPersona.datosPaciente.ultimaAltura;
     this.soloAnios = (this.edad.split("años"))[0];
   }
 
@@ -87,8 +87,10 @@ export class AtencionMedicComponent implements OnInit {
         (res: any) => {
           if (res.exito == 1) {
             this.toastr.success('Registro de atención satisfactorio', 'Atención Médica');
-            if (this.atencionMedicService.formData.prescripcion != "NA" && this.atencionMedicService.formData.indicaciones != "NA")
+            if ((this.atencionMedicService.formData.prescripcion != "NA" && this.atencionMedicService.formData.prescripcion != "na") && (this.atencionMedicService.formData.indicaciones != "NA"&& this.atencionMedicService.formData.indicaciones != "na"))
               this.onConvertPdfReceta();
+            if(this.atencionMedicService.formData.citaIESS)
+              this.onConvertPdfCertificadoIESS();
           } else this.toastr.error('Se ha producido un inconveniente', 'Error');
           this.cerrar.emit(true);
         }
@@ -117,12 +119,12 @@ export class AtencionMedicComponent implements OnInit {
     var doc = new jsPDF();
     var lineaAux;
     var auxImage = new Image();
-    auxImage.src = "/assets/img/LOGO_" + this.empresa + ".png";
-    if (this.empresa == 1)
+    auxImage.src = "/assets/img/LOGO_" + this.pacienteService.datoPersona.datosPaciente.idEmpresa + ".png";
+    if (this.pacienteService.datoPersona.datosPaciente.idEmpresa == 1)
       doc.addImage(auxImage, "PNG", 9, 10, 35, 25);
-    if (this.empresa == 3)
+    if (this.pacienteService.datoPersona.datosPaciente.idEmpresa == 3)
       doc.addImage(auxImage, "PNG", 10, 10, 33, 23);
-    if (this.empresa == 4)
+    if (this.pacienteService.datoPersona.datosPaciente.idEmpresa == 4)
       doc.addImage(auxImage, "PNG", 10, 10, 35, 25);
 
     y = 5;
@@ -160,10 +162,10 @@ export class AtencionMedicComponent implements OnInit {
     doc.text("SATURACIÓN OXIGENO:", 110, (y + 17));
 
     doc.setFont("arial", "normal");
-    doc.text(this.pacienteNombre, 30, (y + 5));
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.empleado, 30, (y + 5));
     lineaAux = doc.splitTextToSize(this.atencionMedicService.formData.enfermedadCIE10 + ".", (90));
     doc.text(lineaAux, 10, (y + 13));
-    doc.text(this._atencionMedicService.formData.temperatura+ " °C", 140, (y + 5));
+    doc.text(this._atencionMedicService.formData.temperatura + " °C", 140, (y + 5));
     doc.text(this._atencionMedicService.formData.presion + " ", 178, (y + 5));
     doc.text(this._atencionMedicService.formData.fCardiaca.toString(), 137, (y + 9));
     doc.text(this._atencionMedicService.formData.fRespiratoria.toString(), 195, (y + 9));
@@ -184,13 +186,13 @@ export class AtencionMedicComponent implements OnInit {
     doc.line(110, (y + 75), 200, (y + 75));//down2
     doc.setFont("arial", "bold");
     doc.text("Motivo de Atención", 40, (y + 10));
-    doc.text("Enfermedades actuales", 140, (y + 10));
+    doc.text("Enfermedad actual", 140, (y + 10));
     doc.setFont("arial", "normal");
     lineaAux = doc.splitTextToSize(this.atencionMedicService.formData.motivoAtencion, (80));
     doc.text(lineaAux, 15, (y + 20));
     lineaAux = doc.splitTextToSize(this.atencionMedicService.formData.enfermedadesActuales, (80));
     doc.text(lineaAux, 115, (y + 20));
-    y=y+75;
+    y = y + 75;
     doc.line(10, (y + 5), 100, (y + 5));//up1
     doc.line(110, (y + 5), 200, (y + 5));//up2
     doc.line(10, (y + 12), 100, (y + 12));//down1
@@ -209,7 +211,7 @@ export class AtencionMedicComponent implements OnInit {
     doc.text(lineaAux, 15, (y + 20));
     lineaAux = doc.splitTextToSize(this.atencionMedicService.formData.indicaciones, (80));
     doc.text(lineaAux, 115, (y + 20));
-    y=212;
+    y = 212;
     doc.line(10, (y + 5), 200, (y + 5));//up1
     doc.line(10, (y + 12), 200, (y + 12));//down2
     doc.line(10, y + 5, 10, (y + 40));//left
@@ -227,7 +229,7 @@ export class AtencionMedicComponent implements OnInit {
     doc.line(65, (y), 145, (y));//downCut
     doc.text("DRA. VERONICA CHUMO ESTRELLA", 70, (y + 4));
 
-    doc.save("ConsultaMedica_" + this.atencionMedicService.formData.fechaAtencion + "_" + this.pacienteNombre + ".pdf");
+    doc.save("ConsultaMedica_" + this.atencionMedicService.formData.fechaAtencion + "_" + this.pacienteService.datoPersona.datosEnterprice.empleado + ".pdf");
   }
 
   onConvertPdfReceta() {
@@ -265,8 +267,8 @@ export class AtencionMedicComponent implements OnInit {
     doc.text("NOMBRE DE", 110, (y + 5));
     doc.text("PACIENTE", 12, (y + 9));
     doc.text("PACIENTE", 112, (y + 9));
-    doc.text(this.pacienteNombre, 35, (y + 7));
-    doc.text(this.pacienteNombre, 137, (y + 7));
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.empleado, 35, (y + 7));
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.empleado, 137, (y + 7));
     doc.text("EDAD: " + this.soloAnios, 10, (y + 14));
     doc.text("FECHA: Manta,   " + this._atencionMedicService.formData.fechaAtencion, 50, (y + 14));
     doc.text("FECHA: Manta,   " + this._atencionMedicService.formData.fechaAtencion, 150, (y + 14));
@@ -293,6 +295,162 @@ export class AtencionMedicComponent implements OnInit {
     doc.text("FIRMA Y SELLO DEL MÉDICO", 28, (y + 4));
     doc.text("FIRMA Y SELLO DEL MÉDICO", 128, (y + 4));
 
-    doc.save("ConsultaMedica_" + this.atencionMedicService.formData.fechaAtencion + "_" + this.pacienteNombre + ".pdf");
+    doc.save("ConsultaMedica_" + this.atencionMedicService.formData.fechaAtencion + "_" + this.pacienteService.datoPersona.datosEnterprice.empleado + ".pdf");
+  }
+
+  onConvertPdfCertificadoIESS() {
+    var y: number;
+    var doc = new jsPDF();
+    var auxImage = new Image();
+    auxImage.src = "/assets/img/LOGO_OCUPACIONAL.png";
+    doc.addImage(auxImage, "PNG", 9, 9, 28, 18);
+
+    y = 5;
+    doc.line(5, y, 205, y);//up
+    doc.line(5, y, 5, (y + 285));//left
+    doc.line(205, y, 205, (y + 285));//right
+    doc.line(5, (y + 285), 205, (y + 285));//down
+
+    doc.setFontSize(12);
+    doc.setFont("arial", "bold");
+    doc.text("DRA. VERONICA CHUMO ESTRELLA", 74, (y + 8));
+    doc.setFontSize(11);
+    doc.text("Dra. Medicina y Cirugía General", 82, (y + 12));
+    doc.text("Medicina Ocupacional", 90, (y + 16));
+    doc.text("CERTIFICADO MEDICO", 87, (y + 23));
+    doc.line(85, (y + 24), 131, (y + 24));//subrayado
+
+
+    y = 40;
+    doc.setFontSize(12);
+    doc.text("A)      DATOS DEL ESTABLECIMIENTO DE SALUD", 15, (y));
+    doc.text("B)      DATOS DEL PACIENTE", 15, (y + 45));
+    doc.text("C)      MOTIVOO DE AISLAMIENTO/ENFERMEDAD", 15, (y + 105));
+
+    doc.setFont("arial", "normal");
+    doc.setFontSize(11);
+    doc.text("Nombre del establecimiento:", 27, (y + 7));
+    doc.line(75, (y + 8), 190, (y + 8));//down
+    doc.text("Correo electrónico del medico emisor del certificado:", 27, (y + 14));
+    doc.line(113, (y + 15), 190, (y + 15));//down
+    doc.text("Teléfono del emisor del certificado:", 27, (y + 21));
+    doc.line(85, (y + 22), 190, (y + 22));//down
+    doc.text("Dirección del establecimiento de salud:", 27, (y + 28));
+    doc.line(90, (y + 29), 190, (y + 29));//down
+    doc.text("Lugar y fecha de emisión:", 27, (y + 35));
+    doc.line(70, (y + 36), 190, (y + 36));//down
+    y = y + 45;
+    doc.text("Apellidos y nombres completos:", 27, (y + 7));
+    doc.line(80, (y + 8), 190, (y + 8));//down
+    doc.text("Dirección domiciliaria:", 27, (y + 14));
+    doc.line(66, (y + 15), 190, (y + 15));//down
+    doc.text("Número de teléfono:", 27, (y + 21));
+    doc.line(64, (y + 22), 190, (y + 22));//down
+    doc.text("Institución o empresa:", 27, (y + 28));
+    doc.line(65, (y + 29), 190, (y + 29));//down
+    doc.text("Puesto de trabajo del cliente:", 27, (y + 35));
+    doc.line(75, (y + 36), 190, (y + 36));//down
+    doc.text("Número de cédula:", 27, (y + 42));
+    doc.line(60, (y + 43), 190, (y + 43));//down
+    doc.text("Número de historia clénica:", 27, (y + 49));
+    doc.line(75, (y + 50), 190, (y + 50));//down
+    y = y + 60;
+    doc.text("Diagnostico:", 27, (y + 7));
+    doc.line(50, (y + 8), 190, (y + 8));//down
+    doc.line(50, (y + 12), 190, (y + 12));//down
+    doc.text("Código CIE10:", 27, (y + 19));
+    doc.line(55, (y + 20), 190, (y + 20));//down
+
+    doc.text("Presenta síntomas:", 27, (y + 30));
+
+    doc.text("SI", 68, (y + 30));
+    doc.text("NO", 151, (y + 30));
+    doc.line(75, (y + 25), 85, (y + 25));//up
+    doc.line(75, (y + 25), 75, (y + 32));//left
+    doc.line(85, (y + 25), 85, (y + 32));//right
+    doc.line(75, (y + 32), 85, (y + 32));//down
+
+    doc.line(160, (y + 25), 170, (y + 25));//up
+    doc.line(160, (y + 25), 160, (y + 32));//left
+    doc.line(170, (y + 25), 170, (y + 32));//right
+    doc.line(160, (y + 32), 170, (y + 32));//down
+
+    doc.text("Enfermedad:", 27, (y + 40));
+    doc.text("Aislamiento/teletrabajo", 120, (y + 40));
+    doc.line(75, (y + 35), 85, (y + 35));//up
+    doc.line(75, (y + 35), 75, (y + 42));//left
+    doc.line(85, (y + 35), 85, (y + 42));//right
+    doc.line(75, (y + 42), 85, (y + 42));//down
+
+    doc.line(160, (y + 35), 170, (y + 35));//up
+    doc.line(160, (y + 35), 160, (y + 42));//left
+    doc.line(170, (y + 35), 170, (y + 42));//right
+    doc.line(160, (y + 42), 170, (y + 42));//down
+
+
+    doc.text("Tipo de contingencia:", 27, (y + 50));
+    doc.line(65, (y + 51), 190, (y + 51));//down
+    doc.text("Descripción enfermedad:", 27, (y + 57));
+
+    doc.line(75, (y + 55), 190, (y + 55));//up
+    doc.line(75, (y + 55), 75, (y + 80));//left
+    doc.line(190, (y + 55), 190, (y + 80));//right
+    doc.line(75, (y + 80), 190, (y + 80));//down
+
+    doc.text("Total de días concendidos:", 27, (y + 90));
+    doc.line(73, (y + 91), 190, (y + 91));//down
+    doc.text("Desde:", 27, (y + 100));
+    doc.line(40, (y + 101), 190, (y + 101));//down
+    doc.text("Hasta:", 27, (y + 110));
+    doc.line(40, (y + 111), 190, (y + 111));//down
+
+
+    y = 40;
+    doc.setFont("arial", "italic");
+    doc.setFontSize(10);
+    doc.text("Consultorio Privado", 115, (y + 7));
+    doc.text("verito.chumo@gmail.com", 135, (y + 14));
+    doc.text("0983514650", 130, (y + 21));
+    doc.text("La Pradera 1", 125, (y + 28));
+    doc.text("Manta, " + this._atencionMedicService.formData.fechaAtencion, 115, (y + 35));
+    y = y + 45;
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.empleado, 105, (y + 7));
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.direccion, 100, (y + 14));
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.telf_Movil, 120, (y + 21));
+
+    if (this.pacienteService.datoPersona.datosPaciente.idEmpresa == 1)
+      doc.text("MANACRIPEX CIA. LTDA.", 105, (y + 28));
+    if (this.pacienteService.datoPersona.datosPaciente.idEmpresa == 3)
+      doc.text("B & B TUNE_SUPPLIERS S.A.", 95, (y + 28));
+    if (this.pacienteService.datoPersona.datosPaciente.idEmpresa == 4)
+      doc.text("BUEHS BOWEN DANIEL ROBERTO", 95, (y + 28));
+
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.funcion, 105, (y + 35));
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.cedula, 120, (y + 42));
+    doc.text(this.pacienteService.datoPersona.datosEnterprice.cedula, 120, (y + 49));
+
+    y = y + 60;
+
+    var auxEnfermedad = this.atencionMedicService.formData.enfermedadCIE10.split(":");
+    var lineaAux = doc.splitTextToSize(auxEnfermedad[1], (130));
+    doc.text(lineaAux, 55, (y + 7));
+    doc.text(auxEnfermedad[0], 110, (y + 19));
+
+    lineaAux = doc.splitTextToSize(this.atencionMedicService.formData.enfermedadesActuales, (105));
+    doc.text(lineaAux, 80, (y + 60));
+    
+    doc.setFontSize(8);
+    doc.text("Número y letra", 115, (y + 94));
+    doc.text("Número y letra", 100, (y + 104));
+    doc.text("Número y letra", 100, (y + 114));
+
+    doc.setFont("arial", "bold");
+    doc.setFontSize(11);
+    y = 272;
+    doc.line(65, (y), 144, (y));//downCut
+    doc.text("DRA. VERONICA CHUMO ESTRELLA", 70, (y + 4));
+    doc.text("1309708665", 95, (y + 8));
+    doc.text("Doctora en Medicina y Cirugía General / Médico Ocupacional", 55, (y + 12));
+    doc.save("Certificado_IESS" + "_" + this.pacienteService.datoPersona.datosEnterprice.empleado + "_" + this.atencionMedicService.formData.fechaAtencion + ".pdf");
   }
 }

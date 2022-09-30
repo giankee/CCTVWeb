@@ -80,23 +80,23 @@
                 <a class="nav-link" [ngClass]="{'active':openSide=='Antecedentes', 'beStrong':openSide!='Antecedentes'}"
                   (click)="onChangePage('Antecedentes')">Historial Laboral y Antecedentes</a>
               </li>
-              <li [routerLinkActive]="['active']" *ngIf="datoPersona.datosPaciente.idPacienteMedic!=undefined">
+              <li [routerLinkActive]="['active']" *ngIf="pacienteService.datoPersona.datosPaciente.idPacienteMedic!=undefined">
                 <a class="nav-link" [ngClass]="{'active':openSide=='Permisos', 'beStrong':openSide!='Permisos'}"
                   (click)="onChangePage('Permisos')">Permisos </a>
               </li>
-              <li [routerLinkActive]="['active']" *ngIf="datoPersona.datosPaciente.idPacienteMedic!=undefined">
+              <li [routerLinkActive]="['active']" *ngIf="pacienteService.datoPersona.datosPaciente.idPacienteMedic!=undefined">
                 <a class="nav-link" [ngClass]="{'active':openSide=='Accidentes', 'beStrong':openSide!='Accidentes'}"
                   (click)="onChangePage('Accidentes')">Accidentes </a>
               </li>
             </ul>
             <div class="m-3" *ngIf="openSide=='DatosG'|| openSide=='Antecedentes'">
               <form #formPaciente="ngForm" autocomplete="off" (submit)="onSubmit(formPaciente)"
-                *ngIf="datoPersona!=null">
+                *ngIf="pacienteService.datoPersona!=null">
                 <div class="row boxForm" *ngIf="openSide=='DatosG'">
                   <div class="col-12 col-sm-4 col-md-4">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Cédula:</div>
-                      <input name="cedula" #cedula="ngModel" disabled [(ngModel)]="datoPersona.datosPaciente.cedula"
+                      <input name="cedula" #cedula="ngModel" disabled [(ngModel)]="pacienteService.datoPersona.datosPaciente.cedula"
                         class="form-control input-src">
                     </div>
                   </div>
@@ -104,13 +104,13 @@
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Estado Civil:</div>
                       <input name="estadoCivil" #estadoCivil="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.estadoCivil" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.estadoCivil" class="form-control input-src">
                     </div>
                   </div>
                   <div class="col-12 col-sm-4 col-md-4">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Género:</div>
-                      <input name="sexo" #sexo="ngModel" disabled [(ngModel)]="datoPersona.datosEnterprice.sexo"
+                      <input name="sexo" #sexo="ngModel" disabled [(ngModel)]="pacienteService.datoPersona.datosEnterprice.sexo"
                         class="form-control input-src">
                     </div>
                   </div>
@@ -118,21 +118,21 @@
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Apellidos:</div>
                       <input name="apellidos" #apellidos="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.apellidos" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.apellidos" class="form-control input-src">
                     </div>
                   </div>
                   <div class="col-12 col-sm-6 d-block d-md-none">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Nombres:</div>
                       <input name="nombres" #nombres="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.nombres" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.nombres" class="form-control input-src">
                     </div>
                   </div>
                   <div class="d-none d-md-block col-md-7 col-lg-8">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Empleado:</div>
                       <input name="empleado" #empleado="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.empleado" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.empleado" class="form-control input-src">
                     </div>
                   </div>
                   <div class="d-none d-md-block col-md-2 col-lg-2">
@@ -141,7 +141,7 @@
                       <input type="number" name="upeso" #upeso="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$" min="0"
                         placeholder="0"
                         onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                        [(ngModel)]="datoPersona.datosPaciente.ultimoPeso" class="form-control input-src" maxlength="2">
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.ultimoPeso" class="form-control input-src" maxlength="2">
                     </div>
                   </div>
                   <div class="d-none d-md-block col-md-3 col-lg-2">
@@ -150,7 +150,7 @@
                       <input type="number" name="ualtura" #ualtura="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$"
                         min="0" placeholder="0"
                         onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                        [(ngModel)]="datoPersona.datosPaciente.ultimaAltura" class="form-control input-src"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.ultimaAltura" class="form-control input-src"
                         maxlength="2">
                     </div>
                   </div>
@@ -158,13 +158,13 @@
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Fecha Nacimiento:</div>
                       <input name="fechaNacimiento" #fechaNacimiento="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.fecha_Nacido" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.fecha_Nacido" class="form-control input-src">
                     </div>
                   </div>
                   <div class="col-12 col-sm-6 col-md-4">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Edad:</div>
-                      <input name="edad" #edad="ngModel" disabled [(ngModel)]="datoPersona.datosEnterprice.edad"
+                      <input name="edad" #edad="ngModel" disabled [(ngModel)]="pacienteService.datoPersona.datosEnterprice.edad"
                         class="form-control input-src">
                     </div>
                   </div>
@@ -172,7 +172,7 @@
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Tipo de Sangre:</div>
                       <select class="form-control  input-src" name="tipoSangre" #tipoSangre="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.tipoSangre">
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.tipoSangre">
                         <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
                         <option value="ARH+">A Positivo (A+)</option>
                         <option value="ARH-">A Negativo (A-)</option>
@@ -189,28 +189,28 @@
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Departamento:</div>
                       <input name="departamento" #departamento="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.departamento" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.departamento" class="form-control input-src">
                     </div>
                   </div>
                   <div class="col-12 col-sm-6">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Cargo:</div>
                       <input name="funcion" #funcion="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.funcion" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.funcion" class="form-control input-src">
                     </div>
                   </div>
                   <div class="col-12 col-sm-6 col-md-4">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Dirección:</div>
                       <input name="direccion" #direccion="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.direccion" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.direccion" class="form-control input-src">
                     </div>
                   </div>
                   <div class="col-12 col-sm-6 col-md-3">
                     <div class="form-group inputForm" id="inputSearchP">
                       <div class="title">Teléfono:</div>
                       <input name="telefono" #telefono="ngModel" disabled
-                        [(ngModel)]="datoPersona.datosEnterprice.telf_Movil" class="form-control input-src">
+                        [(ngModel)]="pacienteService.datoPersona.datosEnterprice.telf_Movil" class="form-control input-src">
                     </div>
                   </div>
                   <div class="col-12 col-sm-6 col-md-5">
@@ -218,14 +218,14 @@
                       <div class="col-6 justify-content-center text-center">
                         <div class="title">Embarazo</div>
                         <mat-checkbox id="idEmbarazo" name="embarazo" #embarazo="ngModel" color="primary"
-                          [(ngModel)]="datoPersona.datosPaciente.embarazo"
-                          [disabled]="datoPersona.datosEnterprice.sexo=='Masculino'">
+                          [(ngModel)]="pacienteService.datoPersona.datosPaciente.embarazo"
+                          [disabled]="pacienteService.datoPersona.datosEnterprice.sexo=='Masculino'">
                         </mat-checkbox>
                       </div>
                       <div class="col-6 justify-content-center text-center">
                         <div class="title">Discapacidad</div>
                         <mat-checkbox id="idMinusvalido" name="minusvalido" #minusvalido="ngModel" color="primary"
-                          [(ngModel)]="datoPersona.datosPaciente.minusvalido">
+                          [(ngModel)]="pacienteService.datoPersona.datosPaciente.minusvalido">
                         </mat-checkbox>
                       </div>
                     </div>
@@ -236,8 +236,8 @@
                         <div class="form-group inputForm" id="inputSearchP">
                           <div class="title">Tipo de Discapacidad:</div>
                           <select class="form-control  input-src" name="tipoMinusvalia" #tipoMinusvalia="ngModel"
-                            [(ngModel)]="datoPersona.datosPaciente.tipoMinusvalido"
-                            [disabled]="!datoPersona.datosPaciente.minusvalido">
+                            [(ngModel)]="pacienteService.datoPersona.datosPaciente.tipoMinusvalido"
+                            [disabled]="!pacienteService.datoPersona.datosPaciente.minusvalido">
                             <option selected value="SIN ASIGNAR">-Seleccionar-</option>
                             <option value="Auditiva">Auditiva</option>
                             <option value="Física">Física</option>
@@ -252,9 +252,9 @@
                         <div class="form-group inputForm" id="inputSearchP">
                           <div class="title">% Discapacidad:</div>
                           <input type="number" name="porcentajeMinusvalia" #porcentajeMinusvalia="ngModel" min="0"
-                            pattern="[0-9]*" [disabled]="!datoPersona.datosPaciente.minusvalido"
+                            pattern="[0-9]*" [disabled]="!pacienteService.datoPersona.datosPaciente.minusvalido"
                             onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                            [(ngModel)]="datoPersona.datosPaciente.porcentajeMinusvalido" class="form-control input-src"
+                            [(ngModel)]="pacienteService.datoPersona.datosPaciente.porcentajeMinusvalido" class="form-control input-src"
                             maxlength="10">
                         </div>
                       </div>
@@ -265,15 +265,15 @@
                       <div class="col-6 justify-content-center text-center">
                         <div class="title">ECNT</div>
                         <mat-checkbox id="idecnt" name="ecnt" #ecnt="ngModel" color="primary"
-                          [(ngModel)]="datoPersona.datosPaciente.ecnt">
+                          [(ngModel)]="pacienteService.datoPersona.datosPaciente.ecnt">
                         </mat-checkbox>
                       </div>
                       <div class="col-6">
                         <div class="form-group inputForm" id="inputSearchP">
                           <div class="title">Tipo de ECNT:</div>
                           <select class="form-control  input-src" name="tipoECNT" #tipoECNT="ngModel"
-                            [(ngModel)]="datoPersona.datosPaciente.tipoECNT"
-                            [disabled]="!datoPersona.datosPaciente.ecnt">
+                            [(ngModel)]="pacienteService.datoPersona.datosPaciente.tipoECNT"
+                            [disabled]="!pacienteService.datoPersona.datosPaciente.ecnt">
                             <option selected value="SIN ASIGNAR">-Seleccionar-</option>
                             <option value="Asma">Asma</option>
                             <option value="Cancer">Cancer</option>
@@ -293,8 +293,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Antecendentes Personales (Quirúrgico y Ginecológico)</div>
                       <textarea name="inBantecedenteP" #inBantecedenteP="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antPersonales"
-                        (ngModelChange)="datoPersona.datosPaciente.antPersonales = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.antPersonales"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.antPersonales = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -302,8 +302,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Antecedentes Familiares</div>
                       <textarea name="inBantFamiliares" #inBantFamiliares="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.antFamiliares"
-                        (ngModelChange)="datoPersona.datosPaciente.antFamiliares = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.antFamiliares"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.antFamiliares = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -311,8 +311,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Alergias Medicamento</div>
                       <textarea name="inBaalergiaMedicamento" #inBaalergiaMedicamento="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.alergiaMedicamento"
-                        (ngModelChange)="datoPersona.datosPaciente.alergiaMedicamento = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.alergiaMedicamento"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.alergiaMedicamento = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -320,8 +320,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Hábitos y Encuesta Social</div>
                       <textarea name="inBhabitos" #inBhabitos="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.habitos"
-                        (ngModelChange)="datoPersona.datosPaciente.habitos = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.habitos"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.habitos = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -329,8 +329,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Historia Laboral</div>
                       <textarea name="inBhistoriaLaboral" #inBhistoriaLaboral="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.historiaLaboral"
-                        (ngModelChange)="datoPersona.datosPaciente.historiaLaboral = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.historiaLaboral"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.historiaLaboral = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -338,8 +338,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Examen físico general de inicio</div>
                       <textarea name="inBexamenInicio" #inBexamenInicio="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.examenInicio"
-                        (ngModelChange)="datoPersona.datosPaciente.examenInicio = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.examenInicio"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.examenInicio = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -347,8 +347,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Tareas que desempeñaba antes de pertenecer a la empresa</div>
                       <textarea name="inBtareasAntTrabajo" #inBtareasAntTrabajo="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.tareasAntTrabajo"
-                        (ngModelChange)="datoPersona.datosPaciente.tareasAntTrabajo = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.tareasAntTrabajo"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.tareasAntTrabajo = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -356,8 +356,8 @@
                     <div class="form-group inputForm">
                       <div class="title">Medidas de Prevención</div>
                       <textarea name="inBmedidasPrevencion" #inBmedidasPrevencion="ngModel"
-                        [(ngModel)]="datoPersona.datosPaciente.medidasPrevencion"
-                        (ngModelChange)="datoPersona.datosPaciente.medidasPrevencion = $event?.toUpperCase()"
+                        [(ngModel)]="pacienteService.datoPersona.datosPaciente.medidasPrevencion"
+                        (ngModelChange)="pacienteService.datoPersona.datosPaciente.medidasPrevencion = $event?.toUpperCase()"
                         class="form-control"></textarea>
                     </div>
                   </div>
@@ -385,14 +385,14 @@
             <div class="m-3" *ngIf="openSide=='Permisos'|| openSide=='Accidentes'">
               <div class="boxForm scroll v2" *ngIf="openSide=='Permisos'">
                 <app-list-permisos-personales [isOpen]="listPermisosIsOpened"
-                  [idPacienteIn]="datoPersona.datosPaciente.idPacienteMedic"
-                  [pacienteNombre]="datoPersona.datosEnterprice.empleado">
+                  [idPacienteIn]="pacienteService.datoPersona.datosPaciente.idPacienteMedic"
+                  [pacienteNombre]="pacienteService.datoPersona.datosEnterprice.empleado">
                 </app-list-permisos-personales>
               </div>
               <div class="boxForm scroll v2" *ngIf="openSide=='Accidentes'">
                 <app-list-accidentes-personales [isOpen]="listAccidnetesIsOpened"
-                  [idPacienteIn]="datoPersona.datosPaciente.idPacienteMedic"
-                  [pacienteNombre]="datoPersona.datosEnterprice.empleado">
+                  [idPacienteIn]="pacienteService.datoPersona.datosPaciente.idPacienteMedic"
+                  [pacienteNombre]="pacienteService.datoPersona.datosEnterprice.empleado">
                 </app-list-accidentes-personales>
               </div>
             </div>
@@ -400,11 +400,8 @@
         </div>
       </div>
     </div>
-    <div class="boxCliente" id="open" *ngIf="strFases=='Atencion'&& datoPersona.datosPaciente.idPacienteMedic!=0">
-      <app-atencion-medic [isOpen]="atencionIsOpened" [idPacienteIn]="datoPersona.datosPaciente.idPacienteMedic"
-        [edad]="datoPersona.datosEnterprice.edad" [peso]="datoPersona.datosPaciente.ultimoPeso"
-        [altura]="datoPersona.datosPaciente.ultimaAltura" [empresa]="datoPersona.datosEnterprice.idEmpresa"
-        [pacienteNombre]="datoPersona.datosEnterprice.empleado" (cerrar)="recibirRes($event, 'atencion')">
+    <div class="boxCliente" id="open" *ngIf="strFases=='Atencion'&& pacienteService.datoPersona.datosPaciente.idPacienteMedic!=0">
+      <app-atencion-medic [isOpen]="atencionIsOpened" [edad]="pacienteService.datoPersona.datosEnterprice.edad" (cerrar)="recibirRes($event, 'atencion')">
       </app-atencion-medic>
     </div>
     <!-- <div class="boxCliente" id="open" *ngIf="strFases=='Formulario'">

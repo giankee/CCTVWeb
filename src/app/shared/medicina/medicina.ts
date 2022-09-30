@@ -89,8 +89,8 @@ export class cPacienteMedic {
 }
 
 export class cPacienteInfoCompleta {
-    datosEnterprice: cEnterpricePersonal = null;
-    datosPaciente: cPacienteMedic = null;
+    datosEnterprice: cEnterpricePersonal = new cEnterpricePersonal();
+    datosPaciente: cPacienteMedic = new cPacienteMedic();
 
     constructor() {
         this.datosEnterprice = new cEnterpricePersonal();
@@ -106,7 +106,7 @@ export class cPermisoMedic {
     fechaSalida: string;
     fechaRegreso: string;
     totalDias: number;
-    totalHoras: number;
+    totalHoras: string;
     observacion: string;
     regresaConsulta: boolean;
     guardiaCargoUser: string;
@@ -114,8 +114,9 @@ export class cPermisoMedic {
     /**Variables de control */
     spinnerLoading: number; //0 offall // 1 en paciente //2 en enfermedad //3 completo paciente //4 completo enfermedad
     showSearchSelect: number; //0 //1 paciente // 2 enfermedad
-    auxHoraInicio: string;
-    auxHoraFin: string;
+    auxHoraParcial: string;
+    horaFinJornada:string;
+    incluirSabados: boolean;
 
     pacienteMedic?: cPacienteMedic;
 
@@ -127,17 +128,18 @@ export class cPermisoMedic {
         this.tipoPermiso = "SIN ASIGNAR";
         this.enfermedadCIE10 = "";
         this.fechaSalida = fechaHoy.strFecha + "T" + fechaHoy.strHoraA;
-        this.fechaRegreso = "";
+        this.fechaRegreso = fechaHoy.strFecha + "T" + fechaHoy.strHoraA;
         this.totalDias = 0;
-        this.totalHoras = 1;
+        this.totalHoras = "00:00";
         this.observacion = "";
         this.regresaConsulta = false;
         this.guardiaCargoUser = "VERONICA CHUMO";
 
         this.spinnerLoading = 0;
         this.showSearchSelect = 0;
-
-        this.changeHours(0);
+        this.incluirSabados = false;
+        this.auxHoraParcial = "0";
+        this.horaFinJornada="18:00";
     }
 
     completarObject(dataIn: cPermisoMedic) {
@@ -158,80 +160,6 @@ export class cPermisoMedic {
             this.pacienteMedic.completarObject(dataIn.pacienteMedic);
         }
     }
-
-    changeHours(strInicio: number) {
-        let fechaHoy: cFecha = new cFecha();
-
-        var auxSepararFechaSalida = this.fechaSalida.split("T");
-        var soloHoraSalida = auxSepararFechaSalida[1].split(':');
-        var newHoraFin: number;
-        if (strInicio == 0) {
-            newHoraFin = Number(soloHoraSalida[0]) + 1;
-            if (newHoraFin < 10)
-                this.fechaRegreso = "0" + newHoraFin + ":" + soloHoraSalida[1];
-            else this.fechaRegreso = newHoraFin + ":" + soloHoraSalida[1];
-            this.fechaRegreso = fechaHoy.strFecha + "T" + this.fechaRegreso;
-        } else {
-            if (strInicio == 2) {
-                var auxSepararFechaRegreso = this.fechaRegreso.split("T");
-                var soloHoraRegreso = auxSepararFechaRegreso[1].split(':');
-                this.totalDias = fechaHoy.compararFechasDias(auxSepararFechaSalida[0], auxSepararFechaRegreso[0]);
-                var horasDif = (Number(soloHoraRegreso[0]) - Number(soloHoraSalida[0]));
-                if (horasDif < 0) {
-                    this.totalDias--;
-                    this.totalHoras = (this.totalDias * 24) + (24 + horasDif);
-                } else this.totalHoras = (this.totalDias * 24) + (horasDif);
-            }
-            if (strInicio == 3 || strInicio == 4) {
-                var auxDiferenciaHoras = 0;
-                var diasDif = 0;
-
-                if (strInicio == 4) {
-                    this.totalHoras = 24 * this.totalDias;
-                    diasDif = this.totalDias;
-                }
-                else {
-                    auxDiferenciaHoras = this.totalHoras;
-                    while (auxDiferenciaHoras > 23) {
-                        diasDif++;
-                        auxDiferenciaHoras = auxDiferenciaHoras - 24;
-                    }
-                    this.totalDias = diasDif;
-                }
-
-                var soloFechaSalida = auxSepararFechaSalida[0].split("-");
-                var soloHora = "";
-                newHoraFin = Number(soloHoraSalida[0]) + auxDiferenciaHoras;
-                if (newHoraFin >= 24) {
-                    diasDif++;
-                    newHoraFin = newHoraFin - 24;
-                }
-                if (newHoraFin < 10)
-                    soloHora = "T0" + newHoraFin + ":" + soloHoraSalida[1];
-                else soloHora = "T" + newHoraFin + ":" + soloHoraSalida[1];
-
-                if (diasDif > 0) {
-                    var auxContador = Number(soloFechaSalida[1]) - 1;
-                    var auxNewDia: any = Number(soloFechaSalida[2]) + diasDif;
-                    var auxDia: string = soloFechaSalida[0] + "-";
-                    while (Number(auxNewDia) > Number(fechaHoy.arrayMes[auxContador].maxDias)) {
-                        auxNewDia = Number(auxNewDia) - Number(fechaHoy.arrayMes[auxContador].maxDias);
-                        auxContador++;
-                        if (auxContador == 12) {
-                            auxContador = 0;
-                            auxDia = (Number(soloFechaSalida[0]) + 1) + "-";
-                        }
-                    }
-                    if (fechaHoy.arrayMes[auxContador].id < 10)
-                        this.fechaRegreso = auxDia + "0" + fechaHoy.arrayMes[auxContador].id + "-";
-                    else this.fechaRegreso = auxDia + fechaHoy.arrayMes[auxContador].id + "-";
-                    if (Number(auxNewDia) < 10)
-                        this.fechaRegreso = this.fechaRegreso + "0" + auxNewDia + soloHora;
-                    else this.fechaRegreso = this.fechaRegreso + auxNewDia + soloHora;
-                } else this.fechaRegreso = auxSepararFechaSalida[0] + soloHora;
-            }
-        }
-    }
 }
 
 export class cAtencionMedic {
@@ -248,6 +176,7 @@ export class cAtencionMedic {
     fRespiratoria: number;
     sp02: number;
     reposo: boolean;
+    accidente: boolean;
     permisoIdOpcional: number;
 
     motivoAtencion: string;
@@ -266,6 +195,8 @@ export class cAtencionMedic {
     showSearchSelect: boolean;
     presionA: number;
     presionB: number;
+    citaIESS: boolean;
+
 
     constructor() {
         this.idAtencionMedic = undefined;
@@ -279,6 +210,7 @@ export class cAtencionMedic {
         this.fRespiratoria = undefined;
         this.sp02 = undefined;
         this.reposo = false;
+        this.accidente = false;
         this.permisoIdOpcional = 0;
         this.motivoAtencion = "";
         this.enfermedadesActuales = "";
@@ -294,6 +226,7 @@ export class cAtencionMedic {
         this.showSearchSelect = false;
         this.presionA = undefined;
         this.presionB = undefined;
+        this.citaIESS = false;
     }
 
     completarObject(dataIn: cAtencionMedic) {
@@ -539,6 +472,8 @@ export class cParametroReporteMedic {
     idEmpresa: number;
     strPeriodo: string;
     strArea: string;
+    soloMes: number;
+    soloAnio: number;
 
     constructor() {
         var fechaHoy = new cFecha();
@@ -546,6 +481,8 @@ export class cParametroReporteMedic {
         this.tipoR = "SIN ASIGNAR";
         this.strPeriodo = fechaHoy.sacaSoloMes();
         this.strArea = "SIN ASIGNAR";
+        this.soloMes = fechaHoy.mes;
+        this.soloAnio = fechaHoy.anio;
     }
 
     resetObj() {
@@ -554,30 +491,39 @@ export class cParametroReporteMedic {
         this.tipoR = "SIN ASIGNAR";
         this.strPeriodo = fechaHoy.sacaSoloMes();
         this.strArea = "SIN ASIGNAR";
+        this.soloMes = fechaHoy.mes;
+        this.soloAnio = fechaHoy.anio;
     }
 }
 
 export class cReportGeneralMedic {
-    enfermedadCIE10: string;
-    contadorOcurrencia: number;
-    listDepartamentos: cReportGeneralMedicArea[];
+    objNameG: string;
+    contadorG: number;
+    listObj: cReportGeneralMedicList[];
 }
 
-export class cReportGeneralMedicArea {
-    departamento: string;
-    contadorOcurrencia: number;
+export class cReportGeneralMedicList {
+    objName: string;
+    contadorNum: number;
+
+    constructor(name?: string, cont?: number) {
+        if (name != null) {
+            this.objName = name;
+            this.contadorNum = cont;
+        }
+    }
 }
 
-export class cDepartamentoR {
-    departamento: string;
+export class cObjR {
+    name: string;
     contOcurrenciaTotal: number;
-    contOcurrenciaNormal: number;
-    contOcurrenciaControl: number;
+    contOcurrenciaA: number;
+    contOcurrenciaB: number;
 
     constructor(nombreIn) {
-        this.departamento = nombreIn;
+        this.name = nombreIn;
         this.contOcurrenciaTotal = 0;
-        this.contOcurrenciaNormal = 0;
-        this.contOcurrenciaControl = 0;
+        this.contOcurrenciaA = 0;
+        this.contOcurrenciaB = 0;
     }
 }

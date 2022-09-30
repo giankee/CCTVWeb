@@ -157,8 +157,8 @@ export class ComprasVerificacionComponent implements OnInit {
   generarReporte(observacionIn) {
     var auxBase = this.onConvertPdfOne().split('base64,');
     if (this.conexcionService.UserR.phoneNumber == "593-999786121")
-      var personas: string[][] = [[this.conexcionService.UserR.nombreU, this.conexcionService.UserR.phoneNumber], ["Giancarlo Alvarez", "593-999786121"], ["Carlos Lopez", "593999786121"], ["Veronica Chumo", "593999786121"]];
-    else var personas: string[][] = [[this.conexcionService.UserR.nombreU, this.conexcionService.UserR.phoneNumber], ["Giancarlo Alvarez", "593999786121"], ["Carlos Lopez", "593999486327"], ["Veronica Chumo", "593983514650"]];
+      var personas: string[][] = [[this.conexcionService.UserR.nombreU, this.conexcionService.UserR.phoneNumber], ["Giancarlo Alvarez", "593-999786121"], ["Carlos Lopez", "593-999786121"], ["Veronica Chumo", "593-999786121"]];
+    else var personas: string[][] = [[this.conexcionService.UserR.nombreU, this.conexcionService.UserR.phoneNumber], ["Giancarlo Alvarez", "593-999786121"], ["Carlos Lopez", "593-999486327"], ["Veronica Chumo", "593-983514650"]];
     var auxWhatsapp: cWhatsapp;
     for (var i = 0; i < personas.length; i++) {
       auxWhatsapp = {

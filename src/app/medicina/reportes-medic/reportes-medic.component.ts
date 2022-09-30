@@ -14,42 +14,44 @@ export class ReportesMedicComponent implements OnInit {
   parametrosBusqueda: cParametroReporteMedic = new cParametroReporteMedic();
   iconDownLeft: boolean = false;
   spinnerOnOff: number = 0;
-  listResultadosAB: cReportGeneralMedic[] = [];
-  listResultadosCD: any[] = [];
+  listResultados: cReportGeneralMedic[] = [];
 
   fasearch = faSearch; faangledown = faAngleDown; faangleleft = faAngleLeft;
-  //sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle;  faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight;
   constructor(private reportMedicService: ReportMedicService) { }
 
   ngOnInit(): void {
   }
 
   onGenerarR() {
-    if(this.parametrosBusqueda.idEmpresa!=undefined){
+    if (this.parametrosBusqueda.idEmpresa != undefined) {
       this.spinnerOnOff = 1;
       var parametros = this.parametrosBusqueda.tipoR + "@" + this.parametrosBusqueda.idEmpresa + "@";
-      switch (this.parametrosBusqueda.tipoR) {
-        case 'caseA':
-        case 'caseB':
-          if(this.parametrosBusqueda.tipoR=="caseB")
-            parametros= parametros+ this.parametrosBusqueda.strPeriodo+"@"+this.parametrosBusqueda.strArea;
-          this.reportMedicService.getReporteEnfermedades(parametros).subscribe(
-            (res: any) => {
-              if (res.exito == 1) {
-                this.listResultadosAB=res.data;
-              } else this.listResultadosAB=[];
-              this.spinnerOnOff = 2;
-            });
-          break;
-        case 'caseC':
-          console.log("caseC")
-          break;
-        case 'caseD':
-          console.log("caseD")
-          break;
+      if (this.parametrosBusqueda.tipoR == "caseA" || this.parametrosBusqueda.tipoR == "caseB") {
+        if (this.parametrosBusqueda.tipoR == "caseB")
+          parametros = parametros + this.parametrosBusqueda.strPeriodo + "@" + this.parametrosBusqueda.strArea;
+        this.reportMedicService.getReporteEnfermedades(parametros).subscribe(
+          (res: any) => {
+            if (res.exito == 1) {
+              this.listResultados = res.data;
+            } else this.listResultados = [];
+            this.spinnerOnOff = 2;
+          });
+      } else {
+        if (this.parametrosBusqueda.soloMes!=0) {
+          this.parametrosBusqueda.tipoR = "caseD";
+          parametros = this.parametrosBusqueda.tipoR + "@" + this.parametrosBusqueda.idEmpresa + "@"+this.parametrosBusqueda.soloAnio+'-'+this.parametrosBusqueda.soloMes;
+        }else {
+          this.parametrosBusqueda.tipoR = "caseC";
+          parametros = this.parametrosBusqueda.tipoR + "@" + this.parametrosBusqueda.idEmpresa + "@"+this.parametrosBusqueda.soloAnio;
+        }
+        this.reportMedicService.getReporteAusentisismo(parametros).subscribe(
+          (res: any) => {
+            if (res.exito == 1) {
+              this.listResultados=res.data;
+            } else this.listResultados=[];
+            this.spinnerOnOff = 2;
+          });
       }
     }
-    
-    
   }
 }

@@ -111,13 +111,13 @@ export class NewAccidenteComponent implements OnInit {
     } else this._accidenteMedicService.formData.spinnerLoading = false;
   }
 
-  onChoosePaciente(dataIn: cEnterpricePersonal) {console.table(dataIn)
+  onChoosePaciente(dataIn: cEnterpricePersonal) {
     this._accidenteMedicService.formData.spinnerLoading = false;
     this._accidenteMedicService.formData.showSearchSelect = false;
     this.filtroPersona = dataIn.empleado;
 
     this._pacienteService.formData = new cPacienteMedic();
-    this._pacienteService.getPacienteById(dataIn.idEmpleado).subscribe((dato: any) => {
+    this._pacienteService.getPacienteById("enterprice@"+dataIn.idEmpleado).subscribe((dato: any) => {
       if (dato.exito == 1) {
         if (dato.message == "Ok")
           this._pacienteService.formData.completarObject(dato.data);

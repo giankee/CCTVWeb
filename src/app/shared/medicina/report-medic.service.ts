@@ -22,4 +22,8 @@ export class ReportMedicService {
   getReporteEnfermedades(strParametros): Observable<cReportGeneralMedic[]> {//report
     return this.http.get<cReportGeneralMedic[]>(this.serverUrl + 'cctv_atencionMedic/getReporteEnfermedades/' + strParametros);
   }
+
+  getReporteAusentisismo(strParametros): Observable<cReportGeneralMedic[]> {//report
+    return this.http.get<cReportGeneralMedic[]>(this.serverUrl + 'cctv_permisoMedic/getReporteAusentisismo/' + strParametros);
+  }
 }

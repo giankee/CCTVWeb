@@ -93,8 +93,9 @@ import { ReportesMedicComponent } from './medicina/reportes-medic/reportes-medic
 import { EnfermedadReportComponent } from './medicina/reportes-medic/enfermedad-report/enfermedad-report.component';
 import { AusentisimoReportComponent } from './medicina/reportes-medic/ausentisimo-report/ausentisimo-report.component';
 import { ReportEnfermedadesPipe } from './pipes/report-enfermedades.pipe';
-import { NullDepartamentosPipe } from './pipes/null-departamentos.pipe';
 import { TransConsultaAtencionComponent } from './bodega/consulta-medic/list-consulta-medic/trans-consulta-atencion/trans-consulta-atencion.component';
+import { TablareportMedicPipe } from './pipes/tablareport-medic.pipe';
+import { SumartotalesPipe } from './pipes/sumartotales.pipe';
 
 
 @NgModule({
@@ -167,8 +168,9 @@ import { TransConsultaAtencionComponent } from './bodega/consulta-medic/list-con
     EnfermedadReportComponent,
     AusentisimoReportComponent,
     ReportEnfermedadesPipe,
-    NullDepartamentosPipe,
-    TransConsultaAtencionComponent
+    TransConsultaAtencionComponent,
+    TablareportMedicPipe,
+    SumartotalesPipe
   ],
   imports: [
     BrowserModule,

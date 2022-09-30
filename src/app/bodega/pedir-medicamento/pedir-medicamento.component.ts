@@ -134,7 +134,7 @@ export class PedirMedicamentoComponent implements OnInit {
             doc.line(240, y, 240, (y + 10));//right
             doc.text("Diferencia", 255, (y + 7));
 
-            y = y + 8;
+            y = y + 18;
             doc.setFontSize(8);
             doc.setFont("arial", "normal");
           }

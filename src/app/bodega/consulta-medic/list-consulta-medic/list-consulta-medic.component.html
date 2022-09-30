@@ -60,7 +60,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-6 col-md-4" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+              <div class="col-6 col-md-4" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'||conexcionService.UserR.rolAsignado == 'gpv-o'">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Bodega:</strong></div>
                   <select class="form-control" name="selectBodega" #selectBodega="ngModel"
@@ -84,7 +84,7 @@
                       onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
                     <span class="input-group-text">AÑO</span>
                     <input name="anio" #anio="ngModel" type="number" [(ngModel)]="parametrosBusqueda.anio" [disabled]="!parametrosBusqueda.disableCheck"
-                      class="form-control input-src" min="2022" step="1" value="parametrosBusqueda.anio" />
+                      class="form-control input-src" min="2022" step="1" value="parametrosBusqueda.anio" onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
                   </div>
                 </div>
               </div>

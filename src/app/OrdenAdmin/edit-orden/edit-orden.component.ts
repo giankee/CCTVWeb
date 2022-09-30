@@ -126,7 +126,7 @@ export class EditOrdenComponent implements OnInit {
   onListPersonal(value: string) {
     this.spinLoadingG = 1;
     this.showSearchSelectG = 1;
-    this.ordenESService.formData.persona.resetPersonal();
+    this.ordenESService.formData.persona=new cPersonal();
     this.ordenESService.formData.personaId = null;
     this.ordenESService.formData.choferId = null;
     var params = "" + value;

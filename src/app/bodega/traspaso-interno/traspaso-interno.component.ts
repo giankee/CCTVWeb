@@ -82,7 +82,6 @@ export class TraspasoInternoComponent implements OnInit {
     } else {
       this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
         this.listBodega = dato;
-        console.table(this.listBodega)
       });
     }
   }
@@ -146,15 +145,16 @@ export class TraspasoInternoComponent implements OnInit {
     if (this._conexcionService.formData.connectionStatus == "nline") {
       this.okBttnSubmit = false;
       if (this.comprobarNewM()) {
-        
        this._ordenTrabajoService.traspasoBodega(this._ordenTrabajoService.formData).subscribe(
           (res: any) => {
             if (res.exito == 1) {
               this.toastr.success('Registro satisfactorio', 'Traspaso Exitoso');
               this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
-              if(this.listBodega.find(x=>x.nombre==this._ordenTrabajoService.formData.bodega).encargadoBodega!=this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).encargadoBodega){
-                this.sendMediaMessage(this.ordenTrabajoService.formData, this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).telefonoEncargado)
-              }else this.onConvertPdfOne(this.ordenTrabajoService.formData);
+              if(this.ordenTrabajoService.formData.destinoLugar!="ENFERMERIA GENERAL"){
+                if(this.listBodega.find(x=>x.nombre==this._ordenTrabajoService.formData.bodega).encargadoBodega!=this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).encargadoBodega){
+                  this.sendMediaMessage(this.ordenTrabajoService.formData, this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).telefonoEncargado)
+                }else this.onConvertPdfOne(this.ordenTrabajoService.formData);
+              }
             } else {
               this.okBttnSubmit = false;
               this.toastr.warning('Registro Fallido', 'Intentelo mas tarde')

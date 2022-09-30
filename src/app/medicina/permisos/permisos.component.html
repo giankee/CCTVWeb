@@ -9,7 +9,8 @@
       <div class="bodyCard" *ngIf="permisoMedicService.formData">
         <div class="row">
           <div class="col-12">
-            <h4 class="text-center">Certificado de Reposo {{permisoMedicService.formData.totalDias==0? 'por horas': " "}}- Manacripex</h4>
+            <h4 class="text-center">Certificado de Reposo
+              {{permisoMedicService.formData.totalDias==0? 'por horas': " "}}- Manacripex</h4>
           </div>
         </div>
         <div class="row boxForm mt-2" *ngIf="!isOpen">
@@ -18,14 +19,14 @@
               <div class="wrapper">
                 <div class="limit-width">
                   <div class="title ml-3"><strong>Paciente:</strong> </div>
-                  <input name="filtroPersonaIn" #filtroPersonaIn="ngModel" [(ngModel)]="pacienteNombre"
+                  <input name="filtroPersonaIn" #filtroPersonaIn="ngModel"
+                    [(ngModel)]="pacienteService.datoPersona.datosEnterprice.empleado"
                     (ngModelChange)="onListPasciente($event?.toUpperCase())" maxlength="100"
                     placeholder="Nombre del trabajador" class="form-control input-src" required
                     [ngClass]="{'loading':permisoMedicService.formData.spinnerLoading==1}">
                   <div class="results" *ngIf="permisoMedicService.formData.showSearchSelect==1">
                     <ul>
-                      <li
-                        *ngFor="let data of listPacienteFiltros$ | async">
+                      <li *ngFor="let data of listPacienteFiltros$ | async">
                         <div (click)="onChoosePaciente(data)">
                           <a class="name">{{data.empleado}}</a>
                         </div>
@@ -42,20 +43,19 @@
                 <div class="limit-width">
                   <div class="title ml-3"><strong>Enfermedad CIE10:</strong> </div>
                   <input name="cie" #cie="ngModel" [(ngModel)]="permisoMedicService.formData.enfermedadCIE10"
-                    (ngModelChange)="onListCIE($event?.toUpperCase())"
-                    placeholder="Código o nombre de enfermedad" class="form-control input-src" required
+                    (ngModelChange)="onListCIE($event?.toUpperCase())" placeholder="Código o nombre de enfermedad"
+                    class="form-control input-src" required
                     [ngClass]="{'loading':permisoMedicService.formData.spinnerLoading==2}">
                   <div class="results" *ngIf="permisoMedicService.formData.showSearchSelect==2">
                     <ul>
                       <li
                         *ngFor="let data of listCie10Array | filtrarCie10:permisoMedicService.formData.enfermedadCIE10">
-                        <div  (click)="onChooseEnfermedad(data)">
+                        <div (click)="onChooseEnfermedad(data)">
                           <a class="name"><strong>{{data.code}}: </strong> {{data.description}}</a>
                         </div>
                       </li>
                       <li>
-                        <a (click)="onChooseEnfermedad('Nuevo')"
-                          class="name"><strong>--Nuevo--</strong></a>
+                        <a (click)="onChooseEnfermedad('Nuevo')" class="name"><strong>--Nuevo--</strong></a>
                       </li>
                     </ul>
                   </div>
@@ -87,49 +87,64 @@
           </div>
         </div>
         <div class="row boxForm">
-          <div class="col-12 col-sm-6">
+          <div class="col-12 col-sm-6" [ngClass]="{'col-sm-4 col-md-4':sacarHoraJornada && pacienteService.datoPersona.datosEnterprice.horaS==null && fechasDistintas }">
             <div class="form-group inputForm" id="inputSearchP">
               <div class="title"><strong>Fecha Salida:</strong></div>
               <input class="form-control input-src" type="datetime-local" name="fechaSalida1" #fechaSalida1="ngModel"
-                [(ngModel)]="permisoMedicService.formData.fechaSalida"
-                (change)="permisoMedicService.formData.changeHours(2)">
+                [(ngModel)]="permisoMedicService.formData.fechaSalida" [disabled]="blockFechaHasta"
+                (change)="onComprobarTime()">
             </div>
           </div>
-          <div class="col-12 col-sm-6">
+          <div class="col-2" *ngIf="sacarHoraJornada &&pacienteService.datoPersona.datosEnterprice.horaS==null && fechasDistintas">
             <div class="form-group inputForm" id="inputSearchP">
-              <div class="title"><strong>Fecha Regreso:</strong></div>
-              <input class="form-control input-src" type="datetime-local" name="fechaRegreso" #fechaRegreso="ngModel"
-                [(ngModel)]="permisoMedicService.formData.fechaRegreso"
-                min="{{permisoMedicService.formData.fechaSalida}}"
-                (change)="permisoMedicService.formData.changeHours(2)">
+              <div class="title"><strong>Hora fin día:</strong></div>
+              <input class="form-control input-src" type="time" name="horaFinJornada" #horaFinJornada="ngModel"
+                [(ngModel)]="permisoMedicService.formData.horaFinJornada" [disabled]="blockFechaHasta"
+                (change)="onComprobarTime()">
             </div>
+          </div>
+          <div class="col-9 col-sm-3">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Permiso Hasta:</strong></div>
+              <input class="form-control input-src" type="datetime-local" name="fechaRegreso" #fechaRegreso="ngModel"
+                [(ngModel)]="permisoMedicService.formData.fechaRegreso" [disabled]="blockFechaHasta"
+                min="{{permisoMedicService.formData.fechaSalida}}" (change)="onComprobarTime()">
+            </div>
+          </div>
+          <div class="col-3 justify-content-center text-center">
+            <div class="title"><strong>Incluir fin de semana?</strong></div>
+            <mat-checkbox id="incluirSemanas" name="incluirSemanas" #incluirSemanas="ngModel" color="primary"
+              [(ngModel)]="permisoMedicService.formData.incluirSabados" (change)="onComprobarTime()">
+            </mat-checkbox>
           </div>
         </div>
         <div class="row boxForm">
-          <div class="col-6 col-sm-3 col-md-3">
+          <div class="col-6 col-sm-3 cols-md-4">
             <div class="form-group inputForm" id="inputSearchP">
-              <div class="title"><strong>Total Días:</strong></div>
-              <input type="number" name="totalDias" #totalDias="ngModel" pattern="[0-9]*" min="0" required
-                placeholder="0" (change)="permisoMedicService.formData.changeHours(4)"
-                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                [(ngModel)]="permisoMedicService.formData.totalDias" class="form-control input-src" maxlength="3">
+              <div class="title"><strong>Total Días Completos:</strong></div>
+              <input type="number" name="totalDias" #totalDias="ngModel" pattern="[0-9]*" min="0" [disabled]="true"
+                [(ngModel)]="permisoMedicService.formData.totalDias" class="form-control input-src">
             </div>
           </div>
-          <div class="col-6 col-sm-3 col-md-3">
+          <div class="col-3 col-sm-2 col-md-2">
             <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Con Horas:</strong></div>
+              <input name="totaHoras" #totaHoras="ngModel" class="form-control input-src"
+                [(ngModel)]="permisoMedicService.formData.auxHoraParcial" [disabled]="true">
+            </div>
+          </div>
+          <div class="col-3 col-sm-2 col-md-2">
+            <div class="form-group inputForm text-center" id="inputSearchP">
               <div class="title"><strong>Total Horas:</strong></div>
-              <input type="number" name="totaHoras" #totaHoras="ngModel" pattern="[0-9]*" min="0" required
-                placeholder="0" (change)="permisoMedicService.formData.changeHours(3)"
-                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                [(ngModel)]="permisoMedicService.formData.totalHoras" class="form-control input-src" maxlength="3">
+              {{permisoMedicService.formData.totalHoras}}
             </div>
           </div>
-          <div class="col-12 col-sm-6 col-md-6 justify-content-center text-center">
-            <div class="title"><strong>Deberá acudir a consulta médica de la empresa?</strong></div>
+          <div class="col-12 col-sm-5 col-md-4 justify-content-center text-center">
+            <div class="title"><strong>Acude a consulta médica de la empresa?</strong></div>
             <mat-checkbox id="acudirRegreso" name="acudirRegreso" #acudirRegreso="ngModel" color="primary"
-            [(ngModel)]="permisoMedicService.formData.regresaConsulta">
-          </mat-checkbox>
-        </div>
+              [(ngModel)]="permisoMedicService.formData.regresaConsulta">
+            </mat-checkbox>
+          </div>
         </div>
         <div class="row boxForm">
           <div class="col-12">

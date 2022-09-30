@@ -104,11 +104,11 @@
           <fa-icon [icon]="faprescription"></fa-icon> Consumos de Medicamento
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+      <!-- <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
         <a [routerLink]='["/Bodega/accidente"]'>
           <fa-icon [icon]="facarcrash"></fa-icon> Accidente
         </a>
-      </li>
+      </li> -->
       <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
         <a [routerLink]='["/Medicina/fichaMedica"]'>
           <fa-icon [icon]="faidcardalt"></fa-icon> Ficha Médica
@@ -194,6 +194,11 @@
           <fa-icon [icon]="faobjerctunicion"></fa-icon> Agrupar inventario
         </a>
       </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'">
+        <a [routerLink]='["/Bodega/consumoList"]'>
+          <fa-icon [icon]="faprescription"></fa-icon> Consumos de Medicamento
+        </a>
+      </li>
       <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'"> <a
           [routerLink]='["/registrar"]'>
           <fa-icon [icon]="fauserplus"></fa-icon> Registrar Usuario
@@ -246,21 +251,6 @@
               </li>
             </ul>
           </li>
-          <!-- Messages dropdown
-          <li class="dropdown" *ngIf="listMensajes.length>0"> <a href="#" data-toggle="dropdown"
-              class="nav-link"><i class="fa fa-envelope"></i><span
-                class="badge badge-info">{{listMensajes.length}}</span></a>
-            <ul class="dropdown-menu">
-              <li *ngFor="let datoListM of listMensajes; let indiceM=index">
-                <a class="dropdown-item d-flex">
-                  <div class="msg-body">
-                    <h3 class="h5">De: {{datoListM.emisor}}</h3>
-                    <span>{{datoListM.mensaje}}</span><small>{{datoListM.tiempoCreacion}}</small>
-                  </div>
-                </a>
-              </li>
-            </ul>
-          </li>-->
           <!-- Log out-->
           <li>
             <a class="nav-link" (click)="logOut()"> <span class="d-none d-sm-inline-block mr-1">Salir</span>
