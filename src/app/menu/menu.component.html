@@ -9,7 +9,7 @@
     </div>
   </div>
   <div class="main-menu"
-    *ngIf="conexcionService.UserR.rolAsignado!='tinabg-m' && conexcionService.UserR.rolAsignado!='enfermeria' && conexcionService.UserR.rolAsignado!='bodega_verificador-m'  && conexcionService.UserR.rolAsignado!='verificador-medic' && conexcionService.UserR.rolAsignado!='verificador-bodeguero'">
+    *ngIf="conexcionService.UserR.rolAsignado=='admin' || conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='gv-m'">
     <ul class="side-menu list-unstyled">
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/OrdenSupervisor"]'>
@@ -152,6 +152,25 @@
       </li>
     </ul>
   </div>
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
+    <ul class="list-unstyled">
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Pedido/Orden"]'>
+          <fa-icon [icon]="facartarrow"></fa-icon> Pedido Orden
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Pedido/PedidosList"]'>
+          <fa-icon [icon]="faclipboardList"></fa-icon> Lista Pedidos
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Pedido/VerificacionPedido"]'>
+          <fa-icon [icon]="faclipboardCheck"></fa-icon> Verificación
+        </a>
+      </li>
+    </ul>
+  </div>
   <div class="admin-menu">
     <h5 class="sidenav-heading">Menú Extra</h5>
     <ul class="list-unstyled">
@@ -161,7 +180,7 @@
         </a>
       </li>
       <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserR.rolAsignado!='bodega_verificador-m' && conexcionService.UserR.rolAsignado!='tinabg-m' && conexcionService.UserR.rolAsignado!='enfermeria'&& conexcionService.UserR.rolAsignado!='verificador-medic' && conexcionService.UserR.rolAsignado!='verificador-bodeguero'">
+        *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='gv-m'">
         <a [routerLink]='["/Entrada-Salida"]'>
           <fa-icon [icon]="faexchangeAlt"></fa-icon> Entrada / Salida
         </a>
@@ -199,9 +218,19 @@
           <fa-icon [icon]="faprescription"></fa-icon> Consumos de Medicamento
         </a>
       </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='admin'">
+        <a [routerLink]='["/List-bodegas"]'>
+          <fa-icon [icon]="fagarage"></fa-icon> Bodegas
+        </a>
+      </li>
       <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'"> <a
           [routerLink]='["/registrar"]'>
           <fa-icon [icon]="fauserplus"></fa-icon> Registrar Usuario
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
+        <a [routerLink]='["/Pedido/Reporte"]'>
+          <fa-icon [icon]="fachartLine"></fa-icon> Reportes
         </a>
       </li>
     </ul>

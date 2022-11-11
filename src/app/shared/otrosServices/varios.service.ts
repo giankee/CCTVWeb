@@ -3,6 +3,7 @@ import { environment } from 'src/environments/environment';
 import { cVario, cVistaSalida } from './varios';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { cBodega } from '../bodega/ordenEC';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class VariosService {
 
   serverUrl = environment.baseUrlCCTVL + 'cctv_vario';
   serverUrl2 = environment.baseUrlCCTVL+'vcctv_salidaConProveedor';
+  serverUrl3= environment.baseUrlCCTVL+"cctv_bodega";
   formData: cVario;
   formArrayB:cVario[];
 
@@ -19,9 +21,7 @@ export class VariosService {
     if(URLactual.hostname!='192.168.2.97'){
       this.serverUrl=environment.baseUrlCCTVP + 'cctv_vario';
       this.serverUrl2=environment.baseUrlCCTVP+'vcctv_salidaConProveedor';
-    }
-    if (URLactual.hostname == '192.168.2.105'||URLactual.hostname == '192.168.2.106') {
-      this.serverUrl2 = 'http://192.168.2.97:5005/api/vcctv_salidaConProveedor';
+      this.serverUrl3=environment.baseUrlCCTVP+'cctv_bodega';
     }
    }
 
@@ -47,5 +47,17 @@ export class VariosService {
 
   getSalidasLugarGSearch(strParametros:string): Observable<cVistaSalida[]> { // solo cliente
     return this.http.get<cVistaSalida[]>(this.serverUrl2+'/getSalidasLugarGSearch/'+strParametros);
+  }
+
+  getBodegasTipo(tipoBodega:string): Observable<cBodega[]> {
+    return this.http.get<cBodega[]>(this.serverUrl3+'/getBodegas/'+tipoBodega);
+  }
+
+  insertarBodega(formData:cBodega): Observable<cBodega>{
+    return this.http.post<cBodega>(this.serverUrl3,formData)
+  }
+
+  actualizarBodega(formData: cBodega): Observable<cBodega> {
+    return this.http.put<cBodega>(this.serverUrl3  + '/' + formData.idBodega.toString(),formData);
   }
 }

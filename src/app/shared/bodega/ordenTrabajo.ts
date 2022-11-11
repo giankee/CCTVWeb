@@ -187,6 +187,7 @@ export class cRecetaMedic {
     inventarioId: number = undefined;
     observacion: string = "";
     cantidad: number = 0;
+    loteId:string="SIN ASIGNAR";
 
     inventario: cProducto_B = new cProducto_B();
 
@@ -203,6 +204,7 @@ export class cRecetaMedic {
         this.consultaMedicId = undefined;
         this.inventarioId = undefined;
         this.observacion = "";
+        this.loteId="SIN ASIGNAR";
         this.inventario.resetProducto();
     }
 
@@ -212,6 +214,7 @@ export class cRecetaMedic {
         this.inventarioId = dataIn.inventarioId;
         this.observacion = dataIn.observacion;
         this.cantidad = dataIn.cantidad;
+        this.loteId=this.loteId;
         if (dataIn.inventario != null)
             this.inventario.rellenarObjeto(dataIn.inventario);
     }

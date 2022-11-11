@@ -3,7 +3,7 @@ import { NgForm } from '@angular/forms';
 import { faOutdent, faPlus, faSave, faTimes, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { finalize, map } from 'rxjs/operators';
 import { ConsultaMedicService } from 'src/app/shared/bodega/consulta-medic.service';
-import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { cConsultaMedic, cRecetaMedic } from 'src/app/shared/bodega/ordenTrabajo';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
@@ -54,7 +54,7 @@ export class ConsultaMedicComponent implements OnInit {
 
   fechaHoy = new cFecha();
   paginacion = new cPaginacion(5);
-  listBarcos: cVario[] = [];
+  listBarcos: cBodega[] = [];
   listProdFiltros$: any;
   listPacienteFiltros$: any;
 
@@ -63,8 +63,8 @@ export class ConsultaMedicComponent implements OnInit {
 
   faoutdent = faOutdent; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; fasave = faSave;
   constructor(private _conexcionService: ConexionService, private variosService: VariosService, private _consultaMedicService: ConsultaMedicService, private _productoBService: ProductoBService, private _enterpriceService: ApiEnterpriceService, private toastr: ToastrService) {
-    this.variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-      this.listBarcos = dato.filter(x => x.encargadoBodega == this._conexcionService.UserR.nombreU);
+    this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+      this.listBarcos = dato.filter(x => x.encargadoBodega == this._conexcionService.UserR.nombreU);;
       this.resetForm();
     });
   }
@@ -79,7 +79,7 @@ export class ConsultaMedicComponent implements OnInit {
     if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
       this._consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserR.nombreU, "ENFERMERIA GENERAL");
     else
-      this._consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserR.nombreU, this.listBarcos[0].nombre);
+      this._consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserR.nombreU, this.listBarcos[0].nombreBodega);
     this._consultaMedicService.formData.agregarOneItem();
     this.paginacion.getNumberIndex(1);
     this.paginacion.updateIndex(0);
@@ -93,8 +93,17 @@ export class ConsultaMedicComponent implements OnInit {
 
   comprobarNewR() {
     var flag = true;
-    if (this._consultaMedicService.formData.listReceta.find(x => (x.cantidad <= 0 || x.inventarioId == undefined) || (x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)) != undefined)
-      flag = false;
+    if (this.consultaMedicService.formData.listReceta.length > 0)
+      this.consultaMedicService.formData.listReceta.forEach(x => {
+        if (x.cantidad <= 0)
+          flag = false;
+        if (x.loteId == "SIN ASIGNAR" && x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)
+          flag = false;
+        if (x.inventario.listBodegaProducto[0].listAreas.length > 0) {
+          if (x.loteId != "SIN ASIGNAR" && x.cantidad > x.inventario.listBodegaProducto[0].listAreas.find(y => y.nombreSub == x.loteId).disponibilidad)
+            flag = false;
+        }
+      });
     this.okAddNewBotton = flag;
     return (flag);
   }
@@ -118,28 +127,30 @@ export class ConsultaMedicComponent implements OnInit {
     this.comprobarNewR();
   }
 
-  onListProducto(index: number, op: number, value: string) {
-    this._consultaMedicService.formData.listReceta[index].spinnerLoading = true;
-    this._consultaMedicService.formData.listReceta.forEach(x => x.showSearchSelect = 0);
-    this._consultaMedicService.formData.listReceta[index].showSearchSelect = op;
-    this._consultaMedicService.formData.listReceta[index].inventario.resetProducto();
-    if (value != "") {
-      var strParametro = value;
-      if (op == 2)
-        this._consultaMedicService.formData.listReceta[index].inventario.nombre = value.toUpperCase();
-      else this._consultaMedicService.formData.listReceta[index].inventario.codigo = value.toUpperCase();
+  onListProducto(index: number, op: number, value: string | null) {
+    if (value != null) {
+      this._consultaMedicService.formData.listReceta[index].spinnerLoading = true;
+      this._consultaMedicService.formData.listReceta.forEach(x => x.showSearchSelect = 0);
+      this._consultaMedicService.formData.listReceta[index].showSearchSelect = op;
+      this._consultaMedicService.formData.listReceta[index].inventario.resetProducto();
+      if (value != "") {
+        var strParametro = value;
+        if (op == 2)
+          this._consultaMedicService.formData.listReceta[index].inventario.nombre = value.toUpperCase();
+        else this._consultaMedicService.formData.listReceta[index].inventario.codigo = value.toUpperCase();
 
-      strParametro = strParametro + "@ENFERMERIA@" + op + "@";
-      if (this.conexcionService.UserR.rolAsignado == "enfermeria")
-        strParametro = strParametro + "ENFERMERIA GENERAL";
-      else strParametro = strParametro + this.listBarcos[0].nombre;
-      this.listProdFiltros$ = this._productoBService.getProductosSearch(strParametro).pipe(
-        map((x: cProducto_B[]) => {
-          return x.filter(y => y.listBodegaProducto.length > 0);
-        }),
-        finalize(() => this._consultaMedicService.formData.listReceta[index].spinnerLoading = false)
-      );
-    } else this._consultaMedicService.formData.listReceta[index].spinnerLoading = false;
+        strParametro = strParametro + "@ENFERMERIA@" + op + "@";
+        if (this.conexcionService.UserR.rolAsignado == "enfermeria")
+          strParametro = strParametro + "ENFERMERIA GENERAL";
+        else strParametro = strParametro + this.listBarcos[0].nombreBodega;
+        this.listProdFiltros$ = this._productoBService.getProductosSearch(strParametro).pipe(
+          map((x: cProducto_B[]) => {
+            return x.filter(y => y.listBodegaProducto.length > 0);
+          }),
+          finalize(() => this._consultaMedicService.formData.listReceta[index].spinnerLoading = false)
+        );
+      } else this._consultaMedicService.formData.listReceta[index].spinnerLoading = false;
+    }
   }
 
   onChooseElemente(index, op: number, data: any) {
@@ -147,41 +158,45 @@ export class ConsultaMedicComponent implements OnInit {
     this._consultaMedicService.formData.listReceta[index].inventario.rellenarObjeto(data);
     this._consultaMedicService.formData.listReceta[index].inventarioId = this._consultaMedicService.formData.listReceta[index].inventario.idProductoStock;
     this._consultaMedicService.formData.listReceta[index].inventario.disBttnInput = op;
+    this.consultaMedicService.formData.listReceta[index].inventario.listBodegaProducto[0].sumStockBodegas();
   }
 
-  onListPasciente(value: string) {
-    this._consultaMedicService.formData.spinnerLoading = true;
-    this._consultaMedicService.formData.showSearchSelect = true;
-    this._consultaMedicService.formData.paciente = value;
-    var strParametro = "all@" + value+'@SIN ASIGNAR';
-    var auxBarcoSelect = "";
-    if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
-      strParametro = "Tripulantes@" + value+'@SIN ASIGNAR';
-      var auxBarco = this.listBarcos[0].nombre.split(' ');
-      switch (auxBarco.length) {
-        case 2:
-          auxBarcoSelect = auxBarco[1];
-          break;
-        case 3:
-          if (auxBarco[2] == "B")
+  onListPasciente(value: string | null) {
+    if (value != null) {
+      this._consultaMedicService.formData.spinnerLoading = true;
+      this._consultaMedicService.formData.showSearchSelect = true;
+      this._consultaMedicService.formData.paciente = value;
+      var strParametro = "all@" + value + '@SIN ASIGNAR';
+      var auxBarcoSelect = "";
+      if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
+        strParametro = "Tripulantes@" + value + '@SIN ASIGNAR';
+        var auxBarco = this.listBarcos[0].nombreBodega.split(' ');
+        switch (auxBarco.length) {
+          case 2:
             auxBarcoSelect = auxBarco[1];
-          else auxBarcoSelect = auxBarco[2];
-          break;
-        case 4:
-          auxBarcoSelect = auxBarco[2];
-          break;
+            break;
+          case 3:
+            if (auxBarco[2] == "B")
+              auxBarcoSelect = auxBarco[1];
+            else auxBarcoSelect = auxBarco[2];
+            break;
+          case 4:
+            auxBarcoSelect = auxBarco[2];
+            break;
+        }
       }
+      if (value != "") {
+        this.listPacienteFiltros$ = this._enterpriceService.getPersonalEnter2(strParametro).pipe(
+          map((x: cEnterpricePersonal[]) => {
+            if (auxBarcoSelect != "")
+              return x.filter(y => y.barco.includes(auxBarcoSelect));
+            else return x;
+          }),
+          finalize(() => this._consultaMedicService.formData.spinnerLoading = false)
+        );
+      } else this._consultaMedicService.formData.spinnerLoading = false;
     }
-    if (value != "") {
-      this.listPacienteFiltros$ = this._enterpriceService.getPersonalEnter2(strParametro).pipe(
-        map((x: cEnterpricePersonal[]) => {
-          if (auxBarcoSelect != "")
-            return x.filter(y => y.barco.includes(auxBarcoSelect));
-          else return x;
-        }),
-        finalize(() => this._consultaMedicService.formData.spinnerLoading = false)
-      );
-    } else this._consultaMedicService.formData.spinnerLoading = false;
+
   }
 
   onChoosePaciente(data: string) {
@@ -193,7 +208,7 @@ export class ConsultaMedicComponent implements OnInit {
     if (this._conexcionService.formData.connectionStatus == "nline") {
       this.okBttnSubmit = false;
       if (this.comprobarNewR()) {
-        this.consultaMedicService.formData.marea=this.consultaMedicService.formData.marea+ "-"+this.fechaHoy.anio;
+        this.consultaMedicService.formData.marea = this.consultaMedicService.formData.marea + "-" + this.fechaHoy.anio;
         this._consultaMedicService.insertarConsumoInterno(this._consultaMedicService.formData).subscribe(
           (res: any) => {
             if (res.exito == 1) {

@@ -6,7 +6,7 @@ import { Observable, Subscription, fromEvent } from 'rxjs';
 
 import {
   faBars, faCircle, faSignOutAlt, faBell, faTasks, faCar, faUserPlus, faTools, faUsers, faEnvelope, faExchangeAlt, faClipboardCheck,
-  faShoppingCart, faBoxes, faDolly, faDollyFlatbed, faFileMedical, faMedkit, faBookMedical, faLaptopMedical, faCarCrash, faObjectGroup, faIdCardAlt, faPrescriptionBottleAlt, faHeartbeat
+  faShoppingCart, faBoxes, faDolly, faDollyFlatbed, faFileMedical, faMedkit, faBookMedical, faLaptopMedical, faCarCrash, faObjectGroup, faIdCardAlt, faPrescriptionBottleAlt, faHeartbeat, faClipboardList, faChartLine, faCartArrowDown, faWarehouse
 } from '@fortawesome/free-solid-svg-icons';
 import { cNotificacion } from '../shared/ordenEs';
 import { NotificacionService } from '../shared/notificacion.service';
@@ -45,10 +45,10 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
   /**Icon */
   fabars = faBars; facircle = faCircle; fasignOut = faSignOutAlt; fabell = faBell; fatasks = faTasks; facar = faCar; fauserplus = faUserPlus;
-  fatools = faTools; fausers = faUsers; faenvelope = faEnvelope; faexchangeAlt = faExchangeAlt; faclipboardCheck = faClipboardCheck;
-  fashoppingCart = faShoppingCart; faboxes = faBoxes; fadolly = faDolly; fadollyflatbed = faDollyFlatbed; fasquareplus = faPlusSquare;
-  fafilemedical = faFileMedical; fakitmedical = faMedkit; fabookmedical = faBookMedical; falaptopmedic = faLaptopMedical; facarcrash = faCarCrash;
-  faobjerctunicion = faObjectGroup; faidcardalt = faIdCardAlt; faprescription = faPrescriptionBottleAlt;faheartbeat=faHeartbeat;
+  fatools = faTools; fausers = faUsers; faenvelope = faEnvelope; faexchangeAlt = faExchangeAlt; faclipboardCheck = faClipboardCheck;facartarrow=faCartArrowDown;
+  fashoppingCart = faShoppingCart; faboxes = faBoxes; fadolly = faDolly; fadollyflatbed = faDollyFlatbed; fasquareplus = faPlusSquare;fachartLine=faChartLine;
+  fafilemedical = faFileMedical; fakitmedical = faMedkit; fabookmedical = faBookMedical; falaptopmedic = faLaptopMedical; facarcrash = faCarCrash;fagarage=faWarehouse
+  faobjerctunicion = faObjectGroup; faidcardalt = faIdCardAlt; faprescription = faPrescriptionBottleAlt;faheartbeat=faHeartbeat; faclipboardList= faClipboardList;
 
   /**Parte Online/OffLine */
   public onlineEvent: Observable<Event>;

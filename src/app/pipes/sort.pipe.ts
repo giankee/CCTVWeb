@@ -145,8 +145,29 @@ export class SortPipe implements PipeTransform {
               case "down-C": return _.sortBy(value, function (dato) { return dato.contadorOcurrencia }).reverse();
             }
             break;
+            case 'cOrdenPedido':
+            switch (arg) {
+              case "default": return value;
+              case "up-T": return _.sortBy(value, function (dato) { return dato.tipoPedido });
+              case "down-T": return _.sortBy(value, function (dato) { return dato.tipoPedido }).reverse();
+              case "up-P": return _.sortBy(value, function (dato) { return dato.proveedor });
+              case "down-P": return _.sortBy(value, function (dato) { return dato.proveedor }).reverse();
+              case "up-B": return _.sortBy(value, function (dato) { return dato.barco });
+              case "down-B": return _.sortBy(value, function (dato) { return dato.barco }).reverse();
+              case "up-S": return _.sortBy(value, function (dato) { return dato.strNumSecuencial});
+              case "down-S": return _.sortBy(value, function (dato) { return dato.strNumSecuencial}).reverse();
+            }
+            break;
+            case 'cBodega':
+            switch (arg) {
+              case "default": return value;
+              case "up-T": return _.sortBy(value, function (dato) { return dato.tipoBodega });
+              case "down-T": return _.sortBy(value, function (dato) { return dato.tipoBodega }).reverse();
+              case "up-N": return _.sortBy(value, function (dato) { return dato.nombreBodega });
+              case "down-N": return _.sortBy(value, function (dato) { return dato.nombreBodega }).reverse();
+            }
+            break;
       }
     } else return value;
   }
-
 }

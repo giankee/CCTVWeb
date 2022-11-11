@@ -7,7 +7,7 @@ export class cOrdenEC {
     factura: number = undefined;
     guiaRemision: number = undefined;
     proveedor: string = null;
-    marea:string=null;
+    marea: string = null;
     guardiaCargoUser: string = "";
     estadoProceso: string = "Procesada";
     listPcomprasO?: cCompraO[] = [];
@@ -20,8 +20,8 @@ export class cOrdenEC {
     /*Controles*/
     spinnerLoadingP?: boolean = false;
     showSearchSelect?: boolean = false;
-    razonSocialCompra?:string="";
-    fechaAutorizacion?:string="";
+    razonSocialCompra?: string = "";
+    fechaAutorizacion?: string = "";
 
     /**Auxiliares vizuales */
     auxTarifa12: number = 0;
@@ -31,8 +31,8 @@ export class cOrdenEC {
     constructor(planta?: string, guardia?: string) {
         if (planta != null && guardia != null) {
             this.planta = planta;
-            if(this.planta=="ENFERMERIA")
-                this.estadoProceso="Pendiente Verificación";
+            if (this.planta == "ENFERMERIA")
+                this.estadoProceso = "Pendiente Verificación";
             this.guardiaCargoUser = guardia;
             this.fechaRegistroBodega = this.setFechaActual();
         }
@@ -84,7 +84,7 @@ export class cOrdenEC {
         this.proveedor = dataIn.proveedor;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
         this.estadoProceso = dataIn.estadoProceso;
-        this.marea=dataIn.marea;
+        this.marea = dataIn.marea;
         this.subTotalLibre = dataIn.subTotalLibre;
         this.totalImpuestos = dataIn.totalImpuestos;
         this.totalOrden = dataIn.totalOrden;
@@ -106,7 +106,7 @@ export class cOrdenEC {
         this.proveedor = dataIn.proveedor;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
         this.estadoProceso = dataIn.estadoProceso;
-        this.marea=dataIn.marea;
+        this.marea = dataIn.marea;
         this.subTotalLibre = 0;
         this.totalImpuestos = 0;
         this.totalOrden = 0;
@@ -139,7 +139,7 @@ export class cOrdenEC {
             auxDevolucion.cantidad = cantidadIn;
         auxDevolucion.rellenarProducto(dataIn.producto);
         auxDevolucion.calcularPrecio();
-        auxDevolucion.producto.listBodegaProducto=auxDevolucion.producto.listBodegaProducto.filter(x=>x.nombreBodega==auxDevolucion.destinoBodega);
+        auxDevolucion.producto.listBodegaProducto = auxDevolucion.producto.listBodegaProducto.filter(x => x.nombreBodega == auxDevolucion.destinoBodega);
         this.listPcomprasO.push(auxDevolucion);
     }
 }
@@ -155,6 +155,8 @@ export class cCompraO {
     destinoBodega: string = "SIN ASIGNAR";
     cargaIva: boolean = true;
     estadoCompra: string = "Procesada";
+    loteMedic: string = null;
+    fechaVencimientoMedic: string = null;
 
     /**Controladores Individuales*/
     marcar?: boolean = true;
@@ -198,20 +200,20 @@ export class cProducto_B {
     precioStandar?: number = 0.00;
     precioUltima?: number = 0.00;
     tipoUnidad?: string = "UNIDAD";
-    contenidoNeto?:number=1;
-    precioNeto?:number=0;
+    contenidoNeto?: number = 1;
+    precioNeto?: number = 0;
     rutaArchivo?: string = "/assets/img/imgDefecto.png";
     estado?: number = 1;
 
     /**Arreglos */
     listBodegaProducto?: cBodegaProducto[] = [];
-    listComponentesProducto?: cComponentesProducto[]=[];
+    listComponentesProducto?: cComponentesProducto[] = [];
     /**COntrol de cliente */
     SelectBodega?: string = "SIN ASIGNAR";
     preBodega?: string = "SIN ASIGNAR";//para editar una orden almacenar la bodega anterior
     disBttnInput?: number = 0;
-    check?:boolean=false;
-    sumStock?:number=0;
+    check?: boolean = false;
+    sumStock?: number = 0;
 
     constructor(plantaIn?: string, proveedorIn?: string) {
         if (plantaIn != null)
@@ -234,8 +236,8 @@ export class cProducto_B {
         this.precioUltima = objIn.precioUltima;
         this.rutaArchivo = objIn.rutaArchivo;
         this.tipoUnidad = objIn.tipoUnidad;
-        this.contenidoNeto=objIn.contenidoNeto;
-        this.precioNeto=objIn.precioNeto;
+        this.contenidoNeto = objIn.contenidoNeto;
+        this.precioNeto = objIn.precioNeto;
         this.estado = objIn.estado;
 
         if (objIn.listBodegaProducto != null) {
@@ -268,8 +270,8 @@ export class cProducto_B {
         this.proveedor = "SIN ASIGNAR";
         this.disBttnInput = 0;
         this.SelectBodega = "SIN ASIGNAR";
-        this.contenidoNeto=null;
-        this.precioNeto=0;
+        this.contenidoNeto = null;
+        this.precioNeto = 0;
     }
     agregarOneBodega(dataIn?: cBodegaProducto, bodegaIn?: string) {
         var auxBodega = new cBodegaProducto(this.planta, bodegaIn);
@@ -294,7 +296,7 @@ export class cBodegaProducto {
     inventarioId?: number = undefined;
     cantInicial?: number = 0;
     disponibilidad?: number = 0;
-    cantMinima?:number=1;
+    cantMinima?: number = 1;
     percha?: number = 0;
     fila?: number = 0;
     numCasillero?: number = 0;
@@ -303,7 +305,9 @@ export class cBodegaProducto {
 
     /**Variables de control */
     ocultarObj?: boolean = true;
-    inventario?:cProducto_B=null;
+    inventario?: cProducto_B = null;
+    sumGeneral?: number = 0;
+    listAreas?: cBodegaSubAreaProducto[] = [];
 
     constructor(plantaIn?: string, bodegaIn?: string) {
         if (plantaIn != null)
@@ -321,15 +325,22 @@ export class cBodegaProducto {
         this.inventarioId = objIn.inventarioId;
         this.cantInicial = objIn.cantInicial;
         this.disponibilidad = objIn.disponibilidad;
-        this.cantMinima=objIn.cantMinima;
+        this.cantMinima = objIn.cantMinima;
         this.percha = objIn.percha;
         this.fila = objIn.fila;
         this.numCasillero = objIn.numCasillero;
         this.numPalet = objIn.numPalet;
         this.estado = objIn.estado;
 
-        if(objIn.inventario!=null)
-            this.inventario=objIn.inventario;
+        if (objIn.inventario != null)
+            this.inventario = objIn.inventario;
+        if (objIn.listAreas != null) {
+            this.listAreas = []
+            if (objIn.listAreas.length > 0) {
+                this.listAreas = objIn.listAreas;
+            }
+        }
+        this.sumStockBodegas();
     }
     resetBodega() {
         this.idBodegaProducto = undefined;
@@ -338,31 +349,72 @@ export class cBodegaProducto {
         this.inventarioId = undefined;
         this.cantInicial = 0;
         this.disponibilidad = 0;
-        this.cantMinima=1;
+        this.cantMinima = 1;
         this.percha = 0;
         this.fila = 0;
         this.numCasillero = 0;
         this.numPalet = 0;
         this.estado = 1;
     }
+
+    sumStockBodegas() {
+        this.sumGeneral = this.disponibilidad;
+        if (this.listAreas != null)
+            if (this.listAreas.length > 0) {
+                this.listAreas.forEach(x => {
+                    this.sumGeneral = this.sumGeneral + x.disponibilidad;
+                })
+            }
+    }
 }
 
-export class cComponentesProducto{
-    idComponente:number=undefined;
-    inventarioId:number=undefined;
-    bodegaProductoId:number=undefined;
-    cantidadNecesaria:number=0;
+export class cBodegaSubAreaProducto {
+    idBodegaSubAreaProducto: number;
+    nombreSub: string;
+    bodegaProductoId: number;
+    disponibilidad: number;
+    fechaVencimiento: string;
+    /**Variables de control */
+    bodegaProducto?: cBodegaProducto = null;
 
-    inventario?:cProducto_B;
-    bodegaProducto?:cBodegaProducto;
+    constructor(AreaIn?: string) {
+        this.idBodegaSubAreaProducto = undefined;
+        if (AreaIn != null)
+            this.nombreSub = AreaIn;
+        else this.nombreSub = "";
+        this.disponibilidad = 0;
+    }
+
+    /*Metodos*/
+    completarObject(objIn: cBodegaSubAreaProducto) {
+        if (objIn.idBodegaSubAreaProducto != undefined)
+            this.idBodegaSubAreaProducto = objIn.idBodegaSubAreaProducto;
+        this.nombreSub = objIn.nombreSub;
+        this.bodegaProductoId = objIn.bodegaProductoId;
+        this.disponibilidad = objIn.disponibilidad;
+
+
+        if (objIn.bodegaProducto != null)
+            this.bodegaProducto = objIn.bodegaProducto;
+    }
+}
+
+export class cComponentesProducto {
+    idComponente: number = undefined;
+    inventarioId: number = undefined;
+    bodegaProductoId: number = undefined;
+    cantidadNecesaria: number = 0;
+
+    inventario?: cProducto_B;
+    bodegaProducto?: cBodegaProducto;
 
     /**Controles */
-    labelId?:number=undefined;
-    labelCodigo?:string="";
-    labelNombre?:string="";
-    showSearchSelect?:number=0; //no se ve nada, 1 codigo, 2 nombre, 3 bloqueado
+    labelId?: number = undefined;
+    labelCodigo?: string = "";
+    labelNombre?: string = "";
+    showSearchSelect?: number = 0; //no se ve nada, 1 codigo, 2 nombre, 3 bloqueado
 
-    constructor(){
+    constructor() {
 
     }
 
@@ -373,13 +425,13 @@ export class cComponentesProducto{
         this.bodegaProductoId = objIn.bodegaProductoId;
         this.cantidadNecesaria = objIn.cantidadNecesaria;
 
-        if(objIn.bodegaProducto!=null){
-            this.bodegaProducto=new cBodegaProducto();
+        if (objIn.bodegaProducto != null) {
+            this.bodegaProducto = new cBodegaProducto();
             this.bodegaProducto.completarObject(objIn.bodegaProducto);
-            this.labelId=objIn.bodegaProducto.inventario.idProductoStock;
-            this.labelCodigo=objIn.bodegaProducto.inventario.codigo;
-            this.labelNombre=objIn.bodegaProducto.inventario.nombre;
-            this.showSearchSelect=3;
+            this.labelId = objIn.bodegaProducto.inventario.idProductoStock;
+            this.labelCodigo = objIn.bodegaProducto.inventario.codigo;
+            this.labelNombre = objIn.bodegaProducto.inventario.nombre;
+            this.showSearchSelect = 3;
         }
     }
 }
@@ -391,7 +443,7 @@ export class cSaldosKardex {
 
     constructor(cantidadIn?: number, precioUIn?: number) {
         if (cantidadIn != null && precioUIn != null)
-            this.calcuarSaldo(cantidadIn,precioUIn);
+            this.calcuarSaldo(cantidadIn, precioUIn);
     }
 
     calcuarSaldo(cantidadIn: number, precioUIn: number) {
@@ -431,7 +483,7 @@ export class cItemKardex {
         this.lugarTransaccion = dataIn.lugarTransaccion;
         this.relacionGuiaId = dataIn.relacionGuiaId;
         this.relacionFacturaId = dataIn.relacionFacturaId;
-        if (this.tipoItem == "Compra"||this.tipoItem=="Entrada") {
+        if (this.tipoItem == "Compra" || this.tipoItem == "Entrada") {
             this.datoSalida = new cSaldosKardex();
             this.datoEntrada = new cSaldosKardex(dataIn.cantidad, dataIn.precio);
         } else {
@@ -451,9 +503,9 @@ export class cKardex {
     precioSumS: number = 0;
     totalBalance: number = 0;
     datoInicial: cSaldosKardex;
-    BodegaSelect:string="all";
-    cantidadDisponible:number=0;
-    cantidadInicial:number=0;
+    BodegaSelect: string = "all";
+    cantidadDisponible: number = 0;
+    cantidadInicial: number = 0;
     listItems: cItemKardex[] = [];
 
     constructor(fechaInicial?: string) {
@@ -474,7 +526,7 @@ export class cKardex {
             for (var i = 0; i < listIn.length; i++) {
                 var nuevoItem: cItemKardex = new cItemKardex();
                 nuevoItem.completarObj(listIn[i]);
-                if (nuevoItem.tipoItem != "Entrada" && nuevoItem.tipoItem!="Compra")
+                if (nuevoItem.tipoItem != "Entrada" && nuevoItem.tipoItem != "Compra")
                     nuevoItem.datoSalida.calcuarSaldo(nuevoItem.datoSalida.cantidad, auxUltimoP);
                 this.totalSumS = this.totalSumS + nuevoItem.datoSalida.cantidad;
                 this.totalSumE = this.totalSumE + nuevoItem.datoEntrada.cantidad;
@@ -487,5 +539,84 @@ export class cKardex {
                 this.listItems.push(nuevoItem);
             }
         }
+    }
+}
+
+export class cBodega {
+    idBodega: number;
+    tipoBodega: string;
+    nombreBodega: string;
+    encargadoBodega: string;
+    telefonoEncargado: string;
+    estado: number;
+
+    listAreas: cBodegaArea[];
+
+    constructor() {
+        this.idBodega = undefined;
+        this.tipoBodega = "SIN ASIGNAR";
+        this.nombreBodega = "";
+        this.encargadoBodega = "";
+        this.telefonoEncargado = "";
+        this.estado = 1;
+
+        this.listAreas = [];
+    }
+
+    completarObject(dataIn: cBodega) {
+        this.idBodega = dataIn.idBodega;
+        this.tipoBodega = dataIn.tipoBodega;
+        this.nombreBodega = dataIn.nombreBodega;
+        this.encargadoBodega = dataIn.encargadoBodega;
+        this.telefonoEncargado = dataIn.telefonoEncargado;
+        this.estado = dataIn.estado;
+
+        if (dataIn.listAreas != null) {
+            this.listAreas = [];
+            dataIn.listAreas.forEach(dataArea => {
+                var auxArea: cBodegaArea = new cBodegaArea();
+                auxArea.completarObject(dataArea);
+                this.listAreas.push(auxArea);
+            });
+        }
+    }
+
+    agregarOneArea(dataIn?: cBodegaArea, AreaIn?: string) {
+        var auxArea = new cBodegaArea(AreaIn);
+        if (dataIn != null)
+            auxArea.completarObject(dataIn);
+        this.listAreas.push(auxArea);
+    }
+}
+
+export class cBodegaArea {
+    idBodegaArea: number;
+    bodegaId: number;
+    nombreArea: string;
+    encargadoArea: string;
+    telefonoEncargado: string;
+
+    /**varios */
+    ocultarObj: boolean;
+
+    constructor(nombreIn?: string) {
+        this.idBodegaArea = undefined;
+        this.bodegaId = undefined;
+        this.nombreArea = "";
+        this.encargadoArea = "";
+        this.telefonoEncargado = "";
+
+        if (nombreIn != null)
+            this.nombreArea = nombreIn;
+
+        this.ocultarObj = false;
+    }
+
+    completarObject(dataIn: cBodegaArea) {
+        this.idBodegaArea = dataIn.idBodegaArea;
+        this.bodegaId = dataIn.bodegaId;
+        this.nombreArea = dataIn.nombreArea;
+        this.encargadoArea = dataIn.encargadoArea;
+        this.telefonoEncargado = dataIn.telefonoEncargado;
     }
 }

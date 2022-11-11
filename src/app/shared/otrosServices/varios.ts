@@ -106,6 +106,19 @@ export class cFecha {
         return this.strFecha;
     }
 
+    setFecha(fechaIn:string){
+        var aux = fechaIn.split("T");
+        if(aux.length>1){
+            //con hora
+        }else{
+            var aux2= fechaIn.split("-");
+            this.anio=Number(aux2[0]);
+            this.mes=Number(aux2[1]);
+            this.dia=Number(aux2[2]);
+        }
+
+    }
+
     actualizarFecha(): string {
         let hoy = new Date();
         this.dia = hoy.getDate();

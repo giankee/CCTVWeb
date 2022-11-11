@@ -3,7 +3,7 @@ import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { OrdenECService } from 'src/app/shared/orden-e-c.service';
-import { cCompraO, cOrdenEC, cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cCompraO, cOrdenEC, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cEnterpriceDocumento, cEnterpriceProveedor, cFecha, cVario, cWhatsapp } from 'src/app/shared/otrosServices/varios';
 import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
@@ -83,7 +83,7 @@ export class CompraProveedorComponent implements OnInit {
   autoFocus: boolean = false;
   okCompraManual: boolean = false;
   okBttnSubmit: number = 2;//1 disable, 2 Ok, 3 error
-  listBodega: cVario[] = [];
+  listBodega:cBodega[]=[];
   okAddNewBotton: boolean = true;
   selectBarcoCompra: string = "SIN ASIGNAR";
 
@@ -98,20 +98,18 @@ export class CompraProveedorComponent implements OnInit {
     this.cargarBodega();
   }
 
+
   cargarBodega() {
     if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
       this.selectProveedor.fuente = "ENT";
       this.selectProveedor.proveedor = "DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A";
       this.selectProveedor.cedrucpas = "0990858322001";
-      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-        dato.forEach(x => {
-          if (x.categoria == "Puerto" && x.idVarios != 4)
-            this.listBodega.push(x);
-        });
+      this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+        this.listBodega=dato;
       });
     } else {
-      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-        this.listBodega = dato;
+      this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+        this.listBodega=dato;
       });
     }
   }
@@ -176,7 +174,9 @@ export class CompraProveedorComponent implements OnInit {
             x.estadoCompra = "Pendiente";
           });
         } else this.okBttnSubmit = 3;
-        this._ordenECService.formData.marea = this._ordenECService.formData.marea + "-" + this.fechaHoy.anio;
+        if (this.ordenECService.formData.listPcomprasO.find(x => (x.fechaVencimientoMedic == null && x.loteMedic!=null) || (x.fechaVencimientoMedic!=null && x.loteMedic==null)) != null)
+          this.okBttnSubmit = 3;
+        else this._ordenECService.formData.marea = this._ordenECService.formData.marea + "-" + this.fechaHoy.anio;
       }
       if (this.okBttnSubmit == 1) {
         if (this._ordenECService.formData.listPcomprasO.find(x => x.cantidad == 0 || (x.destinoBodega == "SIN ASIGNAR" && x.marcar)) == undefined) {
@@ -230,15 +230,14 @@ export class CompraProveedorComponent implements OnInit {
             this.toastr.warning('Aviso Importante', 'La factura ya ha sido registrada anteriormente');
           if (res.message == "Ok") {
             if (this._ordenECService.formData.planta == "ENFERMERIA") {
-              var auxNumber = this.listBodega.find(x => x.nombre == this.selectBarcoCompra).telefonoEncargado;
-              this.sendMediaMessageMedic(this.ordenECService.formData, auxNumber);
+              this.sendMediaMessageMedic(this.ordenECService.formData, this.listBodega.find(x => x.nombreBodega == this.selectBarcoCompra).telefonoEncargado);
             }
             if (this._ordenECService.formData.planta == "P MANACRIPEX") {
-              var auxBodegas: cVario[] = [];
+              var auxBodegas: cBodega[] = [];
               for (var i = 0; i < this._ordenECService.formData.listPcomprasO.length; i++) {
-                var auxBodega = this.listBodega.find(x => x.nombre == this._ordenECService.formData.listPcomprasO[i].destinoBodega);
+                var auxBodega = this.listBodega.find(x => x.nombreBodega == this._ordenECService.formData.listPcomprasO[i].destinoBodega);
                 if (auxBodega.encargadoBodega != this._conexcionService.UserR.nombreU) {
-                  if (auxBodegas.find(x => x.nombre == auxBodega.nombre) == undefined) {
+                  if (auxBodegas.find(x => x.nombreBodega == auxBodega.nombreBodega) == undefined) {
                     auxBodegas.push(auxBodega);
                     this.sendMediaMessageTraspaso(this._ordenECService.formData, auxBodega);
                   }
@@ -621,15 +620,31 @@ export class CompraProveedorComponent implements OnInit {
 
     doc.text("#", 10, (y + 7));
     doc.line(20, y, 20, (y + 10));//right
-    doc.text("Código", 35, (y + 7));
+    doc.text("Código", 40, (y + 7));
     doc.line(70, y, 70, (y + 10));//right
-    doc.text("Cantidad", 75, (y + 7));
-    doc.line(95, y, 95, (y + 10));//right
-    doc.text("Cont.Neto", 100, (y + 7));
-    doc.line(120, y, 120, (y + 10));//right
-    doc.text("Unidades G.", 125, (y + 7));
-    doc.line(150, y, 150, (y + 10));//right
-    doc.text("Descripción", 200, (y + 7));
+
+    if (this.ordenECService.formData.planta == "ENFERMERIA") {
+      doc.text("Cantidad", 73, (y + 7));
+      doc.line(90, y, 90, (y + 10));//right
+      doc.text("Cont.Neto", 92, (y + 7));
+      doc.line(110, y, 110, (y + 10));//right
+      doc.text("Unidades G.", 113, (y + 7));
+      doc.line(135, y, 135, (y + 10));//right
+      doc.text("Descripción", 170, (y + 7));
+      doc.line(220, y, 220, (y + 10));//right
+      doc.text("Lote", 240, (y + 7));
+      doc.line(260, y, 260, (y + 10));//right
+      doc.text("F. Vencimiento", 263, (y + 7));
+    }
+    else {
+      doc.text("Cantidad", 75, (y + 7));
+      doc.line(95, y, 95, (y + 10));//right
+      doc.text("Cont.Neto", 100, (y + 7));
+      doc.line(120, y, 120, (y + 10));//right
+      doc.text("Unidades G.", 125, (y + 7));
+      doc.line(150, y, 150, (y + 10));//right
+      doc.text("Descripción", 200, (y + 7));
+    }
 
     y = y + 10;
     doc.setFontSize(8);
@@ -657,34 +672,70 @@ export class CompraProveedorComponent implements OnInit {
 
         doc.text("#", 10, (y + 7));
         doc.line(20, y, 20, (y + 10));//right
-        doc.text("Código", 35, (y + 7));
+        doc.text("Código", 40, (y + 7));
         doc.line(70, y, 70, (y + 10));//right
-        doc.text("Cantidad", 75, (y + 7));
-        doc.line(95, y, 95, (y + 10));//right
-        doc.text("Cont.Neto", 100, (y + 7));
-        doc.line(120, y, 120, (y + 10));//right
-        doc.text("Unidades G.", 125, (y + 7));
-        doc.line(150, y, 150, (y + 10));//right
-        doc.text("Descripción", 200, (y + 7));
-
+        if (this.ordenECService.formData.planta == "ENFERMERIA") {
+          doc.text("Cantidad", 73, (y + 7));
+          doc.line(90, y, 90, (y + 10));//right
+          doc.text("Cont.Neto", 92, (y + 7));
+          doc.line(110, y, 110, (y + 10));//right
+          doc.text("Unidades G.", 113, (y + 7));
+          doc.line(135, y, 135, (y + 10));//right
+          doc.text("Descripción", 170, (y + 7));
+          doc.line(220, y, 220, (y + 10));//right
+          doc.text("Lote", 240, (y + 7));
+          doc.line(260, y, 260, (y + 10));//right
+          doc.text("F. Vencimiento", 265, (y + 7));
+        }
+        else {
+          doc.text("Cantidad", 75, (y + 7));
+          doc.line(95, y, 95, (y + 10));//right
+          doc.text("Cont.Neto", 100, (y + 7));
+          doc.line(120, y, 120, (y + 10));//right
+          doc.text("Unidades G.", 125, (y + 7));
+          doc.line(150, y, 150, (y + 10));//right
+          doc.text("Descripción", 200, (y + 7));
+        }
         y = y + 10 + valorG;
         doc.setFontSize(8);
         doc.setFont("arial", "normal");
       }
-
       doc.line(5, (y - valorG), 5, y);//left
-      doc.text(i.toString(), 10, (y - ((valorG - 3) / 2)));
+      doc.line(290, (y - valorG), 290, y);//right
+
+      doc.text(i.toString()+1, 10, (y - ((valorG - 3) / 2)));
       doc.line(20, (y - valorG), 20, y);//right
       doc.text(auxListaCompras[i].producto.codigo, 25, (y - ((valorG - 3) / 2)));
       doc.line(70, (y - valorG), 70, y);//right
-      doc.text(auxListaCompras[i].cantidad.toString(), 80, (y - ((valorG - 3) / 2)));
-      doc.line(95, (y - valorG), 95, y);//right
-      doc.text(auxListaCompras[i].producto.contenidoNeto.toString(), 105, (y - ((valorG - 3) / 2)));
-      doc.line(120, (y - valorG), 120, y);//right
-      doc.text((auxListaCompras[i].producto.contenidoNeto * auxListaCompras[i].cantidad) + "", 130, (y - ((valorG - 3) / 2)));
-      doc.line(150, (y - valorG), 150, y);//right
-      doc.text(auxListaCompras[i].producto.nombre, 155, (y - ((valorG - 3) / 2)));
-      doc.line(290, (y - valorG), 290, y);//right
+      if (this.ordenECService.formData.planta == "ENFERMERIA"){
+        doc.text(auxListaCompras[i].cantidad.toString(), 80, (y - ((valorG - 3) / 2)));
+        doc.line(90, (y - valorG), 90, y);//right
+        doc.text(auxListaCompras[i].producto.contenidoNeto.toString(), 98, (y - ((valorG - 3) / 2)));
+        doc.line(110, (y - valorG), 110, y);//right
+        doc.text((auxListaCompras[i].producto.contenidoNeto * auxListaCompras[i].cantidad) + "", 120, (y - ((valorG - 3) / 2)));
+        doc.line(135, (y - valorG), 135, y);//right
+        doc.text(auxListaCompras[i].producto.nombre, 140, (y - ((valorG - 3) / 2)));
+        doc.line(220, (y - valorG), 220, y);//right
+
+        doc.line(260, (y - valorG), 260, y);//right
+        if(auxListaCompras[i].loteMedic==null && auxListaCompras[i].fechaVencimientoMedic==null){
+          doc.text("SIN ASIGNAR", 225, (y - ((valorG - 3) / 2)));
+          doc.text("SIN ASIGNAR", 265, (y - ((valorG - 3) / 2)));
+        }else{
+          doc.text(auxListaCompras[i].loteMedic+"", 225, (y - ((valorG - 3) / 2)));
+          doc.text(auxListaCompras[i].fechaVencimientoMedic+"", 265, (y - ((valorG - 3) / 2)));
+        }
+      }
+      else{
+        doc.text(auxListaCompras[i].cantidad.toString(), 80, (y - ((valorG - 3) / 2)));
+        doc.line(95, (y - valorG), 95, y);//right
+        doc.text(auxListaCompras[i].producto.contenidoNeto.toString(), 105, (y - ((valorG - 3) / 2)));
+        doc.line(120, (y - valorG), 120, y);//right
+        doc.text((auxListaCompras[i].producto.contenidoNeto * auxListaCompras[i].cantidad) + "", 130, (y - ((valorG - 3) / 2)));
+        doc.line(150, (y - valorG), 150, y);//right
+        doc.text(auxListaCompras[i].producto.nombre, 155, (y - ((valorG - 3) / 2)));
+        
+      }
       doc.line(5, y, 290, y);//down
     }
     return (doc.output('datauristring'));
@@ -720,8 +771,8 @@ export class CompraProveedorComponent implements OnInit {
     )
   }
 
-  sendMediaMessageTraspaso(orden: cOrdenEC, auxBodega: cVario) {
-    var auxBase = this.onConvertPdfOne(auxBodega.nombre).split('base64,');
+  sendMediaMessageTraspaso(orden: cOrdenEC, auxBodega: cBodega) {
+    var auxBase = this.onConvertPdfOne(auxBodega.nombreBodega).split('base64,');
     var auxWhatsapp: cWhatsapp;
     auxWhatsapp = {
       phone: auxBodega.telefonoEncargado,
@@ -733,7 +784,7 @@ export class CompraProveedorComponent implements OnInit {
     auxWhatsapp.message = ':bell: *Notificación Compra Material*:exclamation: :bell:'
       + '\n'
       + '\n:wave: Saludos Compañero:'
-      + '\nSe le informa que se ha comprado material para la bodega *' + auxBodega.nombre + '*.'
+      + '\nSe le informa que se ha comprado material para la bodega *' + auxBodega.nombreBodega + '*.'
       + '\nLos materiales fueron trasladados a su respectivo lugar'
       + '\nLos datos de la compra son:'
       + '\n'

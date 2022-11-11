@@ -23,7 +23,9 @@
               <div class="results" *ngIf="ordenECService.formData.showSearchSelect">
                 <ul>
                   <li *ngFor="let data of listProveedoresFiltros$ | async">
-                    <a (click)="onChooseProveedor(data)" class="name">{{data.proveedor}}</a>
+                    <div (click)="onChooseProveedor(data)">
+                      <a class="name">{{data.proveedor}}</a>
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -63,8 +65,8 @@
         <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
           [(ngModel)]="selectBarcoCompra">
           <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-          <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
-            {{datobodega.nombre}}</option>
+          <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombreBodega}}">
+            {{datobodega.nombreBodega}}</option>
         </select>
       </div>
     </div>
@@ -116,7 +118,7 @@
               <tr class="text-center">
                 <th
                   *ngIf="ordenECService.formData.estadoProceso=='Procesada'||ordenECService.formData.estadoProceso=='Pendiente Verificación' ||(ordenECService.formData.estadoProceso=='Temporal'&& ordenECService.formData.idCompraAutomatica!=0)"
-                  style="width: 15%;">Código</th>
+                  style="width: 10%;">Código</th>
                 <th style="width: 10%;">Cantidad</th>
                 <th style="width: 25%;">Descripción</th>
                 <th
@@ -140,6 +142,10 @@
                 <th
                   *ngIf="ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 )"
                   style="width: 15%;">Destino Bodega</th>
+                <th *ngIf="!okCompraManual && ordenECService.formData.planta=='ENFERMERIA'" style="width: 20%;">Lote
+                </th>
+                <th *ngIf="!okCompraManual && ordenECService.formData.planta=='ENFERMERIA'" style="width: 20%;">Fecha de
+                  Caducidad</th>
                 <th
                   *ngIf="ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0"
                   style="width: 15%;">Referencia Temporal</th>
@@ -181,10 +187,12 @@
                     {{datoList.cantidad}} </div>
                   <div
                     *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=='EQUIVALENCIA'">
-                    {{datoList.cantidad}} => Unidades: {{datoList.cantidad/datoList.producto.contenidoNeto | number:'1.0-0'}}</div>
+                    {{datoList.cantidad}} => Unidades:
+                    {{datoList.cantidad/datoList.producto.contenidoNeto | number:'1.0-0'}}</div>
                   <div
                     *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=='CONTENIDO NETO'">
-                    {{datoList.cantidad}} => Unidades: {{datoList.producto.contenidoNeto*datoList.cantidad | number:'1.0-0'}}</div>
+                    {{datoList.cantidad}} => Unidades:
+                    {{datoList.producto.contenidoNeto*datoList.cantidad | number:'1.0-0'}}</div>
                 </td>
                 <td *ngIf="okCompraManual" id="inputSearchP">
                   <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
@@ -275,7 +283,8 @@
                     *ngIf="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.tipoUnidad=='CONTENIDO NETO'"
                     style="width: 60%;">
                     <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto1"
-                      type="number" min="0" maxlength="4" placeholder="Contenido Neto" required pattern="^[0-9]{0,4}" class="form-control input-src"
+                      type="number" min="0" maxlength="4" placeholder="Contenido Neto" required pattern="^[0-9]{0,4}"
+                      class="form-control input-src"
                       onkeydown="return (event.keyCode !== 69 && event.keyCode !== 109 && event.keyCode !==110 && event.keyCode !==190 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                       #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}contenidoNeto1="ngModel"
                       [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].producto.contenidoNeto"
@@ -318,12 +327,25 @@
                     #in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega="ngModel"
                     [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].destinoBodega">
                     <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
-                      value="{{datobodega.nombre}}">
-                      {{datobodega.nombre}}</option>
+                    <option *ngFor="let datobodega of listBodega"
+                      value="{{datobodega.nombreBodega}}">
+                      {{datobodega.nombreBodega}}</option>
                   </select>
                 </td>
-                <td id="inputSearchP" 
+                <td id="inputSearchP" *ngIf="ordenECService.formData.planta=='ENFERMERIA' && !okCompraManual">
+                  <input name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteMedic"
+                    #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteMedic="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].loteMedic"
+                    (ngModelChange)="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].loteMedic=$event.toUpperCase()"
+                    maxlength="50" placeholder="Lote" class="form-control input-src">
+                </td>
+                <td id="inputSearchP" *ngIf="ordenECService.formData.planta=='ENFERMERIA' && !okCompraManual">
+                  <input type="date" maxlength="50" placeholder="Lote" min="2022-01-01" class="form-control input-src"
+                    name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}fechaVencimientoMedic"
+                    #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}fechaVencimientoMedic="ngModel"
+                    [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].fechaVencimientoMedic">
+                </td>
+                <td id="inputSearchP"
                   *ngIf="ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0">
                   <select class="form-control input-src" required
                     name="in{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectReferencia"

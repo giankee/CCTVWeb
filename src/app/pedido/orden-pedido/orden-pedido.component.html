@@ -1,0 +1,243 @@
+<section class="dashboard-header">
+  <div class="container-fluid">
+    <div class="boxCliente pt-1">
+      <form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)">
+        <div class="bodyCard" *ngIf="ordenPedidoService.formData">
+          <div class="row mt-3">
+            <div class="col-12 col-md-8">
+              <h4 class="text-center">Recopilación datos del Pedido</h4>
+            </div>
+            <div class="col-12 col-md-4">
+              <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
+                [(ngModel)]="ordenPedidoService.formData.fechaPedido" min="2022-01-01" max="{{fechaHoy.strFecha}}">
+            </div>
+          </div>
+          <div class="row boxForm mt-2">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-4">
+              <div class="form-group" id="selectProveedor">
+                <div class="title ml-2 ml-md-3">
+                  <strong>Proveedor: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input name="ProveedorIn" #ProveedorIn="ngModel"
+                        [(ngModel)]="ordenPedidoService.formData.proveedor"
+                        (ngModelChange)="onBListProgProveedor($event?.toUpperCase())" maxlength="100"
+                        placeholder="Nombre del proveedor" class="form-control input-src"
+                        [ngClass]="{'loading':ordenPedidoService.formData.spinnerLoadingP}" required>
+                      <div class="results" *ngIf="ordenPedidoService.formData.showSearchSelect">
+                        <ul>
+                          <li *ngFor="let data of listProveedoresFiltros$ | async">
+                            <div (click)="onChooseProveedor(data)">
+                              <a class="name">{{data.proveedor}}</a>
+                            </div>
+                          </li>
+                          <li>
+                            <div (click)="onChooseProveedor(null)">
+                              <a class="name">Nuevo Proveedor</a>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3 col-lg-4">
+              <div class="form-group">
+                <div class="title ml-2 ml-md-3">
+                  <strong>Barco:</strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
+                        [(ngModel)]="ordenPedidoService.formData.barco" (ngModelChange)="onNewItem()" required>
+                        <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                        <option *ngFor="let datoBarco of listBarcos" value="{{datoBarco.nombreBodega}}">
+                          {{datoBarco.nombreBodega}}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3 col-lg-4">
+              <div class="form-group">
+                <div class="title ml-2 ml-md-3">
+                  <strong>Tipo Pedido:</strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <select class="form-control input-src" name="inSelectTipoPedido" #inSelectTipoPedido="ngModel"
+                        [(ngModel)]="ordenPedidoService.formData.tipoPedido" required>
+                        <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                        <option value="Consumo Muelle">Consumo Muelle</option>
+                        <option value="Faena Marítima">Faena Marítima</option>
+                        <option value="Bodega Muella">Bodega Muelle</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group">
+                <div class="title ml-2 ml-md-3">
+                  <strong>Justificación:</strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <textarea name="justificacion" #justificacion="ngModel" required
+                        [(ngModel)]="ordenPedidoService.formData.justificacion" class="form-control"
+                        placeholder="Descipción general sobre la orden del pedido"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header boxForm d-flex justify-content-between">
+                  <h5 class="text-dark2" style="padding-top: 9px;">Lista de Material</h5>
+                  <a [routerLink] (click)="onNewItem()" class="btn bttn-Primario btn-sm"
+                    [ngClass]="{'bttn-Error':!okAddNewBotton }"
+                    matTooltip="No se puede añadir material si existen campos vacios" matTooltipPosition="left"
+                    matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
+                    <fa-icon [icon]="faplus"></fa-icon> Añadir
+                  </a>
+                </div>
+                <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px; height: 100%;">
+                  <table class="table" *ngIf="ordenPedidoService.formData.listArticulosPedido!=null">
+                    <thead>
+                      <tr class="text-center">
+                        <th scope="col" style="width:45%;">Material</th>
+                        <th scope="col" style="width:15%;">Cantidad</th>
+                        <th scope="col" style="width:20%;">Observación</th>
+                        <th scope="col" style="width:20%;">Área</th>
+                        <th scope="col" style="width:5%;"></th>
+                      </tr>
+                    </thead>
+                    <tbody *ngIf="ordenPedidoService.formData.listArticulosPedido.length>0">
+                      <tr
+                        *ngFor="let datoListP of ordenPedidoService.formData.listArticulosPedido; let indiceNewP=index"
+                        [ngClass]="{'filaPar':(((indiceNewP+1)%2)==0)}">
+                        <td id="inputSearchP">
+                          <div class="row" *ngIf="ordenPedidoService.formData.listArticulosPedido[indiceNewP].inventario!=null">
+                            <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                              <div class="wrapper">
+                                <div class="limit-width">
+                                  <input name="in{{indiceNewP}}codigoProducto" #in{{indiceNewP}}codigoProducto="ngModel"
+                                    [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].inventario.codigo"
+                                    (ngModelChange)="onListProducto(indiceNewP,1,$event?.toUpperCase())" maxlength="100"
+                                    placeholder="Código Material" class="form-control input-src"
+                                    [ngClass]="{'loading':datoListP.spinnerLoading==1}"
+                                    [disabled]="datoListP.inventario.disBttnInput==2" required>
+                                  <div class="results" style="position:relative;"
+                                    *ngIf="datoListP.showSearchSelect==1 && listProductosIn!=null">
+                                    <ul>
+                                      <li
+                                        *ngFor="let data of listProductosIn | searchMaterial:'codigo':ordenPedidoService.formData.listArticulosPedido[indiceNewP].inventario.codigo">
+                                        <div (click)="onChooseElemente(indiceNewP,1,data)">
+                                          <a class="name">{{data.codigo}}</a>
+                                        </div>
+                                      </li>
+                                      <li>
+                                        <div (click)="onChooseElemente(indiceNewP,1,null)">
+                                          <a class="name">Nuevo Código</a>
+                                        </div>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                              <div class="wrapper">
+                                <div class="limit-width">
+                                  <input name="in{{indiceNewP}}nombreProducto" #in{{indiceNewP}}nombreProducto="ngModel"
+                                    [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].inventario.nombre"
+                                    (ngModelChange)="onListProducto(indiceNewP,2,$event?.toUpperCase())" maxlength="100"
+                                    placeholder="Nombre Material" class="form-control input-src"
+                                    [ngClass]="{'loading':datoListP.spinnerLoading==2}"
+                                    [disabled]="datoListP.inventario.disBttnInput==1" required>
+                                  <div class="results" style="position:relative;"
+                                    *ngIf="datoListP.showSearchSelect==2 && listProductosIn!=null">
+                                    <ul>
+                                      <li
+                                        *ngFor="let data of listProductosIn | searchMaterial:'nombre':ordenPedidoService.formData.listArticulosPedido[indiceNewP].inventario.nombre">
+                                        <div (click)="onChooseElemente(indiceNewP,2,data)">
+                                          <a class="name">{{data.nombre}}</a>
+                                        </div>
+                                      </li>
+                                      <li>
+                                        <div (click)="onChooseElemente(indiceNewP,2,null)">
+                                          <a class="name">Nuevo Nombre</a>
+                                        </div>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td id="inputSearchP">
+                          <div class="input-group">
+                            <input name="in{{indiceNewP}}cantidad" type="number" min="0" maxlength="5" placeholder="#"
+                              class="form-control input-src"
+                              onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                              pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" #in{{indiceNewP}}cantidad="ngModel" required
+                              [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].cantidad"
+                              (ngModelChange)="comprobarNewR()">
+                          </div>
+                        </td>
+                        <td id="inputSearchP">
+                          <textarea name="in{{indiceNewP}}observacion" #in{{indiceNewP}}observacion="ngModel"
+                            [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion"
+                            class="form-control input-src" maxlength="300"
+                            placeholder="Ingrese su observación"></textarea>
+                        </td>
+                        <td id="inputSearchP">
+                          <select class="form-control input-src" name="in{{indiceNewP}}area"
+                            #in{{indiceNewP}}area="ngModel"
+                            [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].destinoArea"
+                            (ngModelChange)="comprobarNewR()" required>
+                            <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                            <option *ngFor="let datoArea of listBarcos |filtrarBodega:ordenPedidoService.formData.barco" value="{{datoArea.nombreArea}}">
+                              {{datoArea.nombreArea}}</option>
+                          </select>
+                        </td>
+                        <td class="justify-content-center" id="utilitarioI">
+                          <a class="badge text-primario d-block" matTooltip="Sacar de lista" matTooltipPosition="below"
+                            (click)="onRemoveNewR(indiceNewP)">
+                            <fa-icon [icon]="fatimes" size="3x"></fa-icon>
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row boxForm mt-2 justify-content-center">
+            <div class="col-10 col-sm-7 col-md-4 mb-2 px-4">
+              <button class="btn bttn-Primario btn-block " type="submit" [disabled]="formOrden.invalid || !okBttnSubmit"
+                [ngClass]="{'bttn-Error':!okBttnSubmit }" matTooltip="Campos Vacios Revisar*" matTooltipPosition="above"
+                matTooltipClass="tooltipRed" [matTooltipDisabled]="okBttnSubmit">
+                <fa-icon [icon]="fasave"></fa-icon> Procesar
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

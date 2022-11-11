@@ -28,7 +28,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
   spinnerOnOff: number = 0;//0 off / 1 loading Espera / 2 loading completo
   spinnerLoading:boolean=false;
   showSearchSelect:boolean=false;
-  selectProveedor:string="SIN ASIGNAR";
+  selectProveedor:string="";
   selectRuc:string="";
   
 
@@ -76,7 +76,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
   onBuscarFacturas(){
     this.spinnerOnOff=1;
     var strParametros= "@"+this.fechaHoy.inDesde+"@"+this.fechaHoy.inHasta;
-    if(this.selectProveedor!='SIN ASIGNAR')
+    if(this.selectProveedor!='')
     strParametros=this.selectRuc+strParametros;
     else strParametros="datoNull"+strParametros;
     this.listComprasMostrar$ = this._enterpriceServise.getComprasNoRealizadas(strParametros).pipe(

@@ -6,17 +6,14 @@
         <select class="form-control" #rolAsignado="ngModel" name="rolAsignado"
           [(ngModel)]="userService.formData.rolAsignado" *ngIf="conexcionService.UserR.rolAsignado">
           <option value="admin" *ngIf="conexcionService.UserR.rolAsignado=='admin'">Admin</option>
-          <option value="supervisor">Supervisor General</option>
           <option value="gv-m">Supervisor Guardia</option>
           <option value="gpv-o">Supervisor Oficina</option>
           <option value="tinabg-m">Supervisor Compras Planta Manacripex</option>
           <option value="guardia">Guardia</option>
-          <option value="verificador-p">Verificador Puerto</option>
-          <option value="verificador-m">Verificador Planta Manacripex</option>
           <option value="enfermeria">Enfermería</option>
           <option value="verificador-medic">Verificador Medicamento Barco</option>
-          <option value="visitante">Visitante</option>
           <option value="verificador-bodeguero">Bodeguero Manacripex</option>
+          <option value="pedido-flota">Pedidos Flota</option>
         </select>
         <label class="normal">Tipo de Usuario</label>
       </div>

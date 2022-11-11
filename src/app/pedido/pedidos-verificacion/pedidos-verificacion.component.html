@@ -1,0 +1,109 @@
+<section class="dashboard-header">
+  <div class="container-fluid  mt-3 mt-sm-4 px-1 px-md-5">
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2">Lista de pedidos por verificar</a></h5>
+          </div>
+          <div class="text-center my-3" *ngIf="spinnerOnOff">
+            <div class="d-flex justify-content-center">
+              <mat-spinner color="accent"></mat-spinner>
+            </div>
+          </div>
+          <div *ngIf="listOrdenesMostrar!=null">
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th>#</th>
+                    <th>Barco</th>
+                    <th>Secuencial</th>
+                    <th>Fecha Registro</th>
+                    <th>Proveedor</th>
+                    <th>Descripción</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="listOrdenesMostrar.length==0">
+                    <td class="font-italic text-center" colspan="7">
+                      No existen pedidos disponibles para verificar
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let dato of listOrdenesMostrar | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{indice+1}}</td>
+                    <td>{{dato.barco}}</td>
+                    <td class="text-center">{{dato.numSecuencial}}</td>
+                    <td>{{dato.fechaPedido}}</td>
+                    <td>{{dato.proveedor}}</td>
+                    <td>
+                      <div *ngFor="let datoItems of dato.listArticulosPedido; let indice2=index">
+                        <ul id="utilitarioI" class="d-flex">
+                          <mat-checkbox class="mr-3" color="primary"
+                            id="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar{{indice2}}"
+                            name="isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar{{indice2}}"
+                            #isCheck{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}marcar{{indice2}}="ngModel"
+                            [(ngModel)]="listOrdenesMostrar[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].listArticulosPedido[indice2].marcar">
+                          </mat-checkbox>
+                          <div *ngIf="datoItems.contenidoNeto==1" class="mr-2">{{datoItems.cantidad}}</div>
+                          <div *ngIf="datoItems.contenidoNeto!=1" class="mr-2">
+                            {{datoItems.cantidad*datoItems.inventario.contenidoNeto | number:'1.0-0'}}</div>
+                          {{datoItems.inventario.nombre}} || Area: {{datoItems.destinoArea}}
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario" matTooltip="Te permite guardar los datos orden seleccionada"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onSave(dato,1)">
+                        <fa-icon [icon]="fasave" size="2x"></fa-icon>
+                      </a>
+                      <a class="badge text-primario" matTooltip="Te permite reportar inconsistencias en la orden"
+                      matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onSave(dato,2)">
+                      <fa-icon [icon]="faflag" size="2x"></fa-icon>
+                    </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="paginationPadre mt-2">
+              <nav aria-label="pagination">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item d-none d-sm-block">
+                    <select class="form-control" (change)="onUpdateSelect($event.target)">
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </li>
+                  <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">Anterior</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex-1)">
+                      <fa-icon [icon]="faArLeft"></fa-icon>
+                    </a>
+                  </li>
+                  <li *ngFor="let i of paginacion.pagTotal; let numpage=index" class="page-item"
+                    [ngClass]="{'act':i.valorB, 'ocultar':i.mostrar}">
+                    <a class="page-link mas" (click)="paginacion.updateIndex(numpage)">{{numpage+1}}</a></li>
+                  <li class="page-item" [class.disabled]='paginacion.siguienteBlock'>
+                    <a class="page-link d-none d-sm-block"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">Siguiente</a>
+                    <a class="page-link d-block d-sm-none"
+                      (click)="paginacion.updateIndex(paginacion.pagActualIndex+1)">
+                      <fa-icon [icon]="faArRight"></fa-icon>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

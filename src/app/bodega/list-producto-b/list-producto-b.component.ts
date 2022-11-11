@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
-import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { faQuestion, faSort, faPencilAlt, faEye, faEraser, faSave, faTimesCircle, faSearch, faPrint, faPlus, faAngleDown, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -54,7 +54,7 @@ export class ListProductoBComponent implements OnInit {
   nuevoCategoria: string = "";
   nuevoProveedor: string = "";
   nuevoMarca: string = "";
-  listBodega: cVario[] = [];
+  listBodega: cBodega[] = [];
 
   paginacion = new cPaginacion(50);
   ordenBy: string = "default";
@@ -96,14 +96,15 @@ export class ListProductoBComponent implements OnInit {
       strParametro = "ENFERMERIA@All";
     }
     if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
-      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombre;
+      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
       strParametro = "ENFERMERIA@" + this.selecBodegaFiltro;
     }
     if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero') {
-      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombre;
+      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
       strParametro = "P MANACRIPEX@" + this.selecBodegaFiltro;
     }
     if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
+      this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
       strParametro = "P MANACRIPEX@GENERAL-ACEITE-3";
     }
     this._productoBService.getProductosPlanta(strParametro)
@@ -125,15 +126,12 @@ export class ListProductoBComponent implements OnInit {
 
   cargarBodega() {
     if (this.conexcionService.UserR.rolAsignado == "enfermeria" || this.conexcionService.UserR.rolAsignado == "verificador-medic") {
-      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-        dato.forEach(x => {
-          if (x.categoria == "Puerto" && x.prioridadNivel == 1)
-            this.listBodega.push(x);
-        });
+      this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+        this.listBodega = dato;
         this.cargarData();
       });
     } else
-      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
+      this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
         this.listBodega = dato;
         this.cargarData();
       });
@@ -436,18 +434,35 @@ export class ListProductoBComponent implements OnInit {
           var auxNum = data[i].listBodegaProducto[j].nombreBodega.split('odega:');
           auaxNombreBodega = "#" + auxNum[1];
         }
+        var auxCantidadTotal = 0;
         if (this.selecBodegaFiltro != "SIN ASIGNAR") {
           if (data[i].listBodegaProducto[j].nombreBodega == this.selecBodegaFiltro) {
             lineaBodegaG.push(auaxNombreBodega);
             lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
-            lineaStockG.push(data[i].listBodegaProducto[j].disponibilidad.toString());
+            auxCantidadTotal = data[i].listBodegaProducto[j].disponibilidad;
+            if (data[i].listBodegaProducto[j].listAreas != null) {
+              if (data[i].listBodegaProducto[j].listAreas.length > 0) {
+                data[i].listBodegaProducto[j].listAreas.forEach(x => {
+                  auxCantidadTotal = auxCantidadTotal + x.disponibilidad;
+                });
+              }
+            }
+            lineaStockG.push(auxCantidadTotal.toString());
             lineaStockM.push(data[i].listBodegaProducto[j].cantMinima.toString());
           }
         }
         else {
           lineaBodegaG.push(auaxNombreBodega);
           lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
-          lineaStockG.push(data[i].listBodegaProducto[j].disponibilidad.toString());
+          auxCantidadTotal = auxCantidadTotal + data[i].listBodegaProducto[j].disponibilidad;
+          if (data[i].listBodegaProducto[j].listAreas != null) {
+            if (data[i].listBodegaProducto[j].listAreas.length > 0) {
+              data[i].listBodegaProducto[j].listAreas.forEach(x => {
+                auxCantidadTotal = auxCantidadTotal + x.disponibilidad;
+              });
+            }
+          }
+          lineaStockG.push(auxCantidadTotal.toString());
           lineaStockM.push(data[i].listBodegaProducto[j].cantMinima.toString());
         }
       }

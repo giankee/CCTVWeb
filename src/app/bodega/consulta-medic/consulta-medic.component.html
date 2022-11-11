@@ -74,7 +74,8 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 " [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado == 'enfermeria', 'col-lg-12':conexcionService.UserR.rolAsignado == 'verificador-medic'}">
+            <div class="col-12 col-md-6 "
+              [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado == 'enfermeria', 'col-lg-12':conexcionService.UserR.rolAsignado == 'verificador-medic'}">
               <div class="form-group">
                 <div class="title ml-2">
                   <strong class="ml-3">Síntomas del Paciente: </strong>
@@ -108,9 +109,9 @@
                   <table class="table">
                     <thead>
                       <tr class="text-center">
-                        <th scope="col" style="width:45%;">Producto</th>
-                        <th scope="col" style="width:20%;">Cantidad</th>
-                        <th scope="col" style="width:30%;">Observación</th>
+                        <th scope="col" style="width:40%;">Producto</th>
+                        <th scope="col" style="width:30%;">Cantidad</th>
+                        <th scope="col" style="width:25%;">Observación</th>
                         <th scope="col" style="width:5%;"></th>
                       </tr>
                     </thead>
@@ -167,17 +168,33 @@
                           </div>
                         </td>
                         <td id="inputSearchP">
-                          <div class="input-group">
-                            <input
-                              name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
-                              type="number" min="0" maxlength="10" placeholder="#" class="form-control input-src"
-                              onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                              pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" required
-                              #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad="ngModel"
-                              [(ngModel)]="consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
-                              (ngModelChange)="comprobarNewR()">
-                            <span
-                              class="input-group-text  input-src span">/{{consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</span>
+                          <div class="row">
+                            <div  style="padding-left: 0.5rem; padding-right:1px;"
+                              [ngClass]="{'col-10':!consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0,'col-4':consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0}">
+                              <input
+                                name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
+                                type="number" min="0" maxlength="10" placeholder="#" class="form-control input-src"
+                                onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" required
+                                #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad="ngModel"
+                                [(ngModel)]="consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
+                                (ngModelChange)="comprobarNewR()">
+                            </div>
+                            <div class="col-8" style="padding-left: 1px; padding-right:0.5rem;"
+                              *ngIf="consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0">
+                              <select class="form-control input-src" required
+                                name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteId"
+                                #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteId="ngModel"
+                                [(ngModel)]="consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].loteId">
+                                <option selected value="SIN ASIGNAR">Sin Lote: {{consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</option>
+                                <option *ngFor="let datoLote of consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas"
+                                  value="{{datoLote.nombreSub}}"> U: {{datoLote.disponibilidad}} - Lote: {{datoLote.nombreSub}} - F.v: {{datoLote.fechaVencimiento|fechaFormat}}</option>
+                              </select>
+                            </div>
+                            <div class="col-2" style="padding-left: 1px; padding-right:0.5rem;"
+                              *ngIf="consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length==0">
+                              <strong> / {{consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</strong>
+                            </div>
                           </div>
                         </td>
                         <td id="inputSearchP">

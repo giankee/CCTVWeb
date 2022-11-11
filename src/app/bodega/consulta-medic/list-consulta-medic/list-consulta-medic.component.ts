@@ -12,7 +12,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ViewConsultaComponent } from '../view-consulta/view-consulta.component';
 import { jsPDF } from "jspdf";
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
-import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { SortPipe } from 'src/app/pipes/sort.pipe';
 import { ToastrService } from 'ngx-toastr';
@@ -57,7 +57,7 @@ export class ListConsultaMedicComponent implements OnInit {
   }
 
   spinnerOnOff: boolean = true;
-  listBodega: cVario[] = [];
+  listBodega: cBodega[] = [];
   parametrosBusqueda: cParemetosOrdenInterna = new cParemetosOrdenInterna();
   _iconDownLeft: boolean = false;
   selecBodegaFiltro: string = "ENFERMERIA GENERAL";
@@ -78,13 +78,10 @@ export class ListConsultaMedicComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-      dato.forEach(x => {
-        if (x.categoria == "Puerto" && x.prioridadNivel == 1)
-          this.listBodega.push(x);
-      });
+    this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+      this.listBodega = dato;
       if (this._conexcionService.UserR.rolAsignado == "verificador-medic")
-        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombre;
+      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
       this.parametrosBusqueda.anio = this.fechaHoy.anio.toString();
       this.parametrosBusqueda.strBodegaOrigen = this.selecBodegaFiltro;
       this.cargarData();

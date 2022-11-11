@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, faFlag, faSave, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { ToastrService } from 'ngx-toastr';
-import { cOrdenEC } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cOrdenEC } from 'src/app/shared/bodega/ordenEC';
 import { OrdenECService } from 'src/app/shared/orden-e-c.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
@@ -45,7 +44,7 @@ export class ComprasVerificacionComponent implements OnInit {
     this._conexcionService = value;
   }
 
-  listBarcos: cVario[] = [];
+  listBarcos: cBodega[] = [];
   listOrdenesMostrar: cOrdenEC[] = [];
   spinnerOnOff: boolean = true;
   paginacion = new cPaginacion(25);
@@ -55,7 +54,7 @@ export class ComprasVerificacionComponent implements OnInit {
   fasave = faSave; fatimesCircle = faTimesCircle; faangledown = faAngleDown; faangleleft = faAngleLeft; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faflag = faFlag;
 
   constructor(private _conexcionService: ConexionService, private _variosService: VariosService, private _ordenECService: OrdenECService, private toastr: ToastrService, private whatsappService: WhatsappService, private _consultaMedicService: ConsultaMedicService) {
-    this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
+    this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBarcos = dato.filter(x => x.encargadoBodega == this._conexcionService.UserR.nombreU);
       this.restartListPendientes();
     });
@@ -138,7 +137,7 @@ export class ComprasVerificacionComponent implements OnInit {
   restartListPendientes(valorPage?: number) {
     this.listOrdenesMostrar = [];
     for (var i = 0; i < this.listBarcos.length; i++) {
-      var strParam = this.listBarcos[i].nombre;
+      var strParam = this.listBarcos[i].nombreBodega;
       this.ordenECService.getVerificarMedicamento("ENFERMERIA@DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A@" + strParam).subscribe(dato => {
         dato.forEach(x => {
           x.fechaRegistroBodega = x.fechaRegistroBodega.substring(0, 10);
@@ -318,5 +317,10 @@ export class ComprasVerificacionComponent implements OnInit {
       this.onSave(this.ordenECService.formData);
     } else
       this.openReporte = false;
+  }
+  onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views
+    this.paginacion.selectPagination = Number(control.value);
+    this.paginacion.getNumberIndex(this.listOrdenesMostrar.length);
+    this.paginacion.updateIndex(0);
   }
 }

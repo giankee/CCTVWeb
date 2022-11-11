@@ -67,8 +67,8 @@
                     [(ngModel)]="parametrosBusqueda.strBodegaOrigen">
                     <option value="SIN ASIGNAR">-Seleccionar-</option>
                     <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
-                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
-                      {{datobodega.nombre}}
+                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombreBodega}}">
+                      {{datobodega.nombreBodega}}
                     </option>
                   </select>
                 </div>

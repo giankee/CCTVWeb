@@ -116,7 +116,9 @@
                           <div class="results" *ngIf="showSearchSelectG=='1'">
                             <ul>
                               <li *ngFor="let data of listPersonalFiltros$ | async">
-                                <a (click)="onChoosePersonal(data, 'Personal')" class="name">{{data.nombreP}}</a>
+                                <div (click)="onChoosePersonal(data, 'Personal')" >
+                                  <a class="name">{{data.nombreP}}</a>
+                                </div>
                                 <label>{{data.tipoPersona}}</label>
                               </li>
                               <li>
@@ -126,7 +128,10 @@
                             <ul>
                               <li class="titulo"> Lista Choferes</li>
                               <li *ngFor="let datoC of listChoferesIn">
-                                <a (click)="onChoosePersonal(datoC,'Chofer')" class="name">{{datoC.empleado}}</a>
+                                <div (click)="onChoosePersonal(datoC,'Chofer')">
+                                  <a  class="name">{{datoC.empleado}}</a>
+                                </div>
+                                
                                 <label>Chofer</label>
                               </li>
                             </ul>
@@ -198,10 +203,12 @@
                           <div class="results" *ngIf="showSearchSelectG=='2'">
                             <ul *ngIf="ordenESService.formData.tipoOrden!='Balde'">
                               <li *ngFor="let data of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'notAll' ">
-                                <a (click)="onChooseLugar(data)" class="name">{{data.nombreLugar}}</a>
+                                <div (click)="onChooseLugar(data)" >
+                                  <a  class="name">{{data.nombreLugar}}</a>
+                                </div>
                               </li>
                               <li>
-                                <a (click)="showSearchSelectG=0" class="name">Nuevo Lugar</a>
+                                <div (click)="showSearchSelectG=0"><a  class="name">Nuevo Lugar</a></div> 
                               </li>
                             </ul>
                             <ul *ngIf="ordenESService.formData.tipoOrden=='Balde'">
@@ -215,19 +222,25 @@
                             <ul *ngIf="ordenESService.formData.tipoOrden!='Balde'">
                               <li class="titulo"> El Puerto de Manta</li>
                               <li *ngFor="let datoPrio of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Puerto' ">
-                                <a (click)="onChooseLugar(datoPrio)" class="name">{{datoPrio.nombreLugar}}</a>
+                                <div (click)="onChooseLugar(datoPrio)">
+                                  <a  class="name">{{datoPrio.nombreLugar}}</a>
+                                </div>
                               </li>
                             </ul>
                             <ul *ngIf="ordenESService.formData.tipoOrden!='Balde'">
                               <li class="titulo"> Areas de Planta</li>
                               <li *ngFor="let datoPrio of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Planta' ">
-                                <a (click)="onChooseLugar(datoPrio)" class="name">{{datoPrio.nombreLugar}}</a>
+                                <div (click)="onChooseLugar(datoPrio)">
+                                  <a  class="name">{{datoPrio.nombreLugar}}</a>
+                                </div>
                               </li>
                             </ul>
                             <ul *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' && ordenESService.formData.tipoOrden=='Salida'">
                               <li class="titulo"> Proveedores</li>
                               <li *ngFor="let datoProveedor of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Proveedor' ">
-                                <a (click)="onChooseLugar(datoProveedor)" class="name">{{datoProveedor.nombreLugar}}</a>
+                                <div (click)="onChooseLugar(datoProveedor)">
+                                  <a class="name">{{datoProveedor.nombreLugar}}</a>
+                                </div>
                               </li>
                             </ul>
                           </div>

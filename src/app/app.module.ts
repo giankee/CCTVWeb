@@ -96,6 +96,13 @@ import { ReportEnfermedadesPipe } from './pipes/report-enfermedades.pipe';
 import { TransConsultaAtencionComponent } from './bodega/consulta-medic/list-consulta-medic/trans-consulta-atencion/trans-consulta-atencion.component';
 import { TablareportMedicPipe } from './pipes/tablareport-medic.pipe';
 import { SumartotalesPipe } from './pipes/sumartotales.pipe';
+import { OrdenPedidoComponent } from './pedido/orden-pedido/orden-pedido.component';
+import { PedidosVerificacionComponent } from './pedido/pedidos-verificacion/pedidos-verificacion.component';
+import { ListPedidosComponent } from './pedido/list-pedidos/list-pedidos.component';
+import { ViewPedidoModalComponent } from './pedido/view-pedido-modal/view-pedido-modal.component';
+import { FiltrarBodegaPipe } from './pipes/filtrar-bodega.pipe';
+import { ListBoodegasComponent } from './bodega/list-boodegas/list-boodegas.component';
+import { FechaFormatPipe } from './pipes/fecha-format.pipe';
 
 
 @NgModule({
@@ -170,7 +177,14 @@ import { SumartotalesPipe } from './pipes/sumartotales.pipe';
     ReportEnfermedadesPipe,
     TransConsultaAtencionComponent,
     TablareportMedicPipe,
-    SumartotalesPipe
+    SumartotalesPipe,
+    OrdenPedidoComponent,
+    PedidosVerificacionComponent,
+    ListPedidosComponent,
+    ViewPedidoModalComponent,
+    FiltrarBodegaPipe,
+    ListBoodegasComponent,
+    FechaFormatPipe
   ],
   imports: [
     BrowserModule,

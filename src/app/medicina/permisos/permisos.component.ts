@@ -267,18 +267,16 @@ export class PermisosComponent implements OnInit {
     this.permisoMedicService.formData.auxHoraParcial = "00:00";
     var separarFechaHoraS = this.permisoMedicService.formData.fechaSalida.split("T");
     var separarFechaHoraE = this.permisoMedicService.formData.fechaRegreso.split("T");
-
     var horaS = separarFechaHoraS[1].split(":");
     var horaE = separarFechaHoraE[1].split(":");
     this.permisoMedicService.formData.totalDias = fechaHoy.compararFechasDias(separarFechaHoraS[0], separarFechaHoraE[0], this.permisoMedicService.formData.incluirSabados);
     var auxMinDebe = 0;
     var auxTotalHoras = 0;
 
-    if (this._pacienteService.datoPersona.datosEnterprice.horaS != null) {
+    if (this._pacienteService.datoPersona.datosEnterprice.horaS != null && this._pacienteService.datoPersona.datosEnterprice.horaS != '') {
       var horaRecesoS = this.pacienteService.datoPersona.datosEnterprice.recesoS.split(":");
       var horaRecesoE = this.pacienteService.datoPersona.datosEnterprice.recesoE.split(":");
       var horaSalidaSeparar = this.pacienteService.datoPersona.datosEnterprice.horaS.split(":");
-
       if (this.permisoMedicService.formData.totalDias == 0) {
         this.fechasDistintas = false;
         if ((Number(horaS[0]) >= Number(horaE[0])))
@@ -405,32 +403,34 @@ export class PermisosComponent implements OnInit {
         auxHoraCompararH = Number(horaJornada[1]);
       } else {
         this.sacarHoraJornada = false;
-        this.fechasDistintas = true;
+        this.fechasDistintas = false;
       }
       for (var i = Number(horaS[0]); i <= auxHoraComparar; i++) {
-        if ((i != Number(horaS[0]) && i != auxHoraComparar))
-          auxTotalHoras++;
-        if (i == Number(horaS[0])) {
-          if (Number(horaS[1]) != 0) {
-            auxMinDebe = auxMinDebe + (60 - Number(horaS[1]));
-            if (auxMinDebe < 0)
-              auxMinDebe = auxMinDebe * -1;
-          }
-          else auxTotalHoras++;
-        }
-        if (i == auxHoraComparar) {
-          if (auxHoraCompararH != 0) {
-            auxMinDebe = auxMinDebe + (auxHoraCompararH);
-            if (auxMinDebe < 0) {
-              auxMinDebe = auxMinDebe * -1;
+        if (auxTotalHoras < 8) {
+          if ((i != Number(horaS[0]) && i != auxHoraComparar))
+            auxTotalHoras++;
+          if (i == Number(horaS[0])) {
+            if (Number(horaS[1]) != 0) {
+              auxMinDebe = auxMinDebe + (60 - Number(horaS[1]));
+              if (auxMinDebe < 0)
+                auxMinDebe = auxMinDebe * -1;
             }
+            else auxTotalHoras++;
           }
-          if (auxMinDebe != 0) {
-            if (auxMinDebe >= 60) {
-              auxMinDebe = 60 - auxMinDebe;
-              auxTotalHoras++;
+          if (i == auxHoraComparar) {
+            if (auxHoraCompararH != 0) {
+              auxMinDebe = auxMinDebe + (auxHoraCompararH);
               if (auxMinDebe < 0) {
                 auxMinDebe = auxMinDebe * -1;
+              }
+            }
+            if (auxMinDebe != 0) {
+              if (auxMinDebe >= 60) {
+                auxMinDebe = 60 - auxMinDebe;
+                auxTotalHoras++;
+                if (auxMinDebe < 0) {
+                  auxMinDebe = auxMinDebe * -1;
+                }
               }
             }
           }
@@ -447,9 +447,9 @@ export class PermisosComponent implements OnInit {
         this.permisoMedicService.formData.totalDias--;
         if (minDifSalida == 60)
           minDifSalida = 0;
-        if(horasDifSalida!=0)
+        if (horasDifSalida != 0)
           auxTotalHoras = auxTotalHoras + (8 - horasDifSalida);
-  
+
         auxMinDebe = auxMinDebe + minDifSalida;
         if (auxMinDebe >= 60) {
           auxMinDebe = 60 - auxMinDebe;

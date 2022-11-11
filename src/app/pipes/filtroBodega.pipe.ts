@@ -15,11 +15,26 @@ export class FiltroBodegahPipe implements PipeTransform {
         if (inText == "SIN ASIGNAR"){
           x.listBodegaProducto.forEach(y=>{
             x.sumStock=x.sumStock+y.disponibilidad;
+            if(y.listAreas!=null){
+              if(y.listAreas.length>0){
+                y.listAreas.forEach(z=>{
+                  x.sumStock=x.sumStock+z.disponibilidad;
+                });
+              }
+            }
           });
           listNew.push(x);
         }else{
           if(x.listBodegaProducto.find(y=>y.nombreBodega==inText)){
-            x.sumStock=x.listBodegaProducto.find(y=>y.nombreBodega==inText).disponibilidad;
+            var auxBodega=x.listBodegaProducto.find(y=>y.nombreBodega==inText);
+            x.sumStock=auxBodega.disponibilidad;
+            if(auxBodega.listAreas!=null){
+              if(auxBodega.listAreas.length>0){
+                auxBodega.listAreas.forEach(z=>{
+                  x.sumStock=x.sumStock+z.disponibilidad;
+                });
+              }
+            }
             listNew.push(x);
           }
         }

@@ -37,6 +37,10 @@ import { ListPermisosPersonalesComponent } from './medicina/list-historial-perso
 import { ListAccidentesPersonalesComponent } from './medicina/list-historial-persona/list-accidentesPersonales/list-accidentes-personales.component';
 import { ListPermisosComponent } from './medicina/list-permisos/list-permisos.component';
 import { ReportesMedicComponent } from './medicina/reportes-medic/reportes-medic.component';
+import { OrdenPedidoComponent } from './pedido/orden-pedido/orden-pedido.component';
+import { PedidosVerificacionComponent } from './pedido/pedidos-verificacion/pedidos-verificacion.component';
+import { ListPedidosComponent } from './pedido/list-pedidos/list-pedidos.component';
+import { ListBoodegasComponent } from './bodega/list-boodegas/list-boodegas.component';
 
 const routes: Routes = [
 
@@ -46,7 +50,7 @@ const routes: Routes = [
     children: [
       {
         path: 'OrdenSupervisor', children: [
-          { path: '', data: { permittedRoles: ['admin', 'supervisor','gpv-o','gv-m'] }, component: ListOrdenesComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: '', data: { permittedRoles: ['admin','gpv-o','gv-m'] }, component: ListOrdenesComponent, canDeactivate: [CanDeactivateGuard] },
         ]
       },
       {
@@ -98,16 +102,24 @@ const routes: Routes = [
           { path: 'movTinas', data: { permittedRoles: ['admin','tinabg-m'] }, component: ListMovTinasComponent, canDeactivate: [CanDeactivateGuard] },
         ]
       },
+      {
+        path: 'Pedido', children: [
+          { path: 'Orden', data: { permittedRoles: ['pedido-flota'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'PedidosList', data: { permittedRoles: ['pedido-flota'] }, component: ListPedidosComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'VerificacionPedido', data: { permittedRoles: ['pedido-flota'] }, component: PedidosVerificacionComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'Reporte', data: { permittedRoles: ['pedido-flota'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
+        ]
+      },
       
-      { path: 'registrar', component: RegistroComponent, data: { permittedRoles: ['admin','supervisor'] }, canDeactivate: [CanDeactivateGuard] },
+      { path: 'List-bodegas', component: ListBoodegasComponent, data: { permittedRoles: ['admin','gpv-o'] }, canDeactivate: [CanDeactivateGuard] },
+      { path: 'registrar', component: RegistroComponent, data: { permittedRoles: ['admin'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'Entrada-Salida', component: ClienteComponent, data: { permittedRoles: ['gpv-o','gv-m'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'Verificador', component: PuertoComponent, data: { permittedRoles: ['gpv-o','bodega_verificador-m'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'BuscarFactura', component: ComprasNoRealizadasComponent, data: { permittedRoles: ['gpv-o','bodega_verificador-m','tinabg-m','enfermeria'] }, canDeactivate: [CanDeactivateGuard] },
     ]
   },
   { path: 'OrdenGuardia', data: { permittedRoles: ['guardia'] }, component: ClienteComponent, canActivate: [AdminGuard], canDeactivate: [CanDeactivateGuard] },
-  { path: 'OrdenVerificacion', data: { permittedRoles: ['verificador-p','verificador-m',] }, component: PuertoComponent, canActivate: [AdminGuard], canDeactivate: [CanDeactivateGuard] },
-  { path: 'OrdenVisitante', data: { permittedRoles: ['visitante'] }, component: VisitantesComponent, canActivate: [AdminGuard], canDeactivate: [CanDeactivateGuard] },
+  // { path: 'OrdenVerificacion', data: { permittedRoles: ['verificador-p','verificador-m',] }, component: PuertoComponent, canActivate: [AdminGuard], canDeactivate: [CanDeactivateGuard] },
 
   { path: 'user-Login', component: UserComponent },
   { path: 'denegado', component: AccessDenegadoComponent },

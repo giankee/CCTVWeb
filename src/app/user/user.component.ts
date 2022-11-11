@@ -82,20 +82,12 @@ export class UserComponent implements OnInit {
           this.conexcionService.UserR.objCompletar(res);
           switch (res.rolAsignado) {
             case 'admin':
-            case 'supervisor':
             case 'gpv-o':
             case 'gv-m':
               this.router.navigateByUrl('/OrdenSupervisor');
               break;
             case 'guardia':
               this.router.navigateByUrl('/OrdenGuardia');
-              break;
-            case 'verificador-p':
-            case 'verificador-m':
-              this.router.navigateByUrl('/OrdenVerificacion');
-              break;
-            case 'visitante':
-              this.router.navigateByUrl('/OrdenVisitante');
               break;
             case 'tinabg-m':
               this.router.navigateByUrl('/Tina/movTinas');
@@ -111,6 +103,9 @@ export class UserComponent implements OnInit {
               break;
             case 'verificador-bodeguero':
               this.router.navigateByUrl('/Bodega/inventarioList');
+              break;
+              case 'pedido-flota':
+              this.router.navigateByUrl('/Pedido/VerificacionPedido');
           }
         }
       },

@@ -1,0 +1,190 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Lista de Bodegas</h1>
+    </div>
+  </div>
+</div>
+<section class="dashboard-header">
+  <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
+    <div class="row">
+      <div class="col-lg-8 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Bodegas</a></h5>
+            <a class="text-dark2" (click)="onConvertPdfAll()">
+              <fa-icon [icon]="faprint"></fa-icon>
+            </a>
+          </div>
+          <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+            <table class="table">
+              <thead>
+                <tr class="text-center">
+                  <th style="width: 25%;">
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">Tipo Bodega</div>
+                    <div id="ordenarS" class="d-inline-block">
+                      <a class="badge text-dark2" (click)="onOrdenListBy(1)">
+                        <fa-icon [icon]="sort"></fa-icon>
+                      </a>
+                    </div>
+                  </th>
+                  <th style="width: 45%;">
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">Nombre</div>
+                    <div id="ordenarS" class="d-inline-block">
+                      <a class="badge text-dark2" (click)="onOrdenListBy(2)">
+                        <fa-icon [icon]="sort"></fa-icon>
+                      </a>
+                    </div>
+                  </th>
+                  <th style="width: 30%;">Responsable</th>
+                </tr>
+              </thead>
+              <tbody *ngIf="listBodegas">
+                <tr *ngIf="listBodegas.length==0">
+                  <td class="font-italic text-center" colspan="3">
+                    No existen bodegas registradas
+                  </td>
+                </tr>
+                <tr *ngFor="let datoB of listBodegas |sort:ordenBy:'cBodega'; let indice=index"
+                  [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                  <td>{{datoB.tipoBodega}}</td>
+                  <td (click)="onCompletarForm(datoB)" style="cursor: pointer;"><strong>{{datoB.nombreBodega}}</strong>
+                  </td>
+                  <td>{{datoB.encargadoBodega}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12 col-12">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5>{{modoEdicion ? 'Modificar' : 'Registrar'}} Bodega</h5>
+              </div>
+              <div class="m-3">
+                <form #formBodega="ngForm" autocomplete="off" (submit)="onSubmit(formBodega)" *ngIf="selectBodega">
+                  <div class="row boxForm">
+                    <div class="col-12">
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Tipo Bodega:</strong></div>
+                        <select class="form-control" name="tipoBodega" #tipoBodega="ngModel"
+                          [(ngModel)]="selectBodega.tipoBodega" [disabled]="modoEdicion">
+                          <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                          <option value="A MANACRIPEX">A MANACRIPEX</option>
+                          <option value="OFICINAS">OFICINAS</option>
+                          <option value="P MANACRIPEX">P MANACRIPEX</option>
+                          <option value="PUERTO">PUERTO</option>
+                        </select>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Nombre Bodega:</strong></div>
+                        <input id="idNombre" name="nombreBodega" #nombreBodega="ngModel"
+                          [(ngModel)]="selectBodega.nombreBodega" class="form-control" maxlength="75"
+                          placeholder="Nombre de la bodega" [disabled]="modoEdicion" required
+                          (ngModelChange)="selectBodega.nombreBodega!=null && selectBodega.nombreBodega = $event.toUpperCase()">
+                        <label class="error" *ngIf="nombreBodega.touched && nombreBodega.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Encargado Bodega:</strong></div>
+                        <input id="idNombreE" name="encargadoBodega" #encargadoBodega="ngModel"
+                          placeholder="Responsable" [(ngModel)]="selectBodega.encargadoBodega" class="form-control"
+                          maxlength="75"
+                          (ngModelChange)="selectBodega.encargadoBodega!=null && selectBodega.encargadoBodega = $event.toUpperCase()">
+                        <label class="error" *ngIf="encargadoBodega.touched && encargadoBodega.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm">
+                        <div class="title"><strong>Teléfono del encargado:</strong></div>
+                        <input id="idNombreT" name="telefonoEncargado" class="form-control" #telefonoEncargado="ngModel"
+                          [(ngModel)]="selectBodega.telefonoEncargado" maxlength="13"
+                          pattern="[0-9]{2,3}-[9]{1}[0-9]{8}">
+                        <label class="error"
+                          *ngIf="telefonoEncargado.touched && telefonoEncargado.errors?.pattern">Celular no es
+                          válido</label>
+                      </div>
+                      <div class="form-group">
+                        <div class="title"><strong>Lista de Sub Áreas:</strong></div>
+                        <div class="subForm">
+                          <div class="row mb-1">
+                            <div class="col-8">
+                              <input id="idNombreAIn" name="newArea" #newArea="ngModel"
+                                [(ngModel)]="selectAreaAux" class="form-control" maxlength="75"
+                                placeholder="Nueva Área"
+                                (ngModelChange)="selectAreaAux!='' && selectAreaAux = $event.toUpperCase()">
+                            </div>
+                            <div class="col-4">
+                              <a [routerLink] (click)="onNewBodega()" class="btn bttn-Primario btn-sm">
+                                <fa-icon [icon]="faplus"></fa-icon> Área
+                              </a>
+                            </div>
+                          </div>
+                          <div class="row mt-1" *ngIf="selectBodega.listAreas.length>0">
+                            <div class="col-12 mb-2" *ngFor="let datoArea of selectBodega.listAreas; let indice=index">
+                              <div class="card">
+                                <div id="ordenarS" class="card-header d-flex justify-content-between">
+                                  <h5><a class="text-dark2" data-toggle="collapse"
+                                      href="#ListBodegaindex{{indice}}">{{datoArea.nombreArea}}</a></h5>
+                                  <a class="text-dark2" data-toggle="collapse" href="#ListBodegaindex{{indice}}"
+                                    (click)="onMostrarBodega(indice)">
+                                    <fa-icon [icon]="faangledown"
+                                      [class]="{'ocultarObj':selectBodega.listAreas[indice].ocultarObj}">
+                                    </fa-icon>
+                                    <fa-icon [icon]="faangleleft"
+                                      [class]="{'ocultarObj':!selectBodega.listAreas[indice].ocultarObj}">
+                                    </fa-icon>
+                                  </a>
+                                </div>
+                                <div *ngIf="!selectBodega.listAreas[indice].ocultarObj"
+                                  class="mt-2 px-4 py-2 boxForm collapse" id="ListBodegaindex{{indice}}">
+                                  <div class="row">
+                                    <div class="col-12">
+                                      <div class="form-group inputForm">
+                                        <div><strong>Encargado del Área:</strong></div>
+                                        <input id="idNombreE" name="in{{indice}}encargadoArea"
+                                          #in{{indice}}encargadoArea="ngModel" placeholder="Responsable"
+                                          [(ngModel)]="selectBodega.listAreas[indice].encargadoArea"
+                                          class="form-control" maxlength="75"
+                                          (ngModelChange)="selectBodega.listAreas[indice].encargadoArea!=null && selectBodega.listAreas[indice].encargadoArea = $event.toUpperCase()">
+                                      </div>
+                                      <div class="form-group inputForm">
+                                        <div><strong>Teléfono del encargado:</strong></div>
+                                        <input name="in{{indice}}telefonoEncargado"
+                                          #in{{indice}}telefonoEncargado="ngModel" pattern="[0-9]{2,3}-[9]{1}[0-9]{8}"
+                                          [(ngModel)]="selectBodega.listAreas[indice].telefonoEncargado"
+                                          class="form-control">
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row boxForm justify-content-around my-2">
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                      <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formBodega.invalid">
+                        <fa-icon [icon]="fasave"></fa-icon> {{modoEdicion ? 'Actualizar' : 'Guardar'}}
+                      </button>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                      <a [routerLink] (click)="resetForm()" class="btn bttn-Primario btn-block">
+                        <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                      </a>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
