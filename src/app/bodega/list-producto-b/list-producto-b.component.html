@@ -72,12 +72,15 @@
                 <tr class="text-center">
                   <th style="width: 15%;">Código</th>
                   <th style="width: 35%;">
-                    <div class="d-inline-block" style="margin-right: 0.5rem;">Descripción</div>
+                    <div class="d-inline-block" style="margin-right: 0.5rem;">Producto</div>
                     <div id="ordenarS" class="d-inline-block">
                       <a class="badge text-dark2" (click)="onOrdenListBy(1)">
                         <fa-icon [icon]="sort"></fa-icon>
                       </a>
                     </div>
+                  </th>
+                  <th style="width: 25%; padding-left: 0%; padding-right: 0%;"
+                    *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">descripción
                   </th>
                   <th style="width: 25%; padding-left: 0%; padding-right: 0%;"
                     *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic'">
@@ -132,6 +135,10 @@
                       matTooltipClass="tooltipBlack">
                       <fa-icon [icon]="faeye"></fa-icon>
                     </a>
+                  </td>
+                  <td class="text-center" id="utilitarioI"
+                    *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">
+                    {{datoP.descripcion}}
                   </td>
                   <td class="text-center" id="utilitarioI"
                     *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic' || conexcionService.UserR.rolAsignado == 'verificador-bodeguero'">
@@ -205,7 +212,7 @@
                       </div>
                       <div class="form-group inputForm">
                         <div class="title"><strong>Nombre:</strong></div>
-                        <input id="idNombre" name="nombre" #nombre="ngModel"
+                        <input id="iDescripcione" name="nombre" #nombre="ngModel"
                           [(ngModel)]="productoBService.formData.nombre" class="form-control" maxlength="75"
                           placeholder="Nombre del producto"
                           (ngModelChange)="productoBService.formData.nombre!=null && productoBService.formData.nombre = $event.toUpperCase()"
@@ -293,10 +300,11 @@
                       </div>
                       <div class="form-group inputForm">
                         <div class="title"><strong>Tipo Unidad:</strong></div>
-                        <input id="idTipo" name="tipoUnidad" #tipoUnidad="ngModel"
-                          [(ngModel)]="productoBService.formData.tipoUnidad" class="form-control" maxlength="75"
-                          (ngModelChange)="productoBService.formData.tipoUnidad!=null && productoBService.formData.tipoUnidad = $event.toUpperCase()"
-                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion" required>
+                        <select class="form-control" name="tipoUnidad" #tipoUnidad="ngModel"
+                          [(ngModel)]="productoBService.formData.tipoUnidad" required>
+                          <option selected value="UNIDAD">Unidad</option>
+                          <option value="CONTENIDO NETO">Contenido Neto</option>
+                        </select>
                         <label class="error" *ngIf="tipoUnidad.touched && tipoUnidad.errors?.required">Campo
                           Requerido</label>
                       </div>
@@ -319,6 +327,12 @@
                           required>
                         <label class="error" *ngIf="precioNeto.touched && precioNeto.errors?.required">Campo
                           Requerido</label>
+                      </div>
+                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+                        <div class="title"><strong>descripción:</strong></div>
+                        <textarea id="idDescripcion" name="descripcion" #descripcion="ngModel"
+                          [(ngModel)]="productoBService.formData.descripcion" class="form-control" maxlength="100"
+                          placeholder="Utilidad del Medicamento"></textarea>
                       </div>
                       <div class="form-group">
                         <div class="title"><strong>Lista de Bodegas:</strong></div>
@@ -403,30 +417,60 @@
                                           class="form-control" maxlength="10" required>
                                       </div>
                                       <div *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
-                                        <div class="form-group inputForm">
-                                          <div><strong>Cantidad General: </strong>
-                                            {{productoBService.formData.listBodegaProducto[indice].sumGeneral}}</div>
+                                        <div class="row">
+                                          <div class="col-8">
+                                            <div class="form-group inputForm">
+                                              <div><strong>Cantidad General: </strong>
+                                                {{productoBService.formData.listBodegaProducto[indice].sumGeneral}}
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="col-4" *ngIf="productoBService.formData.listBodegaProducto[indice].idBodegaProducto!=undefined">
+                                            <a [routerLink] (click)="onNewLote(indice)"
+                                              class="btn bttn-Primario btn-sm">
+                                              <fa-icon [icon]="faplus"></fa-icon> Lote
+                                            </a>
+                                          </div>
                                         </div>
-                                        <div class="form-group inputForm">
-                                          <div><strong>Cantidad Sin Lote:</strong></div>
-                                          <input type="number" name="in{{indice}}disponibilidad"
-                                            #in{{indice}}disponibilidad="ngModel" min="0"
-                                            pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
-                                            onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                                            [(ngModel)]="productoBService.formData.listBodegaProducto[indice].disponibilidad"
-                                            class="form-control" maxlength="10" required  (ngModelChange)="productoBService.formData.listBodegaProducto[indice].sumStockBodegas()">
+                                        <div class="row">
+                                          <div class="col-12">
+                                            <div class="form-group inputForm">
+                                              <div><strong>Cantidad Sin Lote:</strong></div>
+                                              <input type="number" name="in{{indice}}disponibilidad"
+                                                #in{{indice}}disponibilidad="ngModel" min="0"
+                                                pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].disponibilidad"
+                                                class="form-control" maxlength="10" required
+                                                (ngModelChange)="productoBService.formData.listBodegaProducto[indice].sumStockBodegas()">
+                                            </div>
+                                          </div>
                                         </div>
-                                        <div
-                                          *ngIf="productoBService.formData.listBodegaProducto[indice].listAreas.length>0">
-                                          <div class="form-group inputForm"
+                                        <div *ngIf="productoBService.formData.listBodegaProducto[indice].listAreas.length>0">
+                                          <div class="row subForm mb-1"
                                             *ngFor="let datoLote of productoBService.formData.listBodegaProducto[indice].listAreas; let indiceLote=index">
-                                            <div><strong>Lote: {{datoLote.nombreSub}}</strong></div>
-                                            <input type="number" name="in{{indice}}lote{{indiceLote}}"
-                                              #in{{indice}}lote{{indiceLote}}="ngModel" min="0"
-                                              pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
-                                              onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                                              [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].disponibilidad"
-                                              class="form-control" maxlength="10" required  (ngModelChange)="productoBService.formData.listBodegaProducto[indice].sumStockBodegas()">
+                                            <div class="col-12  form-group inputForm">
+                                              <div><strong>Código Lote:</strong></div>
+                                              <input name="in{{indice}}lote{{indiceLote}}Nombre" #in{{indice}}lote{{indiceLote}}Nombre="ngModel"
+                                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].nombreSub" class="form-control"
+                                                maxlength="10" placeholder="# Lote" required
+                                                (ngModelChange)="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].nombreSub = $event.toUpperCase()">
+                                            </div>
+                                            <div class="col-5 form-group inputForm">
+                                              <div><strong>Cantidad:</strong></div>
+                                              <input type="number" name="in{{indice}}lote{{indiceLote}}cantidad"
+                                                #in{{indice}}lote{{indiceLote}}cantidad="ngModel" min="0"
+                                                pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                                onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].disponibilidad"
+                                                class="form-control" maxlength="10" required
+                                                (ngModelChange)="productoBService.formData.listBodegaProducto[indice].sumStockBodegas()">
+                                            </div>
+                                            <div class="col-7 form-group inputForm">
+                                              <div><strong>Fecha Vencimiento:</strong></div>
+                                              <input class="form-control" type="date" name="in{{indice}}lote{{indiceLote}}vencimiento" #in{{indice}}lote{{indiceLote}}vencimiento="ngModel"
+                                              [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].fechaVencimiento" min="2022-01-01">
+                                            </div>
                                           </div>
                                         </div>
                                       </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { faPrint, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { ToastrService } from 'ngx-toastr';
-import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { cFecha, cVario } from 'src/app/shared/otrosServices/varios';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
@@ -34,27 +34,23 @@ export class PedirMedicamentoComponent implements OnInit {
   }
 
   spinnerOnOff: number = 0;
-  listBodega: cVario[] = [];
+  listBarcos: cBodega[] = [];
   selecBodegaFiltro: string = "SIN ASIGNAR";
   selecTipoFiltro: string = "Faltantes";
   listProductosIn: cProducto_B[] = [];
+  dataProductosResult: cProducto_B[] = [];
   fechaHoy = new cFecha();
 
   faprint = faPrint; fasearch = faSearch;
-  constructor(private _productoBService: ProductoBService, private _variosService: VariosService,private _conexcionService: ConexionService) { }
+  constructor(private _productoBService: ProductoBService, private _variosService: VariosService, private _conexcionService: ConexionService) {
+    this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+      this.listBarcos = dato;
+      if (this.conexcionService.UserR.rolAsignado != "enfermeria")
+        this.selecBodegaFiltro = dato.find(x => x.encargadoBodega == this._conexcionService.UserR.nombreU).nombreBodega;
+    });
+  }
 
   ngOnInit(): void {
-    this.cargarBodega();
-  }
-  cargarBodega() {
-    this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-      dato.forEach(x => {
-        if (x.categoria == "Puerto" && x.prioridadNivel == 1)
-          this.listBodega.push(x);
-      });
-      if (this._conexcionService.UserR.rolAsignado == "verificador-medic")
-        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombre;
-    });
   }
 
   onBuscarDiferencias() {
@@ -67,6 +63,12 @@ export class PedirMedicamentoComponent implements OnInit {
           this.spinnerOnOff = 2;
         },
           error => console.error(error));
+    }
+  }
+
+  getDataFiltro(data: cProducto_B[]) {//Para q la filtracion de datos se automatica
+    if (data.length != undefined && data.length != this.dataProductosResult.length) {
+      this.dataProductosResult = JSON.parse(JSON.stringify(data));
     }
   }
 
@@ -142,7 +144,6 @@ export class PedirMedicamentoComponent implements OnInit {
           doc.line(5, (y - 8), 5, y);//left
           doc.line(290, (y - 8), 290, y);//right
           doc.line(5, y, 290, y);//down +10y1y2
-
           doc.text((i + 1).toString(), 19, (y - 3));
           doc.line(35, (y - 8), 35, y);//right
           doc.text(this.listProductosIn[i].nombre, 40, (y - 3));
@@ -151,21 +152,21 @@ export class PedirMedicamentoComponent implements OnInit {
           doc.line(155, (y - 8), 155, y);//right
           doc.text(this.listProductosIn[i].listBodegaProducto[0].cantMinima.toString(), 175, (y - 3));
           doc.line(200, (y - 8), 200, y);//right
-          doc.text(this.listProductosIn[i].listBodegaProducto[0].disponibilidad.toString(), 220, (y - 3));
+          doc.text(this.listProductosIn[i].sumStock.toString(), 220, (y - 3));
           doc.line(240, (y - 8), 240, y);//right
           if (this.selecTipoFiltro == "Faltantes")
-            doc.text((this.listProductosIn[i].listBodegaProducto[0].cantMinima - this.listProductosIn[i].listBodegaProducto[0].disponibilidad).toString(), 260, (y - 3));
-          else doc.text((this.listProductosIn[i].listBodegaProducto[0].disponibilidad - this.listProductosIn[i].listBodegaProducto[0].cantMinima).toString(), 260, (y - 3));
+            doc.text((this.listProductosIn[i].listBodegaProducto[0].cantMinima - this.listProductosIn[i].sumStock).toString(), 260, (y - 3));
+          else doc.text((this.listProductosIn[i].sumStock - this.listProductosIn[i].listBodegaProducto[0].cantMinima).toString(), 260, (y - 3));
         }
       else {
-        y=y+10;
+        y = y + 10;
         doc.line(5, (y - 10), 5, y);//left
         doc.line(290, (y - 10), 290, y);//right
         doc.line(5, y, 290, y);//down +10y1y2
         doc.setFontSize(10);
         doc.setFont("arial", "italic");
 
-        doc.text("No existen medicamentos " +this.selecTipoFiltro, 120 , (y - 4));
+        doc.text("No existen medicamentos " + this.selecTipoFiltro, 120, (y - 4));
       }
       doc.save("ListaMedicamento_" + this.fechaHoy.strFecha + ".pdf");
     }

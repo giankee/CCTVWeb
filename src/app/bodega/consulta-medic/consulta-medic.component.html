@@ -188,7 +188,7 @@
                                 [(ngModel)]="consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].loteId">
                                 <option selected value="SIN ASIGNAR">Sin Lote: {{consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</option>
                                 <option *ngFor="let datoLote of consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas"
-                                  value="{{datoLote.nombreSub}}"> U: {{datoLote.disponibilidad}} - Lote: {{datoLote.nombreSub}} - F.v: {{datoLote.fechaVencimiento|fechaFormat}}</option>
+                                  value="{{datoLote.nombreSub}}"> U: {{datoLote.disponibilidad}} - F.v: {{datoLote.fechaVencimiento|fechaFormat}}</option>
                               </select>
                             </div>
                             <div class="col-2" style="padding-left: 1px; padding-right:0.5rem;"

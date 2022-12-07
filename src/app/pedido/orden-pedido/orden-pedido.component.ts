@@ -12,7 +12,7 @@ import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 import { OrdenPedidoService } from 'src/app/shared/pedido/orden-pedido.service';
 import { cArticulosPedido, cOrdenPedido } from 'src/app/shared/pedido/pedido';
 import { jsPDF } from "jspdf";
-import { stringify } from 'querystring';
+
 @Component({
   selector: 'app-orden-pedido',
   templateUrl: './orden-pedido.component.html',
@@ -86,7 +86,7 @@ export class OrdenPedidoComponent implements OnInit {
     if (form != null) {
       form.resetForm();
     }
-    this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU);
+    this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "FLOTA");//X AHORA FLOTA LUEGO DEBE HABER PLANTA MANACRIPEX
     this.spinnerOnOff = 0;
     this.okBttnSubmit = true;
   }
@@ -169,7 +169,7 @@ export class OrdenPedidoComponent implements OnInit {
     } else this.okAddNewBotton = false;
   }
 
-  guardar(datoOrden:cOrdenPedido){
+  guardar(datoOrden:cOrdenPedido){this.sendMessageGroupNotification(JSON.parse(JSON.stringify(datoOrden)));
     this.ordenPedidoService.insertarOrdenPedido(datoOrden).subscribe(
       (res: any) => {
         if (res.exito == 1) {
@@ -204,18 +204,20 @@ export class OrdenPedidoComponent implements OnInit {
     this.comprobarNewR();
   }
 
-  onListProducto(index: number, op: number, value: string) {
-    this.ordenPedidoService.formData.listArticulosPedido.forEach(x => x.showSearchSelect = 0);
-    this.ordenPedidoService.formData.listArticulosPedido[index].showSearchSelect = op;
-    this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = op;
-    this.ordenPedidoService.formData.listArticulosPedido[index].inventario.resetProducto();
-    if (value != "") {
-      if (op == 1)
-        this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = value;
-      else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre = value;
-    } else {
-      this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = 0;
-      this.ordenPedidoService.formData.listArticulosPedido[index].showSearchSelect = 0;
+  onListProducto(index: number, op: number, value: string|null) {
+    if(value!=null){
+      this.ordenPedidoService.formData.listArticulosPedido.forEach(x => x.showSearchSelect = 0);
+      this.ordenPedidoService.formData.listArticulosPedido[index].showSearchSelect = op;
+      this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = op;
+      this.ordenPedidoService.formData.listArticulosPedido[index].inventario.resetProducto();
+      if (value != "") {
+        if (op == 1)
+          this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = value;
+        else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre = value;
+      } else {
+        this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = 0;
+        this.ordenPedidoService.formData.listArticulosPedido[index].showSearchSelect = 0;
+      }
     }
   }
 
@@ -358,6 +360,16 @@ export class OrdenPedidoComponent implements OnInit {
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
+    if (y >= 265) {
+      doc.addPage();
+      doc.setLineWidth(0.4);
+      y = 40;
+    } else y = 265;
+    var personaSubArea=this.listBarcos.find(x=>x.nombreBodega==orden.barco).listAreas.find(y=>y.nombreArea==orden.listArticulosPedido[0].destinoArea).encargadoArea;
+    doc.line(18, y, 63, y);//Firma1
+    doc.text("Firma " + orden.cargoUser, 25, y + 5);
+    doc.line(144, y, 189, y);//Firma2
+    doc.text("Firma " + personaSubArea==null?personaSubArea:'SIN ASIGNAR', 146, y + 5);
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
     return (doc.output('datauristring'));
   }

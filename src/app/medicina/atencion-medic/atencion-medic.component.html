@@ -1,9 +1,9 @@
-<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="permisoOpened!=1">
+<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="permisoOpened!=1 && datosIees.isOpen!=1">
   <a (click)="onTerminar()" class="btn text-secundario btn-block mt-2" style="width: 50px;">
     <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
   </a>
 </div>
-<div class="p-1" *ngIf="permisoOpened!=1">
+<div class="p-1" *ngIf="permisoOpened!=1 && datosIees.isOpen!=1">
   <form #formAtencion="ngForm" autocomplete="off" (submit)="onSubmit(formAtencion)">
     <div class="bodyCard" *ngIf="atencionMedicService.formData">
       <div class="row">
@@ -171,18 +171,11 @@
             <label class="custom-control-label" for="customSwitch1">Reposo</label>
           </div>
         </div>
-        <!-- <div class="col-4">
-          <div class="custom-control custom-switch ml-3">
-            <input type="checkbox" name="accidente" #accidente="ngModel" class="custom-control-input" id="customSwitch2"
-              [disabled]="permisoOpened==2 ||!atencionMedicService.formData.spinnerLoading"
-              [(ngModel)]="atencionMedicService.formData.accidente" (ngModelChange)="onChangePermiso()">
-            <label class="custom-control-label" for="customSwitch2">Accidente</label>
-          </div>
-        </div> -->
         <div class="col-4">
           <div class="custom-control custom-switch ml-3">
             <input type="checkbox" name="permisoIESS" #permisoIESS="ngModel" class="custom-control-input" id="customSwitch3"
-              [(ngModel)]="atencionMedicService.formData.citaIESS">
+            [disabled]="!atencionMedicService.formData.spinnerLoading"
+              [(ngModel)]="atencionMedicService.formData.citaIESS" (ngModelChange)="onChangeIees()">
             <label class="custom-control-label" for="customSwitch3">Cita IESS</label>
           </div>
         </div>
@@ -211,4 +204,8 @@
   <app-permisos [isOpen]="permisoOpened" [idPacienteIn]="pacienteService.datoPersona.datosPaciente.idPacienteMedic"
     [enfermedadCIE10In]="atencionMedicService.formData.enfermedadCIE10" (cerrar)="recibirRes($event)">
   </app-permisos>
+</div>
+<div id="open2" *ngIf="atencionMedicService.formData.citaIESS && datosIees.isOpen!=2">
+  <app-formulario-iees [crearFormulario]="datosIees" (rellenarFormulario)="recibirRes2($event)">
+  </app-formulario-iees>
 </div>

@@ -3,7 +3,7 @@ import { NgForm } from '@angular/forms';
 import { faSave, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { ToastrService } from 'ngx-toastr';
 import { AtencionService } from 'src/app/shared/medicina/atencion.service';
-import { cAtencionMedic } from 'src/app/shared/medicina/medicina';
+import { cAtencionMedic, cPlantillaIees } from 'src/app/shared/medicina/medicina';
 import { PermisoService } from 'src/app/shared/medicina/permiso.service';
 import listCie10 from 'src/assets/cie10code.json';
 import { jsPDF } from "jspdf";
@@ -42,6 +42,8 @@ export class AtencionMedicComponent implements OnInit {
   okBttnSubmit: boolean = true;
   listCie10Array = listCie10;
   permisoOpened: number = 0 //0 cerrarSinGuardar //1 abrir, //2 cerrarCompleta
+  //ieesOpened:number=0;
+  datosIees: cPlantillaIees = new cPlantillaIees();
   soloAnios: string;
 
   fasave = faSave; fatimescircle = faTimesCircle;
@@ -87,9 +89,9 @@ export class AtencionMedicComponent implements OnInit {
         (res: any) => {
           if (res.exito == 1) {
             this.toastr.success('Registro de atención satisfactorio', 'Atención Médica');
-            if ((this.atencionMedicService.formData.prescripcion != "NA" && this.atencionMedicService.formData.prescripcion != "na") && (this.atencionMedicService.formData.indicaciones != "NA"&& this.atencionMedicService.formData.indicaciones != "na"))
+            if ((this.atencionMedicService.formData.prescripcion != "NA" && this.atencionMedicService.formData.prescripcion != "na") && (this.atencionMedicService.formData.indicaciones != "NA" && this.atencionMedicService.formData.indicaciones != "na"))
               this.onConvertPdfReceta();
-            if(this.atencionMedicService.formData.citaIESS)
+            if (this.atencionMedicService.formData.citaIESS)
               this.onConvertPdfCertificadoIESS();
           } else this.toastr.error('Se ha producido un inconveniente', 'Error');
           this.cerrar.emit(true);
@@ -103,6 +105,14 @@ export class AtencionMedicComponent implements OnInit {
       this.permisoOpened = 1;
   }
 
+  onChangeIees() {
+    if (this.atencionMedicService.formData.citaIESS) {
+      if (this.datosIees.isOpen == 0)
+        this.datosIees = new cPlantillaIees();
+      this.datosIees.isOpen = 1;
+    }
+  }
+
   recibirRes(salir: string) {
     if (salir == '0') {
       this.permisoOpened = 0;
@@ -112,6 +122,14 @@ export class AtencionMedicComponent implements OnInit {
       this.permisoOpened = Number(aux[0]);
       this.atencionMedicService.formData.permisoIdOpcional = Number(aux[1]);
     }
+  }
+
+  recibirRes2(datoIn: cPlantillaIees) {
+    this.datosIees = datoIn;
+    if (this.datosIees.isOpen == 0) {
+      this.atencionMedicService.formData.citaIESS = false;
+    }
+    //this.onConvertPdfCertificadoIESS();
   }
 
   onConvertPdfAtencion() {
@@ -365,6 +383,18 @@ export class AtencionMedicComponent implements OnInit {
 
     doc.text("SI", 68, (y + 30));
     doc.text("NO", 151, (y + 30));
+
+    if (this.datosIees.presentSintomas) {
+      doc.text("X", 79, (y + 30));
+    } else doc.text("X", 164, (y + 30));
+    if (this.datosIees.enfermedad) {
+      doc.text("X", 79, (y + 40));
+    }
+    if(this.datosIees.aislamiento){
+      doc.text("X", 164, (y + 40));
+    }
+
+
     doc.line(75, (y + 25), 85, (y + 25));//up
     doc.line(75, (y + 25), 75, (y + 32));//left
     doc.line(85, (y + 25), 85, (y + 32));//right
@@ -386,7 +416,6 @@ export class AtencionMedicComponent implements OnInit {
     doc.line(160, (y + 35), 160, (y + 42));//left
     doc.line(170, (y + 35), 170, (y + 42));//right
     doc.line(160, (y + 42), 170, (y + 42));//down
-
 
     doc.text("Tipo de contingencia:", 27, (y + 50));
     doc.line(65, (y + 51), 190, (y + 51));//down
@@ -436,13 +465,19 @@ export class AtencionMedicComponent implements OnInit {
     doc.text(lineaAux, 55, (y + 7));
     doc.text(auxEnfermedad[0], 110, (y + 19));
 
+    doc.text(this.datosIees.tipoContingencia, 70, (y + 50));
+
     lineaAux = doc.splitTextToSize(this.atencionMedicService.formData.enfermedadesActuales, (105));
     doc.text(lineaAux, 80, (y + 60));
-    
+
+    doc.text(this.datosIees.totalDias.toString(), 125, (y + 90));
+    doc.text(this.datosIees.fechaSalida, 100, (y + 100));
+    doc.text(this.datosIees.fechaRegreso, 100, (y + 110));
+
     doc.setFontSize(8);
-    doc.text("Número y letra", 115, (y + 94));
-    doc.text("Número y letra", 100, (y + 104));
-    doc.text("Número y letra", 100, (y + 114));
+    doc.text("Número", 120, (y + 94));
+    doc.text("Número", 105, (y + 104));
+    doc.text("Número", 105, (y + 114));
 
     doc.setFont("arial", "bold");
     doc.setFontSize(11);

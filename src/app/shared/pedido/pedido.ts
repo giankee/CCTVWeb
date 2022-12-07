@@ -3,6 +3,7 @@ import { cFecha } from "../otrosServices/varios";
 
 export class cOrdenPedido {
     idOrdenPedido: number;
+    planta:string;
     fechaPedido: string;
     numSecuencial: string;
     proveedor: string;
@@ -21,9 +22,10 @@ export class cOrdenPedido {
     strNumSecuencial:string;
     strArea:string;
 
-    constructor(cargoUserIn: string, proveedorIn?: string, barcoIn?: string) {
+    constructor(cargoUserIn: string, plantaIn:string , proveedorIn?: string, barcoIn?: string) {
         let fechaHoy: cFecha = new cFecha();
         this.idOrdenPedido = undefined;
+        this.planta=plantaIn;
         this.fechaPedido = fechaHoy.strFecha;
         this.numSecuencial = "";
         if (proveedorIn != null)
@@ -45,6 +47,7 @@ export class cOrdenPedido {
 
     completarObject(dataIn: cOrdenPedido) {
         this.idOrdenPedido = dataIn.idOrdenPedido;
+        this.planta=dataIn.planta;
         this.fechaPedido = dataIn.fechaPedido.substring(0, 10);
         this.numSecuencial = dataIn.numSecuencial;
         this.proveedor = dataIn.proveedor;

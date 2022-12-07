@@ -17,8 +17,8 @@
                   <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
                     [(ngModel)]="selecBodegaFiltro" [disabled]="conexcionService.UserR.rolAsignado == 'verificador-medic'">
                     <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">
-                      {{datobodega.nombre}}</option>
+                    <option *ngFor="let datobodega of listBarcos" value="{{datobodega.nombreBodega}}">
+                      {{datobodega.nombreBodega}}</option>
                   </select>
                 </div>
               </div>
@@ -56,21 +56,22 @@
                     <th>Diferencia</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr *ngIf="listProductosIn.length==0">
+                <tbody *ngIf="(listProductosIn | filtroBodega:selecBodegaFiltro) as resultBusqueda">
+                  <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+                  <tr *ngIf="resultBusqueda.length==0">
                     <td class="font-italic text-center" colspan="5">
                       No hay necesidad de reponer Medicamento
                     </td>
                   </tr>
                   <tr
-                    *ngFor="let datoP of listProductosIn; let indice=index"
+                    *ngFor="let datoP of resultBusqueda; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
                     <td>{{datoP.nombre}}</td>
                     <td class="text-center">{{datoP.listBodegaProducto[0].cantMinima}}</td>
-                    <td class="text-center">{{datoP.listBodegaProducto[0].disponibilidad}}</td>
-                    <td class="text-center" *ngIf="selecTipoFiltro=='Faltantes'" >{{datoP.listBodegaProducto[0].cantMinima - datoP.listBodegaProducto[0].disponibilidad}}</td>
-                    <td class="text-center" *ngIf="selecTipoFiltro=='Sobrantes'" >{{datoP.listBodegaProducto[0].disponibilidad - datoP.listBodegaProducto[0].cantMinima}}</td>
+                    <td class="text-center">{{datoP.sumStock}}</td>
+                    <td class="text-center" *ngIf="selecTipoFiltro=='Faltantes'" >{{datoP.listBodegaProducto[0].cantMinima - datoP.sumStock}}</td>
+                    <td class="text-center" *ngIf="selecTipoFiltro=='Sobrantes'" >{{datoP.sumStock - datoP.listBodegaProducto[0].cantMinima}}</td>
                   </tr>
                 </tbody>
               </table>

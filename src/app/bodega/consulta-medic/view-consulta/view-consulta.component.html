@@ -42,6 +42,7 @@
                       <tr class="text-center">
                         <th scope="col">Código</th>
                         <th scope="col">Cantidad</th>
+                        <th scope="col">Lote</th>
                         <th scope="col">Descripción</th>
                         <th scope="col">Observación</th>
                       </tr>
@@ -52,6 +53,7 @@
                         [ngClass]="{'filaPar':(((indiceNew+1)%2)==0)}">
                         <td>{{datoList.inventario.codigo}}</td>
                         <td class="text-center">{{datoList.cantidad}}</td>
+                        <td class="text-center">{{datoList.loteId=='SIN ASIGNAR'? '---': datoList.loteId}}</td>
                         <td>{{datoList.inventario.nombre}}</td>
                         <td class="text-center">{{datoList.observacion}}</td>
                       </tr>

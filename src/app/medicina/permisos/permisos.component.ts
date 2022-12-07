@@ -194,22 +194,27 @@ export class PermisosComponent implements OnInit {
 
     if (!this.fechasDistintas) {
       doc.text("las:            hasta las:", 72, (y + 7));
-    } else doc.text("las", 72, (y + 7));
-    doc.text("Hasta las:", 10, (y + 14));
+    } else {
+      doc.text("las", 72, (y + 7));
+      doc.text("Hasta las:", 10, (y + 14));
+    }
     doc.text("Deberá acudir a consulta médica de la empresa:", 10, (y + 21));
 
     doc.setFont("arial", "bold");
     doc.text(this.pacienteService.datoPersona.datosEnterprice.empleado + ".", 55, y);
+
+    var auxMonth = fechaHoy.transformarStrMes(auxSepararRegreso[0])
+    var auxSepararRegresoMas = auxSepararRegreso[0].split("-");
+
     if (!this.fechasDistintas) {
       doc.text(auxSepararInicio[1], 79, (y + 7));
+      doc.text(auxSepararRegreso[1] + " del " + auxSepararRegresoMas[2] + " de " + auxMonth + " del " + auxSepararRegresoMas[0], 107, (y + 7));
     } else {
       var auxMonth = fechaHoy.transformarStrMes(auxSepararInicio[0])
       var auxSepararInicioMas = auxSepararInicio[0].split("-");
       doc.text(auxSepararInicio[1] + " del " + auxSepararInicioMas[2] + " de " + auxMonth + " del " + auxSepararInicioMas[0], 77, (y + 7));
+      doc.text(auxSepararRegreso[1] + " del " + auxSepararRegresoMas[2] + " de " + auxMonth + " del " + auxSepararRegresoMas[0], 28, (y + 14));
     }
-    var auxMonth = fechaHoy.transformarStrMes(auxSepararRegreso[0])
-    var auxSepararRegresoMas = auxSepararRegreso[0].split("-");
-    doc.text(auxSepararRegreso[1] + " del " + auxSepararRegresoMas[2] + " de " + auxMonth + " del " + auxSepararRegresoMas[0], 28, (y + 14));
 
     if (this.permisoMedicService.formData.regresaConsulta)
       doc.text("Si", 93, (y + 21));
@@ -272,7 +277,6 @@ export class PermisosComponent implements OnInit {
     this.permisoMedicService.formData.totalDias = fechaHoy.compararFechasDias(separarFechaHoraS[0], separarFechaHoraE[0], this.permisoMedicService.formData.incluirSabados);
     var auxMinDebe = 0;
     var auxTotalHoras = 0;
-
     if (this._pacienteService.datoPersona.datosEnterprice.horaS != null && this._pacienteService.datoPersona.datosEnterprice.horaS != '') {
       var horaRecesoS = this.pacienteService.datoPersona.datosEnterprice.recesoS.split(":");
       var horaRecesoE = this.pacienteService.datoPersona.datosEnterprice.recesoE.split(":");
@@ -444,12 +448,12 @@ export class PermisosComponent implements OnInit {
         }
         var horasDifSalida = auxHoraComparar - Number(horaE[0]);
         var minDifSalida = 60 - Number(horaE[1]);
-        this.permisoMedicService.formData.totalDias--;
         if (minDifSalida == 60)
           minDifSalida = 0;
-        if (horasDifSalida != 0)
+        if (horasDifSalida != 0) {
+          this.permisoMedicService.formData.totalDias--;
           auxTotalHoras = auxTotalHoras + (8 - horasDifSalida);
-
+        }
         auxMinDebe = auxMinDebe + minDifSalida;
         if (auxMinDebe >= 60) {
           auxMinDebe = 60 - auxMinDebe;

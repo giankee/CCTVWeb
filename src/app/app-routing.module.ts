@@ -24,7 +24,6 @@ import { ListMovTinasComponent } from './tinas/list-mov-tinas/list-mov-tinas.com
 import { ForcedOutComponent } from './user/forced-out/forced-out.component';
 import { RegistroComponent } from './user/registro/registro.component';
 import { UserComponent } from './user/user.component';
-import { VisitantesComponent } from './visitantes/visitantes.component';
 import { CrearMedicamentoComponent } from './bodega/crear-medicamento/crear-medicamento.component';
 import { PedirMedicamentoComponent } from './bodega/pedir-medicamento/pedir-medicamento.component';
 import { NewAccidenteComponent } from './medicina/new-accidente/new-accidente.component';
@@ -104,10 +103,10 @@ const routes: Routes = [
       },
       {
         path: 'Pedido', children: [
-          { path: 'Orden', data: { permittedRoles: ['pedido-flota'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'PedidosList', data: { permittedRoles: ['pedido-flota'] }, component: ListPedidosComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'VerificacionPedido', data: { permittedRoles: ['pedido-flota'] }, component: PedidosVerificacionComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'Reporte', data: { permittedRoles: ['pedido-flota'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'Orden', data: { permittedRoles: ['pedido-flota','pedido-planta'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'PedidosList', data: { permittedRoles: ['pedido-flota','pedido-planta'] }, component: ListPedidosComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'VerificacionPedido', data: { permittedRoles: ['pedido-flota','pedido-planta'] }, component: PedidosVerificacionComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'Reporte', data: { permittedRoles: ['pedido-flota','pedido-planta'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
         ]
       },
       

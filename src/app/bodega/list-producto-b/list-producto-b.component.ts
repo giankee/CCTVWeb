@@ -164,6 +164,13 @@ export class ListProductoBComponent implements OnInit {
     }
   }
 
+  onNewLote(indiceIn:number){
+    this.productoBService.formData.listBodegaProducto[indiceIn].agregarOneLote();
+    if(this.productoBService.formData.listBodegaProducto[indiceIn].idBodegaProducto!=undefined){
+      this.productoBService .formData.listBodegaProducto[indiceIn].listAreas[this.productoBService .formData.listBodegaProducto[indiceIn].listAreas.length-1].bodegaProductoId=this.productoBService .formData.listBodegaProducto[indiceIn].idBodegaProducto;
+    }
+  }
+
   onMostrarBodega(index: number) {
     for (var i = 0; i < this._productoBService.formData.listBodegaProducto.length; i++) {
       if (i == index)

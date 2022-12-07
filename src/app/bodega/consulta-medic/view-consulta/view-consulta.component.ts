@@ -36,6 +36,7 @@ export class ViewConsultaComponent implements OnInit {
           },
             error => console.error(error));
       }
+      //console.table(this.consultaMedicService.formData);
     } else this.onExit();
   }
 
@@ -93,11 +94,13 @@ export class ViewConsultaComponent implements OnInit {
 
     doc.text("Código", 20, (y + 7));
     doc.line(55, y, 55, (y + 10));//right
-    doc.text("Cantidad", 60, (y + 7));
-    doc.line(80, y, 80, (y + 10));//right
-    doc.text("Descripción", 100, (y + 7));
-    doc.line(145, y, 145, (y + 10));//right
-    doc.text("Observación", 165, (y + 7));
+    doc.text("Cantidad", 58, (y + 7));
+    doc.line(75, y, 75, (y + 10));//right
+    doc.text("Lote", 85, (y + 7));
+    doc.line(100, y, 100, (y + 10));//right
+    doc.text("Descripción", 115, (y + 7));
+    doc.line(160, y, 160, (y + 10));//right
+    doc.text("Observación", 170, (y + 7));
 
     doc.setFontSize(8);
     doc.setFont("arial", "normal");
@@ -111,8 +114,8 @@ export class ViewConsultaComponent implements OnInit {
     var auxPrueba: number;
 
     for (var i = 0; i < orden.listReceta.length; i++) {
-      lineaDescripcion = doc.splitTextToSize(orden.listReceta[i].inventario.nombre, (65));
-      lineaObservacion = doc.splitTextToSize(orden.listReceta[i].observacion, (50));
+      lineaDescripcion = doc.splitTextToSize(orden.listReceta[i].inventario.nombre, (54));
+      lineaObservacion = doc.splitTextToSize(orden.listReceta[i].observacion, (34));
       valorD = (3 * lineaDescripcion.length) + 4;
       valorO = (3 * lineaObservacion.length) + 4;
 
@@ -134,11 +137,13 @@ export class ViewConsultaComponent implements OnInit {
 
         doc.text("Código", 20, (y + 7));
         doc.line(55, y, 55, (y + 10));//right
-        doc.text("Cantidad", 60, (y + 7));
-        doc.line(80, y, 80, (y + 10));//right
-        doc.text("Descripción", 100, (y + 7));
-        doc.line(145, y, 145, (y + 10));//right
-        doc.text("Observación", 165, (y + 7));
+        doc.text("Cantidad", 58, (y + 7));
+        doc.line(75, y, 75, (y + 10));//right
+        doc.text("Lote", 85, (y + 7));
+        doc.line(100, y, 100, (y + 10));//right
+        doc.text("Descripción", 115, (y + 7));
+        doc.line(160, y, 160, (y + 10));//right
+        doc.text("Observación", 170, (y + 7));
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
@@ -147,14 +152,15 @@ export class ViewConsultaComponent implements OnInit {
       doc.line(9, (y - valorG), 9, y);//left
       doc.text(orden.listReceta[i].inventario.codigo, 15, (y - ((valorG - 3) / 2)));
       doc.line(55, (y - valorG), 55, y);//right
-      doc.text(orden.listReceta[i].cantidad.toString(), 65, (y - ((valorG - 3) / 2)));
-      doc.line(80, (y - valorG), 80, y);//right
-
+      doc.text(orden.listReceta[i].cantidad.toString(), 63, (y - ((valorG - 3) / 2)));
+      doc.line(75, (y - valorG), 75, y);//right
+      doc.text(orden.listReceta[i].loteId, 80, (y - ((valorG - 3) / 2)));
+      doc.line(100, (y - valorG), 100, y);//right
       auxPrueba = Number((valorG - (3 * lineaDescripcion.length + (3 * (lineaDescripcion.length - 1)))) / 2.5) + 3;//mega formula para centrar el texto en el espacio establecido
-      doc.text(lineaDescripcion, 85, (y - valorG + auxPrueba));
-      doc.line(145, (y - valorG), 145, y);//right
+      doc.text(lineaDescripcion, 102, (y - valorG + auxPrueba));
+      doc.line(160, (y - valorG), 160, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;//mega formula para centrar el texto en el espacio establecido
-      doc.text(lineaObservacion, 150, (y - valorG + auxPrueba));
+      doc.text(lineaObservacion, 162, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -165,8 +171,8 @@ export class ViewConsultaComponent implements OnInit {
     } else y = 275;
     doc.line(18, y, 63, y);//Firma1
     doc.text("Firma " + orden.personaResponsable, 25, y + 5);
-    doc.line(144, y, 189, y);//Firma2
-    doc.text("Firma " + orden.paciente, 146, y + 5);
+    doc.line(140, y, 190, y);//Firma2
+    doc.text("Firma " + orden.paciente, 125, y + 5);
 
     doc.save("Consulta #" + orden.numOrdenSecuencial + "_" + orden.fechaRegistro + ".pdf");
   }

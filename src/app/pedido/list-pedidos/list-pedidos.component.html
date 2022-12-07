@@ -173,7 +173,13 @@
                         </ul>
                       </div>
                     </td>
-                    <td class="text-center" id="utilitarioI">
+                    <td class="text-center "  id="utilitarioI">
+                      <a class="badge text-primario d-none d-sm-block" (click)="convertPdf(dato)"
+                        matTooltip="Te permite visualizar a detalladamente la consulta médica" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon [icon]="faeye"></fa-icon>
+                      </a>
+
                       <a *ngIf="conexcionService.UserR.userName!=dato.cargoUser && dato.estadoProceso!='Procesada'" class="badge text-primario" matTooltip="Te permite editar los datos orden seleccionada"
                         matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onEdit(dato)">
                         <fa-icon [icon]="fapencilAlt"></fa-icon>

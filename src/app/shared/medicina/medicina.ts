@@ -527,3 +527,29 @@ export class cObjR {
         this.contOcurrenciaB = 0;
     }
 }
+
+export class cPlantillaIees{
+    isOpen:number; //0 cerrarSinGuardar //1 abrir, //2 cerrarCompleta
+    presentSintomas:boolean;
+    enfermedad:boolean;
+    aislamiento:boolean;
+    tipoContingencia:string;
+
+    incluirFinSemana:boolean;
+    fechaSalida: string;
+    fechaRegreso: string;
+    totalDias: number;
+
+    constructor(){
+        var fechaHoy = new cFecha();
+        this.isOpen=0;
+        this.presentSintomas=false;
+        this.enfermedad=false;
+        this.aislamiento=false;
+        this.tipoContingencia="";
+        this.incluirFinSemana=false;
+        this.fechaSalida = fechaHoy.strFecha;
+        this.fechaRegreso = fechaHoy.strFecha;
+        this.totalDias = 0;
+    }
+}

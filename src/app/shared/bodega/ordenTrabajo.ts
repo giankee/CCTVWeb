@@ -214,7 +214,7 @@ export class cRecetaMedic {
         this.inventarioId = dataIn.inventarioId;
         this.observacion = dataIn.observacion;
         this.cantidad = dataIn.cantidad;
-        this.loteId=this.loteId;
+        this.loteId=dataIn.loteId;
         if (dataIn.inventario != null)
             this.inventario.rellenarObjeto(dataIn.inventario);
     }

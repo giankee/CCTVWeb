@@ -1,0 +1,115 @@
+<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="crearFormulario.isOpen==1">
+  <a (click)="onTerminar(0)" class="btn text-secundario btn-block mt-2" style="width: 50px;">
+    <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
+  </a>
+</div>
+<section>
+  <div class="p-1">
+    <form #formFormulario="ngForm" autocomplete="off" (submit)="onSubmit(formFormulario)">
+      <div class="bodyCard" *ngIf="crearFormulario!=null">
+        <div class="row">
+          <div class="col-12">
+            <h4 class="text-center">Formulario para el IEES</h4>
+          </div>
+        </div>
+        <div class="row boxForm mt-2">
+          <div class="col-12 col-sm-6 col-md-4">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="title"><strong>Presenta Sintomas:</strong></div>
+              </div>
+              <div class="custom-control custom-switch ml-3">
+                <input type="checkbox" name="presentSintomas" #presentSintomas="ngModel" class="custom-control-input"
+                  id="customSwitch1" [(ngModel)]="crearFormulario.presentSintomas">
+                <label class="custom-control-label"
+                  for="customSwitch1">{{crearFormulario.presentSintomas?'SI':'NO'}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="title"><strong>Enfermedad:</strong></div>
+              </div>
+              <div class="custom-control custom-switch ml-3">
+                <input type="checkbox" name="enfermedad" #enfermedad="ngModel" class="custom-control-input"
+                  id="customSwitch2" [(ngModel)]="crearFormulario.enfermedad">
+                <label class="custom-control-label" for="customSwitch2">{{crearFormulario.enfermedad?'SI':'NO'}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-12 col-md-4">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="title"><strong>Aislamiento/Teletrabajo:</strong></div>
+              </div>
+              <div class="custom-control custom-switch ml-3">
+                <input type="checkbox" name="aislamiento" #aislamiento="ngModel" class="custom-control-input"
+                  id="customSwitch3" [(ngModel)]="crearFormulario.aislamiento">
+                <label class="custom-control-label"
+                  for="customSwitch3">{{crearFormulario.aislamiento?'SI':'NO'}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm mt-2">
+          <div class="col-12">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Tipo de Contingencia:</strong></div>
+              <input name="tipoContingencia" #tipoContingencia="ngModel" [(ngModel)]="crearFormulario.tipoContingencia"
+                class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm">
+          <div class="col-12 col-sm-6 col-md-4">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Fecha Salida:</strong></div>
+              <input class="form-control" type="date" name="fechaSalida1" #fechaSalida1="ngModel"
+                [(ngModel)]="crearFormulario.fechaSalida" (change)="onComprobarTime()">
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-md-4">
+            <div class="form-group inputForm" id="inputSearchP">
+              <div class="title"><strong>Fecha Hasta:</strong></div>
+              <input class="form-control" type="date" name="fechaRegreso" #fechaRegreso="ngModel"
+                [(ngModel)]="crearFormulario.fechaRegreso" min="{{crearFormulario.fechaSalida}}"
+                (change)="onComprobarTime()">
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="row">
+              <div class="col-6">
+                <div class="form-group inputForm" id="inputSearchP">
+                  <div class="title"><strong>Total Días:</strong></div>
+                  <input type="number" name="totalDias" #totalDias="ngModel" [disabled]="true"
+                    [(ngModel)]="crearFormulario.totalDias" class="form-control">
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <div class="title"><strong>Incluir Fin Semana:</strong></div>
+                  </div>
+                  <div class="custom-control custom-switch ml-3">
+                    <input type="checkbox" name="incluirFinSemana" #incluirFinSemana="ngModel"
+                    class="custom-control-input" id="customSwitch4" [(ngModel)]="crearFormulario.incluirFinSemana">
+                  <label class="custom-control-label"
+                    for="customSwitch4">{{crearFormulario.incluirFinSemana?'SI':'NO'}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row boxForm justify-content-around my-2">
+          <div class="col-12 col-sm-8 col-md-4 justify-content-around">
+            <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formFormulario.invalid">
+              <fa-icon [icon]="fasave"></fa-icon> Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

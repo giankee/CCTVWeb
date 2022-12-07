@@ -34,6 +34,16 @@ import { SumCantBodegaPipe } from './pipes/sum-cant-bodega.pipe';
 import { FechaMesPipe } from './pipes/fecha-mes.pipe';
 import { FiltrarCie10Pipe } from './pipes/filtrar-cie10.pipe';
 import { SearchMaterialPipe } from './pipes/search-material.pipe';
+import { ReportEnfermedadesPipe } from './pipes/report-enfermedades.pipe';
+import { TablareportMedicPipe } from './pipes/tablareport-medic.pipe';
+import { SumartotalesPipe } from './pipes/sumartotales.pipe';
+import { FiltrarBodegaPipe } from './pipes/filtrar-bodega.pipe';
+import { FechaFormatPipe } from './pipes/fecha-format.pipe';
+
+/*Services*/
+import { CarroService } from './shared/carro.service';
+import { UserService } from './shared/user.service';
+import { ConexionService } from './shared/otrosServices/conexion.service';
 /*Componentes*/
 import { UserComponent } from './user/user.component';
 import { AccessDenegadoComponent } from './errores/access-denegado/access-denegado.component';
@@ -85,24 +95,16 @@ import { ListAccidentesPersonalesComponent } from './medicina/list-historial-per
 import { ViewAccidenteModelComponent } from './medicina/new-accidente/view-accidente-model/view-accidente-model.component';
 import { AvisoFaltanteComponent } from './bodega/compra-proveedor/compras-verificacion/aviso-faltante/aviso-faltante.component';
 import { ListPermisosComponent } from './medicina/list-permisos/list-permisos.component';
-/*Services*/
-import { CarroService } from './shared/carro.service';
-import { UserService } from './shared/user.service';
-import { ConexionService } from './shared/otrosServices/conexion.service';
+import { OrdenPedidoComponent } from './pedido/orden-pedido/orden-pedido.component';
 import { ReportesMedicComponent } from './medicina/reportes-medic/reportes-medic.component';
 import { EnfermedadReportComponent } from './medicina/reportes-medic/enfermedad-report/enfermedad-report.component';
 import { AusentisimoReportComponent } from './medicina/reportes-medic/ausentisimo-report/ausentisimo-report.component';
-import { ReportEnfermedadesPipe } from './pipes/report-enfermedades.pipe';
 import { TransConsultaAtencionComponent } from './bodega/consulta-medic/list-consulta-medic/trans-consulta-atencion/trans-consulta-atencion.component';
-import { TablareportMedicPipe } from './pipes/tablareport-medic.pipe';
-import { SumartotalesPipe } from './pipes/sumartotales.pipe';
-import { OrdenPedidoComponent } from './pedido/orden-pedido/orden-pedido.component';
 import { PedidosVerificacionComponent } from './pedido/pedidos-verificacion/pedidos-verificacion.component';
 import { ListPedidosComponent } from './pedido/list-pedidos/list-pedidos.component';
 import { ViewPedidoModalComponent } from './pedido/view-pedido-modal/view-pedido-modal.component';
-import { FiltrarBodegaPipe } from './pipes/filtrar-bodega.pipe';
 import { ListBoodegasComponent } from './bodega/list-boodegas/list-boodegas.component';
-import { FechaFormatPipe } from './pipes/fecha-format.pipe';
+import { FormularioIeesComponent } from './medicina/permisos/formulario-iees/formulario-iees.component';
 
 
 @NgModule({
@@ -184,7 +186,8 @@ import { FechaFormatPipe } from './pipes/fecha-format.pipe';
     ViewPedidoModalComponent,
     FiltrarBodegaPipe,
     ListBoodegasComponent,
-    FechaFormatPipe
+    FechaFormatPipe,
+    FormularioIeesComponent,
   ],
   imports: [
     BrowserModule,

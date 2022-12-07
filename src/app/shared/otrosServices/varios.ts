@@ -200,10 +200,12 @@ export class cFecha {
             }
             for (var i = a; i <= b; i++) {
                 if (i == a) {
-                    for (var j = starDay; j <= this.arrayMes[i - 1].maxDias; j++) {
+                    for (var j = starDay+1; j <= this.arrayMes[i - 1].maxDias; j++) {
                         if (incluirFinSemana == false) {
-                            if (this.sacarStrDiaLaboral(Number(separarB[0]), i, j))
+                            if (this.sacarStrDiaLaboral(Number(separarB[0]), i, j)){
                                 difDia++;
+                            }
+                                
                         } else difDia++;
                     }
                 }
@@ -260,6 +262,10 @@ export class cFecha {
         if ((fecha.toString().slice(0, 3) == 'Sat') || (fecha.toString().slice(0, 3) == 'Sun'))
             return false;
         return true;
+    }
+
+    transformarFechasString(fechaIn:string){
+
     }
 }
 
@@ -617,3 +623,47 @@ export class cAuxMedicamentos {
     }
 }
 
+export class cNumeroGian{
+    unidad:Array<string>;
+    decenas:Array<string>;
+    decena:Array<string>;
+    centena:Array<string>;
+
+    constructor(){
+        this.unidad =['un','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
+        this.decenas = ['diez','once','doce', 'trece','catorce','quince'];
+        this.decena = ['dieci','veinti','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+        this.centena = ['ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+    }
+    convertirNum(numIn:string|number):string{
+        var result="";
+        if( typeof numIn == 'string'){
+            numIn= Number(numIn);
+        }
+
+        /*$cen = (int) ($num / 100);              //Cifra de las centenas
+        $doble = $num - ($cen*100);             //Cifras de las decenas y unidades
+        $dec = (int)($num / 10) - ($cen*10);    //Cifra de laa decenas
+        $uni = $num - ($dec*10) - ($cen*100);   //Cifra de las unidades
+        if ($cen > 0) {
+            if ($num == 100) $linea = "cien";
+            else $linea = $centena[$cen-1].' ';
+        }//end if
+        if ($doble>0) {
+            if ($doble == 20) {
+                $linea .= " veinte";
+            }elseif (($doble < 16) and ($doble>9)) {
+                $linea .= $decenas[$doble-10];
+            }else {
+                $linea .=' '. $decena[$dec-1];
+            }//end if
+            if ($dec>2 and $uni<>0) $linea .=' y ';
+            if (($uni>0) and ($doble>15) or ($dec==0)) {
+                if ($uni == 1) $linea.="uno";
+                else $linea.=$unidad[$uni-1];
+            }
+         }*/
+
+        return result;
+    }
+}

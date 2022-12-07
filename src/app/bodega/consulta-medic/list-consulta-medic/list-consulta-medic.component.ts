@@ -262,6 +262,7 @@ export class ListConsultaMedicComponent implements OnInit {
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
+        
       }),
       finalize(() => this.spinnerOnOff = false)
     );

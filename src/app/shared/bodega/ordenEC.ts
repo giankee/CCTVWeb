@@ -203,6 +203,7 @@ export class cProducto_B {
     contenidoNeto?: number = 1;
     precioNeto?: number = 0;
     rutaArchivo?: string = "/assets/img/imgDefecto.png";
+    descripcion?:string="";
     estado?: number = 1;
 
     /**Arreglos */
@@ -238,6 +239,7 @@ export class cProducto_B {
         this.tipoUnidad = objIn.tipoUnidad;
         this.contenidoNeto = objIn.contenidoNeto;
         this.precioNeto = objIn.precioNeto;
+        this.descripcion=objIn.descripcion;
         this.estado = objIn.estado;
 
         if (objIn.listBodegaProducto != null) {
@@ -258,6 +260,7 @@ export class cProducto_B {
             }
         }
     }
+
     resetProducto() {
         this.idProductoStock = undefined;
         this.categoria = "SIN ASIGNAR";
@@ -272,7 +275,9 @@ export class cProducto_B {
         this.SelectBodega = "SIN ASIGNAR";
         this.contenidoNeto = null;
         this.precioNeto = 0;
+        this.descripcion=null;
     }
+
     agregarOneBodega(dataIn?: cBodegaProducto, bodegaIn?: string) {
         var auxBodega = new cBodegaProducto(this.planta, bodegaIn);
         if (dataIn != null) {
@@ -280,6 +285,7 @@ export class cProducto_B {
         }
         this.listBodegaProducto.push(auxBodega);
     }
+
     agregarOneMaterial(dataIn?: cComponentesProducto) {
         var auxComponente = new cComponentesProducto();
         if (dataIn != null) {
@@ -287,6 +293,7 @@ export class cProducto_B {
         }
         this.listComponentesProducto.push(auxComponente);
     }
+    
 }
 
 export class cBodegaProducto {
@@ -337,7 +344,9 @@ export class cBodegaProducto {
         if (objIn.listAreas != null) {
             this.listAreas = []
             if (objIn.listAreas.length > 0) {
-                this.listAreas = objIn.listAreas;
+                objIn.listAreas.forEach(x=>{
+                    this.agregarOneLote(x);
+                })
             }
         }
         this.sumStockBodegas();
@@ -355,6 +364,14 @@ export class cBodegaProducto {
         this.numCasillero = 0;
         this.numPalet = 0;
         this.estado = 1;
+    }
+
+    agregarOneLote(dataIn?: cBodegaSubAreaProducto, loteIn?: string) {
+        var auxLote = new cBodegaSubAreaProducto(loteIn);
+        if (dataIn != null) {
+            auxLote.completarObject(dataIn);
+        }
+        this.listAreas.push(auxLote);
     }
 
     sumStockBodegas() {
@@ -392,7 +409,7 @@ export class cBodegaSubAreaProducto {
         this.nombreSub = objIn.nombreSub;
         this.bodegaProductoId = objIn.bodegaProductoId;
         this.disponibilidad = objIn.disponibilidad;
-
+        this.fechaVencimiento=objIn.fechaVencimiento.substr(0, 10);
 
         if (objIn.bodegaProducto != null)
             this.bodegaProducto = objIn.bodegaProducto;
