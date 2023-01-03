@@ -68,7 +68,7 @@ export class ListConsultaMedicComponent implements OnInit {
   dataOrdenesResult: cConsultaMedic[] = [];
 
   /**Para pagination y fecha Entrada*/
-  paginacion = new cPaginacion(25);
+  paginacion = new cPaginacion(50);
   fechaHoy = new cFecha();
   /**Fin paginatacion */
 

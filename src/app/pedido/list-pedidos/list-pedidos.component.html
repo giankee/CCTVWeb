@@ -43,24 +43,41 @@
               </div>
               <div class="col-12 col-sm-6 col-md-4">
                 <div class="form-group inputForm" id="inputSearchP">
-                  <div class="title"><strong> Barco:</strong></div>
-                  <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
-                    [(ngModel)]="parametrosBusqueda.strCampoB">
-                    <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option *ngFor="let datobarco of listBarcos" value="{{datobarco.nombre}}">
-                      {{datobarco.nombre}}</option>
-                  </select>
+                  <div class="title"><strong>
+                      {{conexcionService.UserR.rolAsignado=="pedido-flota"?'Tipo Pedido':'Empresa'}}:</strong></div>
+                  <div *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
+                    <select class="form-control input-src" name="inSelectTipoP" #inSelectTipoP="ngModel"
+                      [(ngModel)]="parametrosBusqueda.strCampoC">
+                      <option selected value="SIN ASIGNAR">-Seleccionar-</option>
+                      <option value="Consumo">Consumo</option>
+                      <option value="Marea">Marea</option>
+                      <option value="Faena">Faena</option>
+                    </select>
+                  </div>
+                  <div *ngIf="conexcionService.UserR.rolAsignado!='pedido-flota'">
+                    <select class="form-control input-src" name="inSelectEmpresa" #inSelectEmpresa="ngModel"
+                      [(ngModel)]="parametrosBusqueda.strCampoD" required>
+                      <option selected value="SIN ASIGNAR">-Seleccionar-</option>
+                      <option value="B&B TUNE">B&B TUNE</option>
+                      <option value="DANIEL BUEHS">DANIEL BUEHS</option>
+                      <option value="MANACRIPEX">MANACRIPEX</option>
+                    </select>
+                  </div>
                 </div>
               </div>
               <div class="col-12 col-sm-6 col-md-4">
                 <div class="form-group inputForm" id="inputSearchP">
-                  <div class="title"><strong> Tipo Pedido:</strong></div>
-                  <select class="form-control input-src" name="inSelectTipoP" #inSelectTipoP="ngModel"
-                    [(ngModel)]="parametrosBusqueda.strCampoC">
+                  <div class="title">
+                    <strong>{{conexcionService.UserR.rolAsignado=="pedido-flota"?"Barco":"Área"}}:</strong></div>
+                  <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
+                    [(ngModel)]="parametrosBusqueda.strCampoB">
                     <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option value="Consumo">Consumo</option>
-                    <option value="Marea">Marea</option>
-                    <option value="Faena">Faena</option>
+                    <option *ngFor="let datoBarco of listBarcos |filtrarBarcosEmpresa:parametrosBusqueda.strCampoD"
+                      value="{{datoBarco.nombreBodega}}">
+                      {{datoBarco.nombreBodega}}</option>
+                    <option
+                      *ngIf="conexcionService.UserR.rolAsignado!='pedido-flota'&& parametrosBusqueda.strCampoD=='MANACRIPEX'"
+                      value="P MANACRIPEX">P MANACRIPEX</option>
                   </select>
                 </div>
               </div>
@@ -96,9 +113,6 @@
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
             <h5><a class="text-dark2">Lista Pedidos</a></h5>
-            <a class="text-dark2" (click)="onConvertPdfAll()">
-              <fa-icon [icon]="faprint"></fa-icon>
-            </a>
           </div>
           <div class="text-center my-3" *ngIf="spinnerOnOff">
             <div class="d-flex justify-content-center">
@@ -111,16 +125,26 @@
                 <thead>
                   <tr class="text-center">
                     <th>#</th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'">Origen</th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Tipo Pedido</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenPedido('Tipo')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado!='pedido-flota'">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Empresa</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenPedido('Empresa')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
                     <th>
-                        <div class="d-inline-block" style="margin-right: 0.5rem;"> Tipo Pedido</div>
-                        <div id="ordenarS" class="d-inline-block">
-                          <a class="badge text-dark2" (click)="onOrdenPedido('Tipo')">
-                            <fa-icon [icon]="sort"></fa-icon>
-                          </a>
-                        </div>
-                      </th>
-                    <th>
-                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Barco</div>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">
+                        {{conexcionService.UserR.rolAsignado=='pedido-flota'?'Barco':'Área'}}</div>
                       <div id="ordenarS" class="d-inline-block">
                         <a class="badge text-dark2" (click)="onOrdenPedido('Barco')">
                           <fa-icon [icon]="sort"></fa-icon>
@@ -128,16 +152,16 @@
                       </div>
                     </th>
                     <th>
-                        <div class="d-inline-block" style="margin-right: 0.5rem;"> Secuencial</div>
-                        <div id="ordenarS" class="d-inline-block">
-                          <a class="badge text-dark2" (click)="onOrdenPedido('Secuencial')">
-                            <fa-icon [icon]="sort"></fa-icon>
-                          </a>
-                        </div>
-                      </th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Secuencial</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenPedido('Secuencial')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
                     <th>Fecha Registro</th>
                     <th>
-                        <div class="d-inline-block" style="margin-right: 0.5rem;"> Proveedor</div>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Proveedor</div>
                       <div id="ordenarS" class="d-inline-block">
                         <a class="badge text-dark2" (click)="onOrdenPedido('Proveedor')">
                           <fa-icon [icon]="sort"></fa-icon>
@@ -145,6 +169,7 @@
                       </div>
                     </th>
                     <th>Descripción</th>
+                    <th>Estado</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -159,28 +184,36 @@
                     *ngFor="let dato of resultBusquedaMostrar |sort:ordenPedido:'cOrdenPedido' | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
-                    <td>{{dato.tipoPedido}}</td>
-                    <td>{{dato.barco}}</td>
+                    <td *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'">{{dato.planta}}</td>
+                    <td>{{conexcionService.UserR.rolAsignado=='pedido-flota'?dato.tipoPedido:dato.empresa}}</td>
+                    <td>{{dato.area}}</td>
                     <td class="text-center">{{dato.strNumSecuencial}}</td>
                     <td>{{dato.fechaPedido}}</td>
                     <td>{{dato.proveedor}}</td>
                     <td>
                       <div *ngFor="let datoItems of dato.listArticulosPedido; let indice2=index">
-                        <ul id="utilitarioI" class="d-flex" [ngClass]="{'bg-success': datoItems.estadoArticuloPedido=='Procesada', 'bg-warning':datoItems.estadoArticuloPedido=='Pendiente', 'bg-danger':datoItems.estadoArticuloPedido=='No Procesada'}">
-                          <li  *ngIf="datoItems.contenidoNeto==1" class="mr-2">{{datoItems.cantidad}}</li>
-                          <li  *ngIf="datoItems.contenidoNeto!=1" class="mr-2">{{datoItems.cantidad*datoItems.inventario.contenidoNeto | number:'1.0-0'}}</li>
+                        <ul id="utilitarioI" class="d-flex"
+                          [ngClass]="{'bg-success': datoItems.estadoArticuloPedido=='Procesada', 'bg-warning':datoItems.estadoArticuloPedido=='Pendiente', 'bg-danger':datoItems.estadoArticuloPedido=='No Procesada'}">
+                          <li *ngIf="datoItems.contenidoNeto==1" class="mr-2">{{datoItems.cantidad}}</li>
+                          <li *ngIf="datoItems.contenidoNeto!=1" class="mr-2">
+                            {{datoItems.cantidad*datoItems.inventario.contenidoNeto | number:'1.0-0'}}</li>
                           {{datoItems.inventario.nombre}} || Area: {{datoItems.destinoArea}}
                         </ul>
                       </div>
                     </td>
-                    <td class="text-center "  id="utilitarioI">
-                      <a class="badge text-primario d-none d-sm-block" (click)="convertPdf(dato)"
-                        matTooltip="Te permite visualizar a detalladamente la consulta médica" matTooltipPosition="left"
+                    <td>{{dato.estadoProceso}}</td>
+                    <td class="text-center " id="utilitarioI">
+                      <mat-checkbox color="primary" *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'"
+                        id="isCheck{{indice}}revision" name="isCheck{{indice}}revision" [disabled]="resultBusquedaMostrar[indice].estadoProceso=='Pendiente Aprobación' || resultBusquedaMostrar[indice].estadoProceso=='Rechazada'"
+                        #isCheck{{indice}}revision="ngModel" [(ngModel)]="resultBusquedaMostrar[indice].archivada" (ngModelChange)="onRevision(dato)">
+                      </mat-checkbox>
+                      <a class="badge text-primario d-none d-sm-block" (click)="onConvertPdf(dato)"
+                        matTooltip="Te permite visualizar a detalladamente la orden" matTooltipPosition="left"
                         matTooltipClass="tooltipBlack">
                         <fa-icon [icon]="faeye"></fa-icon>
                       </a>
-
-                      <a *ngIf="conexcionService.UserR.userName!=dato.cargoUser && dato.estadoProceso!='Procesada'" class="badge text-primario" matTooltip="Te permite editar los datos orden seleccionada"
+                      <a *ngIf="conexcionService.UserR.userName!=dato.cargoUser && dato.estadoProceso!='Procesada'"
+                        class="badge text-primario" matTooltip="Te permite editar los datos orden seleccionada"
                         matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onEdit(dato)">
                         <fa-icon [icon]="fapencilAlt"></fa-icon>
                       </a>

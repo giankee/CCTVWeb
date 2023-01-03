@@ -17,7 +17,7 @@
                 <thead>
                   <tr class="text-center">
                     <th>#</th>
-                    <th>Barco</th>
+                    <th>{{conexcionService.UserR.rolAsignado=='pedido-planta'?'Área':'Barco'}}</th>
                     <th>Secuencial</th>
                     <th>Fecha Registro</th>
                     <th>Proveedor</th>
@@ -35,8 +35,8 @@
                     *ngFor="let dato of listOrdenesMostrar | slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
-                    <td>{{dato.barco}}</td>
-                    <td class="text-center">{{dato.numSecuencial}}</td>
+                    <td>{{dato.area}}</td>
+                    <td class="text-center">{{dato.strNumSecuencial}}</td>
                     <td>{{dato.fechaPedido}}</td>
                     <td>{{dato.proveedor}}</td>
                     <td>

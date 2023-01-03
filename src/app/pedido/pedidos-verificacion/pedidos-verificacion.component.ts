@@ -3,7 +3,6 @@ import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, 
 import { ToastrService } from 'ngx-toastr';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
-import { cVario } from 'src/app/shared/otrosServices/varios';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 import { OrdenPedidoService } from 'src/app/shared/pedido/orden-pedido.service';
@@ -22,31 +21,34 @@ export class PedidosVerificacionComponent implements OnInit {
     this._conexcionService = value;
   }
 
-  listBarcos: cVario[] = [];
   listOrdenesMostrar: cOrdenPedido[] = [];
   spinnerOnOff: boolean = true;
   paginacion = new cPaginacion(25);
 
   /**Icon */
-  fasave = faSave; fatimesCircle = faTimesCircle; faangledown = faAngleDown; faangleleft = faAngleLeft; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight;faflag=faFlag;
+  fasave = faSave; fatimesCircle = faTimesCircle; faangledown = faAngleDown; faangleleft = faAngleLeft; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faflag = faFlag;
 
 
-  constructor(private _conexcionService: ConexionService, private variosService: VariosService, private ordenPedidoService: OrdenPedidoService, private toastr: ToastrService, private whatsappService: WhatsappService) {
-    this.variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-      this.listBarcos = dato;
-      this.restartListPendientes();
-    });
+  constructor(private _conexcionService: ConexionService, private ordenPedidoService: OrdenPedidoService, private toastr: ToastrService) {
   }
 
   ngOnInit(): void {
+    this.restartListPendientes();
   }
 
   restartListPendientes(valorPage?: number) {
     this.spinnerOnOff = true;
     this.listOrdenesMostrar = [];
-    this.ordenPedidoService.getListPedido("Pendiente").subscribe(dato => {
+    var parametros;
+    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
+    parametros = "FLOTA@Pendiente Verificación";
+    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
+      parametros = "P MANACRIPEX@Pendiente Verificación";
+    this.ordenPedidoService.getListPedido(parametros).subscribe(dato => {
       dato.forEach(x => {
         x.fechaPedido = x.fechaPedido.substring(0, 10);
+        let auxSecuencial = x.numSecuencial.split("-");
+        x.strNumSecuencial = auxSecuencial[1];
         x.listArticulosPedido.forEach(y => y.marcar = false);
         this.listOrdenesMostrar.push(x);
       });
@@ -58,17 +60,19 @@ export class PedidosVerificacionComponent implements OnInit {
     });
   }
 
-  onSave(datoIn: cOrdenPedido, tipoIn:number) {
+  onSave(datoIn: cOrdenPedido, tipoIn: number) {
     if (datoIn.listArticulosPedido.find(x => x.marcar) != undefined) {
       datoIn.listArticulosPedido.forEach(x => {
-        if (x.marcar){
-          if(tipoIn==1)
-          x.estadoArticuloPedido = "Procesada";
-          else x.estadoArticuloPedido="No Procesada";
+        if (x.marcar) {
+          if (tipoIn == 1)
+            x.estadoArticuloPedido = "Procesada";
+          else x.estadoArticuloPedido = "No Procesada";
         }
       });
-      if (datoIn.listArticulosPedido.find(x => x.estadoArticuloPedido == "Pendiente") == undefined)
+      if (datoIn.listArticulosPedido.find(x => x.estadoArticuloPedido == "Pendiente") == undefined){
         datoIn.estadoProceso = "Procesada";
+        datoIn.verificacionUser=this.conexcionService.UserR.nombreU;
+      }
       this.ordenPedidoService.verificacionOrdenPedido(datoIn).subscribe(
         (res: any) => {
           if (res.message == "Ok") {
@@ -77,7 +81,7 @@ export class PedidosVerificacionComponent implements OnInit {
               this.restartListPendientes(this.paginacion.pagActualIndex);
             } else {
               for (var i = 0; i < datoIn.listArticulosPedido.length; i++) {
-                if (datoIn.listArticulosPedido[i].estadoArticuloPedido == "Procesada"||datoIn.listArticulosPedido[i].estadoArticuloPedido == "No Procesada") {
+                if (datoIn.listArticulosPedido[i].estadoArticuloPedido == "Procesada" || datoIn.listArticulosPedido[i].estadoArticuloPedido == "No Procesada") {
                   datoIn.listArticulosPedido.splice(i, 1);
                   i--;
                 }

@@ -75,8 +75,10 @@
                 <td class="pl-3" colspan="2"><strong>TOTAL DE HORAS POR {{tipoR == 'caseD'?'DEPARTAMENTO':'MES'}}</strong></td>
                 <td class="text-center" *ngFor="let datoD of listObjetosIn; let indiceD=index">
                   {{(resultBusqueda|sumartotales:listObjetosIn[indiceD]).contOcurrenciaTotal}}</td>
-                <td class="text-center">
+                <td class="text-center" *ngIf="tipoR=='caseD'">
                   <strong>{{paramsReport.contOcurrenciaNormal+paramsReport.contOcurrenciaControl}}</strong></td>
+                <td class="text-center" *ngIf="tipoR!='caseD'">
+                    <strong>{{(resultBusqueda|sumarTotalesAux:listObjetosIn)}}</strong></td>
               </tr>
               <tr *ngIf="paramsReport.isNormal">
                 <td class="pl-3" colspan="2"><strong>TOTAL HORAS MORBILIDAD</strong></td>

@@ -29,7 +29,7 @@ export class UserComponent implements OnInit {
   }
 
   modoActualizar: boolean = false;
-  constructor(private _userService: UserService, private router: Router, private toastr: ToastrService,private conexcionService: ConexionService, private _whatsappService: WhatsappService) { }
+  constructor(private _userService: UserService, private router: Router, private toastr: ToastrService, private conexcionService: ConexionService, private _whatsappService: WhatsappService) { }
 
   ngOnInit(): void {
     if (localStorage.getItem('token') != null)//Si es que existe un token! carga datos del usuario
@@ -78,7 +78,7 @@ export class UserComponent implements OnInit {
           this.modoActualizar = true;
           this._userService.formData.userName = res.userName;
         } else {
-          this.conexcionService.UserR=new cUsuario();
+          this.conexcionService.UserR = new cUsuario();
           this.conexcionService.UserR.objCompletar(res);
           switch (res.rolAsignado) {
             case 'admin':
@@ -104,8 +104,15 @@ export class UserComponent implements OnInit {
             case 'verificador-bodeguero':
               this.router.navigateByUrl('/Bodega/inventarioList');
               break;
-              case 'pedido-flota':
+            case 'pedido-flota':
               this.router.navigateByUrl('/Pedido/VerificacionPedido');
+              break;
+            case 'pedido-planta':
+              this.router.navigateByUrl('/Pedido/Orden');
+              break;
+            case 'pedido-super':
+              this.router.navigateByUrl('/Pedido/PedidosList');
+              break;
           }
         }
       },

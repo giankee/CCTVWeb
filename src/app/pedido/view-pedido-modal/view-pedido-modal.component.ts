@@ -9,7 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { cEnterpriceProveedor, cVario } from 'src/app/shared/otrosServices/varios';
-import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { finalize, map } from 'rxjs/operators';
 
 @Component({
@@ -39,29 +39,34 @@ export class ViewPedidoModalComponent implements OnInit {
 
   okFormChange:boolean=false;
   spinnerOnOff: number = 0;
-  listBarcos: cVario[] = [];
-  listBodegas: cVario[] = [];
+
+
+  listBarcos: cBodega[] = [];
+  listAreas: cBodega[] = [];
+
   listProductosIn: cProducto_B[] = [];
   listProveedoresFiltros$: any;
 
   faprint = faPrint; fatimes = faTimes; fasave = faSave; 
-  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewPedidoModalComponent>, private _ordenPedidoService: OrdenPedidoService,private _enterpriceServise: ApiEnterpriceService, private toastr: ToastrService, private _variosService: VariosService) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewPedidoModalComponent>, private _ordenPedidoService: OrdenPedidoService,private _enterpriceServise: ApiEnterpriceService, private toastr: ToastrService, private _variosService: VariosService) {
+    this.cargarData();
+   }
 
   ngOnInit(): void {
-    this.cargarData();
+    
   }
 
   cargarData() {
-    this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-      dato.forEach(x => {
-        if (x.categoria == "Puerto" && x.idVarios != 4)
-          this.listBarcos.push(x);
+    this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+      this.listBarcos = dato;
+    });
+    if (this.ordenPedidoService.formData.planta=="P MANACRIPEX") {
+      this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
+        this.listAreas = dato;
       });
-    });
-    this._variosService.getLugarSearch("Bodega@FLOTA").subscribe(dato => {
-      this.listBodegas = dato;
-    });
+    }
   }
+
 
   onBListProgProveedor(value: string) {
     this.okFormChange=true;
@@ -109,7 +114,7 @@ export class ViewPedidoModalComponent implements OnInit {
 
     doc.setFontSize(16);
     doc.setFont("arial", "bold")
-    doc.text("Orden de Pedido " + orden.barco + " # " + orden.numSecuencial, 55, 20);
+    doc.text("Orden de Pedido " + orden.numSecuencial, 40, 20);
 
     y = 25;
     doc.line(9, y, 199, y);//up
@@ -120,8 +125,11 @@ export class ViewPedidoModalComponent implements OnInit {
     doc.text("Datos de la orden", 15, (y + 5));
     doc.setFont("arial", "normal")
     doc.setFontSize(11);
-    doc.text("Tipo de Pedido: " + orden.tipoPedido, 20, (y + 10));
-    doc.text("Fecha de Registro: " + orden.fechaPedido, 105, (y + 10));
+    doc.text("Fecha de Registro: " + orden.fechaPedido, 20, (y + 10));
+    if (orden.planta == "FLOTA")
+      doc.text("Tipo de Pedido: " + orden.tipoPedido, 105, (y + 10));
+    else doc.text("Empresa: " + orden.empresa, 105, (y + 10));
+
     doc.text("Proveedor: " + orden.proveedor, 20, (y + 15));
     doc.text("Usuario Sistema: " + orden.cargoUser, 20, (y + 20));
     doc.text("Estado de la Orden: " + orden.estadoProceso, 105, (y + 20));
@@ -134,14 +142,13 @@ export class ViewPedidoModalComponent implements OnInit {
     doc.setFontSize(13);
     doc.setFont("arial", "bold");
 
-    doc.text("Lista de Materiales", 80, (y + 7));
+    doc.text("Lista de Materiales", 70, (y + 7));
     doc.setFontSize(11);
     y = y + 10;
     doc.line(9, y, 199, y);//up
     doc.line(9, y, 9, (y + 10));//left
     doc.line(199, y, 199, (y + 10));//right
     doc.line(9, (y + 10), 199, (y + 10));//down
-
 
     doc.text("Código", 25, (y + 7));
     doc.line(50, y, 50, (y + 10));//right
@@ -223,7 +230,21 @@ export class ViewPedidoModalComponent implements OnInit {
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
-    doc.save("Pedido_# " + orden.numSecuencial + "_" + orden.barco + "_" + orden.fechaPedido + ".pdf");
+    if (y >= 265) {
+      doc.addPage();
+      doc.setLineWidth(0.4);
+      y = 40;
+    } else y = 265;
+    var personaSubArea;
+    if (orden.area == "P MANACRIPEX") {
+      personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
+    } else personaSubArea = this.listBarcos.find(x => x.nombreBodega == orden.area).listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+    doc.line(18, y, 63, y);//Firma1
+    doc.text("Firma " + orden.cargoUser, 25, y + 5);
+    doc.line(144, y, 189, y);//Firma2
+    doc.text("Firma " + personaSubArea == null ? personaSubArea : 'SIN ASIGNAR', 146, y + 5);
+    doc.save("Pedido_" + orden.numSecuencial + ".pdf");
+    doc.save("Pedido_" + orden.numSecuencial + ".pdf");
   }
 
   onSubmit(form: NgForm){
@@ -253,7 +274,6 @@ export class ViewPedidoModalComponent implements OnInit {
   }
 
   guardar(){
-    console.table(this.ordenPedidoService.formData);
     this.ordenPedidoService.actualizarPedido(this.ordenPedidoService.formData).subscribe(
       (res: any) => {
         if (res.message == "Ok") {

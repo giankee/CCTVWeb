@@ -345,18 +345,29 @@ export class cParemetosOrdenInterna {
 }
 
 export class cEnterpriceProveedor {
-    idproveedor: number = undefined;
-    fuente: string = "CCTV";
+    idproveedor: number;
+    fuente: string;
     cedrucpas: string = undefined;
     proveedor: string = undefined;
+    correo:string;
+    telefono:string;
 
-    constructor() { }
+    constructor() {
+        this.idproveedor = undefined;
+        this.fuente = "CCTV";
+        this.cedrucpas = "";
+        this.proveedor = "";
+        this.correo=null;
+        this.telefono=null;
+     }
 
     completarObj(datoIn: cEnterpriceProveedor) {
         this.idproveedor = datoIn.idproveedor;
         this.fuente = datoIn.fuente;
         this.cedrucpas = datoIn.cedrucpas;
         this.proveedor = datoIn.proveedor;
+        this.correo=datoIn.correo;
+        this.telefono=datoIn.telefono;
     }
 }
 
@@ -574,10 +585,12 @@ export class cParemetosGeneral {
     strCampoB: string = "";
     strCampoC: string = "";
     strCampoD: string = "";
+    strCampoE: string = "";
     numCampoA: number = undefined;
     numCampoB: number = undefined;
     numCampoC: number = undefined;
     numCampoD: number = undefined;
+    numCampoE: number = undefined;
 
     fechaH: string;
     fechaA: string;
@@ -596,10 +609,12 @@ export class cParemetosGeneral {
         this.strCampoB = "";
         this.strCampoC = "";
         this.strCampoD = "";
+        this.strCampoE="";
         this.numCampoA = undefined;
         this.numCampoB = undefined;
         this.numCampoC = undefined;
         this.numCampoD = undefined;
+        this.numCampoE=undefined;
 
         var fechaHoy = new cFecha();
         this.fechaH = fechaHoy.strFecha;

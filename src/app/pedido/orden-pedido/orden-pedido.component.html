@@ -13,7 +13,7 @@
             </div>
           </div>
           <div class="row boxForm mt-2">
-            <div class="col-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-5">
               <div class="form-group" id="selectProveedor">
                 <div class="title ml-2 ml-md-3">
                   <strong>Proveedor: </strong>
@@ -45,30 +45,10 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3 col-lg-4">
+            <div class="col-12 col-sm-6 col-md-3 col-lg-2">
               <div class="form-group">
                 <div class="title ml-2 ml-md-3">
-                  <strong>Barco:</strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
-                        [(ngModel)]="ordenPedidoService.formData.barco" (ngModelChange)="onNewItem()" required>
-                        <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                        <option *ngFor="let datoBarco of listBarcos" value="{{datoBarco.nombreBodega}}">
-                          {{datoBarco.nombreBodega}}</option>
-                          <option value="General">BODEGA GENERAL</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3 col-lg-4">
-              <div class="form-group">
-                <div class="title ml-2 ml-md-3">
-                  <strong>Tipo Pedido:</strong>
+                  <strong>Tipo Pedido</strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
@@ -76,10 +56,53 @@
                       <select class="form-control input-src" name="inSelectTipoPedido" #inSelectTipoPedido="ngModel"
                         [(ngModel)]="ordenPedidoService.formData.tipoPedido" required>
                         <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                        <option value="Consumo Muelle">Consumo Muelle</option>
-                        <option value="Faena Marítima">Faena Marítima</option>
-                        <option value="Bodega Muella">Bodega Muelle</option>
-                        <option value="Consumo Planta">Consumo Planta</option>
+                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'" value="Consumo">Consumo Muelle</option>
+                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'" value="Faena Marítima">Faena Marítima</option>
+                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'" value="Bodega Muella">Bodega Muelle</option>
+                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'" value="Veda">Veda</option>
+
+                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta'" value="Orden de Compra">Orden Compra</option>
+                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta'" value="Orden de Trabajo">Orden Trabajo</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-2 col-lg-2">
+              <div class="form-group">
+                <div class="title ml-2 ml-md-3">
+                  <strong>Empresa</strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <select class="form-control input-src" name="inSelectEmpresa" #inSelectEmpresa="ngModel"
+                        [(ngModel)]="ordenPedidoService.formData.empresa" required>
+                        <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                        <option value="B&B TUNE">B&B TUNE</option>
+                        <option value="DANIEL BUEHS">DANIEL BUEHS</option>
+                        <option value="MANACRIPEX">MANACRIPEX</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3 col-lg-3">
+              <div class="form-group">
+                <div class="title ml-2 ml-md-3">
+                  <strong>{{conexcionService.UserR.rolAsignado=="pedido-planta"?"Área":"Barco"}}:</strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel" [disabled]="ordenPedidoService.formData.empresa=='SIN ASIGNAR'"
+                        [(ngModel)]="ordenPedidoService.formData.area" (ngModelChange)="onNewItem()" required>
+                        <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                        <option *ngFor="let datoBarco of listBarcos |filtrarBarcosEmpresa:ordenPedidoService.formData.empresa" value="{{datoBarco.nombreBodega}}">
+                          {{datoBarco.nombreBodega}}</option>
+                          <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta'&& ordenPedidoService.formData.empresa=='MANACRIPEX'" value="P MANACRIPEX">P MANACRIPEX</option>
                       </select>
                     </div>
                   </div>
@@ -206,14 +229,24 @@
                             class="form-control input-src" maxlength="300"
                             placeholder="Ingrese su observación"></textarea>
                         </td>
-                        <td id="inputSearchP">
+                        <td id="inputSearchP" *ngIf="ordenPedidoService.formData.area!= 'P MANACRIPEX'">
                           <select class="form-control input-src" name="in{{indiceNewP}}area"
                             #in{{indiceNewP}}area="ngModel"
                             [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].destinoArea"
                             (ngModelChange)="comprobarNewR()" required>
                             <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                            <option *ngFor="let datoArea of listBarcos |filtrarBodega:ordenPedidoService.formData.barco" value="{{datoArea.nombreArea}}">
+                            <option *ngFor="let datoArea of listBarcos |filtrarBodega:ordenPedidoService.formData.area" value="{{datoArea.nombreArea}}">
                               {{datoArea.nombreArea}}</option>
+                          </select>
+                        </td>
+                        <td id="inputSearchP" *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta' && ordenPedidoService.formData.area== 'P MANACRIPEX'">
+                          <select class="form-control input-src" name="in{{indiceNewP}}area"
+                            #in{{indiceNewP}}area="ngModel"
+                            [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].destinoArea"
+                            (ngModelChange)="comprobarNewR()" required>
+                            <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                            <option *ngFor="let datoArea of listAreas" value="{{datoArea.nombreBodega}}">
+                              {{datoArea.nombreBodega}}</option>
                           </select>
                         </td>
                         <td class="justify-content-center" id="utilitarioI">

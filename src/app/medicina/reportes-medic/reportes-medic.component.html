@@ -119,7 +119,7 @@
     </app-enfermedad-report>
   </div>
   <div *ngIf="parametrosBusqueda.tipoR=='caseC'||parametrosBusqueda.tipoR=='caseD'">
-    <app-ausentisimo-report [listAusentisismoIn]="listResultados" [tipoR]="parametrosBusqueda.tipoR">
+    <app-ausentisimo-report [listAusentisismoIn]="listResultados" [tipoR]="parametrosBusqueda.tipoR" [empresa]="parametrosBusqueda.idEmpresa">
     </app-ausentisimo-report>
   </div>
 </div>

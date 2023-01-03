@@ -1,4 +1,3 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, faExchangeAlt, faEye, faEyeSlash, faPencilAlt, faPrint, faSearch, faSort, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
@@ -7,12 +6,14 @@ import { finalize, map } from 'rxjs/operators';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
-import { cFecha, cParemetosGeneral, cVario,cEnterpriceProveedor } from 'src/app/shared/otrosServices/varios';
+import { cFecha, cParemetosGeneral, cVario, cEnterpriceProveedor } from 'src/app/shared/otrosServices/varios';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { OrdenPedidoService } from 'src/app/shared/pedido/orden-pedido.service';
 import { cOrdenPedido } from 'src/app/shared/pedido/pedido';
 import { ViewPedidoModalComponent } from '../view-pedido-modal/view-pedido-modal.component';
 import { jsPDF } from "jspdf";
+import { cBodega } from 'src/app/shared/bodega/ordenEC';
+import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
 
 @Component({
   selector: 'app-list-pedidos',
@@ -25,12 +26,6 @@ export class ListPedidosComponent implements OnInit {
   }
   public set conexcionService(value: ConexionService) {
     this._conexcionService = value;
-  }
-  public get enterpriceServise(): ApiEnterpriceService {
-    return this._enterpriceServise;
-  }
-  public set enterpriceServise(value: ApiEnterpriceService) {
-    this._enterpriceServise = value;
   }
   public get ordenPedidoService(): OrdenPedidoService {
     return this._ordenPedidoService;
@@ -52,7 +47,8 @@ export class ListPedidosComponent implements OnInit {
   }
 
   spinnerOnOff: boolean = true;
-  listBarcos: cVario[] = [];
+  listBarcos: cBodega[] = [];
+  listAreas: cBodega[] = [];
   parametrosBusqueda: cParemetosGeneral = new cParemetosGeneral();
   _iconDownLeft: boolean = false;
   ordenPedido: string = "default";
@@ -66,31 +62,40 @@ export class ListPedidosComponent implements OnInit {
   fechaHoy = new cFecha();
   /**Fin paginatacion */
 
-  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch;faexchange=faExchangeAlt;fapencilAlt = faPencilAlt; 
+  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch; faexchange = faExchangeAlt; fapencilAlt = faPencilAlt;
   faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
 
-  constructor(private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService, private _variosService: VariosService,private _enterpriceServise: ApiEnterpriceService, private dialog: MatDialog) { }
+  constructor(private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService, private _variosService: VariosService, private proveedorService: ProveedorService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
-    this.parametrosBusqueda.strCampoB="SIN ASIGNAR";
-    this.parametrosBusqueda.strCampoC="SIN ASIGNAR";
-    this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-      dato.forEach(x => {
-        if (x.categoria == "Puerto" && x.prioridadNivel == 1)
-          this.listBarcos.push(x);
-      });
+    this.parametrosBusqueda.strCampoB = "SIN ASIGNAR";
+    this.parametrosBusqueda.strCampoC = "SIN ASIGNAR";
+    this.parametrosBusqueda.strCampoD = "SIN ASIGNAR";
+
+    this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+      this.listBarcos = dato;
       this.cargarData();
     });
+    if (this.conexcionService.UserR.rolAsignado == "pedido-planta") {
+      this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
+        this.listAreas = dato;
+      });
+    }
   }
 
   cargarData() {
     this.spinnerOnOff = true;
-    this.listPedidosMostrar$= this.ordenPedidoService.getListPedido("All").pipe(
+    var parametro = "SUPER@All";
+    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
+      parametro = "P MANACRIPEX@All";
+    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
+      parametro = "FLOTA@All";
+    this.listPedidosMostrar$ = this.ordenPedidoService.getListPedido(parametro).pipe(
       map((x: cOrdenPedido[]) => {
         x.forEach(y => {
           y.fechaPedido = y.fechaPedido.substring(0, 10);
-          let auxSecuencial= y.numSecuencial.split("-");
-          y.strNumSecuencial=auxSecuencial[1];
+          let auxSecuencial = y.numSecuencial.split("-");
+          y.strNumSecuencial = auxSecuencial[1];
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
@@ -133,6 +138,11 @@ export class ListPedidosComponent implements OnInit {
         this.ordenPedido = "up-S";
       else this.ordenPedido = "down-S";
     }
+    if (tipo == "Empresa") {
+      if (this.ordenPedido == "default" || this.ordenPedido == "down-E")
+        this.ordenPedido = "up-E";
+      else this.ordenPedido = "down-E";
+    }
   }
 
   onBListProgProveedor(value: string) {
@@ -140,7 +150,7 @@ export class ListPedidosComponent implements OnInit {
     this.parametrosBusqueda.showSearchSelectG = 'strA';
     this.parametrosBusqueda.strCampoA = value;
     if (value)
-      this.listProveedoresFiltros$ = this._enterpriceServise.getProveedorSearch(value).pipe(
+      this.listProveedoresFiltros$ = this.proveedorService.getProveedorSearch(value).pipe(
         map((x: cEnterpriceProveedor[]) => {
           return x;
         }),
@@ -155,19 +165,29 @@ export class ListPedidosComponent implements OnInit {
   onChooseProveedor(data: cEnterpriceProveedor) {
     this.parametrosBusqueda.spinLoadingG = '0';
     this.parametrosBusqueda.showSearchSelectG = '0';
-    this.parametrosBusqueda.strCampoA=data.proveedor;
-  } 
+    this.parametrosBusqueda.strCampoA = data.proveedor;
+  }
 
   onFiltrarPedidos() {
     this.spinnerOnOff = true;
-    var strParametosOut = this.parametrosBusqueda.fechaA + "@" + this.parametrosBusqueda.fechaB + "@"+this.parametrosBusqueda.strCampoB+"@"+this.parametrosBusqueda.strCampoC+"@";
+    var strParametosOut = this.parametrosBusqueda.fechaA + "@" + this.parametrosBusqueda.fechaB + "@";
+    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
+      strParametosOut = strParametosOut + "P MANACRIPEX@";
+    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
+      strParametosOut = strParametosOut + "FLOTA@";
+    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
+      strParametosOut = strParametosOut + "SUPER@";
+
+    strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoB + "@" + this.parametrosBusqueda.strCampoC + "@" + this.parametrosBusqueda.strCampoD + "@";
     if (this.parametrosBusqueda.strCampoA != '')
-      strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoA;
-    else strParametosOut = strParametosOut + "SIN ASIGNAR";
+      strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoA + "@SIN ASIGNAR";
+    else strParametosOut = strParametosOut + "SIN ASIGNAR@SIN ASIGNAR";
     this.listPedidosMostrar$ = this.ordenPedidoService.getFiltroPedidos(strParametosOut).pipe(
       map((x: cOrdenPedido[]) => {
         x.forEach(y => {
           y.fechaPedido = y.fechaPedido.substring(0, 10);
+          let auxSecuencial = y.numSecuencial.split("-");
+          y.strNumSecuencial = auxSecuencial[1];
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
@@ -176,49 +196,249 @@ export class ListPedidosComponent implements OnInit {
     );
   }
 
-  onConvertPdfAll(){
+  onConvertPdf(datoIn: cOrdenPedido) {
+    var auxOrden: cOrdenPedido = new cOrdenPedido(datoIn.cargoUser, datoIn.planta);
+    auxOrden.completarObject(datoIn);
+    auxOrden.sacarRuc();
 
+    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
+      this.convertPdf1(auxOrden);
+    else this.convertPdf2(auxOrden);
   }
 
-  convertPdf(orden: cOrdenPedido) {
+  convertPdf1(orden: cOrdenPedido) {
     var doc = new jsPDF();
     var y: number;
+    var firmas: boolean = true;
 
-    doc.setFontSize(16);
-    doc.setFont("arial", "bold")
-    doc.text("Orden de Pedido " + orden.numSecuencial, 40, 20);
-
-    y = 25;
-    doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 35));//left
-    doc.line(199, y, 199, (y + 35));//right
-    doc.line(9, (y + 35), 199, (y + 35));//down
-    doc.setFontSize(13);
-    doc.text("Datos de la orden", 15, (y + 5));
-    doc.setFont("arial", "normal")
-    doc.setFontSize(11);
-    doc.text("Tipo de Pedido: " + orden.tipoPedido, 20, (y + 10));
-    doc.text("Fecha de Registro: " + orden.fechaPedido, 105, (y + 10));
-    doc.text("Proveedor: " + orden.proveedor, 20, (y + 15));
-    doc.text("Usuario Sistema: " + orden.cargoUser, 20, (y + 20));
-    doc.text("Estado de la Orden: " + orden.estadoProceso, 105, (y + 20));
-
-    var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
-    doc.text(auxlinea, 20, (y + 25));
-    doc.setFont("arial", "normal");
-    y = y + 35;
+    if (orden.estadoProceso == "Pendiente Aprobación")
+      firmas = false;
 
     doc.setFontSize(13);
     doc.setFont("arial", "bold");
 
-    doc.text("Lista de Materiales", 80, (y + 7));
+    let auxSecuencial = orden.numSecuencial.split("-");
+    var strDestino: string;
+    doc.text("Orden de Pedido: " + auxSecuencial[1], 75, 10);
+
+    y = 12;
+    doc.line(9, y, 199, y);//up
+    doc.line(9, y, 9, (y + 32));//left
+    doc.line(199, y, 199, (y + 32));//right
+    doc.line(9, (y + 32), 199, (y + 32));//down
+    doc.setFontSize(11);
+    doc.text("Datos de la orden", 18, (y + 3));
+    doc.setFont("arial", "normal")
+    doc.setFontSize(10);
+    doc.text("Fecha de Registro: " + orden.fechaPedido, 15, (y + 7));
+    if (this.conexcionService.UserR.rolAsignado == "pedido-flota") {
+      doc.text("Tipo de Pedido: " + orden.tipoPedido, 80, (y + 7));
+      strDestino = "Barco: " + orden.area;
+    } else {
+      if (orden.area == "P MANACRIPEX")
+        strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
+      else strDestino = "Barco: " + orden.area;
+    }
+    doc.text(strDestino, 135, (y + 7));
+    doc.text("Empresa: " + orden.empresa, 15, (y + 11));
+    doc.text("RUC: " + orden.strRuc, 105, (y + 11));
+    doc.text("Proveedor: " + orden.proveedor, 15, (y + 15));
+    doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 19));
+    doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 23));
+    if (orden.estadoProceso != "Pendiente Aprobación")
+      doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 23));
+
+    var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
+    doc.text(auxlinea, 15, (y + 27));
+    doc.setFont("arial", "normal");
+    y = y + 32;
+
+    doc.setFontSize(12);
+    doc.setFont("arial", "bold");
+    doc.text("Lista de Materiales", 85, (y + 5));
+    doc.setFontSize(11);
+    y = y + 7;
+    doc.line(9, y, 199, y);//up
+    doc.line(9, y, 9, (y + 6));//left
+    doc.line(199, y, 199, (y + 6));//right
+    doc.line(9, (y + 6), 199, (y + 6));//down
+
+    doc.text("Código", 25, (y + 4));
+    doc.line(50, y, 50, (y + 6));//right
+    doc.text("Descripción", 70, (y + 4));
+    doc.line(110, y, 110, (y + 6));//right
+    doc.text("Cantidad", 112, (y + 4));
+    doc.line(130, y, 130, (y + 6));//right
+    doc.text("Área", 137, (y + 4));
+    doc.line(155, y, 155, (y + 6));//right
+    doc.text("Observación", 165, (y + 4));
+
+    doc.setFontSize(8);
+    doc.setFont("arial", "normal");
+    y = y + 6;
+
+    var valorG: number = 0;
+    var valorC: number;
+    var valorN: number;
+    var valorO: number;
+    var lineaCodigo;
+    var lineaNombre;
+    var lineaObservacion;
+    var auxPrueba: number;
+    for (var i = 0; i < orden.listArticulosPedido.length; i++) {
+
+      if (orden.listArticulosPedido[i].estadoArticuloPedido != "No Procesada") {
+        lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (35));
+        lineaNombre = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.nombre, (55));
+        lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (40));
+        valorC = (3 * lineaCodigo.length) + 2;
+        valorN = (3 * lineaNombre.length) + 2;
+        valorO = (3 * lineaObservacion.length) + 2;
+
+        if (valorC >= valorN && valorC >= valorO)
+          valorG = valorC;
+        if (valorN >= valorC && valorN >= valorO)
+          valorG = valorN;
+        if (valorO >= valorC && valorO >= valorN)
+          valorG = valorO;
+
+        y = y + valorG;
+
+        if (y > 265) {
+          doc.addPage();
+          doc.setFontSize(11);
+          doc.setFont("arial", "bold")
+          y = 10;
+          doc.line(9, y, 199, y);//up
+          doc.line(9, y, 9, (y + 6));//left
+          doc.line(199, y, 199, (y + 6));//right
+          doc.line(9, (y + 6), 199, (y + 6));//down
+
+          doc.text("Código", 25, (y + 4));
+          doc.line(50, y, 50, (y + 6));//right
+          doc.text("Descripción", 70, (y + 4));
+          doc.line(110, y, 110, (y + 6));//right
+          doc.text("Cantidad", 112, (y + 4));
+          doc.line(130, y, 130, (y + 6));//right
+          doc.text("Área", 137, (y + 4));
+          doc.line(155, y, 155, (y + 6));//right
+          doc.text("Observación", 165, (y + 4));
+
+          y = y + 10 + valorG;
+
+          doc.setFontSize(8);
+          doc.setFont("arial", "normal");
+        }
+        if (y > 115)
+          firmas = false;
+
+        doc.line(9, (y - valorG), 9, y);//left
+        auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
+        doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
+        doc.line(50, (y - valorG), 50, y);//right
+        auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
+        doc.text(lineaNombre, 55, (y - valorG + auxPrueba));
+        doc.line(110, (y - valorG), 110, y);//right
+        doc.text(orden.listArticulosPedido[i].cantidad.toString(), 120, (y - ((valorG - 2) / 2)));
+        doc.line(130, (y - valorG), 130, y);//right
+        doc.text(orden.listArticulosPedido[i].destinoArea, 135, (y - ((valorG - 2) / 2)));
+        doc.line(155, (y - valorG), 155, y);//right
+        auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
+        doc.text(lineaObservacion, 15, (y - valorG + auxPrueba));
+        doc.line(199, (y - valorG), 199, y);//right
+        doc.line(9, y, 199, y);//down
+      }
+    }
+
+    if (firmas) {
+      y = 130;
+      doc.line(1, (y + 14), 209, (y+14));//downCut
+    } else {
+      y = 265;
+    }
+
+    doc.setFont("arial", "bold");
+    doc.setFontSize(11);
+    doc.line(35, (y + 1), 85, (y + 1));//downCut
+    doc.text("Verificado por", 48, (y + 5));
+
+    doc.line(115, (y + 1), 165, (y + 1));//downCut
+    doc.text("Aprobado por", 128, (y + 5));
+
+    doc.setFont("arial", "normal");
+    doc.setFontSize(9);
+    doc.text(orden.responsableAprobacion, 125, (y));
+
+    doc.save("Pedido_" + orden.numSecuencial + ".pdf");
+    return (doc.output('datauristring'));
+  }
+
+  onRevision(orden: cOrdenPedido) {
+    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso!="Rechazada") {
+      var auxOrden: cOrdenPedido = new cOrdenPedido(orden.cargoUser, orden.planta);
+      auxOrden.completarObject(orden);
+
+      this.ordenPedidoService.actualizarPedido(auxOrden).subscribe(
+        (res: any) => {
+        }
+      )
+    }
+  }
+
+  convertPdf2(orden: cOrdenPedido) {
+    var doc = new jsPDF();
+    var y: number;
+
+    doc.setFontSize(16);
+    doc.setFont("arial", "bold");
+
+    let auxSecuencial = orden.numSecuencial.split("-");
+    var strDestino: string;
+    doc.text("Orden de Pedido: " + auxSecuencial[1], 75, 20);
+
+    y = 25;
+    doc.line(9, y, 199, y);//up
+    doc.line(9, y, 9, (y + 40));//left
+    doc.line(199, y, 199, (y + 40));//right
+    doc.line(9, (y + 40), 199, (y + 40));//down
+    doc.setFontSize(13);
+    doc.text("Datos de la orden", 20, (y + 5));
+    doc.setFont("arial", "normal")
+    doc.setFontSize(11);
+    doc.text("Fecha de Registro: " + orden.fechaPedido, 15, (y + 10));
+    if (this.conexcionService.UserR.rolAsignado == "pedido-flota") {
+      doc.text("Tipo de Pedido: " + orden.tipoPedido, 80, (y + 10));
+      strDestino = "Barco: " + orden.area;
+    } else {
+      if (orden.area == "P MANACRIPEX")
+        strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
+      else strDestino = "Barco: " + orden.area;
+    }
+    doc.text(strDestino, 140, (y + 10));
+    doc.text("Empresa: " + orden.empresa, 15, (y + 15));
+    doc.text("RUC: " + orden.strRuc, 105, (y + 15));
+    doc.text("Proveedor: " + orden.proveedor, 15, (y + 20));
+    doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 25));
+    doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 30));
+    if (orden.estadoProceso != "Pendiente Aprobación")
+      doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 30));
+
+
+    var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
+    doc.text(auxlinea, 15, (y + 35));
+    doc.setFont("arial", "normal");
+    y = y + 40;
+
+    doc.setFontSize(13);
+    doc.setFont("arial", "bold");
+
+    doc.text("Lista de Materiales", 90, (y + 7));
     doc.setFontSize(11);
     y = y + 10;
     doc.line(9, y, 199, y);//up
     doc.line(9, y, 9, (y + 10));//left
     doc.line(199, y, 199, (y + 10));//right
     doc.line(9, (y + 10), 199, (y + 10));//down
-
 
     doc.text("Código", 25, (y + 7));
     doc.line(50, y, 50, (y + 10));//right
@@ -305,14 +525,22 @@ export class ListPedidosComponent implements OnInit {
       doc.setLineWidth(0.4);
       y = 40;
     } else y = 265;
+    var personaSubArea;
+    if (orden.area == "P MANACRIPEX") {
+      personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
+    } else personaSubArea = this.listBarcos.find(x => x.nombreBodega == orden.area).listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+    if(personaSubArea==null)
+    personaSubArea="Encargado "+orden.listArticulosPedido[0].destinoArea;
+    
     doc.line(18, y, 63, y);//Firma1
     doc.text("Firma " + orden.cargoUser, 25, y + 5);
     doc.line(144, y, 189, y);//Firma2
-    doc.text("Firma " + orden.listArticulosPedido[0].destinoArea, 146, y + 5);
+    doc.text("Firma " + personaSubArea, 146, y + 5);
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
+    return (doc.output('datauristring'));
   }
 
-  onEdit(dataIn:cOrdenPedido){
+  onEdit(dataIn: cOrdenPedido) {
     var auxId = dataIn.idOrdenPedido;
     this.ordenPedidoService.formData = new cOrdenPedido(dataIn.cargoUser, dataIn.planta);
     this.ordenPedidoService.formData.completarObject(dataIn);

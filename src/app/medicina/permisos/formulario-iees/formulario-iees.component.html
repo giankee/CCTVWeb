@@ -92,7 +92,7 @@
                     <div class="title"><strong>Incluir Fin Semana:</strong></div>
                   </div>
                   <div class="custom-control custom-switch ml-3">
-                    <input type="checkbox" name="incluirFinSemana" #incluirFinSemana="ngModel"
+                    <input type="checkbox" name="incluirFinSemana" #incluirFinSemana="ngModel" (change)="onComprobarTime()"
                     class="custom-control-input" id="customSwitch4" [(ngModel)]="crearFormulario.incluirFinSemana">
                   <label class="custom-control-label"
                     for="customSwitch4">{{crearFormulario.incluirFinSemana?'SI':'NO'}}</label>

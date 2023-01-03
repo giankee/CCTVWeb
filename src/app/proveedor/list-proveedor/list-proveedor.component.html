@@ -1,0 +1,120 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">Proveedores</h1>
+    </div>
+  </div>
+</div>
+<section class="dashboard-header">
+  <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
+    <div class="row">
+      <div class="col-lg-8 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2">Lista de Proveedores</a></h5>
+          </div>
+          <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="row">
+              <div class="col-12">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <fa-icon [icon]="fasearch"></fa-icon>
+                    </span>
+                  </div>
+                  <input type="text" class="form-control" #filtroProveedorIn="ngModel" name="filtroProveedorIn"
+                    maxlength="30" placeholder="Buscar.." [(ngModel)]="filtroProveedor"
+                    (ngModelChange)="onBListProgProveedor($event?.toUpperCase())">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="(listProveedoresMostrar$ | async)  as resultBusquedaMostrar">
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th style="width: 20%;">RUC</th>
+                    <th style="width: 35%;">Razoón Social</th>
+                    <th style="width: 20%;">Correo</th>
+                    <th style="width: 15%;">Teléfono</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <div style="display: none;">{{getDataFiltro(resultBusquedaMostrar)}}</div>
+                  <tr *ngIf="resultBusquedaMostrar.length==0">
+                    <td class="font-italic text-center" colspan="8">
+                      No existen proveedores registradas con esos parámetros de busqueda
+                    </td>
+                  </tr>
+                  <tr *ngFor="let dato of resultBusquedaMostrar; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td>{{dato.cedrucpas}}</td>
+                    <td (click)="onCompletarForm(dato)" style="cursor: pointer;"><strong>{{dato.proveedor}}</strong>
+                    </td>
+                    <td>{{dato.correo==null?"SIN REGISTRAR":dato.correo}}</td>
+                    <td>{{dato.telefono==null?"SIN REGISTRAR":dato.telefono}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12 col-12" *ngIf="modoEdicion">
+        <div class="card">
+          <div class="card-header">
+            <h5>{{modoEdicion ? 'Modificar' : 'Registrar'}} producto</h5>
+          </div>
+          <div class="m-3">
+            <form #formProveedor="ngForm" autocomplete="off" (submit)="onSubmit(formProveedor)"
+              *ngIf="proveedorService.formData">
+              <div class="row boxForm">
+                <div class="col-12">
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>RUC:</strong></div>
+                    <input id="idRuc" name="ruc" #ruc="ngModel" [(ngModel)]="proveedorService.formData.cedrucpas"
+                      class="form-control" maxlength="13" placeholder="Número de Ruc" required>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Razón Social:</strong></div>
+                    <input id="idProveedor" name="razonSocial" #razonSocial="ngModel"
+                      [(ngModel)]="proveedorService.formData.proveedor" class="form-control" disabled required>
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Correo Electrónico:</strong></div>
+                    <input id="idEmail" name="Email" #Email="ngModel" class="form-control" [(ngModel)]="proveedorService.formData.correo"
+                    maxlength="30" pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$">
+                  </div>
+                  <div class="form-group inputForm">
+                    <div class="title"><strong>Teléfono Whatsapp:</strong></div>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">593-</span>
+                      </div>
+                      <input id="idPhone" name="Phone" #Phone="ngModel"  [(ngModel)]="proveedorService.formData.telefono" 
+                      class="form-control" type="number" pattern="[9]{1}[0-9]{8}"
+                      onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row boxForm justify-content-around my-2">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12 mb-2">
+                  <button class="btn bttn-Primario btn-block" type="submit" [disabled]="formProveedor.invalid">
+                    <fa-icon [icon]="fasave"></fa-icon> {{modoEdicion ? 'Actualizar' : 'Guardar'}}
+                  </button>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-12">
+                  <a [routerLink] (click)="resetForm()" class="btn bttn-Primario btn-block">
+                    <fa-icon [icon]="fatimesCircle"></fa-icon> Cancelar
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

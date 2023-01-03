@@ -156,6 +156,8 @@ export class SortPipe implements PipeTransform {
               case "down-B": return _.sortBy(value, function (dato) { return dato.barco }).reverse();
               case "up-S": return _.sortBy(value, function (dato) { return dato.strNumSecuencial});
               case "down-S": return _.sortBy(value, function (dato) { return dato.strNumSecuencial}).reverse();
+              case "up-E": return _.sortBy(value, function (dato) { return dato.empresa});
+              case "down-E": return _.sortBy(value, function (dato) { return dato.empresa}).reverse();
             }
             break;
             case 'cBodega':

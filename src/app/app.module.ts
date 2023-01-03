@@ -39,6 +39,7 @@ import { TablareportMedicPipe } from './pipes/tablareport-medic.pipe';
 import { SumartotalesPipe } from './pipes/sumartotales.pipe';
 import { FiltrarBodegaPipe } from './pipes/filtrar-bodega.pipe';
 import { FechaFormatPipe } from './pipes/fecha-format.pipe';
+import { FiltrarBarcosEmpresaPipe } from './pipes/filtrar-barcosEmpresa.pipe';
 
 /*Services*/
 import { CarroService } from './shared/carro.service';
@@ -105,6 +106,9 @@ import { ListPedidosComponent } from './pedido/list-pedidos/list-pedidos.compone
 import { ViewPedidoModalComponent } from './pedido/view-pedido-modal/view-pedido-modal.component';
 import { ListBoodegasComponent } from './bodega/list-boodegas/list-boodegas.component';
 import { FormularioIeesComponent } from './medicina/permisos/formulario-iees/formulario-iees.component';
+import { PedidosAprobarComponent } from './pedido/pedidos-aprobar/pedidos-aprobar.component';
+import { ListProveedorComponent } from './proveedor/list-proveedor/list-proveedor.component';
+import { SumarTotalesAuxPipe } from './pipes/sumar-totales-aux.pipe';
 
 
 @NgModule({
@@ -188,6 +192,10 @@ import { FormularioIeesComponent } from './medicina/permisos/formulario-iees/for
     ListBoodegasComponent,
     FechaFormatPipe,
     FormularioIeesComponent,
+    FiltrarBarcosEmpresaPipe,
+    PedidosAprobarComponent,
+    ListProveedorComponent,
+    SumarTotalesAuxPipe
   ],
   imports: [
     BrowserModule,

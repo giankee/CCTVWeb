@@ -152,7 +152,7 @@
       </li>
     </ul>
   </div>
-  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'||conexcionService.UserR.rolAsignado=='pedido-planta'||conexcionService.UserR.rolAsignado=='pedido-super'">
     <ul class="list-unstyled">
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Pedido/Orden"]'>
@@ -164,9 +164,14 @@
           <fa-icon [icon]="faclipboardList"></fa-icon> Lista Pedidos
         </a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='pedido-super'">
         <a [routerLink]='["/Pedido/VerificacionPedido"]'>
           <fa-icon [icon]="faclipboardCheck"></fa-icon> Verificación
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="(conexcionService.UserR.nombreU=='CARLOS CEBALLOS'||conexcionService.UserR.nombreU=='JORGE SALAME' || conexcionService.UserR.nombreU=='PRUEBAG')">
+        <a [routerLink]='["/Pedido/AprobacionPedido"]'>
+          <fa-icon [icon]="faclipboardCheck"></fa-icon> Aprobar Pedido
         </a>
       </li>
     </ul>
@@ -228,6 +233,13 @@
           <fa-icon [icon]="fauserplus"></fa-icon> Registrar Usuario
         </a>
       </li>
+      <li [routerLinkActive]="['active']"
+      *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='tinabg-m'">
+      <a [routerLink]='["/List-proveedor"]'>
+        <fa-icon [icon]="fausertag"></fa-icon> Proveedores
+      </a>
+    </li>
+
       <!-- <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
         <a [routerLink]='["/Pedido/Reporte"]'>
           <fa-icon [icon]="fachartLine"></fa-icon> Reportes
