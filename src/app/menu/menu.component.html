@@ -223,7 +223,7 @@
           <fa-icon [icon]="faprescription"></fa-icon> Consumos de Medicamento
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='admin'">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='admin'|| conexcionService.UserR.rolAsignado=='tinabg-m'">
         <a [routerLink]='["/List-bodegas"]'>
           <fa-icon [icon]="fagarage"></fa-icon> Bodegas
         </a>
@@ -239,7 +239,6 @@
         <fa-icon [icon]="fausertag"></fa-icon> Proveedores
       </a>
     </li>
-
       <!-- <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
         <a [routerLink]='["/Pedido/Reporte"]'>
           <fa-icon [icon]="fachartLine"></fa-icon> Reportes

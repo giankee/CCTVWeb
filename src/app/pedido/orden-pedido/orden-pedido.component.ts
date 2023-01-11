@@ -51,13 +51,14 @@ export class OrdenPedidoComponent implements OnInit {
   listProductosIn: cProducto_B[] = [];
   listBarcos: cBodega[] = [];
   listAreas: cBodega[] = [];
+  listVehiculos: cBodega[] = [];
   listProveedoresFiltros$: any;
 
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
 
   fasave = faSave; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes;
-  constructor(private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService,private enterpriceService:ApiEnterpriceService, private _proveedorService: ProveedorService, private toastr: ToastrService, private _variosService: VariosService, private whatsappService: WhatsappService) {
+  constructor(private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService, private enterpriceService: ApiEnterpriceService, private _proveedorService: ProveedorService, private toastr: ToastrService, private _variosService: VariosService, private whatsappService: WhatsappService) {
   }
 
   ngOnInit(): void {
@@ -82,6 +83,9 @@ export class OrdenPedidoComponent implements OnInit {
   cargarData() {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBarcos = dato;
+    });
+    this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
+      this.listVehiculos = dato;
     });
     if (this.conexcionService.UserR.rolAsignado == "pedido-planta") {
       this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
@@ -202,7 +206,6 @@ export class OrdenPedidoComponent implements OnInit {
         if (res.exito == 1) {
           this.toastr.success('Registro satisfactorio', 'Pedido Registrado');
           datoOrden.numSecuencial = res.data.numSecuencial;
-          console.table(datoOrden);
           this.sendMessageGroupNotification(JSON.parse(JSON.stringify(datoOrden)));
         } else {
           this.okBttnSubmit = false;
@@ -288,17 +291,14 @@ export class OrdenPedidoComponent implements OnInit {
     doc.setFont("arial", "normal")
     doc.setFontSize(11);
     doc.text("Fecha de Registro: " + orden.fechaPedido, 15, (y + 10));
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota") {
-      doc.text("Tipo de Pedido: " + orden.tipoPedido, 80, (y + 10));
-      strDestino = "Barco: " + orden.area;
-    } else {
-      if (orden.area == "P MANACRIPEX")
-        strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
-      else strDestino = "Barco: " + orden.area;
-    }
-    doc.text(strDestino, 140, (y + 10));
-    doc.text("Empresa: " + orden.empresa, 15, (y + 15));
-    doc.text("RUC: " + orden.strRuc, 105, (y + 15));
+    doc.text("Empresa: " + orden.empresa, 80, (y + 10));
+    doc.text("RUC: " + orden.strRuc, 140, (y + 10));
+    doc.text("Tipo de Pedido: " + orden.tipoPedido, 15, (y + 15));
+    if (orden.area == "P MANACRIPEX")
+      strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
+    else strDestino = "Lugar: " + orden.area + " - Sub-Área: " + orden.listArticulosPedido[0].destinoArea;
+    doc.text(strDestino, 80, (y + 15));
+
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 20));
     doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 25));
     doc.text("Estado de la Orden: " + orden.estadoProceso, 105, (y + 25));
@@ -404,10 +404,18 @@ export class OrdenPedidoComponent implements OnInit {
       doc.setLineWidth(0.4);
       y = 40;
     } else y = 265;
-    var personaSubArea;
+    var personaSubArea = null;
     if (orden.area == "P MANACRIPEX") {
       personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
-    } else personaSubArea = this.listBarcos.find(x => x.nombreBodega == orden.area).listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+    } else {
+      var auxArea: cBodega = this.listBarcos.find(x => x.nombreBodega == orden.area);
+      if (auxArea == undefined) {
+        auxArea = this.listVehiculos.find(x => x.nombreBodega == orden.area);
+      }
+      if (auxArea != undefined) {
+        personaSubArea = auxArea.listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+      }
+    }
     if (personaSubArea == null)
       personaSubArea = "Encargado " + orden.listArticulosPedido[0].destinoArea;
 
@@ -434,7 +442,7 @@ export class OrdenPedidoComponent implements OnInit {
     var lineaAux: string;
     if (this.conexcionService.UserR.rolAsignado == "pedido-planta") {
       if (orden.estadoProceso == "Pendiente Aprobación")
-      auxWhatsapp.phone = "593-999263188";
+        auxWhatsapp.phone = "593-999263188";
       else auxWhatsapp.chatname = "PEDIDOS MANACRIPEX";
       encabezado = ':bell: *Notificación Pedido ' + orden.empresa + '* :bell:';
       if (orden.area == "P MANACRIPEX") {
@@ -452,7 +460,7 @@ export class OrdenPedidoComponent implements OnInit {
       asunto = "pedido a *" + orden.proveedor + "* para el barco *" + orden.area + "*";
       lineaAux = '\n*Barco:* ' + orden.area + ' :anchor:';
     }
- 
+
     var auxNumSecuencial = orden.numSecuencial.split('-');
     auxWhatsapp.message = encabezado
       + '\n'

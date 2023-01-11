@@ -43,7 +43,7 @@ export class ViewPedidoModalComponent implements OnInit {
 
   listBarcos: cBodega[] = [];
   listAreas: cBodega[] = [];
-
+  listVehiculos:cBodega[]=[];
   listProductosIn: cProducto_B[] = [];
   listProveedoresFiltros$: any;
 
@@ -59,6 +59,9 @@ export class ViewPedidoModalComponent implements OnInit {
   cargarData() {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBarcos = dato;
+    });
+    this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
+      this.listVehiculos = dato;
     });
     if (this.ordenPedidoService.formData.planta=="P MANACRIPEX") {
       this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
@@ -113,36 +116,46 @@ export class ViewPedidoModalComponent implements OnInit {
     var y: number;
 
     doc.setFontSize(16);
-    doc.setFont("arial", "bold")
-    doc.text("Orden de Pedido " + orden.numSecuencial, 40, 20);
+    doc.setFont("arial", "bold");
+
+    let auxSecuencial = orden.numSecuencial.split("-");
+    var strDestino: string;
+    doc.text("Orden de Pedido: " + auxSecuencial[1], 75, 20);
 
     y = 25;
     doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 35));//left
-    doc.line(199, y, 199, (y + 35));//right
-    doc.line(9, (y + 35), 199, (y + 35));//down
+    doc.line(9, y, 9, (y + 40));//left
+    doc.line(199, y, 199, (y + 40));//right
+    doc.line(9, (y + 40), 199, (y + 40));//down
     doc.setFontSize(13);
-    doc.text("Datos de la orden", 15, (y + 5));
+    doc.text("Datos de la orden", 20, (y + 5));
     doc.setFont("arial", "normal")
     doc.setFontSize(11);
-    doc.text("Fecha de Registro: " + orden.fechaPedido, 20, (y + 10));
-    if (orden.planta == "FLOTA")
-      doc.text("Tipo de Pedido: " + orden.tipoPedido, 105, (y + 10));
-    else doc.text("Empresa: " + orden.empresa, 105, (y + 10));
-
-    doc.text("Proveedor: " + orden.proveedor, 20, (y + 15));
-    doc.text("Usuario Sistema: " + orden.cargoUser, 20, (y + 20));
-    doc.text("Estado de la Orden: " + orden.estadoProceso, 105, (y + 20));
+    doc.text("Fecha de Registro: " + orden.fechaPedido, 15, (y + 10));
+    doc.text("Empresa: " + orden.empresa, 80, (y + 10));
+    doc.text("RUC: " + orden.strRuc, 140, (y + 10));
+    doc.text("Tipo de Pedido: " + orden.tipoPedido, 15, (y + 15));
+    if (orden.area == "P MANACRIPEX")
+      strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
+    else strDestino = "Lugar: " + orden.area + " - Sub-Área: " + orden.listArticulosPedido[0].destinoArea;
+    doc.text(strDestino, 80, (y + 15));
+    doc.text("Proveedor: " + orden.proveedor, 15, (y + 20));
+    doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 25));
+    doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 30));
+    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada")
+      doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 30));
+    if (orden.estadoProceso == "Rechazada")
+      doc.text("Fecha Rechazada: " + orden.fechaAprobacion, 105, (y + 30));
 
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
-    doc.text(auxlinea, 20, (y + 25));
+    doc.text(auxlinea, 15, (y + 35));
     doc.setFont("arial", "normal");
-    y = y + 35;
+    y = y + 40;
 
     doc.setFontSize(13);
     doc.setFont("arial", "bold");
 
-    doc.text("Lista de Materiales", 70, (y + 7));
+    doc.text("Lista de Materiales", 90, (y + 7));
     doc.setFontSize(11);
     y = y + 10;
     doc.line(9, y, 199, y);//up
@@ -235,15 +248,25 @@ export class ViewPedidoModalComponent implements OnInit {
       doc.setLineWidth(0.4);
       y = 40;
     } else y = 265;
-    var personaSubArea;
+    var personaSubArea = null;
     if (orden.area == "P MANACRIPEX") {
       personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
-    } else personaSubArea = this.listBarcos.find(x => x.nombreBodega == orden.area).listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+    } else {
+      var auxArea: cBodega = this.listBarcos.find(x => x.nombreBodega == orden.area);
+      if (auxArea == undefined) {
+        auxArea = this.listVehiculos.find(x => x.nombreBodega == orden.area);
+      }
+      if (auxArea != undefined) {
+        personaSubArea = auxArea.listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+      }
+    }
+    if (personaSubArea == null)
+      personaSubArea = "Encargado " + orden.listArticulosPedido[0].destinoArea;
+
     doc.line(18, y, 63, y);//Firma1
     doc.text("Firma " + orden.cargoUser, 25, y + 5);
     doc.line(144, y, 189, y);//Firma2
-    doc.text("Firma " + personaSubArea == null ? personaSubArea : 'SIN ASIGNAR', 146, y + 5);
-    doc.save("Pedido_" + orden.numSecuencial + ".pdf");
+    doc.text("Firma " + personaSubArea, 146, y + 5);
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
   }
 

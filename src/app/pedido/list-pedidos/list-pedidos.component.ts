@@ -49,6 +49,7 @@ export class ListPedidosComponent implements OnInit {
   spinnerOnOff: boolean = true;
   listBarcos: cBodega[] = [];
   listAreas: cBodega[] = [];
+  listVehiculos: cBodega[] = [];
   parametrosBusqueda: cParemetosGeneral = new cParemetosGeneral();
   _iconDownLeft: boolean = false;
   ordenPedido: string = "default";
@@ -71,11 +72,16 @@ export class ListPedidosComponent implements OnInit {
     this.parametrosBusqueda.strCampoB = "SIN ASIGNAR";
     this.parametrosBusqueda.strCampoC = "SIN ASIGNAR";
     this.parametrosBusqueda.strCampoD = "SIN ASIGNAR";
+    this.parametrosBusqueda.strCampoE = "SIN ASIGNAR";
 
+    this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
+      this.listVehiculos = dato;
+    });
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBarcos = dato;
       this.cargarData();
     });
+
     if (this.conexcionService.UserR.rolAsignado == "pedido-planta") {
       this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
         this.listAreas = dato;
@@ -180,8 +186,20 @@ export class ListPedidosComponent implements OnInit {
 
     strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoB + "@" + this.parametrosBusqueda.strCampoC + "@" + this.parametrosBusqueda.strCampoD + "@";
     if (this.parametrosBusqueda.strCampoA != '')
-      strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoA + "@SIN ASIGNAR";
-    else strParametosOut = strParametosOut + "SIN ASIGNAR@SIN ASIGNAR";
+      strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoA + "@";
+    else strParametosOut = strParametosOut + "SIN ASIGNAR@";
+
+    switch (this.parametrosBusqueda.strCampoE) {
+      case "Pendiente Verificación V":
+        strParametosOut += "Pendiente Verificación@True";
+        break;
+      case "Procesada V":
+        strParametosOut += "Procesada@True";
+        break;
+      default:
+        strParametosOut += this.parametrosBusqueda.strCampoE + "@False";
+        break
+    }
     this.listPedidosMostrar$ = this.ordenPedidoService.getFiltroPedidos(strParametosOut).pipe(
       map((x: cOrdenPedido[]) => {
         x.forEach(y => {
@@ -231,22 +249,21 @@ export class ListPedidosComponent implements OnInit {
     doc.setFont("arial", "normal")
     doc.setFontSize(10);
     doc.text("Fecha de Registro: " + orden.fechaPedido, 15, (y + 7));
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota") {
-      doc.text("Tipo de Pedido: " + orden.tipoPedido, 80, (y + 7));
-      strDestino = "Barco: " + orden.area;
-    } else {
-      if (orden.area == "P MANACRIPEX")
-        strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
-      else strDestino = "Barco: " + orden.area;
-    }
-    doc.text(strDestino, 135, (y + 7));
-    doc.text("Empresa: " + orden.empresa, 15, (y + 11));
-    doc.text("RUC: " + orden.strRuc, 105, (y + 11));
+
+    doc.text("Empresa: " + orden.empresa, 80, (y + 7));
+    doc.text("RUC: " + orden.strRuc, 140, (y + 7));
+    doc.text("Tipo de Pedido: " + orden.tipoPedido, 15, (y + 11));
+    if (orden.area == "P MANACRIPEX")
+      strDestino = "Área:" + orden.listArticulosPedido[0].destinoArea;
+    else strDestino = "Lugar: " + orden.area + " - Sub-Área:" + orden.listArticulosPedido[0].destinoArea;
+    doc.text(strDestino, 80, (y + 11));
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 15));
     doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 19));
     doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 23));
-    if (orden.estadoProceso != "Pendiente Aprobación")
+    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada")
       doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 23));
+    if (orden.estadoProceso == "Rechazada")
+      doc.text("Fecha Rechazada: " + orden.fechaAprobacion, 105, (y + 23));
 
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
     doc.text(auxlinea, 15, (y + 27));
@@ -352,7 +369,7 @@ export class ListPedidosComponent implements OnInit {
 
     if (firmas) {
       y = 130;
-      doc.line(1, (y + 14), 209, (y+14));//downCut
+      doc.line(1, (y + 14), 209, (y + 14));//downCut
     } else {
       y = 265;
     }
@@ -370,11 +387,10 @@ export class ListPedidosComponent implements OnInit {
     doc.text(orden.responsableAprobacion, 125, (y));
 
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
-    return (doc.output('datauristring'));
   }
 
   onRevision(orden: cOrdenPedido) {
-    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso!="Rechazada") {
+    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada") {
       var auxOrden: cOrdenPedido = new cOrdenPedido(orden.cargoUser, orden.planta);
       auxOrden.completarObject(orden);
 
@@ -406,23 +422,20 @@ export class ListPedidosComponent implements OnInit {
     doc.setFont("arial", "normal")
     doc.setFontSize(11);
     doc.text("Fecha de Registro: " + orden.fechaPedido, 15, (y + 10));
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota") {
-      doc.text("Tipo de Pedido: " + orden.tipoPedido, 80, (y + 10));
-      strDestino = "Barco: " + orden.area;
-    } else {
-      if (orden.area == "P MANACRIPEX")
-        strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
-      else strDestino = "Barco: " + orden.area;
-    }
-    doc.text(strDestino, 140, (y + 10));
-    doc.text("Empresa: " + orden.empresa, 15, (y + 15));
-    doc.text("RUC: " + orden.strRuc, 105, (y + 15));
+    doc.text("Empresa: " + orden.empresa, 80, (y + 10));
+    doc.text("RUC: " + orden.strRuc, 140, (y + 10));
+    doc.text("Tipo de Pedido: " + orden.tipoPedido, 15, (y + 15));
+    if (orden.area == "P MANACRIPEX")
+      strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
+    else strDestino = "Lugar: " + orden.area + " - Sub-Área: " + orden.listArticulosPedido[0].destinoArea;
+    doc.text(strDestino, 80, (y + 15));
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 20));
     doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 25));
     doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 30));
-    if (orden.estadoProceso != "Pendiente Aprobación")
+    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada")
       doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 30));
-
+    if (orden.estadoProceso == "Rechazada")
+      doc.text("Fecha Rechazada: " + orden.fechaAprobacion, 105, (y + 30));
 
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
     doc.text(auxlinea, 15, (y + 35));
@@ -525,19 +538,26 @@ export class ListPedidosComponent implements OnInit {
       doc.setLineWidth(0.4);
       y = 40;
     } else y = 265;
-    var personaSubArea;
+    var personaSubArea = null;
     if (orden.area == "P MANACRIPEX") {
       personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
-    } else personaSubArea = this.listBarcos.find(x => x.nombreBodega == orden.area).listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
-    if(personaSubArea==null)
-    personaSubArea="Encargado "+orden.listArticulosPedido[0].destinoArea;
-    
+    } else {
+      var auxArea: cBodega = this.listBarcos.find(x => x.nombreBodega == orden.area);
+      if (auxArea == undefined) {
+        auxArea = this.listVehiculos.find(x => x.nombreBodega == orden.area);
+      }
+      if (auxArea != undefined) {
+        personaSubArea = auxArea.listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+      }
+    }
+    if (personaSubArea == null)
+      personaSubArea = "Encargado " + orden.listArticulosPedido[0].destinoArea;
+
     doc.line(18, y, 63, y);//Firma1
     doc.text("Firma " + orden.cargoUser, 25, y + 5);
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + personaSubArea, 146, y + 5);
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
-    return (doc.output('datauristring'));
   }
 
   onEdit(dataIn: cOrdenPedido) {

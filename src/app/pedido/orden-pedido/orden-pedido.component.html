@@ -92,7 +92,7 @@
             <div class="col-12 col-sm-6 col-md-3 col-lg-3">
               <div class="form-group">
                 <div class="title ml-2 ml-md-3">
-                  <strong>{{conexcionService.UserR.rolAsignado=="pedido-planta"?"Área":"Barco"}}:</strong>
+                  <strong>Área:</strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
@@ -103,7 +103,9 @@
                         <option *ngFor="let datoBarco of listBarcos |filtrarBarcosEmpresa:ordenPedidoService.formData.empresa" value="{{datoBarco.nombreBodega}}">
                           {{datoBarco.nombreBodega}}</option>
                           <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta'&& ordenPedidoService.formData.empresa=='MANACRIPEX'" value="P MANACRIPEX">P MANACRIPEX</option>
-                      </select>
+                          <option *ngFor="let datoVehiculos of listVehiculos |filtrarBarcosEmpresa:ordenPedidoService.formData.empresa" value="{{datoVehiculos.nombreBodega}}">
+                            {{datoVehiculos.nombreBodega}}</option>
+                        </select>
                     </div>
                   </div>
                 </div>
@@ -237,6 +239,8 @@
                             <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
                             <option *ngFor="let datoArea of listBarcos |filtrarBodega:ordenPedidoService.formData.area" value="{{datoArea.nombreArea}}">
                               {{datoArea.nombreArea}}</option>
+                              <option *ngFor="let datoArea of listVehiculos |filtrarBodega:ordenPedidoService.formData.area" value="{{datoArea.nombreArea}}">
+                                {{datoArea.nombreArea}}</option>
                           </select>
                         </td>
                         <td id="inputSearchP" *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta' && ordenPedidoService.formData.area== 'P MANACRIPEX'">

@@ -77,19 +77,20 @@
                           <option value="OFICINAS">OFICINAS</option>
                           <option value="P MANACRIPEX">P MANACRIPEX</option>
                           <option value="PUERTO">PUERTO</option>
+                          <option value="VEHICULO">VEHÍCULOS/GRUAS/CABEZALES/MONTACARGAS</option>
                         </select>
                       </div>
                       <div class="form-group inputForm">
-                        <div class="title"><strong>Nombre Bodega:</strong></div>
+                        <div class="title"><strong>Nombre {{selectBodega.tipoBodega=='VEHICULO'?'Vehículo':'Bodega'}}:</strong></div>
                         <input id="idNombre" name="nombreBodega" #nombreBodega="ngModel"
                           [(ngModel)]="selectBodega.nombreBodega" class="form-control" maxlength="75"
-                          placeholder="Nombre de la bodega" [disabled]="modoEdicion" required
+                          placeholder="Nombre {{selectBodega.tipoBodega=='VEHICULO'?' y matricula':' de la Bodega'}}" [disabled]="modoEdicion" required
                           (ngModelChange)="selectBodega.nombreBodega!=null && selectBodega.nombreBodega = $event.toUpperCase()">
                         <label class="error" *ngIf="nombreBodega.touched && nombreBodega.errors?.required">Campo
                           Requerido</label>
                       </div>
                       <div class="form-group inputForm">
-                        <div class="title"><strong>Encargado Bodega:</strong></div>
+                        <div class="title"><strong>{{selectBodega.tipoBodega=='VEHICULO'?'Chofer Encargado':'Encargado Bodega'}}:</strong></div>
                         <input id="idNombreE" name="encargadoBodega" #encargadoBodega="ngModel"
                           placeholder="Responsable" [(ngModel)]="selectBodega.encargadoBodega" class="form-control"
                           maxlength="75"

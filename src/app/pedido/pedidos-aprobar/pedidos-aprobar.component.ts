@@ -215,7 +215,6 @@ export class PedidosAprobarComponent implements OnInit {
     doc.text("Firma " + orden.cargoUser, 25, y + 5);
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + personaSubArea, 146, y + 5);
-    doc.save("Pedido_" + orden.numSecuencial + ".pdf");
     return (doc.output('datauristring'));
   }
 

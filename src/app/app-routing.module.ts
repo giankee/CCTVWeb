@@ -112,7 +112,7 @@ const routes: Routes = [
           { path: 'Reporte', data: { permittedRoles: ['pedido-flota','pedido-planta','pedido-super'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
         ]
       },
-      { path: 'List-bodegas', component: ListBoodegasComponent, data: { permittedRoles: ['admin','gpv-o'] }, canDeactivate: [CanDeactivateGuard] },
+      { path: 'List-bodegas', component: ListBoodegasComponent, data: { permittedRoles: ['admin','gpv-o','tinabg-m'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'List-proveedor', component: ListProveedorComponent, data: { permittedRoles: ['gpv-o','tinabg-m'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'registrar', component: RegistroComponent, data: { permittedRoles: ['admin'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'Entrada-Salida', component: ClienteComponent, data: { permittedRoles: ['gpv-o','gv-m'] }, canDeactivate: [CanDeactivateGuard] },
