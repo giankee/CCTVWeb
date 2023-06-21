@@ -1,0 +1,167 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div id="ordenarS" class="card-header d-flex justify-content-between">
+        <h5><a class="text-dark2" data-toggle="collapse" href="#FiltroList">Tipo de Reporte</a></h5>
+        <a class="text-dark2" data-toggle="collapse" href="#FiltroList" (click)="iconDownLeft=!iconDownLeft">
+          <fa-icon [icon]="faangleleft" [class]="{'ocultarObj':!iconDownLeft}"></fa-icon>
+          <fa-icon [icon]="faangledown" [class]="{'ocultarObj':iconDownLeft}"></fa-icon>
+        </a>
+      </div>
+      <div class="mt-2 px-4 py-2 boxForm collapse show" id="FiltroList">
+        <div class="row">
+          <div class="col-6 col-sm-7 col-md-4 col-lg-3">
+            <div class="form-group inputForm">
+              <div class="title"><strong>Tipo de Reporte:</strong></div>
+              <select class="form-control" name="selectTipoReporte" #selectTipoReporte="ngModel"
+                [(ngModel)]="parametrosBusqueda.tipoR" (ngModelChange)="spinnerOnOff=0">
+                <option selected disabled value="SIN ASIGNAR">--Seleccionar--</option>
+                <option value="Salida Tanque Agua">Salida Tanque Agua</option>
+                <option value="Salida Tanque Combustible">Salida Tanque Combustible</option>
+                <option value="Entrada Tanque Combustible">Entrada Tanque Combustible</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-6 col-sm-5 col-md-2 col-lg-2" style="padding-top: 30px;"
+            *ngIf="parametrosBusqueda.tipoR!='SIN ASIGNAR'">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend mr-2">
+                <div class="title">
+                  <strong>{{parametrosBusqueda.tipoR=='Salida Tanque Agua'?'AGUAHER:':'PETROECUADOR'}}</strong></div>
+              </div>
+              <mat-checkbox name="checkTankAgua" #checkTankAgua="ngModel" color="primary"
+                [(ngModel)]="parametrosBusqueda.boolPlanta"></mat-checkbox>
+            </div>
+          </div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <div class="form-group inputForm">
+              <div class="title"><strong> Período Desde:</strong></div>
+              <input name="fechaBusquedaA" type="month" #fechaBusquedaA="ngModel"
+                [(ngModel)]="parametrosBusqueda.strPeriodoA" class="form-control" min="2022-01">
+            </div>
+          </div>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <div class="form-group inputForm">
+              <div class="title"><strong> Período Hasta:</strong></div>
+              <input name="fechaBusquedaB" type="month" #fechaBusquedaB="ngModel"
+                [(ngModel)]="parametrosBusqueda.strPeriodoB" class="form-control" min="2022-01">
+            </div>
+          </div>
+          <div class="col-6 col-sm-4 col-md-4 col-lg-3" *ngIf="parametrosBusqueda.tipoR!='Entrada Tanque Combustible'">
+            <div class="form-group inputForm mr-2">
+              <div class="title"><strong>Destino</strong></div>
+              <select name="selectArea" #selectArea="ngModel" [(ngModel)]="parametrosBusqueda.strDestino"
+                class="form-control">
+                <option selected value="SIN ASIGNAR">--Seleccionar--</option>
+                <option *ngFor="let datoLugar of listLugares" value="{{datoLugar}}"> {{datoLugar}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+          <div class="col-8 col-sm-6 col-md-4 my-1">
+            <a [routerLink] (click)="onGenerarR()" class="btn bttn-Primario btn-block"
+              [ngClass]="{'disabled':parametrosBusqueda.tipoR=='null'}">
+              <fa-icon [icon]="fasearch"></fa-icon> Generar Reporte
+            </a>
+          </div>
+        </div>
+        <div class="text-center my-3" *ngIf="spinnerOnOff==1">
+          <div class="d-flex justify-content-center">
+            <mat-spinner color="accent"></mat-spinner>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="my-2 px-2" *ngIf="spinnerOnOff==2">
+
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div id="ordenarS" class="card-header d-flex justify-content-between">
+          <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista</a></h5>
+          <a class="text-dark2" (click)="onConvertPdfAll()">
+            <fa-icon [icon]="faprint"></fa-icon>
+          </a>
+        </div>
+      </div>
+      <div *ngIf="listResultados!=null">
+        <div *ngIf="listResultados.length==0" class="d-flex justify-content-center mt-3">
+          <strong>No existen datos con esos parámetros de búsqueda </strong>
+        </div>
+        <div *ngIf="listResultados.length!=0" class="table-responsive"
+          style="border: 1px solid #dddddd; padding-top: 2px;">
+          <table class="table">
+            <thead>
+              <tr class="text-center">
+                <th style="width: 10%;">#</th>
+                <th style="width: 30%;">
+                  <div class="d-inline-block" style="margin-right: 0.5rem;">Destino</div>
+                  <div id="ordenarS" class="d-inline-block">
+                    <a class="badge text-dark2" (click)="onOrdenListBy('Destino')">
+                      <fa-icon [icon]="sort"></fa-icon>
+                    </a>
+                  </div>
+                </th>
+                <th style="width: 15%;">Fecha</th>
+                <th style="width: 30%;">
+                  <div class="d-inline-block" style="margin-right: 0.5rem;">Transportista</div>
+                  <div id="ordenarS" class="d-inline-block">
+                    <a class="badge text-dark2" (click)="onOrdenListBy('Transportista')">
+                      <fa-icon [icon]="sort"></fa-icon>
+                    </a>
+                  </div>
+                </th>
+                <th style="width: 15%;">
+                  <div class="d-inline-block" style="margin-right: 0.5rem;">Cantidad Consumida</div>
+                  <div id="ordenarS" class="d-inline-block">
+                    <a class="badge text-dark2" (click)="onOrdenListBy('Consumo')">
+                      <fa-icon [icon]="sort"></fa-icon>
+                    </a>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
+              <tr *ngIf="resultBusqueda.length==0">
+                <td class="font-italic text-center" colspan="3">
+                  No existen registros
+                </td>
+              </tr>
+              <tr *ngFor="let datoC of resultBusqueda |sort:ordenBy:'cReportGeneralMedic'; let indice=index"
+                [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                <td class="indice">{{indice+1}}</td>
+                <td>{{datoC.objNameG}}</td>
+                <td class="text-center" *ngFor="let datoD of listObjetosIn; let indiceD=index">
+                  <div>{{(datoC|tablareportMedic:listObjetosIn[indiceD]).contadorNum}}</div>
+                </td>
+                <td class="text-center">{{datoC.contadorG}}</td>
+              </tr>
+            </tbody>
+            <!-- <tfoot>
+                    <tr>
+                      <td class="pl-3" colspan="2"><strong>TOTALES POR DEPARTAMENTO</strong></td>
+                      <td class="text-center" *ngFor="let datoD of listObjetosIn; let indiceD=index">{{(resultBusqueda|sumartotales:listObjetosIn[indiceD]).contOcurrenciaTotal}}</td>
+                      <td class="text-center"><strong>{{paramsReport.contOcurrenciaNormal+paramsReport.contOcurrenciaControl}}</strong></td>
+                    </tr>
+                    <tr *ngIf="paramsReport.isNormal">
+                      <td class="pl-3" colspan="2"><strong>TOTAL OCURRENCIAS MORBILIDAD</strong></td>
+                      <td class="text-center" *ngFor="let datoD of listObjetosIn; let indiceD=index">{{datoD.contOcurrenciaA}}</td>
+                      <td class="text-center"><strong>{{paramsReport.contOcurrenciaNormal}}</strong></td>
+                    </tr>
+                    <tr *ngIf="paramsReport.isControl">
+                      <td class="pl-3" colspan="2"><strong>TOTAL OCURRENCIAS CONTROL</strong></td>
+                      <td class="text-center" *ngFor="let datoD of listObjetosIn; let indiceD=index">{{datoD.contOcurrenciaB}}</td>
+                      <td class="text-center"><strong>{{paramsReport.contOcurrenciaControl}}</strong></td>
+                    </tr>
+                  </tfoot> -->
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

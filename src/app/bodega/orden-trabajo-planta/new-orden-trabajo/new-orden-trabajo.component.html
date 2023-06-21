@@ -1,12 +1,12 @@
-<section [ngClass]="{'dashboard-header':!isOpen}">
-  <div [ngClass]="{'container-fluid':!isOpen}">
-    <div [ngClass]="{'boxCliente pt-1':!isOpen}">
-      <form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)">
-        <div class="bodyCard" *ngIf="ordenTrabajoService.formData.tipoOrden=='Traspaso Bodega'">
+
+<section class="dashboard-header">
+  <div class="container-fluid" style="height: auto;">
+    <div class="boxCliente  pt-1">
+      <form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)" *ngIf="ordenTrabajoService.formData!=null">
+        <div class="bodyCard">
           <div class="row mt-3">
             <div class="col-12 col-md-8">
-              <h4 class="text-center">Recopilación datos para Traspaso de
-                {{conexcionService.UserR.rolAsignado!='enfermeria' ? ' Bodega' : ' Medicamento'}}</h4>
+              <h4 class="text-center">Recopilación datos para Trabajos Internos</h4>
             </div>
             <div class="col-12 col-md-4">
               <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
@@ -14,26 +14,28 @@
             </div>
           </div>
           <div class="row boxForm mt-2">
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.nombreU=='FERNANDA MORALES'">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
-                  <strong class="ml-3">Salida de {{conexcionService.UserR.rolAsignado!='enfermeria'?'Bodega':'Barco'}}: </strong>
+                  <strong class="ml-3">Salida de Bodega: </strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
                     <div class="limit-width">
-                      <select class="form-control" name="bodega" #bodega="ngModel"
-                      [(ngModel)]="ordenTrabajoService.formData.bodega">
-                      <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                      <option *ngFor="let datobodega of listBodegaOrigen" value="{{datobodega.nombreBodega}}">
-                        {{datobodega.nombreBodega}}</option>
+                      <select class="form-control" name="origenBodega" #origenBodega="ngModel"
+                        [(ngModel)]="ordenTrabajoService.formData.bodega" required (ngModelChange)="onChooseBarco()">
+                        <option
+                            *ngFor="let datobodega of listBodega"
+                            value="{{datobodega.nombreBodega}}">
+                            {{datobodega.nombreBodega}}
+                          </option>
                       </select>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-2" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Marea: </strong>
@@ -50,30 +52,54 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado!='enfermeria'">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& ((conexcionService.UserR.nombreU == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega=='MECANICA NAVAL' )|| conexcionService.UserR.nombreU != 'FERNANDA MORALES' ))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
-                  <strong class="ml-3">Bodega de Destino: </strong>
+                  <strong class="ml-3">Lugar de Destino: </strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
                     <div class="limit-width">
                       <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
-                      [(ngModel)]="ordenTrabajoService.formData.destinoLugar">
-                      <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                      <option *ngFor="let datobodega of listBodegaDestino" value="{{datobodega.nombreBodega}}">
-                        {{datobodega.nombreBodega}}</option>
+                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
+                        <option selected disabled value="">-Seleccionar-</option>
+                        <option
+                            *ngFor="let datobodega of listAreas"
+                            value="{{datobodega.nombreBodega}}">
+                            {{datobodega.nombreBodega}}
+                          </option>
                       </select>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3"
-              [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado!='enfermeria' }">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'|| (conexcionService.UserR.nombreU == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL'))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Lugar de Destino: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
+                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
+                        <option selected disabled value="">-Seleccionar-</option>
+                        <option
+                            *ngFor="let datobodegaSub of listSubAreas"
+                            value="{{datobodegaSub.nombreArea}}">
+                            {{datobodegaSub.nombreArea}}
+                          </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}">
               <div class="form-group">
                 <div class="title ml-2">
-                  <strong class="ml-3">Responsable de Bodega de Destino: </strong>
+                  <strong class="ml-3">Responsable de Solicitud: </strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
@@ -87,19 +113,17 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3"
-              [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado!='enfermeria' }">
+            <div class="col-12">
               <div class="form-group">
                 <div class="title ml-2">
-                  <strong class="ml-3">Responsable de Bodeguero Saliente: </strong>
+                  <strong class="ml-3">Justificación del Motivo de Salida: </strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
                     <div class="limit-width">
-                      <input name="bodeguero" #bodeguero="ngModel" required
-                        [(ngModel)]="ordenTrabajoService.formData.bodeguero" class="form-control"
-                        (ngModelChange)="ordenTrabajoService.formData.bodeguero = $event?.toUpperCase()"
-                        placeholder="Nombre de la Persona">
+                      <textarea name="observacion" #observacion="ngModel" required minlength="5"
+                        [(ngModel)]="ordenTrabajoService.formData.observacion" class="form-control"
+                        placeholder="Descipción del pedido de los materiales"></textarea>
                     </div>
                   </div>
                 </div>
@@ -177,7 +201,7 @@
                         <td id="inputSearchP">
                           <div class="row">
                             <div style="padding-left: 0.5rem; padding-right:1px;"
-                              [ngClass]="{'col-10':!ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0,'col-4':ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0}">
+                              [ngClass]="{'col-10':!ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0,'col-5':ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0}">
                               <input
                                 name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
                                 type="number" min="0" maxlength="10" placeholder="#" class="form-control input-src"
@@ -187,25 +211,20 @@
                                 [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidad"
                                 (ngModelChange)="comprobarNewM()">
                             </div>
-                            <div class="col-8" style="padding-left: 1px; padding-right:0.5rem;"
+                            <div class="col-7" style="padding-left: 1px; padding-right:0.5rem;"
                               *ngIf="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0">
                               <select class="form-control input-src" required
                                 name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteId"
                                 #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteId="ngModel"
                                 [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].loteId">
-                                <option selected value="SIN ASIGNAR">Sin Lote:
-                                  {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}
-                                </option>
-                                <option
-                                  *ngFor="let datoLote of ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas"
-                                  value="{{datoLote.nombreSub}}"> U: {{datoLote.disponibilidad}} - F.v:
-                                  {{datoLote.fechaVencimiento|fechaFormat}}</option>
+                                <option selected value="SIN ASIGNAR">Sin Lote: {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</option>
+                                <option *ngFor="let datoLote of ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas"
+                                  value="{{datoLote.nombreSub}}"> U: {{datoLote.disponibilidad}} / N.Lote:{{datoLote.nombreSub}}</option>
                               </select>
                             </div>
                             <div class="col-2" style="padding-left: 1px; padding-right:0.5rem;"
                               *ngIf="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length==0">
-                              <strong> /
-                                {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</strong>
+                              <strong> / {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</strong>
                             </div>
                           </div>
                         </td>
@@ -260,11 +279,10 @@
               </div>
             </div>
           </div>
-          <div class="row boxForm mt-2 justify-content-center">
-            <div class="col-6 col-sm-6 col-md-6 mb-2 px-4">
+          <div class="row boxForm mt-2  justify-content-center">
+            <div class="col-10 col-sm-7 col-md-4 mb-2 px-4">
               <button class="btn bttn-Primario btn-block " type="submit" [disabled]="formOrden.invalid || !okBttnSubmit"
-                [ngClass]="{'bttn-Error':!okBttnSubmit }" matTooltip="Campos Vacios Revisar*" matTooltipPosition="above"
-                matTooltipClass="tooltipRed" [matTooltipDisabled]="okBttnSubmit">
+                [ngClass]="{'bttn-Error':!okBttnSubmit }">
                 <fa-icon [icon]="fasave"></fa-icon> Procesar
               </button>
             </div>

@@ -9,6 +9,7 @@ export class cOrdenTrabajoI {
     tipoOrden: string = "";//trabajo, traspaso
     observacion: string = "";
     bodega: string = "GENERAL";
+    marea:string=null;
     destinoLugar: string = ""//a otra bodega o a areasBodega
     personaResponsable: string = "";
     bodeguero: string = "";
@@ -49,6 +50,7 @@ export class cOrdenTrabajoI {
         this.tipoOrden = dataIn.tipoOrden;
         this.observacion = dataIn.observacion;
         this.bodega = dataIn.bodega;
+        this.marea=dataIn.marea;
         this.destinoLugar = dataIn.destinoLugar;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
         this.personaResponsable = dataIn.personaResponsable;
@@ -81,7 +83,7 @@ export class cMaterialesO {
     observacion: string = "";
     cantidad: number = 0;
     estadoProducto: string = "Procesada";
-
+    loteId:string="SIN ASIGNAR";
     inventario: cProducto_B = new cProducto_B();
 
     /**Variables de control */
@@ -97,6 +99,7 @@ export class cMaterialesO {
         this.inventarioId = undefined;
         this.observacion = "";
         this.estadoProducto = "Procesada";
+        this.loteId="SIN ASIGNAR";
         this.inventario.resetProducto();
     }
 
@@ -106,6 +109,7 @@ export class cMaterialesO {
         this.inventarioId = dataIn.inventarioId;
         this.observacion = dataIn.observacion;
         this.cantidad = dataIn.cantidad;
+        this.loteId=dataIn.loteId;
         this.estadoProducto = dataIn.estadoProducto;
 
         if (dataIn.inventario != null)

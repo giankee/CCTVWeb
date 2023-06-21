@@ -72,16 +72,16 @@ export class ListConsultaMedicComponent implements OnInit {
   fechaHoy = new cFecha();
   /**Fin paginatacion */
 
-  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch;faexchange=faExchangeAlt;
+  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch; faexchange = faExchangeAlt;
   faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
-  constructor(private _conexcionService: ConexionService, private _consultaMedicService: ConsultaMedicService, private _variosService: VariosService, private dialog: MatDialog, private _enterpriceService: ApiEnterpriceService, private _productosBService: ProductoBService, private consultaPipe: SortPipe,private toastr: ToastrService) {
+  constructor(private _conexcionService: ConexionService, private _consultaMedicService: ConsultaMedicService, private _variosService: VariosService, private dialog: MatDialog, private _enterpriceService: ApiEnterpriceService, private _productosBService: ProductoBService, private consultaPipe: SortPipe, private toastr: ToastrService) {
   }
 
   ngOnInit(): void {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBodega = dato;
       if (this._conexcionService.UserR.rolAsignado == "verificador-medic")
-      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
+        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
       this.parametrosBusqueda.anio = this.fechaHoy.anio.toString();
       this.parametrosBusqueda.strBodegaOrigen = this.selecBodegaFiltro;
       this.cargarData();
@@ -146,22 +146,22 @@ export class ListConsultaMedicComponent implements OnInit {
     this.dialog.open(ViewConsultaComponent, dialoConfig);
   }
 
-  onPrepararModalAtencion(dataIn: cConsultaMedic){
-    var  strParametro = "Tripulantes@" + dataIn.paciente + "@SIN ASIGNAR";
+  onPrepararModalAtencion(dataIn: cConsultaMedic) {
+    var strParametro = "Tripulantes@" + dataIn.paciente + "@SIN ASIGNAR";
     this._enterpriceService.getPersonalEnter2(strParametro).subscribe(res => {
-      if(res.length>0){
+      if (res.length > 0) {
         const dialoConfig = new MatDialogConfig();
         dialoConfig.autoFocus = true;
         dialoConfig.disableClose = true;
         dialoConfig.height = "85%";
         dialoConfig.width = "90%";
         const auxData = dataIn;
-        const auxIdPaciente= res[0].idEmpleado;
+        const auxIdPaciente = res[0].idEmpleado;
         dialoConfig.data = { auxData, auxIdPaciente };
-        const dialogRef=this.dialog.open(TransConsultaAtencionComponent, dialoConfig);
+        const dialogRef = this.dialog.open(TransConsultaAtencionComponent, dialoConfig);
         dialogRef.afterClosed().subscribe((result: number) => {
-          if (result ==1) {
-            dataIn.estadoConsulta="Procesada";
+          if (result == 1) {
+            dataIn.estadoConsulta = "Procesada";
             this.consultaMedicService.actualizarConsulta(dataIn).subscribe(
               (res: any) => {
                 if (res.message == "Ok") {
@@ -262,7 +262,7 @@ export class ListConsultaMedicComponent implements OnInit {
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
-        
+
       }),
       finalize(() => this.spinnerOnOff = false)
     );
@@ -348,7 +348,7 @@ export class ListConsultaMedicComponent implements OnInit {
       var lineaSintomas;
       var auxpalabra: string;
 
-      var auxListMedicamentos: cAuxMedicamentos[] = [];
+      var auxListMedicamentosConsumidos: cAuxMedicamentos[] = [];
       for (var index = 0; index < this.dataOrdenesResult.length; index++) {
         lineaPaciente = doc.splitTextToSize(this.dataOrdenesResult[index].paciente, (55));
         valorG = (3 * lineaPaciente.length) + 4;
@@ -368,11 +368,13 @@ export class ListConsultaMedicComponent implements OnInit {
 
           if (this.parametrosBusqueda.strBodegaOrigen != "SIN ASIGNAR" && this.parametrosBusqueda.strBodegaOrigen != "ENFERMERIA GENERAL") {
             var auxIndex = -1;
-            if ((auxIndex = auxListMedicamentos.findIndex(x => x.medicamentoId == this.dataOrdenesResult[index].listReceta[i].inventarioId)) != -1) {
-              auxListMedicamentos[auxIndex].cantidadOcupada = auxListMedicamentos[auxIndex].cantidadOcupada + this.dataOrdenesResult[index].listReceta[i].cantidad;
+            if ((auxIndex = auxListMedicamentosConsumidos.findIndex(x => x.medicamentoId == this.dataOrdenesResult[index].listReceta[i].inventarioId && this.dataOrdenesResult[index].paciente != "MEDICAMENTO DIFERENCIA")) != -1) {
+              auxListMedicamentosConsumidos[auxIndex].cantidadOcupada = auxListMedicamentosConsumidos[auxIndex].cantidadOcupada + this.dataOrdenesResult[index].listReceta[i].cantidad;
             } else {
-              var newAuxMedicamento = new cAuxMedicamentos(this.dataOrdenesResult[index].listReceta[i].inventarioId, this.dataOrdenesResult[index].listReceta[i].inventario.nombre, this.dataOrdenesResult[index].listReceta[i].cantidad)
-              auxListMedicamentos.push(newAuxMedicamento);
+              if (this.dataOrdenesResult[index].paciente != "MEDICAMENTO DIFERENCIA") {
+                var newAuxMedicamento = new cAuxMedicamentos(this.dataOrdenesResult[index].listReceta[i].inventarioId, this.dataOrdenesResult[index].listReceta[i].inventario.nombre, this.dataOrdenesResult[index].listReceta[i].cantidad)
+                auxListMedicamentosConsumidos.push(newAuxMedicamento);
+              }
             }
           }
         }
@@ -446,7 +448,7 @@ export class ListConsultaMedicComponent implements OnInit {
         doc.line(290, y, 290, (y + 20));//right
         doc.line(5, (y + 10), 290, (y + 10));//down
 
-        doc.text("Lista de medicamento ocupados en la marea: " + this.parametrosBusqueda.marea + "-" + this.parametrosBusqueda.anio + " del barco: " + this.parametrosBusqueda.strBodegaOrigen, 15, (y + 7));
+        doc.text("Lista de medicamento consumidos en la marea: " + this.parametrosBusqueda.marea + "-" + this.parametrosBusqueda.anio + " del barco: " + this.parametrosBusqueda.strBodegaOrigen, 15, (y + 7));
         doc.line(5, (y + 20), 290, (y + 20));//down
         doc.text("#", 12, (y + 17));
         doc.line(20, (y + 10), 20, (y + 20));//left
@@ -457,7 +459,7 @@ export class ListConsultaMedicComponent implements OnInit {
         doc.setFontSize(9);
         doc.setFont("arial", "normal")
         y = y + 20;
-        for (var index = 0; index < auxListMedicamentos.length; index++) {
+        for (var index = 0; index < auxListMedicamentosConsumidos.length; index++) {
           y = y + 7;
 
           if (y > 200) {
@@ -490,9 +492,69 @@ export class ListConsultaMedicComponent implements OnInit {
           doc.line(5, y, 290, y);//down +10y1y2
           doc.text((index + 1).toString(), 11, (y - 2));
           doc.line(20, (y - 7), 20, y);//right
-          doc.text(auxListMedicamentos[index].nombreMedicamento, 25, (y - 2));
+          doc.text(auxListMedicamentosConsumidos[index].nombreMedicamento, 25, (y - 2));
           doc.line(240, (y - 7), 240, y);//right
-          doc.text(auxListMedicamentos[index].cantidadOcupada.toString(), 262, (y - 2));
+          doc.text(auxListMedicamentosConsumidos[index].cantidadOcupada.toString(), 262, (y - 2));
+        }
+        var auxIndex = -1;
+        if ((auxIndex = this.dataOrdenesResult.findIndex(x => x.paciente == "MEDICAMENTO DIFERENCIA")) != -1) {
+          doc.setFontSize(11);
+          doc.setFont("arial", "bold")
+          y = y + 10;
+          doc.line(5, (y), 290, (y));//up
+          doc.line(5, y, 5, (y + 20));//left
+          doc.line(290, y, 290, (y + 20));//right
+          doc.line(5, (y + 10), 290, (y + 10));//down
+
+          doc.text("Lista de medicamento de diferencia en la marea: " + this.parametrosBusqueda.marea + "-" + this.parametrosBusqueda.anio + " del barco: " + this.parametrosBusqueda.strBodegaOrigen, 15, (y + 7));
+          doc.line(5, (y + 20), 290, (y + 20));//down
+          doc.text("#", 12, (y + 17));
+          doc.line(20, (y + 10), 20, (y + 20));//left
+          doc.text("Medicamento", 35, (y + 17));
+          doc.line(240, (y + 10), 240, (y + 20));//left
+          doc.text("Utilizado", 255, (y + 17));
+
+          doc.setFontSize(9);
+          doc.setFont("arial", "normal")
+          y = y + 20;
+
+          for (var index = 0; index < this.dataOrdenesResult[auxIndex].listReceta.length; index++) {
+            y = y + 7;
+            if (y > 200) {
+              Npag++;
+              doc.addPage();
+              doc.text("Pág. #" + Npag, 280, 207);
+              doc.setFontSize(11);
+              doc.setFont("arial", "bold")
+              y = 15;
+              doc.line(5, (y), 290, (y));//up
+              doc.line(5, y, 5, (y + 20));//left
+              doc.line(290, y, 290, (y + 20));//right
+              doc.line(5, (y + 10), 290, (y + 10));//down
+  
+              doc.text("Lista de medicamento ocupados en la marea: " + this.parametrosBusqueda.marea + "-" + this.parametrosBusqueda.anio + " del barco: " + this.parametrosBusqueda.strBodegaOrigen, 15, (y + 7));
+              doc.line(5, (y + 20), 290, (y + 20));//down
+              doc.text("#", 12, (y + 17));
+              doc.line(20, (y + 10), 20, (y + 20));//left
+              doc.text("Medicamento", 35, (y + 17));
+              doc.line(240, (y + 10), 240, (y + 20));//left
+              doc.text("Utilizado", 255, (y + 17));
+  
+              doc.setFontSize(9);
+              doc.setFont("arial", "normal")
+              y = y + 27;
+            }
+            doc.line(5, (y - 7), 5, y);//left
+            doc.line(290, (y - 7), 290, y);//right
+            doc.line(5, y, 290, y);//down +10y1y2
+            doc.text((index + 1).toString(), 11, (y - 2));
+            doc.line(20, (y - 7), 20, y);//right
+            doc.text(this.dataOrdenesResult[auxIndex].listReceta[index].inventario.nombre, 25, (y - 2));
+            doc.line(240, (y - 7), 240, y);//right
+            doc.text(this.dataOrdenesResult[auxIndex].listReceta[index].cantidad.toString(), 262, (y - 2));
+          }
+
+
         }
       }
       doc.save("ListaConsulta" + this.fechaHoy.strFecha + ".pdf");

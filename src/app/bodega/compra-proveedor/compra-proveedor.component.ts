@@ -83,10 +83,9 @@ export class CompraProveedorComponent implements OnInit {
   autoFocus: boolean = false;
   okCompraManual: boolean = false;
   okBttnSubmit: number = 2;//1 disable, 2 Ok, 3 error
-  listBodega:cBodega[]=[];
+  listBodega: cBodega[] = [];
   okAddNewBotton: boolean = true;
   selectBarcoCompra: string = "SIN ASIGNAR";
-
   spinnerLoading: boolean = false;
 
   fasave = faSave; fasearch = faSearch; fatimes = faTimes; faplus = faPlus;
@@ -98,19 +97,34 @@ export class CompraProveedorComponent implements OnInit {
     this.cargarBodega();
   }
 
-
   cargarBodega() {
     if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
       this.selectProveedor.fuente = "ENT";
       this.selectProveedor.proveedor = "DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A";
       this.selectProveedor.cedrucpas = "0990858322001";
       this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-        this.listBodega=dato;
+        this.listBodega = dato;
       });
     } else {
-      this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
-        this.listBodega=dato;
-      });
+      if (this.conexcionService.UserR.rolAsignado == "gpv-o") {
+        this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
+          this.listBodega = dato;
+        });
+      } else {
+        this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+          this.listBodega = dato;
+          if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
+            this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
+            if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+              this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+                for (var i = 0; i < dato.length; i++) {
+                  this.listBodega.push(dato[i]);
+                }
+              });
+            }
+          }
+        });
+      }
     }
   }
 
@@ -122,7 +136,7 @@ export class CompraProveedorComponent implements OnInit {
     this.autoFocus = false;
     if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
       this._ordenECService.formData = new cOrdenEC("OFICINAS", this._conexcionService.UserR.nombreU);
-    if (this._conexcionService.UserR.rolAsignado == 'tinabg-m' || this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m')
+    if (this._conexcionService.UserR.rolAsignado == 'tinabg-m' || this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero')
       this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserR.nombreU);
     if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
       this._ordenECService.formData = new cOrdenEC("ENFERMERIA", this._conexcionService.UserR.nombreU);
@@ -174,7 +188,7 @@ export class CompraProveedorComponent implements OnInit {
             x.estadoCompra = "Pendiente";
           });
         } else this.okBttnSubmit = 3;
-        if (this.ordenECService.formData.listPcomprasO.find(x => (x.fechaVencimientoMedic == null && x.loteMedic!=null) || (x.fechaVencimientoMedic!=null && x.loteMedic==null)) != null)
+        if (this.ordenECService.formData.listPcomprasO.find(x => (x.fechaVencimientoMedic == null && x.loteMedic != null)) != null)
           this.okBttnSubmit = 3;
         else this._ordenECService.formData.marea = this._ordenECService.formData.marea + "-" + this.fechaHoy.anio;
       }
@@ -219,7 +233,9 @@ export class CompraProveedorComponent implements OnInit {
   }
 
   onTerminar() {
-    this.cerrar.emit(true);
+    if (this.isOpen)
+      this.cerrar.emit(true);
+    else this.resetForm();
   }
 
   guardar() {
@@ -412,7 +428,12 @@ export class CompraProveedorComponent implements OnInit {
             auxArticuloCompra.totalInd = datoCompra.listCompraO[i].subtotal;
 
             if (dato.message == "Ok") {
-              if ((indexP = dato.data.findIndex(x => x.codigo == datoCompra.listCompraO[i].codigoprincipal)) != -1) {
+              if (datoCompra.listCompraO[i].codigoprincipal == null || datoCompra.listCompraO[i].codigoprincipal == "") {
+                if (datoCompra.listCompraO[i].codigoauxiliar == null || datoCompra.listCompraO[i].codigoauxiliar == "") {
+                  datoCompra.listCompraO[i].codigoprincipal = "COD_" + datoCompra.listCompraO[i].descripcion.toUpperCase();
+                } else datoCompra.listCompraO[i].codigoprincipal = datoCompra.listCompraO[i].codigoauxiliar;
+              }
+              if ((indexP = dato.data.findIndex(x => x.codigo == datoCompra.listCompraO[i].codigoprincipal && x.descripcion==datoCompra.listCompraO[i].descripcion)) != -1) {
                 auxArticuloCompra.productoId = dato.data[indexP].idProductoStock;
                 auxArticuloCompra.rellenarProducto(dato.data[indexP]);
                 auxArticuloCompra.producto.precioUltima = auxArticuloCompra.producto.precioStandar;
@@ -430,7 +451,11 @@ export class CompraProveedorComponent implements OnInit {
               }
             } else {
               var auxProductoNew: cProducto_B = new cProducto_B(this._ordenECService.formData.planta, this._ordenECService.formData.proveedor);
-              auxProductoNew.codigo = datoCompra.listCompraO[i].codigoprincipal;
+              if (datoCompra.listCompraO[i].codigoprincipal == null || datoCompra.listCompraO[i].codigoprincipal == "") {
+                if (datoCompra.listCompraO[i].codigoauxiliar == null || datoCompra.listCompraO[i].codigoauxiliar == "") {
+                  auxProductoNew.codigo = "COD_" + datoCompra.listCompraO[i].descripcion.toUpperCase();
+                } else auxProductoNew.codigo = datoCompra.listCompraO[i].codigoauxiliar;
+              } else auxProductoNew.codigo = datoCompra.listCompraO[i].codigoprincipal;
               auxProductoNew.nombre = datoCompra.listCompraO[i].descripcion.toUpperCase();
               auxProductoNew.precioStandar = Number(datoCompra.listCompraO[i].precio.toFixed(4));
               auxArticuloCompra.descripcionProducto = datoCompra.listCompraO[i].descripcion;
@@ -453,7 +478,6 @@ export class CompraProveedorComponent implements OnInit {
           this.spinnerOnOff = 2;
           this.paginacion.getNumberIndex(this._ordenECService.formData.listPcomprasO.length);
           this.paginacion.updateIndex(0);
-
         },
           error => console.error(error));
     }
@@ -703,11 +727,11 @@ export class CompraProveedorComponent implements OnInit {
       doc.line(5, (y - valorG), 5, y);//left
       doc.line(290, (y - valorG), 290, y);//right
 
-      doc.text(i.toString()+1, 10, (y - ((valorG - 3) / 2)));
+      doc.text(i.toString() + 1, 10, (y - ((valorG - 3) / 2)));
       doc.line(20, (y - valorG), 20, y);//right
       doc.text(auxListaCompras[i].producto.codigo, 25, (y - ((valorG - 3) / 2)));
       doc.line(70, (y - valorG), 70, y);//right
-      if (this.ordenECService.formData.planta == "ENFERMERIA"){
+      if (this.ordenECService.formData.planta == "ENFERMERIA") {
         doc.text(auxListaCompras[i].cantidad.toString(), 80, (y - ((valorG - 3) / 2)));
         doc.line(90, (y - valorG), 90, y);//right
         doc.text(auxListaCompras[i].producto.contenidoNeto.toString(), 98, (y - ((valorG - 3) / 2)));
@@ -718,15 +742,15 @@ export class CompraProveedorComponent implements OnInit {
         doc.line(220, (y - valorG), 220, y);//right
 
         doc.line(260, (y - valorG), 260, y);//right
-        if(auxListaCompras[i].loteMedic==null && auxListaCompras[i].fechaVencimientoMedic==null){
+        if (auxListaCompras[i].loteMedic == null && auxListaCompras[i].fechaVencimientoMedic == null) {
           doc.text("SIN ASIGNAR", 225, (y - ((valorG - 3) / 2)));
           doc.text("SIN ASIGNAR", 265, (y - ((valorG - 3) / 2)));
-        }else{
-          doc.text(auxListaCompras[i].loteMedic+"", 225, (y - ((valorG - 3) / 2)));
-          doc.text(auxListaCompras[i].fechaVencimientoMedic+"", 265, (y - ((valorG - 3) / 2)));
+        } else {
+          doc.text(auxListaCompras[i].loteMedic + "", 225, (y - ((valorG - 3) / 2)));
+          doc.text(auxListaCompras[i].fechaVencimientoMedic + "", 265, (y - ((valorG - 3) / 2)));
         }
       }
-      else{
+      else {
         doc.text(auxListaCompras[i].cantidad.toString(), 80, (y - ((valorG - 3) / 2)));
         doc.line(95, (y - valorG), 95, y);//right
         doc.text(auxListaCompras[i].producto.contenidoNeto.toString(), 105, (y - ((valorG - 3) / 2)));
@@ -734,7 +758,7 @@ export class CompraProveedorComponent implements OnInit {
         doc.text((auxListaCompras[i].producto.contenidoNeto * auxListaCompras[i].cantidad) + "", 130, (y - ((valorG - 3) / 2)));
         doc.line(150, (y - valorG), 150, y);//right
         doc.text(auxListaCompras[i].producto.nombre, 155, (y - ((valorG - 3) / 2)));
-        
+
       }
       doc.line(5, y, 290, y);//down
     }

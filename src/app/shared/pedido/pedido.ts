@@ -15,8 +15,11 @@ export class cOrdenPedido {
     verificacionUser: string;
     fechaAprobacion: string;
     responsableAprobacion: string;
-    estadoProceso: string;
     archivada:boolean;
+    fechaArchivada: string;
+    responsableArchivada: string;
+    responsableAnulada:string;
+    estadoProceso: string;
 
     listArticulosPedido: cArticulosPedido[] = [];
 
@@ -25,6 +28,8 @@ export class cOrdenPedido {
     showSearchSelect: boolean;
     strNumSecuencial: string;
     strRuc: string;
+    strLugarA:string;
+    boolProveedor:boolean;
     
     constructor(cargoUserIn: string, plantaIn: string, proveedorIn?: string, areaIn?: string) {
         let fechaHoy: cFecha = new cFecha();
@@ -43,20 +48,25 @@ export class cOrdenPedido {
         this.justificacion = "";
         this.verificacionUser = "SIN ASIGNAR";
         this.responsableAprobacion = "SIN ASIGNAR";
-        this.fechaAprobacion = null;
+        this.fechaAprobacion = fechaHoy.strFecha;
         this.cargoUser = cargoUserIn;
-        this.estadoProceso = "Pendiente Aprobación";
+
         this.archivada=false;
+        this.responsableArchivada = null;
+        this.responsableAnulada=null;
+        this.fechaArchivada = fechaHoy.strFecha;;
+        this.estadoProceso = "Pendiente Aprobación";
 
         this.spinnerLoadingP = false;
         this.showSearchSelect = false;
-        
+        this.strLugarA="";
+        this.boolProveedor=false;
     }
 
     completarObject(dataIn: cOrdenPedido) {
         this.idOrdenPedido = dataIn.idOrdenPedido;
         this.planta = dataIn.planta;
-        this.fechaPedido = dataIn.fechaPedido.substring(0, 10);
+        this.fechaPedido = dataIn.fechaPedido;
         this.numSecuencial = dataIn.numSecuencial;
         this.proveedor = dataIn.proveedor;
         this.empresa = dataIn.empresa;
@@ -67,12 +77,15 @@ export class cOrdenPedido {
         this.verificacionUser = dataIn.verificacionUser;
         this.fechaAprobacion = dataIn.fechaAprobacion;
         this.responsableAprobacion = dataIn.responsableAprobacion;
-        this.estadoProceso = dataIn.estadoProceso;
         this.archivada=dataIn.archivada;
+        this.fechaArchivada = dataIn.fechaArchivada;
+        this.responsableArchivada = dataIn.responsableArchivada;
+        this.responsableAnulada=dataIn.responsableAnulada;
+        this.estadoProceso = dataIn.estadoProceso;
 
         let auxSecuencial = this.numSecuencial.split("-");
         this.strNumSecuencial = auxSecuencial[1];
-
+        this.boolProveedor=dataIn.boolProveedor;
         
         if (dataIn.listArticulosPedido != null) {
             this.listArticulosPedido = [];
@@ -96,7 +109,7 @@ export class cOrdenPedido {
         if (this.empresa == "B&B TUNE")
             this.strRuc = "1391736452001";
         if (this.empresa == "DANIEL BUEHS")
-            this.strRuc = "13022188618001";
+            this.strRuc = "1302188618001";
         if (this.empresa == "MANACRIPEX")
             this.strRuc = "1391700830001";
     }
@@ -109,6 +122,7 @@ export class cArticulosPedido {
     cantidad: number;
     cantidadPendiente:number;
     observacion: string;
+    aviso:boolean;
     destinoArea: string;
     estadoArticuloPedido: string;
 
@@ -128,6 +142,7 @@ export class cArticulosPedido {
         this.cantidadPendiente=0;
         this.observacion = "";
         this.destinoArea = "SIN ASIGNAR";
+        this.aviso=false;
         this.estadoArticuloPedido = "Pendiente";
 
         this.inventario = new cProducto_B();
@@ -144,6 +159,7 @@ export class cArticulosPedido {
         this.cantidad = dataIn.cantidad;
         this.cantidadPendiente=dataIn.cantidadPendiente;
         this.observacion = dataIn.observacion;
+        this.aviso=dataIn.aviso;
         this.destinoArea = dataIn.destinoArea;
         this.estadoArticuloPedido = dataIn.estadoArticuloPedido;
 

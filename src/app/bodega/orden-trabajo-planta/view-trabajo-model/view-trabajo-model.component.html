@@ -18,7 +18,7 @@
                 <strong>Fecha Registro:</strong> {{ordenTrabajoInternoService.formData.fechaRegistro}}
             </div>
             <div class="col-6">
-                <strong>Bodega Salida:</strong> {{ordenTrabajoInternoService.formData.bodega}}
+                <strong>Bodega Salida:</strong> {{ordenTrabajoInternoService.formData.bodega}}  {{ordenTrabajoInternoService.formData.marea!=null? (' /'+ordenTrabajoInternoService.formData.marea):''}}
             </div>
             <div class="col-6">
                 <strong>{{ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno' ? 'Área' : 'Bodega'}} Destino:</strong> {{ordenTrabajoInternoService.formData.destinoLugar}}
@@ -29,7 +29,7 @@
             <div class="col-6">
                 <strong>Responsable {{ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno' ? ' de retirar el material' : 'de bodega que recibe'}}:</strong> {{ordenTrabajoInternoService.formData.personaResponsable}}
             </div>
-            <div class="col-12" *ngIf="ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno'">
+            <div class="col-12" *ngIf="ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno'||ordenTrabajoInternoService.formData.tipoOrden=='Traspaso Bodega'">
                 <strong>Justificación de la solicitud:</strong> {{ordenTrabajoInternoService.formData.observacion}} 
             </div>
             <div class="col-6">

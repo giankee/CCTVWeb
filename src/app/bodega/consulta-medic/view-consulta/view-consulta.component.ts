@@ -36,11 +36,11 @@ export class ViewConsultaComponent implements OnInit {
           },
             error => console.error(error));
       }
-      //console.table(this.consultaMedicService.formData);
     } else this.onExit();
   }
 
   onExit() {
+    this.consultaMedicService.formData=null;
     this.dialogRef.close();
   }
 
@@ -154,13 +154,15 @@ export class ViewConsultaComponent implements OnInit {
       doc.line(55, (y - valorG), 55, y);//right
       doc.text(orden.listReceta[i].cantidad.toString(), 63, (y - ((valorG - 3) / 2)));
       doc.line(75, (y - valorG), 75, y);//right
-      doc.text(orden.listReceta[i].loteId, 80, (y - ((valorG - 3) / 2)));
+      if(orden.listReceta[i].loteId!=null){
+        doc.text(orden.listReceta[i].loteId!="SIN ASIGNAR"?orden.listReceta[i].loteId:"---", 80, (y - ((valorG - 3) / 2)));
+      }else doc.text("---", 85, (y - ((valorG - 3) / 2)));
       doc.line(100, (y - valorG), 100, y);//right
       auxPrueba = Number((valorG - (3 * lineaDescripcion.length + (3 * (lineaDescripcion.length - 1)))) / 2.5) + 3;//mega formula para centrar el texto en el espacio establecido
       doc.text(lineaDescripcion, 102, (y - valorG + auxPrueba));
       doc.line(160, (y - valorG), 160, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;//mega formula para centrar el texto en el espacio establecido
-      doc.text(lineaObservacion, 162, (y - valorG + auxPrueba));
+      doc.text(lineaObservacion!=null?lineaObservacion:'', 162, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }

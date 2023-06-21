@@ -8,9 +8,10 @@ import { cWhatsapp} from './varios';
 })
 export class WhatsappService {
 
-  serverUrl = environment.baseWhatsapp;
+  serverUrl = environment.baseWhatsappP;
   formData: cWhatsapp;
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+   }
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })

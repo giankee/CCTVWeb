@@ -14,6 +14,7 @@ import { ViewPedidoModalComponent } from '../view-pedido-modal/view-pedido-modal
 import { jsPDF } from "jspdf";
 import { cBodega } from 'src/app/shared/bodega/ordenEC';
 import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-list-pedidos',
@@ -57,6 +58,7 @@ export class ListPedidosComponent implements OnInit {
   listProveedoresFiltros$: any;
   listProdFiltros$: any;
   dataPedidoResult: cOrdenPedido[] = [];
+  filtroPedido = '';
 
   /**Para pagination y fecha Entrada*/
   paginacion = new cPaginacion(50);
@@ -66,13 +68,14 @@ export class ListPedidosComponent implements OnInit {
   sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch; faexchange = faExchangeAlt; fapencilAlt = faPencilAlt;
   faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
 
-  constructor(private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService, private _variosService: VariosService, private proveedorService: ProveedorService, private dialog: MatDialog) { }
+  constructor(private _conexcionService: ConexionService, private toastr: ToastrService, private _ordenPedidoService: OrdenPedidoService, private _variosService: VariosService, private proveedorService: ProveedorService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.parametrosBusqueda.strCampoB = "SIN ASIGNAR";
     this.parametrosBusqueda.strCampoC = "SIN ASIGNAR";
     this.parametrosBusqueda.strCampoD = "SIN ASIGNAR";
     this.parametrosBusqueda.strCampoE = "SIN ASIGNAR";
+    this.parametrosBusqueda.strCampoF = "SUPER";
 
     this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
       this.listVehiculos = dato;
@@ -99,9 +102,24 @@ export class ListPedidosComponent implements OnInit {
     this.listPedidosMostrar$ = this.ordenPedidoService.getListPedido(parametro).pipe(
       map((x: cOrdenPedido[]) => {
         x.forEach(y => {
-          y.fechaPedido = y.fechaPedido.substring(0, 10);
+          var fecha = y.fechaPedido.split('T');
+          y.fechaPedido = fecha[0] + " " + fecha[1];
+
+          fecha = y.fechaAprobacion.split('T');
+          y.fechaAprobacion = fecha[0] + " " + fecha[1];
+
           let auxSecuencial = y.numSecuencial.split("-");
           y.strNumSecuencial = auxSecuencial[1];
+          y.boolProveedor = false;
+          this.proveedorService.getProveedorSearch(y.proveedor).subscribe(
+            res => {
+              if (res.length > 0) {
+                if (res[0].proveedor == y.proveedor) {
+                  y.boolProveedor = true;
+                }
+              }
+            }
+          );
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
@@ -149,6 +167,11 @@ export class ListPedidosComponent implements OnInit {
         this.ordenPedido = "up-E";
       else this.ordenPedido = "down-E";
     }
+    if (tipo == "Fecha") {
+      if (this.ordenPedido == "default" || this.ordenPedido == "down-F")
+        this.ordenPedido = "up-F";
+      else this.ordenPedido = "down-F";
+    }
   }
 
   onBListProgProveedor(value: string) {
@@ -176,15 +199,7 @@ export class ListPedidosComponent implements OnInit {
 
   onFiltrarPedidos() {
     this.spinnerOnOff = true;
-    var strParametosOut = this.parametrosBusqueda.fechaA + "@" + this.parametrosBusqueda.fechaB + "@";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
-      strParametosOut = strParametosOut + "P MANACRIPEX@";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
-      strParametosOut = strParametosOut + "FLOTA@";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
-      strParametosOut = strParametosOut + "SUPER@";
-
-    strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoB + "@" + this.parametrosBusqueda.strCampoC + "@" + this.parametrosBusqueda.strCampoD + "@";
+    var strParametosOut = this.parametrosBusqueda.fechaA + "@" + this.parametrosBusqueda.fechaB + "@" + this.parametrosBusqueda.strCampoF + "@" + this.parametrosBusqueda.strCampoB + "@" + this.parametrosBusqueda.strCampoC + "@" + this.parametrosBusqueda.strCampoD + "@";
     if (this.parametrosBusqueda.strCampoA != '')
       strParametosOut = strParametosOut + this.parametrosBusqueda.strCampoA + "@";
     else strParametosOut = strParametosOut + "SIN ASIGNAR@";
@@ -203,9 +218,25 @@ export class ListPedidosComponent implements OnInit {
     this.listPedidosMostrar$ = this.ordenPedidoService.getFiltroPedidos(strParametosOut).pipe(
       map((x: cOrdenPedido[]) => {
         x.forEach(y => {
-          y.fechaPedido = y.fechaPedido.substring(0, 10);
+          var fecha = y.fechaPedido.split('T');
+          y.fechaPedido = fecha[0] + " " + fecha[1];
+
+          fecha = y.fechaAprobacion.split('T');
+          y.fechaAprobacion = fecha[0] + " " + fecha[1];
+
           let auxSecuencial = y.numSecuencial.split("-");
           y.strNumSecuencial = auxSecuencial[1];
+
+          y.boolProveedor = false;
+          this.proveedorService.getProveedorSearch(y.proveedor).subscribe(
+            res => {
+              if (res.length > 0) {
+                if (res[0].proveedor == y.proveedor) {
+                  y.boolProveedor = true;
+                }
+              }
+            }
+          );
         });
         this.paginacion.getNumberIndex(x.length);
         return x;
@@ -240,25 +271,36 @@ export class ListPedidosComponent implements OnInit {
     doc.text("Orden de Pedido: " + auxSecuencial[1], 75, 10);
 
     y = 12;
-    doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 32));//left
-    doc.line(199, y, 199, (y + 32));//right
-    doc.line(9, (y + 32), 199, (y + 32));//down
+
     doc.setFontSize(11);
     doc.text("Datos de la orden", 18, (y + 3));
-    doc.setFont("arial", "normal")
+    doc.setFont("arial", "normal");
     doc.setFontSize(10);
-    doc.text("Fecha de Registro: " + orden.fechaPedido, 15, (y + 7));
+
+    doc.text("Fecha de Registro: ", 15, (y + 7));
+    doc.setFont("arial", "bold");
+    doc.text("                                " + orden.fechaPedido, 15, (y + 7));
+    doc.setFont("arial", "normal");
 
     doc.text("Empresa: " + orden.empresa, 80, (y + 7));
     doc.text("RUC: " + orden.strRuc, 140, (y + 7));
     doc.text("Tipo de Pedido: " + orden.tipoPedido, 15, (y + 11));
-    if (orden.area == "P MANACRIPEX")
-      strDestino = "Área:" + orden.listArticulosPedido[0].destinoArea;
-    else strDestino = "Lugar: " + orden.area + " - Sub-Área:" + orden.listArticulosPedido[0].destinoArea;
-    doc.text(strDestino, 80, (y + 11));
+    if (orden.area == "P MANACRIPEX") {
+      doc.text("Área:", 80, (y + 11));
+      strDestino = orden.listArticulosPedido[0].destinoArea;
+    }
+    else {
+      doc.text("Lugar:", 80, (y + 11));
+      strDestino = orden.area + " - Sub-Área:" + orden.listArticulosPedido[0].destinoArea;
+    }
+    doc.setFont("arial", "bold");
+    doc.text("            " + strDestino, 80, (y + 11));
+    doc.setFont("arial", "normal");
+
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 15));
     doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 19));
+    doc.text("Tipo Pedido: " + orden.tipoPedido, 105, (y + 19));
+
     doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 23));
     if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada")
       doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 23));
@@ -267,8 +309,18 @@ export class ListPedidosComponent implements OnInit {
 
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
     doc.text(auxlinea, 15, (y + 27));
+
+    var auxH = y + 32;
+    if (auxlinea.length > 1)
+      auxH = auxH + 3 + ((3 * auxlinea.length) + 2);
+    doc.line(9, y, 199, y);//up
+    doc.line(9, y, 9, (auxH));//left
+    doc.line(199, y, 199, auxH);//right
+    doc.line(9, auxH, 199, auxH);//down
+
+
     doc.setFont("arial", "normal");
-    y = y + 32;
+    y = auxH;
 
     doc.setFontSize(12);
     doc.setFont("arial", "bold");
@@ -280,15 +332,14 @@ export class ListPedidosComponent implements OnInit {
     doc.line(199, y, 199, (y + 6));//right
     doc.line(9, (y + 6), 199, (y + 6));//down
 
-    doc.text("Código", 25, (y + 4));
-    doc.line(50, y, 50, (y + 6));//right
-    doc.text("Descripción", 70, (y + 4));
-    doc.line(110, y, 110, (y + 6));//right
-    doc.text("Cantidad", 112, (y + 4));
-    doc.line(130, y, 130, (y + 6));//right
-    doc.text("Área", 137, (y + 4));
-    doc.line(155, y, 155, (y + 6));//right
-    doc.text("Observación", 165, (y + 4));
+    doc.text("Código", 30, (y + 4));
+    doc.line(60, y, 60, (y + 6));//right
+    doc.text("Descripción", 80, (y + 4));
+    doc.line(120, y, 120, (y + 6));//right
+    doc.text("Cantidad", 122, (y + 4));
+    doc.line(140, y, 140, (y + 6));//right
+    doc.text("Observación", 160, (y + 4));
+
 
     doc.setFontSize(8);
     doc.setFont("arial", "normal");
@@ -305,9 +356,9 @@ export class ListPedidosComponent implements OnInit {
     for (var i = 0; i < orden.listArticulosPedido.length; i++) {
 
       if (orden.listArticulosPedido[i].estadoArticuloPedido != "No Procesada") {
-        lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (35));
+        lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (45));
         lineaNombre = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.nombre, (55));
-        lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (40));
+        lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (55));
         valorC = (3 * lineaCodigo.length) + 2;
         valorN = (3 * lineaNombre.length) + 2;
         valorO = (3 * lineaObservacion.length) + 2;
@@ -331,15 +382,13 @@ export class ListPedidosComponent implements OnInit {
           doc.line(199, y, 199, (y + 6));//right
           doc.line(9, (y + 6), 199, (y + 6));//down
 
-          doc.text("Código", 25, (y + 4));
-          doc.line(50, y, 50, (y + 6));//right
-          doc.text("Descripción", 70, (y + 4));
-          doc.line(110, y, 110, (y + 6));//right
-          doc.text("Cantidad", 112, (y + 4));
-          doc.line(130, y, 130, (y + 6));//right
-          doc.text("Área", 137, (y + 4));
-          doc.line(155, y, 155, (y + 6));//right
-          doc.text("Observación", 165, (y + 4));
+          doc.text("Código", 30, (y + 4));
+          doc.line(60, y, 60, (y + 6));//right
+          doc.text("Descripción", 80, (y + 4));
+          doc.line(120, y, 120, (y + 6));//right
+          doc.text("Cantidad", 122, (y + 4));
+          doc.line(140, y, 140, (y + 6));//right
+          doc.text("Observación", 160, (y + 4));
 
           y = y + 10 + valorG;
 
@@ -352,16 +401,18 @@ export class ListPedidosComponent implements OnInit {
         doc.line(9, (y - valorG), 9, y);//left
         auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
         doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
-        doc.line(50, (y - valorG), 50, y);//right
+        doc.line(60, (y - valorG), 60, y);//right
         auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
-        doc.text(lineaNombre, 55, (y - valorG + auxPrueba));
-        doc.line(110, (y - valorG), 110, y);//right
-        doc.text(orden.listArticulosPedido[i].cantidad.toString(), 120, (y - ((valorG - 2) / 2)));
-        doc.line(130, (y - valorG), 130, y);//right
-        doc.text(orden.listArticulosPedido[i].destinoArea, 135, (y - ((valorG - 2) / 2)));
-        doc.line(155, (y - valorG), 155, y);//right
+        doc.text(lineaNombre, 65, (y - valorG + auxPrueba));
+        doc.line(120, (y - valorG), 120, y);//right
+        doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 2) / 2)));
+        doc.line(140, (y - valorG), 140, y);//right
         auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
-        doc.text(lineaObservacion, 15, (y - valorG + auxPrueba));
+        if(orden.listArticulosPedido[i].aviso){
+          doc.setTextColor(255,0,0);
+          doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+          doc.setTextColor(0,0,0);
+        }else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
         doc.line(199, (y - valorG), 199, y);//right
         doc.line(9, y, 199, y);//down
       }
@@ -390,12 +441,18 @@ export class ListPedidosComponent implements OnInit {
   }
 
   onRevision(orden: cOrdenPedido) {
-    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada") {
+    if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Anulada") {
+      var fechaHoy: cFecha = new cFecha();
       var auxOrden: cOrdenPedido = new cOrdenPedido(orden.cargoUser, orden.planta);
       auxOrden.completarObject(orden);
-
+      auxOrden.fechaArchivada = fechaHoy.strFecha + "T" + fechaHoy.strHoraA;
+      if (auxOrden.archivada)
+        auxOrden.responsableArchivada = this.conexcionService.UserR.nombreU;
+      else auxOrden.responsableArchivada = null;
       this.ordenPedidoService.actualizarPedido(auxOrden).subscribe(
         (res: any) => {
+          if (res.message == "Ok")
+            this.toastr.success('Revisión Actualizada', 'Actualizada');
         }
       )
     }
@@ -413,10 +470,7 @@ export class ListPedidosComponent implements OnInit {
     doc.text("Orden de Pedido: " + auxSecuencial[1], 75, 20);
 
     y = 25;
-    doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 40));//left
-    doc.line(199, y, 199, (y + 40));//right
-    doc.line(9, (y + 40), 199, (y + 40));//down
+
     doc.setFontSize(13);
     doc.text("Datos de la orden", 20, (y + 5));
     doc.setFont("arial", "normal")
@@ -431,6 +485,7 @@ export class ListPedidosComponent implements OnInit {
     doc.text(strDestino, 80, (y + 15));
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 20));
     doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 25));
+    doc.text("Tipo Pedido: " + orden.tipoPedido, 105, (y + 25));
     doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 30));
     if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada")
       doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 30));
@@ -440,7 +495,17 @@ export class ListPedidosComponent implements OnInit {
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
     doc.text(auxlinea, 15, (y + 35));
     doc.setFont("arial", "normal");
-    y = y + 40;
+
+
+    var auxH = y + 40;
+    if (auxlinea.length > 1)
+      auxH = auxH + 3 + ((3 * auxlinea.length) + 2);
+    doc.line(9, y, 199, y);//up
+    doc.line(9, y, 9, (auxH));//left
+    doc.line(199, y, 199, auxH);//right
+    doc.line(9, auxH, 199, auxH);//down
+
+    y = auxH;
 
     doc.setFontSize(13);
     doc.setFont("arial", "bold");
@@ -453,15 +518,14 @@ export class ListPedidosComponent implements OnInit {
     doc.line(199, y, 199, (y + 10));//right
     doc.line(9, (y + 10), 199, (y + 10));//down
 
-    doc.text("Código", 25, (y + 7));
-    doc.line(50, y, 50, (y + 10));//right
-    doc.text("Descripción", 70, (y + 7));
-    doc.line(110, y, 110, (y + 10));//right
-    doc.text("Cantidad", 112, (y + 7));
-    doc.line(130, y, 130, (y + 10));//right
-    doc.text("Área", 137, (y + 7));
-    doc.line(155, y, 155, (y + 10));//right
-    doc.text("Observación", 165, (y + 7));
+    doc.text("Código", 30, (y + 7));
+    doc.line(60, y, 60, (y + 10));//right
+    doc.text("Descripción", 80, (y + 7));
+    doc.line(120, y, 120, (y + 10));//right
+    doc.text("Cantidad", 122, (y + 7));
+    doc.line(140, y, 140, (y + 10));//right
+    doc.text("Observación", 160, (y + 7));
+
 
     doc.setFontSize(8);
     doc.setFont("arial", "normal");
@@ -477,9 +541,9 @@ export class ListPedidosComponent implements OnInit {
     var auxPrueba: number;
 
     for (var i = 0; i < orden.listArticulosPedido.length; i++) {
-      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (35));
+      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (45));
       lineaNombre = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.nombre, (55));
-      lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (40));
+      lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (55));
       valorC = (3 * lineaCodigo.length) + 4;
       valorN = (3 * lineaNombre.length) + 4;
       valorO = (3 * lineaObservacion.length) + 4;
@@ -503,15 +567,13 @@ export class ListPedidosComponent implements OnInit {
         doc.line(199, y, 199, (y + 10));//right
         doc.line(9, (y + 10), 199, (y + 10));//down
 
-        doc.text("Código", 25, (y + 7));
-        doc.line(50, y, 50, (y + 10));//right
-        doc.text("Descripción", 70, (y + 7));
-        doc.line(110, y, 110, (y + 10));//right
-        doc.text("Cantidad", 112, (y + 7));
-        doc.line(130, y, 130, (y + 10));//right
-        doc.text("Área", 137, (y + 7));
-        doc.line(155, y, 155, (y + 10));//right
-        doc.text("Observación", 165, (y + 7));
+        doc.text("Código", 30, (y + 7));
+        doc.line(60, y, 60, (y + 10));//right
+        doc.text("Descripción", 80, (y + 7));
+        doc.line(120, y, 120, (y + 10));//right
+        doc.text("Cantidad", 122, (y + 7));
+        doc.line(140, y, 140, (y + 10));//right
+        doc.text("Observación", 160, (y + 7));
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
@@ -520,16 +582,18 @@ export class ListPedidosComponent implements OnInit {
       doc.line(9, (y - valorG), 9, y);//left
       auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
       doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
-      doc.line(50, (y - valorG), 50, y);//right
+      doc.line(60, (y - valorG), 60, y);//right
       auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
-      doc.text(lineaNombre, 55, (y - valorG + auxPrueba));
-      doc.line(110, (y - valorG), 110, y);//right
-      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 120, (y - ((valorG - 3) / 2)));
-      doc.line(130, (y - valorG), 130, y);//right
-      doc.text(orden.listArticulosPedido[i].destinoArea, 135, (y - ((valorG - 3) / 2)));
-      doc.line(155, (y - valorG), 155, y);//right
+      doc.text(lineaNombre, 65, (y - valorG + auxPrueba));
+      doc.line(120, (y - valorG), 120, y);//right
+      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 3) / 2)));
+      doc.line(140, (y - valorG), 140, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
-      doc.text(lineaObservacion, 15, (y - valorG + auxPrueba));
+      if (orden.listArticulosPedido[i].aviso) {
+        doc.setTextColor(255, 0, 0);
+        doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        doc.setTextColor(0, 0, 0);
+      } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -568,6 +632,12 @@ export class ListPedidosComponent implements OnInit {
     dialoConfig.autoFocus = false;
     dialoConfig.disableClose = true;
     dialoConfig.data = { auxId }
-    this.dialog.open(ViewPedidoModalComponent, dialoConfig);
+    const dialogRef = this.dialog.open(ViewPedidoModalComponent, dialoConfig);
+
+    dialogRef.afterClosed().subscribe(
+        () => {
+          this.cargarData()
+        }
+    );   
   }
 }

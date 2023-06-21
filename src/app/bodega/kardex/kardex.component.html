@@ -18,11 +18,6 @@
               <strong>Proveedor:</strong> {{productoBservice.formData.proveedor}}
             </div>
           </div>
-          <div class="row">
-            <div class="col-6">
-              <strong>Disponibilidad General Actual:</strong> {{oneKardex.cantidadDisponible}}
-            </div>
-          </div>
         </div>
       </div>
       <div class="row boxForm ">
@@ -34,6 +29,7 @@
               <option value="Mes">Mensual</option>
               <option value="Trimestral">Trimestral</option>
               <option value="Semestral">Semestral</option>
+              <option value="Anual">Anual</option>
             </select>
           </div>
         </div>
@@ -45,37 +41,13 @@
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="form-group inputForm" *ngIf="productoBservice.formData.planta=='OFICINAS'">
+          <div class="form-group inputForm">
             <div class="title"><strong> Bodega:</strong></div>
             <select class="form-control" name="SelectBodega" #SelectBodega="ngModel"
               [(ngModel)]="oneKardex.BodegaSelect" (ngModelChange)="onFiltrarCantidadesBodega()">
-              <option value="all">-Seleccionar-</option>
-              <option value="Bodega1">Bodega #1</option>
-              <option value="Bodega2">Bodega #2</option>
-              <option value="Bodega3">Bodega #3</option>
-              <option value="Bodega4">Bodega #4</option>
-              <option value="Bodega5">Bodega #5</option>
-              <option value="Bodega6">Bodega #6</option>
-              <option value="Bodega7">Bodega #7</option>
-            </select>
-          </div>
-          <div class="form-group inputForm" *ngIf="productoBservice.formData.planta=='P MANACRIPEX'">
-            <div class="title"><strong> Bodega:</strong></div>
-            <select class="form-control" name="SelectBodega2" #SelectBodega2="ngModel"
-              [(ngModel)]="oneKardex.BodegaSelect" (ngModelChange)="onFiltrarCantidadesBodega()">
-              <option value="all">-Seleccionar-</option>
-              <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA'"
-                value="{{datobodega.nombre}}">
-                {{datobodega.nombre}}</option>
-            </select>
-          </div>
-          <div class="form-group inputForm" *ngIf="productoBservice.formData.planta=='ENFERMERIA'">
-            <div class="title"><strong> BARCO:</strong></div>
-            <select class="form-control" name="SelectBodega2" #SelectBodega2="ngModel"
-              [(ngModel)]="oneKardex.BodegaSelect" (ngModelChange)="onFiltrarCantidadesBodega()">
-              <option value="all">-Seleccionar-</option>
-              <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
-              <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombre}}">{{datobodega.nombre}}</option>
+              <option value="SIN ASIGNAR">-Seleccionar-</option>
+              <option *ngFor="let datoBodega of dato.listBodegasIn" value="{{datoBodega.nombreBodega}}">
+                {{datoBodega.nombreBodega}}</option>
             </select>
           </div>
         </div>
@@ -93,7 +65,7 @@
             <div class="card-headerModal">
               <h5>Kardex Método Promedio</h5>
             </div>
-            <div>
+            <div *ngIf="controlMovimiento != -1">
               <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
                 <table class="table">
                   <thead>
@@ -154,8 +126,9 @@
                         <strong>{{datoItem.factura}}</strong>
                         </a>
                       </td>
-                      <td class="separador" *ngIf="datoItem.tipoItem!='Consulta Médica'">{{datoItem.tipoItem}} a {{datoItem.lugarTransaccion}}</td>
+                      <td class="separador" *ngIf="datoItem.tipoItem!='Consulta Médica'&& datoItem.tipoItem!='Traspaso Bodega'">{{datoItem.tipoItem}} a {{datoItem.lugarTransaccion}}</td>
                       <td class="separador" *ngIf="datoItem.tipoItem=='Consulta Médica'">{{datoItem.tipoItem}} desde {{datoItem.lugarTransaccion}}</td>
+                      <td class="separador" *ngIf="datoItem.tipoItem=='Traspaso Bodega'">{{datoItem.tipoItem}} de {{datoItem.lugarOrigen}} a {{datoItem.lugarTransaccion}}</td>
                       <td>{{datoItem.datoEntrada.cantidad}}</td>
                       <td>${{datoItem.datoEntrada.precioU}}</td>
                       <td class="separador">${{datoItem.datoEntrada.precioTotal}}</td>

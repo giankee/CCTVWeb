@@ -109,6 +109,10 @@ import { FormularioIeesComponent } from './medicina/permisos/formulario-iees/for
 import { PedidosAprobarComponent } from './pedido/pedidos-aprobar/pedidos-aprobar.component';
 import { ListProveedorComponent } from './proveedor/list-proveedor/list-proveedor.component';
 import { SumarTotalesAuxPipe } from './pipes/sumar-totales-aux.pipe';
+import { ReporteCaducidadComponent } from './bodega/reportes/reporte-caducidad/reporte-caducidad.component';
+import { SubirExcelTanquesComponent } from './adminAux/subir-excel-tanques/subir-excel-tanques.component';
+import { ListTanquesComponent } from './adminAux/list-tanques/list-tanques.component';
+import { NewOrdenTrabajoComponent } from './bodega/orden-trabajo-planta/new-orden-trabajo/new-orden-trabajo.component';
 
 
 @NgModule({
@@ -195,7 +199,11 @@ import { SumarTotalesAuxPipe } from './pipes/sumar-totales-aux.pipe';
     FiltrarBarcosEmpresaPipe,
     PedidosAprobarComponent,
     ListProveedorComponent,
-    SumarTotalesAuxPipe
+    SumarTotalesAuxPipe,
+    ReporteCaducidadComponent,
+    SubirExcelTanquesComponent,
+    ListTanquesComponent,
+    NewOrdenTrabajoComponent
   ],
   imports: [
     BrowserModule,

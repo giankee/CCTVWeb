@@ -251,6 +251,75 @@ export class ViewCompraModelComponent implements OnInit {
     doc.text('$' + this._ordenECService.formData.totalOrden.toString(), 265, (y + 47));
     doc.line(5, (y + 50), 290, (y + 50));//down
 
+    if (this.ordenECService.formData.planta == "ENFERMERIA") {
+      doc.text("Pág. #" + Npag, 280, 207);
+      Npag++;
+      doc.addPage();
+      doc.text("Pág. #" + Npag, 280, 207);
+      doc.setFontSize(11);
+      doc.setFont("arial", "bold")
+      y = 15;
+      doc.line(5, (y), 290, (y));//up
+      doc.line(5, y, 5, (y + 20));//left
+      doc.line(290, y, 290, (y + 20));//right
+      doc.line(5, (y + 10), 290, (y + 10));//down
+
+      doc.text("Lista de medicamento compradas en la marea: " + this.ordenECService.formData.marea + " del barco: " + this.ordenECService.formData.listPcomprasO[0].destinoBodega, 15, (y + 7));
+      doc.line(5, (y + 20), 290, (y + 20));//down
+      doc.text("#", 12, (y + 17));
+      doc.line(20, (y + 10), 20, (y + 20));//left
+      doc.text("Medicamento", 35, (y + 17));
+      doc.line(200, (y + 10), 200, (y + 20));//left
+      doc.text("Lote", 215, (y + 17));
+      doc.line(240, (y + 10), 240, (y + 20));//left
+      doc.text("Fecha de Caducidad", 247, (y + 17));
+      doc.setFontSize(9);
+      doc.setFont("arial", "normal")
+      y = y + 20;
+
+      for (var index = 0; index < this.ordenECService.formData.listPcomprasO.length; index++) {
+        y = y + 7;
+
+        if (y > 200) {
+          Npag++;
+          doc.addPage();
+          doc.text("Pág. #" + Npag, 280, 207);
+          doc.setFontSize(11);
+          doc.setFont("arial", "bold")
+          y = 15;
+          doc.line(5, (y), 290, (y));//up
+          doc.line(5, y, 5, (y + 20));//left
+          doc.line(290, y, 290, (y + 20));//right
+          doc.line(5, (y + 10), 290, (y + 10));//down
+
+          doc.text("Lista de medicamento compradas en la marea: " + this.ordenECService.formData.marea + " del barco: " + this.ordenECService.formData.listPcomprasO[0].destinoBodega, 15, (y + 7));
+          doc.line(5, (y + 20), 290, (y + 20));//down
+          doc.text("#", 12, (y + 17));
+          doc.line(20, (y + 10), 20, (y + 20));//left
+          doc.text("Medicamento", 35, (y + 17));
+          doc.line(200, (y + 10), 200, (y + 20));//left
+          doc.text("Lote", 215, (y + 17));
+          doc.line(240, (y + 10), 240, (y + 20));//left
+          doc.text("Fecha de Caducidad", 247, (y + 17));
+
+          doc.setFontSize(9);
+          doc.setFont("arial", "normal")
+          y = y + 27;
+        }
+
+        doc.line(5, (y - 7), 5, y);//left
+        doc.line(290, (y - 7), 290, y);//right
+        doc.line(5, y, 290, y);//down +10y1y2
+        doc.text((index + 1).toString(), 11, (y - 2));
+        doc.line(20, (y - 7), 20, y);//right
+        doc.text(this.ordenECService.formData.listPcomprasO[index].producto.nombre, 25, (y - 2));
+        doc.line(200, (y - 7), 200, y);//right
+        doc.text(this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?this.ordenECService.formData.listPcomprasO[index].loteMedic: "---" , this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?205:218, (y - 2));
+        doc.line(240, (y - 7), 240, y);//right
+        doc.text(this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?this.ordenECService.formData.listPcomprasO[index].fechaVencimientoMedic: "---" , this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?245:262, (y - 2));
+      }
+    }
+
     doc.save("Compra_" + this.ordenECService.formData.factura + "_" + this._ordenECService.formData.fechaRegistroBodega + ".pdf");
   }
 

@@ -1,39 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
-import { UserService } from 'src/app/shared/user.service';
-import { faTasks, faOutdent, faUserTag, faTimesCircle, faPlus, faTimes, faHandPointLeft, faSave } from '@fortawesome/free-solid-svg-icons';
-import { OrdenTrabajoService } from 'src/app/shared/bodega/orden-trabajo.service';
-import { cMaterialesO, cOrdenTrabajoI } from 'src/app/shared/bodega/ordenTrabajo';
 import { NgForm } from '@angular/forms';
-import { VariosService } from 'src/app/shared/otrosServices/varios.service';
-import { cFecha, cVario } from 'src/app/shared/otrosServices/varios';
-import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
-import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
-import { finalize, map } from 'rxjs/operators';
-import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
-import Swal from 'sweetalert2';
-import { jsPDF } from "jspdf";
+import { faHandPointLeft, faOutdent, faPlus, faSave, faTasks, faTimes, faTimesCircle, faUserTag } from '@fortawesome/free-solid-svg-icons';
 import { ToastrService } from 'ngx-toastr';
+import { finalize, map } from 'rxjs/operators';
+import { OrdenTrabajoService } from 'src/app/shared/bodega/orden-trabajo.service';
+import { cBodega, cBodegaArea, cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cMaterialesO, cOrdenTrabajoI } from 'src/app/shared/bodega/ordenTrabajo';
+import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
+import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
+import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
+import { cFecha } from 'src/app/shared/otrosServices/varios';
+import { VariosService } from 'src/app/shared/otrosServices/varios.service';
+import { jsPDF } from "jspdf";
 
 @Component({
-  selector: 'app-control-es',
-  templateUrl: './control-es.component.html',
-  styleUrls: ['./control-es.component.css']
+  selector: 'app-new-orden-trabajo',
+  templateUrl: './new-orden-trabajo.component.html',
+  styles: [],
 })
-export class ControlESComponent implements OnInit {
-  public get productoBService(): ProductoBService {
-    return this._productoBService;
-  }
-  public set productoBService(value: ProductoBService) {
-    this._productoBService = value;
-  }
-  public get variosService(): VariosService {
-    return this._variosService;
-  }
-  public set variosService(value: VariosService) {
-    this._variosService = value;
-  }
+export class NewOrdenTrabajoComponent implements OnInit {
   public get ordenTrabajoService(): OrdenTrabajoService {
     return this._ordenTrabajoService;
   }
@@ -47,80 +32,44 @@ export class ControlESComponent implements OnInit {
     this._conexcionService = value;
   }
 
-  paginacion = new cPaginacion(3);
+  paginacion = new cPaginacion(5);
   fechaHoy = new cFecha();
-  strFases: string = "Inicio";
-  proveedorIsOpened: boolean = false;
-  traspasoIsOpened: boolean = false;
-  devolucionIsOpened: boolean = false;
-  consultaIsOpened: number = 0;
+  listBodega: cBodega[] = [];
+  listAreas: cBodega[] = [];
+  listSubAreas: cBodegaArea[];
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
-  //listBodega: cVario[] = [];
-
-  listBodegaOrigen: cBodega[] = [];
-  listBodegaDestino: cBodega[] = [];
-  listAreas:cBodega[]=[];
-  
   listProdFiltros$: any;
 
   faoutdent = faOutdent; fatasks = faTasks; fausertag = faUserTag; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; faHandLeft = faHandPointLeft; fasave = faSave;
-  constructor(private _userService: UserService, private router: Router, private _conexcionService: ConexionService, private _ordenTrabajoService: OrdenTrabajoService, private _variosService: VariosService, private _productoBService: ProductoBService, private toastr: ToastrService) {
-
-  }
+  constructor(private _conexcionService: ConexionService, private _ordenTrabajoService: OrdenTrabajoService, private productoBService: ProductoBService, private toastr: ToastrService, private variosService: VariosService) { }
 
   ngOnInit(): void {
-    if (!this._userService.estaLogueado) {
-      this.router.navigate(["/user-Login"]);
-    } else {
-      this.resetForm();
-      this.cargarBodega();
-    }
+    this.cargarBodega();
   }
-
-  recibirRes(salir:any, tipo: string) {
-    if (tipo == "proveedor")
-      this.proveedorIsOpened = !salir;
-    if (tipo == "traspaso") {
-      this.resetForm();
-      this.traspasoIsOpened = !salir;
-    }
-    if (tipo == "devolucion")
-      this.devolucionIsOpened = !salir;
-    if (tipo == "consulta")
-      this.consultaIsOpened = salir;
-    this.strFases = "Inicio";
-  }
-
-  onStart(op: string) {
-    this.strFases = op;
-    switch (op) {
-      case 'OrdenTrabajo':
-        this._ordenTrabajoService.formData.tipoOrden = "Trabajo Interno";
-        this._ordenTrabajoService.formData.agregarOneMaterial();
-        this.paginacion.getNumberIndex(1);
-        this.paginacion.updateIndex(0);
-        this.listBodegaDestino=JSON.parse(JSON.stringify(this.listAreas));
-        break;
-      case 'Traspaso':
-        this._ordenTrabajoService.formData.tipoOrden = "Traspaso Bodega";
-        this.listBodegaDestino=JSON.parse(JSON.stringify(this.listBodegaOrigen));
-        if (this._conexcionService.UserR.rolAsignado == "enfermeria") {
-          this._ordenTrabajoService.formData.bodega = "SIN ASIGNAR";
-          this._ordenTrabajoService.formData.destinoLugar = "ENFERMERIA GENERAL";
-          this._ordenTrabajoService.formData.personaResponsable = "VERÓNICA CHUMO";
+  
+  cargarBodega() {
+    if (this.conexcionService.UserR.rolAsignado != "verificador-bodeguero-b") {
+      this.variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
+        this.listAreas = dato;
+      });
+      this.variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+        this.listBodega = dato;
+        this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
+        if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+          this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+            for (var i = 0; i < dato.length; i++) {
+              this.listBodega.push(dato[i]);
+            }
+          });
         }
-        this.traspasoIsOpened = true;
-        break;
-      case 'Proveedor':
-        this.proveedorIsOpened = true;
-        break;
-      case 'Devolucion':
-        this.devolucionIsOpened = true;
-        break;
-      case 'Consulta':
-        this.consultaIsOpened = 1;
-        break;
+        this.resetForm();
+      });
+    } else {
+      this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+        this.listBodega = dato.filter(x => (x.listAreas.find(y => y.encargadoArea == this.conexcionService.UserR.nombreU)));
+        this.resetForm();
+      });
     }
   }
 
@@ -128,34 +77,73 @@ export class ControlESComponent implements OnInit {
     if (form != null) {
       form.resetForm();
     }
-    if (this._conexcionService.UserR.rolAsignado != "enfermeria") {
-      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
-      if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
-        this._ordenTrabajoService.formData.bodega = "GENERAL";
-      this.ordenTrabajoService.formData.destinoLugar="SIN ASIGNAR";
-    } else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "ENFERMERIA");
-    this.strFases = "Inicio";
+    if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero-b")
+      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "BARCOS", this.listBodega[0].nombreBodega); 
+    else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX", this.listBodega[0].nombreBodega);
+    this.ordenTrabajoService.formData.bodeguero = this.ordenTrabajoService.formData.guardiaCargoUser;
+    this._ordenTrabajoService.formData.tipoOrden = "Trabajo Interno";
+    this._ordenTrabajoService.formData.agregarOneMaterial();
+    this.onChooseBarco();
+    this.paginacion.getNumberIndex(1);
+    this.paginacion.updateIndex(0);
     this.okBttnSubmit = true;
   }
 
-  onAntSig(op: string) {
-    this.strFases = "Inicio";
-    this.resetForm();
+  onChooseBarco() {
+    var auxBodega;
+    if (this.conexcionService.UserR.rolAsignado != 'verificador-bodeguero-b') {
+      auxBodega = this.listBodega.find(x => x.nombreBodega == this.ordenTrabajoService.formData.bodega);
+      this.listSubAreas = auxBodega.listAreas;
+      if(this.ordenTrabajoService.formData.bodega=="MECANICA NAVAL")
+        this.ordenTrabajoService.formData.planta="P MANACRIPEX";
+      else this.ordenTrabajoService.formData.planta="BARCOS";
+    }else this.listSubAreas=this.listBodega[0].listAreas.filter(x=>x.encargadoArea==this.conexcionService.UserR.nombreU);
   }
 
-  cargarBodega() {
-    this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
-      this.listBodegaOrigen = dato;
-    });
-    this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
-      this.listAreas = dato;
-    });
+  onListProducto(index: number, op: number, value: string) {
+    if (value != null) {
+      this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = true;
+      this._ordenTrabajoService.formData.listMaterialesO.forEach(x => x.showSearchSelect = 0);
+      this._ordenTrabajoService.formData.listMaterialesO[index].showSearchSelect = op;
+      this._ordenTrabajoService.formData.listMaterialesO[index].inventario.resetProducto();
+      if (op == 2)
+        this._ordenTrabajoService.formData.listMaterialesO[index].inventario.nombre = value.toUpperCase();
+      else this._ordenTrabajoService.formData.listMaterialesO[index].inventario.codigo = value.toUpperCase();
+
+      var strParametro = value;
+      if (value != "") {
+        strParametro = strParametro + "@" + this._ordenTrabajoService.formData.planta + "@" + op + "@" + this.ordenTrabajoService.formData.bodega;
+        this.listProdFiltros$ = this.productoBService.getProductosSearch(strParametro).pipe(
+          map((x: cProducto_B[]) => {
+            return x.filter(y => y.listBodegaProducto.length > 0);
+          }),
+          finalize(() => this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = false)
+        );
+      } else this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = false;
+    }
+  }
+
+  onChooseElemente(index, op: number, data: any) {
+    this._ordenTrabajoService.formData.listMaterialesO[index].showSearchSelect = 0;
+    this._ordenTrabajoService.formData.listMaterialesO[index].inventario.rellenarObjeto(data);
+    this._ordenTrabajoService.formData.listMaterialesO[index].inventarioId = this.ordenTrabajoService.formData.listMaterialesO[index].inventario.idProductoStock;
+    this._ordenTrabajoService.formData.listMaterialesO[index].inventario.disBttnInput = op;
+    this._ordenTrabajoService.formData.listMaterialesO[index].inventario.listBodegaProducto[0].sumStockBodegas();
   }
 
   comprobarNewM() {
     var flag = true;
-    if (this._ordenTrabajoService.formData.listMaterialesO.find(x => (x.cantidad <= 0 || x.inventarioId == undefined) || (x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)) != undefined)
-      flag = false;
+    if (this.ordenTrabajoService.formData.listMaterialesO.length > 0)
+      this.ordenTrabajoService.formData.listMaterialesO.forEach(x => {
+        if (x.cantidad <= 0)
+          flag = false;
+        if (x.loteId == "SIN ASIGNAR" && x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)
+          flag = false;
+        if (x.inventario.listBodegaProducto[0].listAreas.length > 0) {
+          if (x.loteId != "SIN ASIGNAR" && x.cantidad > x.inventario.listBodegaProducto[0].listAreas.find(y => y.nombreSub == x.loteId).disponibilidad)
+            flag = false;
+        }
+      });
     this.okAddNewBotton = flag;
     return (flag);
   }
@@ -179,68 +167,24 @@ export class ControlESComponent implements OnInit {
     this.comprobarNewM();
   }
 
-  onListProducto(index: number, op: number, value: string) {
-    if (value != null) {
-      this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = true;
-      this._ordenTrabajoService.formData.listMaterialesO.forEach(x => x.showSearchSelect = 0);
-      this._ordenTrabajoService.formData.listMaterialesO[index].showSearchSelect = op;
-      this._ordenTrabajoService.formData.listMaterialesO[index].inventario.resetProducto();
-      if (op == 2)
-        this._ordenTrabajoService.formData.listMaterialesO[index].inventario.nombre = value.toUpperCase();
-      else this._ordenTrabajoService.formData.listMaterialesO[index].inventario.codigo = value.toUpperCase();
-
-      var strParametro = value;
-      if (value != "") {
-        strParametro = strParametro + "@" + this._ordenTrabajoService.formData.planta + "@" + op + "@" + this.ordenTrabajoService.formData.bodega;
-
-        this.listProdFiltros$ = this._productoBService.getProductosSearch(strParametro).pipe(
-          map((x: cProducto_B[]) => {
-            return x.filter(y => y.listBodegaProducto.length > 0);
-          }),
-          finalize(() => this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = false)
-        );
-      } else this._ordenTrabajoService.formData.listMaterialesO[index].spinnerLoading = false;
-    }
-  }
-
-  onChooseElemente(index, op: number, data: any) {
-    this._ordenTrabajoService.formData.listMaterialesO[index].showSearchSelect = 0;
-    this._ordenTrabajoService.formData.listMaterialesO[index].inventario.rellenarObjeto(data);
-    this._ordenTrabajoService.formData.listMaterialesO[index].inventarioId = this.ordenTrabajoService.formData.listMaterialesO[index].inventario.idProductoStock;
-    this._ordenTrabajoService.formData.listMaterialesO[index].inventario.disBttnInput = op;
-  }
-
   onSubmit(form: NgForm) {
     if (this._conexcionService.formData.connectionStatus == "nline") {
       this.okBttnSubmit = false;
-      if (this.strFases == "OrdenTrabajo") {
-        if (this.comprobarNewM()) {
-          this._ordenTrabajoService.insertarOrdenInterna(this._ordenTrabajoService.formData).subscribe(
-            (res: any) => {
-              if (res.exito == 1) {
-                this.toastr.success('Registro satisfactorio', 'Orden Registrada');
-                this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
-                this.convertPdf(this.ordenTrabajoService.formData);
-                this.resetForm(form);
-              } else {
-                this.okBttnSubmit = false;
-                this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
-              };
-            });
-        } else this.okBttnSubmit = true;
-      }
-    } else {
-      Swal.fire({
-        title: 'No ahi conexión de Internet',
-        text: "Manten la paciencia e inténtalo de nuevo más tarde",
-        icon: 'warning',
-        showCancelButton: false,
-        confirmButtonText: 'Continuar!',
-        customClass: {
-          confirmButton: 'btn btn-info'
-        },
-        buttonsStyling: false
-      })
+      if (this.comprobarNewM()) {
+        this._ordenTrabajoService.insertarOrdenInterna(this._ordenTrabajoService.formData).subscribe(
+          (res: any) => {
+            if (res.exito == 1) {
+              this.toastr.success('Registro satisfactorio', 'Orden Registrada');
+              this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
+              this.convertPdf(this.ordenTrabajoService.formData);
+              this.resetForm(form);
+            } else {
+              this.okBttnSubmit = false;
+              this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
+            };
+          });
+          
+      } else this.okBttnSubmit = true;
     }
   }
 

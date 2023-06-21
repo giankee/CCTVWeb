@@ -84,13 +84,11 @@ export class UserComponent implements OnInit {
             case 'admin':
             case 'gpv-o':
             case 'gv-m':
+            case 'tinabg-m':
               this.router.navigateByUrl('/OrdenSupervisor');
               break;
             case 'guardia':
               this.router.navigateByUrl('/OrdenGuardia');
-              break;
-            case 'tinabg-m':
-              this.router.navigateByUrl('/Tina/movTinas');
               break;
             case 'bodega_verificador-m':
               this.router.navigateByUrl('/Bodega/controlBodega');
@@ -102,6 +100,9 @@ export class UserComponent implements OnInit {
               this.router.navigateByUrl('/Bodega/verificacion');
               break;
             case 'verificador-bodeguero':
+              this.router.navigateByUrl('/Bodega/inventarioList');
+              break;
+            case 'verificador-bodeguero-b':
               this.router.navigateByUrl('/Bodega/inventarioList');
               break;
             case 'pedido-flota':

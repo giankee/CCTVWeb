@@ -34,6 +34,12 @@ export class cOrdenEs {
     listTinasO?: cTinasO[];
     listGaleriaArchivoOrdenes?: cGaleriaArchivosOrdenES[];
 
+    /**Auxiliares */
+    isTanqueAgua: boolean = false;
+    isTanqueGasolina: boolean = false;
+    saleAGUAHER: boolean = false;
+    salePETROECUADOR: boolean = false;
+
     constructor(plantaIn: string, guardiaUserIn: string) {
         var fechaHoy = new cFecha();
         this.planta = plantaIn;
@@ -100,7 +106,7 @@ export class cOrdenEs {
         this.estadoProceso = dataIn.estadoProceso;
 
         if (dataIn.listArticulosO != null) {
-            this.listArticulosO=[];
+            this.listArticulosO = [];
             for (var i = 0; i < dataIn.listArticulosO.length; i++)
                 this.agregarOneArticulo(dataIn.listArticulosO[i]);
         }
@@ -137,7 +143,7 @@ export class cArticulosO {
     checkInventario?: boolean = false;
     spinnerLoading?: boolean = false;
     showSearchSelect?: number = 0;//0 off all,1 show
-    preCant?:number=0;//solo para el editOrden si es q es inventario
+    preCant?: number = 0;//solo para el editOrden si es q es inventario
 
     constructor() {
     }
@@ -194,7 +200,7 @@ export class cTinasO {
                 else this.balde.actividad = "APILADA";
             } else {
                 this.contenido = "LLENO";
-                this.balde.actividad="CARGADA";
+                this.balde.actividad = "CARGADA";
             }
         }
     }
@@ -232,4 +238,33 @@ export class cNotificacion {
     fechaCreacion: string;
     estadoProceso: string;
     recordatorioHasta?: string;
+}
+
+export class cParametroReporteTanques {
+    tipoR: string;
+    strPeriodoA: string;
+    strPeriodoB: string;
+    boolPlanta: boolean;
+    strDestino: string;
+
+    constructor() {
+        var fechaHoy = new cFecha();
+        this.tipoR = "SIN ASIGNAR";
+        this.boolPlanta = false;
+        this.strPeriodoA = fechaHoy.sacaSoloMes();
+        this.strPeriodoB = this.strPeriodoA;
+        this.strDestino = "SIN ASIGNAR";
+    }
+}
+
+export class cReporteTanque {
+    IdOrden: number;
+    TipoOrden: string
+    Guia: string
+    Origen: string;
+    Destino: string;
+    Chofer: string;
+    Persona: string;
+    Fecha: string;
+    Cantidad: string;
 }

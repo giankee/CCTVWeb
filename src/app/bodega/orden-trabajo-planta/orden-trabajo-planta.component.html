@@ -20,13 +20,15 @@
           </div>
           <div class="mt-2 px-4 py-2 boxForm collapse" id="FiltroList">
             <div class="row">
-              <div class="col-12 col-md-4">
+              <div class="col-12 col-md-4" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-bodeguero-b' && (conexcionService.UserR.rolAsignado != 'verificador-bodeguero' || (conexcionService.UserR.nombreU == 'FERNANDA MORALES') ) ">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Bodega Origen:</strong></div>
-                  <select class="form-control" name="selectBodega" #selectBodega="ngModel" [disabled]="conexcionService.UserR.rolAsignado == 'verificador-bodeguero'"
+                  <select class="form-control" name="selectBodega" #selectBodega="ngModel"
                     [(ngModel)]="parametrosBusqueda.strBodegaOrigen">
-                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'AREA':conexcionService.UserR.rolAsignado" value="{{datobodega.nombre}}">
-                      {{datobodega.nombre}}
+                    <option value="All">-Seleccionar-</option>
+                    <option *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'" value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
+                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombreBodega}}">
+                      {{datobodega.nombreBodega}}
                     </option>
                   </select>
                 </div>
@@ -47,16 +49,13 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-12 col-sm-6 col-md-4">
+              <div class="col-12 col-sm-6 col-md-4" *ngIf="conexcionService.UserR.rolAsignado == 'tinabg-m'||conexcionService.UserR.rolAsignado == 'bodega_verificador-m'">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Área Destino:</strong></div>
-                  <select class="form-control" name="selectArea" #selectArea="ngModel"
+                  <select class="form-control" name="selectArea" #selectArea="ngModel" *ngIf="conexcionService.UserR.rolAsignado!='enfermeria'"
                     [(ngModel)]="parametrosBusqueda.strArea">
                     <option [ngValue]="'null'">-- Seleccionar --</option>
-                    <option *ngFor="let datobodega of listBodega |lugaresCat:'cVario':'DEPARTAMENTO MANACRIPEX'"
-                      value="{{datobodega.nombre}}">
-                      {{datobodega.nombre}}
-                    </option>
+                    <option *ngFor="let datoArea of listAreas" value="{{datoArea.nombreBodega}}">{{datoArea.nombreBodega}}</option>
                   </select>
                 </div>
               </div>
@@ -115,40 +114,6 @@
               <fa-icon [icon]="faprint"></fa-icon>
             </a> -->
           </div>
-          <!-- <div class="mt-2 px-4 pt-2 boxForm">
-            <div class="row">
-              <div class="col-12 col-md-4">
-                <div class="form-group inputForm">
-                  <div class="title"><strong> Documentación:</strong></div>
-                  <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">
-                        <fa-icon [icon]="fasearch"></fa-icon>
-                      </span>
-                    </div>
-                    <input name="selectParamIn" #selectParamIn="ngModel" [(ngModel)]="selectParam"
-                      (ngModelChange)="onListParam(selectParam=$event.toUpperCase())"
-                      placeholder="Buscar número factura, Proveedor" class="form-control">
-                  </div>
-                </div>
-              </div>
-              <div class="col-6 col-md-4">
-                <div class="form-group inputForm">
-                  <div class="title"><strong> Desde:</strong></div>
-                  <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="fechaHoy.inDesde"
-                    class="form-control" min="1900-01-01" max="{{fechaHoy.inHasta}}" (ngModelChange)="onListParam('')">
-                </div>
-              </div>
-              <div class="col-6 col-md-4">
-                <div class="form-group inputForm">
-                  <div class="title"><strong>Hasta:</strong></div>
-                  <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="fechaHoy.inHasta"
-                    class="form-control" min="{{fechaHoy.inDesde}}" max="{{fechaHoy.strFecha}}"
-                    (ngModelChange)="onListParam('')">
-                </div>
-              </div>
-            </div>
-          </div> -->
           <div class="text-center my-3" *ngIf="spinnerOnOff">
             <div class="d-flex justify-content-center">
               <mat-spinner color="accent"></mat-spinner>
@@ -168,10 +133,19 @@
                       </div>
                     </th>
                     <th>Fecha Registro</th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& conexcionService.UserR.nombreU=='FERNANDA MORALES')">Tipo Movimiento</th>
                     <th>
                       <div class="d-inline-block" style="margin-right: 0.5rem;"> Bodega Origen</div>
                       <div id="ordenarS" class="d-inline-block">
                         <a class="badge text-dark2" (click)="onOrdenTrabajos('Bodega')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+                      <div class="d-inline-block" style="margin-right: 0.5rem;"> Marea</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenTrabajos('Marea')">
                           <fa-icon [icon]="sort"></fa-icon>
                         </a>
                       </div>
@@ -202,7 +176,9 @@
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{dato.numOrdenSecuencial}}</td>
                     <td>{{dato.fechaRegistro}}</td>
+                    <td *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& conexcionService.UserR.nombreU=='FERNANDA MORALES')">{{dato.tipoOrden}} </td>
                     <td>{{dato.bodega}}</td>
+                    <td *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">{{dato.marea!=null?dato.marea: '---'}}</td>
                     <td>{{dato.destinoLugar}}</td>
                     <td>{{dato.personaResponsable}}</td>
                     <td>

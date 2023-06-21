@@ -12,7 +12,7 @@ import { jsPDF } from "jspdf";
 import { faOutdent, faPlus, faSave, faTimes, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { cMaterialesO, cOrdenTrabajoI } from 'src/app/shared/bodega/ordenTrabajo';
 import { finalize, map } from 'rxjs/operators';
-import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 
 @Component({
@@ -57,7 +57,8 @@ export class TraspasoInternoComponent implements OnInit {
 
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
-  listBodega: cVario[] = [];
+  listBodegaOrigen: cBodega[] = [];
+  listBodegaDestino: cBodega[] = [];
   listProdFiltros$: any;
 
   faoutdent = faOutdent; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; fasave = faSave;
@@ -66,30 +67,85 @@ export class TraspasoInternoComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarBodega();
-    this._ordenTrabajoService.formData.agregarOneMaterial();
+    if (!this.isOpen) 
+      this.reset();
+    else this._ordenTrabajoService.formData.agregarOneMaterial();
     this.paginacion.getNumberIndex(1);
     this.paginacion.updateIndex(0);
   }
 
+  reset(){
+    if (this._conexcionService.UserR.rolAsignado == "enfermeria") {
+      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "ENFERMERIA");
+    } else {
+      if (this._conexcionService.UserR.rolAsignado == "gpv-o") {
+        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "OFICINAS");
+        this._ordenTrabajoService.formData.bodega = "Bodega Helicoptero";
+        this.ordenTrabajoService.formData.bodeguero=this.conexcionService.UserR.nombreU;
+      }
+      else {
+        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
+        if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
+          this._ordenTrabajoService.formData.bodega = "GENERAL";
+        if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES"){
+          this._ordenTrabajoService.formData.bodega = "MECANICA NAVAL";
+          this.ordenTrabajoService.formData.bodeguero="FERNANDA MORALES";
+        }
+      }
+    }
+    this.okBttnSubmit=true;
+    this.ordenTrabajoService.formData.tipoOrden = "Traspaso Bodega";
+    this.ordenTrabajoService.formData.destinoLugar="SIN ASIGNAR";
+    this._ordenTrabajoService.formData.agregarOneMaterial();
+  }
+
   cargarBodega() {
     if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
-      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-        dato.forEach(x => {
-          if (x.categoria == "Puerto" && x.prioridadNivel==1)
-            this.listBodega.push(x);
-        });
+      this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+        this.listBodegaOrigen = dato;
       });
     } else {
-      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-        this.listBodega = dato;
-      });
+      if (this.conexcionService.UserR.rolAsignado == "gpv-o") {
+        this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
+          this.listBodegaOrigen = JSON.parse(JSON.stringify(dato));
+          this.listBodegaDestino = JSON.parse(JSON.stringify(this.listBodegaOrigen));
+          this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+            for (var i = 0; i < dato.length; i++) {
+              this.listBodegaDestino.push(dato[i]);
+            }
+          });
+        });
+      } else {
+        this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+          this.listBodegaDestino = dato;
+          if (this.conexcionService.UserR.rolAsignado != 'tinabg-m') {
+            this.listBodegaOrigen = this.listBodegaDestino.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
+            if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+              this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+                for (var i = 0; i < dato.length; i++) {
+                  this.listBodegaDestino.push(dato[i]);
+                }
+              });
+            }
+          }else this.listBodegaOrigen = this.listBodegaDestino;
+        });
+      }
     }
   }
 
   comprobarNewM() {
     var flag = true;
-    if (this._ordenTrabajoService.formData.listMaterialesO.find(x => (x.cantidad <= 0 || x.inventarioId == undefined) || (x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)) != undefined)
-      flag = false;
+    if (this.ordenTrabajoService.formData.listMaterialesO.length > 0)
+      this.ordenTrabajoService.formData.listMaterialesO.forEach(x => {
+        if (x.cantidad <= 0)
+          flag = false;
+        if (x.loteId == "SIN ASIGNAR" && x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)
+          flag = false;
+        if (x.inventario.listBodegaProducto[0].listAreas.length > 0) {
+          if (x.loteId != "SIN ASIGNAR" && x.cantidad > x.inventario.listBodegaProducto[0].listAreas.find(y => y.nombreSub == x.loteId).disponibilidad)
+            flag = false;
+        }
+      });
     this.okAddNewBotton = flag;
     return (flag);
   }
@@ -139,31 +195,38 @@ export class TraspasoInternoComponent implements OnInit {
     this._ordenTrabajoService.formData.listMaterialesO[index].inventario.rellenarObjeto(data);
     this._ordenTrabajoService.formData.listMaterialesO[index].inventarioId = this.ordenTrabajoService.formData.listMaterialesO[index].inventario.idProductoStock;
     this._ordenTrabajoService.formData.listMaterialesO[index].inventario.disBttnInput = op;
+    this._ordenTrabajoService.formData.listMaterialesO[index].inventario.listBodegaProducto[0].sumStockBodegas();
   }
 
   onSubmit(form: NgForm) {
     if (this._conexcionService.formData.connectionStatus == "nline") {
       this.okBttnSubmit = false;
       if (this.comprobarNewM()) {
-       this._ordenTrabajoService.traspasoBodega(this._ordenTrabajoService.formData).subscribe(
+        if (this.conexcionService.UserR.rolAsignado == "enfermeria")
+          this.ordenTrabajoService.formData.marea = this.ordenTrabajoService.formData.marea + "-" + this.fechaHoy.anio;
+        else this.ordenTrabajoService.formData.marea = null;
+        this._ordenTrabajoService.traspasoBodega(this._ordenTrabajoService.formData).subscribe(
           (res: any) => {
             if (res.exito == 1) {
               this.toastr.success('Registro satisfactorio', 'Traspaso Exitoso');
               this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
-              if(this.ordenTrabajoService.formData.destinoLugar!="ENFERMERIA GENERAL"){
-                if(this.listBodega.find(x=>x.nombre==this._ordenTrabajoService.formData.bodega).encargadoBodega!=this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).encargadoBodega){
-                  this.sendMediaMessage(this.ordenTrabajoService.formData, this.listBodega.find(x=>x.nombre==this.ordenTrabajoService.formData.destinoLugar).telefonoEncargado)
-                }else this.onConvertPdfOne(this.ordenTrabajoService.formData);
+              if (this.ordenTrabajoService.formData.destinoLugar != "ENFERMERIA GENERAL") {
+                if (this.listBodegaOrigen.find(x => x.nombreBodega == this._ordenTrabajoService.formData.bodega).encargadoBodega != this.listBodegaDestino.find(x => x.nombreBodega == this.ordenTrabajoService.formData.destinoLugar).encargadoBodega) {
+                  this.sendMediaMessage(this.ordenTrabajoService.formData, this.listBodegaDestino.find(x => x.nombreBodega == this.ordenTrabajoService.formData.destinoLugar).telefonoEncargado)
+                } else this.onConvertPdfOne(this.ordenTrabajoService.formData);
               }
             } else {
               this.okBttnSubmit = false;
               this.toastr.warning('Registro Fallido', 'Intentelo mas tarde')
             };
-            this.ordenTrabajoService.formData.resetObject();
-            this.cerrar.emit(true);
+            if (this.isOpen) {
+              this.ordenTrabajoService.formData.resetObject();
+              this.cerrar.emit(true);
+            }else this.reset();
           });
+          
+          
       } else this.okBttnSubmit = true;
-
     } else {
       Swal.fire({
         title: 'No ahi conexión de Internet',
@@ -336,7 +399,7 @@ export class TraspasoInternoComponent implements OnInit {
     auxWhatsapp.message = ':bell: *Notificación de Traspaso*:exclamation: :bell:'
       + '\n'
       + '\n:wave: Saludos Compañero:'
-      + '\nSe le informa que se ha registrado un trasposo de material de la bodega *' + traspaso.bodega + '* para la bodega *'+ traspaso.destinoLugar +'*.'
+      + '\nSe le informa que se ha registrado un trasposo de material de la bodega *' + traspaso.bodega + '* para la bodega *' + traspaso.destinoLugar + '*.'
       + '\nLos datos de la compra son:'
       + '\n'
       + '\n*Secuencial:* ' + traspaso.numOrdenSecuencial

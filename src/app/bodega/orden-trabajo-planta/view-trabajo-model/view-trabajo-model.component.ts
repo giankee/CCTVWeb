@@ -68,7 +68,7 @@ export class ViewTrabajoModelComponent implements OnInit {
     doc.text("Planta: ", 20, (y + 10));
     doc.text("Fecha Registro: ", 105, (y + 10));
 
-    doc.text("Bodega de Salida: ", 20, (y + 15));
+    doc.text("Bodega de Salida: " , 20, (y + 15));
     if (orden.tipoOrden == "Trabajo Interno") {
       doc.text("Área de Destino: ", 105, (y + 15));
       doc.text("Responsable de la solicitud: ", 105, (y + 20));
@@ -88,7 +88,7 @@ export class ViewTrabajoModelComponent implements OnInit {
     doc.setFont("arial", "normal");
     doc.text(orden.planta, 32, (y + 10));
     doc.text(orden.fechaRegistro, 132, (y + 10));
-    doc.text(orden.bodega, 53, (y + 15));
+    doc.text(orden.bodega + (orden.marea!=null?'   '+orden.marea: ''), 53, (y + 15));
     doc.text(orden.destinoLugar, 137, (y + 15));
     doc.text(orden.bodeguero, 75, (y + 20));
     doc.text(orden.personaResponsable, 163, (y + 20));

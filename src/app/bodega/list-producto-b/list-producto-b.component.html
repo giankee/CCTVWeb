@@ -8,8 +8,8 @@
 <section class="dashboard-header">
   <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
     <div class="row">
-      <div class="col-lg-8 col-md-12 col-sm-12 col-12"
-        [ngClass]="{'col-lg-12':conexcionService.UserR.rolAsignado == 'verificador-medic'||conexcionService.UserR.rolAsignado == 'verificador-bodeguero'}">
+      <div class="col-12 col-lg-8"
+        [ngClass]="{'col-lg-8':(conexcionService.UserR.rolAsignado == 'enfermeria' || conexcionService.UserR.rolAsignado == 'gpv-o' || conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || conexcionService.UserR.rolAsignado =='tinabg-m' || (conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && conexcionService.UserR.nombreU=='FERNANDA MORALES'))}">
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
             <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Productos Inventario</a></h5>
@@ -31,22 +31,9 @@
                     (ngModelChange)="filtroProducto = $event.toUpperCase()">
                 </div>
               </div>
-              <div class="col-4"
-                *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
-                <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='OFICINAS'">
-                  <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
-                    [(ngModel)]="selecBodegaFiltro">
-                    <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option value="Bodega1">Bodega #1</option>
-                    <option value="Bodega2">Bodega #2</option>
-                    <option value="Bodega3">Bodega #3</option>
-                    <option value="Bodega4">Bodega #4</option>
-                    <option value="Bodega5">Bodega #5</option>
-                    <option value="Bodega6">Bodega #6</option>
-                    <option value="Bodega7">Bodega #7</option>
-                  </select>
-                </div>
-                <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='P MANACRIPEX'">
+              <div class="col-4" *ngIf="listBodega.length>1">
+                <div class="form-group inputForm"
+                  *ngIf="productoBService.formData?.planta=='P MANACRIPEX'||productoBService.formData?.planta=='OFICINAS'">
                   <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
                     [(ngModel)]="selecBodegaFiltro">
                     <option selected value="SIN ASIGNAR">-Seleccionar-</option>
@@ -54,7 +41,7 @@
                       {{datobodega.nombreBodega}}</option>
                   </select>
                 </div>
-                <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='ENFERMERIA'">
+                <div class="form-group inputForm" *ngIf="productoBService.formData?.planta=='ENFERMERIA'">
                   <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
                     [(ngModel)]="selecBodegaFiltro">
                     <option selected value="SIN ASIGNAR">-Seleccionar-</option>
@@ -98,12 +85,9 @@
                       </a>
                     </div>
                   </th>
-                  <th style="width: 13%;"
-                    *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
-                    Precio</th>
-                  <th style="width: 12%;">
-                    {{conexcionService.UserR.rolAsignado == 'verificador-medic'  || conexcionService.UserR.rolAsignado == 'verificador-bodeguero'? 'Disponibilidad' : 'Kardex'}}
-                  </th>
+                  <th style="width: 13%;" *ngIf="listBodega.length>1"> Precio</th>
+                  <th style="width: 12%;" *ngIf="listBodega.length>1"> Kardex</th>
+                  <th style="width: 12%;" *ngIf="listBodega.length==1">Disponibilidad</th>
                 </tr>
               </thead>
               <tbody
@@ -125,11 +109,8 @@
                     {{datoP.categoria}}</td>
                   <td *ngIf="showSelect1==3 && conexcionService.UserR.rolAsignado != 'verificador-medic'">
                     {{datoP.marca}}</td>
-                  <td class="text-center"
-                    *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
-                    ${{datoP.precioStandar}}</td>
-                  <td class="text-center" id="utilitarioI"
-                    *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
+                  <td class="text-center" *ngIf="listBodega.length>1"> ${{datoP.precioStandar}}</td>
+                  <td class="text-center" id="utilitarioI" *ngIf="listBodega.length>1">
                     <a class="badge text-primario d-none d-sm-block" (click)="onModalKardex(datoP)"
                       matTooltip="Te permite visualizar la Kardex del producto" matTooltipPosition="left"
                       matTooltipClass="tooltipBlack">
@@ -137,13 +118,9 @@
                     </a>
                   </td>
                   <td class="text-center" id="utilitarioI"
-                    *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">
-                    {{datoP.descripcion}}
+                    *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">{{datoP.descripcion}}
                   </td>
-                  <td class="text-center" id="utilitarioI"
-                    *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic' || conexcionService.UserR.rolAsignado == 'verificador-bodeguero'">
-                    {{datoP.sumStock}}
-                  </td>
+                  <td class="text-center" id="utilitarioI" *ngIf="listBodega.length==1">{{datoP.sumStock}}</td>
                 </tr>
               </tbody>
             </table>
@@ -172,7 +149,7 @@
         </div>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12 col-12"
-        *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic' && conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
+        *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria' || conexcionService.UserR.rolAsignado == 'gpv-o' || conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || conexcionService.UserR.rolAsignado =='tinabg-m' || (conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && conexcionService.UserR.nombreU=='FERNANDA MORALES')">
         <div class="row">
           <div class="col-12 mb-3"
             *ngIf="conexcionService.UserR.rolAsignado != 'gpv-o' && conexcionService.UserR.rolAsignado != 'enfermeria'">
@@ -212,12 +189,21 @@
                       </div>
                       <div class="form-group inputForm">
                         <div class="title"><strong>Nombre:</strong></div>
-                        <input id="iDescripcione" name="nombre" #nombre="ngModel"
+                        <input id="iDescripcion" name="nombre" #nombre="ngModel"
                           [(ngModel)]="productoBService.formData.nombre" class="form-control" maxlength="75"
                           placeholder="Nombre del producto"
                           (ngModelChange)="productoBService.formData.nombre!=null && productoBService.formData.nombre = $event.toUpperCase()"
                           [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion" required>
                         <label class="error" *ngIf="nombre.touched && nombre.errors?.required">Campo
+                          Requerido</label>
+                      </div>
+                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+                        <div class="title"><strong>Número Parte:</strong></div>
+                        <input id="idNumParte" name="numParte" #numParte="ngModel"
+                          [(ngModel)]="productoBService.formData.numParte" class="form-control" maxlength="75"
+                          placeholder="Numeración de la parte"
+                          (ngModelChange)="productoBService.formData.numParte!=null && productoBService.formData.numParte = $event.toUpperCase()">
+                        <label class="error" *ngIf="numParte.touched && numParte.errors?.required">Campo
                           Requerido</label>
                       </div>
                       <div class="form-group inputForm">
@@ -304,6 +290,7 @@
                           [(ngModel)]="productoBService.formData.tipoUnidad" required>
                           <option selected value="UNIDAD">Unidad</option>
                           <option value="CONTENIDO NETO">Contenido Neto</option>
+                          <option value="EQUIVALENCIA">Equivalencia</option>
                         </select>
                         <label class="error" *ngIf="tipoUnidad.touched && tipoUnidad.errors?.required">Campo
                           Requerido</label>
@@ -313,7 +300,6 @@
                             {{productoBService.formData.tipoUnidad=='CONTENIDO NETO' ? 'Contenido Neto' : 'Equivalencia'}}</strong>
                         </div>
                         <input id="contenidoN" name="contenidoNeto" #contenidoNeto="ngModel"
-                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
                           [(ngModel)]="productoBService.formData.contenidoNeto" class="form-control" maxlength="5"
                           required>
                         <label class="error" *ngIf="contenidoNeto.touched && contenidoNeto.errors?.required">Campo
@@ -339,21 +325,8 @@
                         <div class="subForm">
                           <div class="row mb-1">
                             <div class="col-8">
-                              <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='OFICINAS'">
-                                <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
-                                  [(ngModel)]="selectBodegaAux">
-                                  <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                                  <option value="Bodega1">Bodega #1</option>
-                                  <option value="Bodega2">Bodega #2</option>
-                                  <option value="Bodega3">Bodega #3</option>
-                                  <option value="Bodega4">Bodega #4</option>
-                                  <option value="Bodega5">Bodega #5</option>
-                                  <option value="Bodega6">Bodega #6</option>
-                                  <option value="Bodega7">Bodega #7</option>
-                                </select>
-                              </div>
                               <div class="form-group inputForm"
-                                *ngIf="productoBService.formData.planta=='P MANACRIPEX'">
+                                *ngIf="productoBService.formData?.planta=='P MANACRIPEX'||productoBService.formData?.planta=='OFICINAS'">
                                 <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
                                   [(ngModel)]="selectBodegaAux">
                                   <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
@@ -361,7 +334,7 @@
                                     {{datobodega.nombreBodega}}</option>
                                 </select>
                               </div>
-                              <div class="form-group inputForm" *ngIf="productoBService.formData.planta=='ENFERMERIA'">
+                              <div class="form-group inputForm" *ngIf="productoBService.formData?.planta=='ENFERMERIA'">
                                 <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"
                                   [(ngModel)]="selectBodegaAux">
                                   <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
@@ -373,7 +346,7 @@
                             </div>
                             <div class="col-4">
                               <a [routerLink] (click)="onNewBodega()" class="btn bttn-Primario btn-sm">
-                                <fa-icon [icon]="faplus"></fa-icon> Añadir Bodega
+                                <fa-icon [icon]="faplus"></fa-icon> Añadir
                               </a>
                             </div>
                           </div>
@@ -416,7 +389,7 @@
                                           [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantMinima"
                                           class="form-control" maxlength="10" required>
                                       </div>
-                                      <div *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+                                      <div *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'||(conexcionService.UserR.rolAsignado=='gpv-o'||(conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && conexcionService.UserR.nombreU=='FERNANDA MORALES' ) )">
                                         <div class="row">
                                           <div class="col-8">
                                             <div class="form-group inputForm">
@@ -425,17 +398,18 @@
                                               </div>
                                             </div>
                                           </div>
-                                          <div class="col-4" *ngIf="productoBService.formData.listBodegaProducto[indice].idBodegaProducto!=undefined">
+                                          <div class="col-4"
+                                            *ngIf="productoBService.formData.listBodegaProducto[indice].idBodegaProducto!=undefined">
                                             <a [routerLink] (click)="onNewLote(indice)"
                                               class="btn bttn-Primario btn-sm">
-                                              <fa-icon [icon]="faplus"></fa-icon> Lote
+                                              <fa-icon [icon]="faplus"></fa-icon> {{productoBService.formData.planta=='ENFERMERIA'?'Lote':'Serie'}}
                                             </a>
                                           </div>
                                         </div>
                                         <div class="row">
                                           <div class="col-12">
                                             <div class="form-group inputForm">
-                                              <div><strong>Cantidad Sin Lote:</strong></div>
+                                              <div><strong>Cantidad Sin {{productoBService.formData.planta=='ENFERMERIA'?'Lote':'Serie'}}:</strong></div>
                                               <input type="number" name="in{{indice}}disponibilidad"
                                                 #in{{indice}}disponibilidad="ngModel" min="0"
                                                 pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
@@ -446,14 +420,16 @@
                                             </div>
                                           </div>
                                         </div>
-                                        <div *ngIf="productoBService.formData.listBodegaProducto[indice].listAreas.length>0">
+                                        <div
+                                          *ngIf="productoBService.formData.listBodegaProducto[indice].listAreas.length>0">
                                           <div class="row subForm mb-1"
                                             *ngFor="let datoLote of productoBService.formData.listBodegaProducto[indice].listAreas; let indiceLote=index">
                                             <div class="col-12  form-group inputForm">
-                                              <div><strong>Código Lote:</strong></div>
-                                              <input name="in{{indice}}lote{{indiceLote}}Nombre" #in{{indice}}lote{{indiceLote}}Nombre="ngModel"
-                                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].nombreSub" class="form-control"
-                                                maxlength="10" placeholder="# Lote" required
+                                              <div><strong>Código {{productoBService.formData.planta=='ENFERMERIA'?'Lote':'Serie'}}:</strong></div>
+                                              <input name="in{{indice}}lote{{indiceLote}}Nombre"
+                                                #in{{indice}}lote{{indiceLote}}Nombre="ngModel"
+                                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].nombreSub"
+                                                class="form-control" maxlength="25" placeholder="# {{productoBService.formData.planta=='ENFERMERIA'?'Lote':'Serie'}}" required
                                                 (ngModelChange)="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].nombreSub = $event.toUpperCase()">
                                             </div>
                                             <div class="col-5 form-group inputForm">
@@ -468,14 +444,16 @@
                                             </div>
                                             <div class="col-7 form-group inputForm">
                                               <div><strong>Fecha Vencimiento:</strong></div>
-                                              <input class="form-control" type="date" name="in{{indice}}lote{{indiceLote}}vencimiento" #in{{indice}}lote{{indiceLote}}vencimiento="ngModel"
-                                              [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].fechaVencimiento" min="2022-01-01">
+                                              <input class="form-control" type="month"
+                                                name="in{{indice}}lote{{indiceLote}}vencimiento"
+                                                #in{{indice}}lote{{indiceLote}}vencimiento="ngModel"
+                                                [(ngModel)]="productoBService.formData.listBodegaProducto[indice].listAreas[indiceLote].fechaVencimiento"
+                                                min="2022-01">
                                             </div>
                                           </div>
                                         </div>
                                       </div>
-                                      <div class="form-group inputForm"
-                                        *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+                                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria' && productoBService.formData.listBodegaProducto[indice].nombreBodega!='SUSTANCIAS'">
                                         <div><strong>Cantidad Disponible:</strong></div>
                                         <input type="number" name="in{{indice}}disponibilidad"
                                           #in{{indice}}disponibilidad="ngModel" min="0"
@@ -484,8 +462,7 @@
                                           [(ngModel)]="productoBService.formData.listBodegaProducto[indice].disponibilidad"
                                           class="form-control" maxlength="10" required>
                                       </div>
-                                      <div class="form-group inputForm"
-                                        *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+                                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria' && productoBService.formData.listBodegaProducto[indice].nombreBodega!='SUSTANCIAS'">
                                         <div class="row">
                                           <div class="col-6 col-sm-6 col-md-6 col-lg-12">
                                             <div><strong>Percha:</strong></div>
@@ -505,8 +482,7 @@
                                           </div>
                                         </div>
                                       </div>
-                                      <div class="form-group inputForm"
-                                        *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+                                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria' && productoBService.formData.listBodegaProducto[indice].nombreBodega!='SUSTANCIAS'">
                                         <div><strong>Número Casillero:</strong></div>
                                         <input type="number" name="in{{indice}}numCasillero"
                                           #in{{indice}}numCasillero="ngModel" min="0" pattern="[0-9]*"
@@ -514,8 +490,7 @@
                                           [(ngModel)]="productoBService.formData.listBodegaProducto[indice].numCasillero"
                                           class="form-control" maxlength="10" required>
                                       </div>
-                                      <div class="form-group inputForm"
-                                        *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+                                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria' && productoBService.formData.listBodegaProducto[indice].nombreBodega!='SUSTANCIAS'">
                                         <div><strong>Número Palet:</strong></div>
                                         <input type="number" name="in{{indice}}numPalet" #in{{indice}}numPalet="ngModel"
                                           min="0" pattern="[0-9]*"

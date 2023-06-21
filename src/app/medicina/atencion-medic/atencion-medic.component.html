@@ -1,9 +1,9 @@
-<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="permisoOpened!=1 && datosIees.isOpen!=1">
+<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="permisoOpened!=1 && datosIees.isOpen!=1 && medicinaOpened!=2">
   <a (click)="onTerminar()" class="btn text-secundario btn-block mt-2" style="width: 50px;">
     <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
   </a>
 </div>
-<div class="p-1" *ngIf="permisoOpened!=1 && datosIees.isOpen!=1">
+<div class="p-1" *ngIf="permisoOpened!=1 && datosIees.isOpen!=1 && medicinaOpened!=2">
   <form #formAtencion="ngForm" autocomplete="off" (submit)="onSubmit(formAtencion)">
     <div class="bodyCard" *ngIf="atencionMedicService.formData">
       <div class="row">
@@ -47,9 +47,9 @@
         </div>
       </div>
       <div class="row boxForm mt-3">
-        <div class="col-12 col-md-12 col-lg-7">
+        <div class="col-12 col-md-12 col-lg-4">
           <div class="row boxForm">
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>Peso(kg):</strong></div>
                 <input type="number" name="peso" #peso="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$" min="0"
@@ -58,7 +58,7 @@
                   placeholder="0" (ngModelChange)="atencionMedicService.formData.calcularIMC()">
               </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>Altura(m):</strong></div>
                 <input type="number" name="altura" #altura="ngModel" pattern="^(([0-9]+)((.[0-9]{1,2}))?)$" min="0"
@@ -67,7 +67,7 @@
                   required placeholder="0" (ngModelChange)="atencionMedicService.formData.calcularIMC()">
               </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>Temperatura:</strong></div>
                 <input type="number" name="temperatura" #temperatura="ngModel" min="0" pattern="[0-9]*" maxlength="10"
@@ -76,7 +76,11 @@
                   [(ngModel)]="atencionMedicService.formData.temperatura" class="form-control input-src">
               </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
+          </div>
+        </div>
+        <div class="col-12 col-md-12 col-lg-8">
+          <div class="row boxForm">
+            <div class="col-12 col-sm-6 col-md-3 col-lg-4">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>Presión:</strong></div>
                 <div class="input-group mb-3">
@@ -87,19 +91,15 @@
                       [(ngModel)]="atencionMedicService.formData.presionA" class="form-control input-src">
                     <span class="input-group-text" style="height: 1.8rem;">/</span>
                     <input type="number" name="presionB" #presionB="ngModel" min="1" pattern="[0-9]{1,2}" maxlength="2"
-                    required placeholder="00"
-                    onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                    [(ngModel)]="atencionMedicService.formData.presionB" class="form-control input-src">
+                      required placeholder="00"
+                      onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      [(ngModel)]="atencionMedicService.formData.presionB" class="form-control input-src">
                   </div>
                 </div>
 
               </div>
             </div>
-          </div>
-        </div>
-        <div class="col-12 col-md-12 col-lg-5">
-          <div class="row boxForm">
-            <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+            <div class="col-12 col-sm-6 col-md-3 col-lg-3">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>F. Cardiaca:</strong></div>
                 <input type="number" name="fcardiaca" #fcardiaca="ngModel" min="0" pattern="[0-9]*" maxlength="10"
@@ -108,7 +108,7 @@
                   [(ngModel)]="atencionMedicService.formData.fCardiaca" class="form-control input-src">
               </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+            <div class="col-12 col-sm-6 col-md-3 col-lg-3">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>F. Respiratoria:</strong></div>
                 <input type="number" name="fRespiratoria" #fRespiratoria="ngModel" min="0" pattern="[0-9]*"
@@ -117,7 +117,7 @@
                   [(ngModel)]="atencionMedicService.formData.fRespiratoria" class="form-control input-src">
               </div>
             </div>
-            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="col-12 col-sm-6 col-md-3 col-lg-2">
               <div class="form-group inputForm" id="inputSearchP">
                 <div class="title"><strong>Sp02:</strong></div>
                 <input type="number" name="sp02" #sp02="ngModel" min="0" pattern="[0-9]*" maxlength="10" required
@@ -173,10 +173,18 @@
         </div>
         <div class="col-4">
           <div class="custom-control custom-switch ml-3">
-            <input type="checkbox" name="permisoIESS" #permisoIESS="ngModel" class="custom-control-input" id="customSwitch3"
-            [disabled]="!atencionMedicService.formData.spinnerLoading"
+            <input type="checkbox" name="permisoIESS" #permisoIESS="ngModel" class="custom-control-input"
+              id="customSwitch3" [disabled]="!atencionMedicService.formData.spinnerLoading"
               [(ngModel)]="atencionMedicService.formData.citaIESS" (ngModelChange)="onChangeIees()">
             <label class="custom-control-label" for="customSwitch3">Cita IESS</label>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="custom-control custom-switch ml-3">
+            <input type="checkbox" name="medicamento" #medicamento="ngModel" class="custom-control-input" id="customSwitch2"
+              [disabled]="atencionMedicService.formData.motivoAtencion=='' || !atencionMedicService.formData.spinnerLoading"
+              [(ngModel)]="agregarMedicamento" (ngModelChange)="onChangeMedicamento()">
+            <label class="custom-control-label" for="customSwitch2">Medicamento Inventario</label>
           </div>
         </div>
       </div>
@@ -208,4 +216,8 @@
 <div id="open2" *ngIf="atencionMedicService.formData.citaIESS && datosIees.isOpen!=2">
   <app-formulario-iees [crearFormulario]="datosIees" (rellenarFormulario)="recibirRes2($event)">
   </app-formulario-iees>
+</div>
+<div id="open3" *ngIf="agregarMedicamento && medicinaOpened!=3">
+  <app-consulta-medic [isOpen]="medicinaOpened" (cerrar)="recibirRes($event)">
+  </app-consulta-medic>
 </div>

@@ -47,10 +47,10 @@ export class ConsultaMedicComponent implements OnInit {
   }
 
   @Input()
-  isOpen: boolean;
+  isOpen: number = 0;
 
   @Output()
-  cerrar: EventEmitter<boolean> = new EventEmitter<boolean>();
+  cerrar: EventEmitter<string> = new EventEmitter<string>();
 
   fechaHoy = new cFecha();
   paginacion = new cPaginacion(5);
@@ -87,8 +87,10 @@ export class ConsultaMedicComponent implements OnInit {
     this.okBttnSubmit = true;
   }
 
-  onTerminar() {
-    this.cerrar.emit(true);
+  onTerminar(op: string) {
+    if (op == 'o')
+      this.resetForm();
+    this.cerrar.emit(op);
   }
 
   comprobarNewR() {
@@ -209,18 +211,20 @@ export class ConsultaMedicComponent implements OnInit {
       this.okBttnSubmit = false;
       if (this.comprobarNewR()) {
         this.consultaMedicService.formData.marea = this.consultaMedicService.formData.marea + "-" + this.fechaHoy.anio;
-        this._consultaMedicService.insertarConsumoInterno(this._consultaMedicService.formData).subscribe(
-          (res: any) => {
-            if (res.exito == 1) {
-              this.toastr.success('Registro satisfactorio', 'Consumo Registrado');
-              this._consultaMedicService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
-              this.convertPdf(this._consultaMedicService.formData);
-              this.resetForm(form);
-            } else {
-              this.okBttnSubmit = false;
-              this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
-            };
-          });
+        if (this.isOpen != 2) {
+          this._consultaMedicService.insertarConsumoInterno(this._consultaMedicService.formData).subscribe(
+            (res: any) => {
+              if (res.exito == 1) {
+                this.toastr.success('Registro satisfactorio', 'Consumo Registrado');
+                this._consultaMedicService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
+                this.convertPdf(this._consultaMedicService.formData);
+                this.resetForm(form);
+              } else {
+                this.okBttnSubmit = false;
+                this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
+              };
+            });
+        }else this.onTerminar('1')
       } else this.okBttnSubmit = true;
     } else {
       Swal.fire({

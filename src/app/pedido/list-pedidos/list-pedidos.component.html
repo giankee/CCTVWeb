@@ -19,7 +19,7 @@
           </div>
           <div class="mt-2 px-4 py-2 boxForm collapse" id="FiltroList">
             <div class="row">
-              <div class="col-12 col-md-4">
+              <div class="col-12 col-md-4" [ngClass]="{'col-sm-8':conexcionService.UserR.rolAsignado=='pedido-super','col-sm-12':conexcionService.UserR.rolAsignado!='pedido-super'}">
                 <div id="inputSearchP">
                   <div class="wrapper">
                     <div class="limit-width">
@@ -41,7 +41,19 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-sm-6 col-md-4">
+              <div class="col-12 col-sm-4 col-md-2" *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'">
+                <div class="form-group inputForm" id="inputSearchP">
+                  <div class="title"><strong>Origen:</strong></div>
+                    <select class="form-control input-src" name="inSelectPlanta" #inSelectPlanta="ngModel"
+                      [(ngModel)]="parametrosBusqueda.strCampoF" required>
+                      <option selected value="SUPER">TODO</option>
+                      <option value="P MANACRIPEX">MANACRIPEX</option>
+                      <option value="FLOTA">FLOTA</option>
+                      <option value="P OFICINAS">OFICINAS</option>
+                    </select>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6" [ngClass]="{'col-md-3':conexcionService.UserR.rolAsignado=='pedido-super','col-md-4':conexcionService.UserR.rolAsignado!='pedido-super'}">
                 <div class="form-group inputForm" id="inputSearchP">
                   <div class="title"><strong>Empresa:</strong></div>
                     <select class="form-control input-src" name="inSelectEmpresa" #inSelectEmpresa="ngModel"
@@ -53,7 +65,7 @@
                     </select>
                 </div>
               </div>
-              <div class="col-12 col-sm-6 col-md-4">
+              <div class="col-12 col-sm-6" [ngClass]="{'col-md-3':conexcionService.UserR.rolAsignado=='pedido-super','col-md-4':conexcionService.UserR.rolAsignado!='pedido-super'}">
                 <div class="form-group inputForm" id="inputSearchP">
                   <div class="title">
                     <strong>{{conexcionService.UserR.rolAsignado=="pedido-flota"?"Barco":"Área"}}:</strong></div>
@@ -97,7 +109,8 @@
                       <option value="Pendiente Aprobación">Pendiente Aprobación</option>
                       <option value="Pendiente Verificación">Pendiente Verificación</option>
                       <option value="Procesada">Procesada</option>
-                      <option value="Rechazada">Anulada</option>
+                      <option value="Anulada">Anulada</option>
+                      <option value="Copia">Copia</option>
                       <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'" value="Pendiente Verificación V">Pendiente Verificación Archivada</option>
                       <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'" value="Procesada V">Procesada Archivada</option>
                     </select>
@@ -123,12 +136,28 @@
           <div id="ordenarS" class="card-header d-flex justify-content-between">
             <h5><a class="text-dark2">Lista Pedidos</a></h5>
           </div>
+          <div class="mt-2 px-4 pt-2 boxForm">
+            <div class="row">
+              <div class="col-12">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <fa-icon [icon]="fasearch"></fa-icon>
+                    </span>
+                  </div>
+                  <input type="text" class="form-control" #filtroPedidoIn="ngModel" name="filtroPedidoIn"
+                    maxlength="30" placeholder="Buscar.." [(ngModel)]="filtroPedido"
+                    (ngModelChange)="filtroPedido = $event.toUpperCase()">
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="text-center my-3" *ngIf="spinnerOnOff">
             <div class="d-flex justify-content-center">
               <mat-spinner color="accent"></mat-spinner>
             </div>
           </div>
-          <div *ngIf="(listPedidosMostrar$ | async)  as resultBusquedaMostrar">
+          <div *ngIf="(listPedidosMostrar$ | async | search:filtroPedido:'cPedido')  as resultBusquedaMostrar">
             <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
               <table class="table">
                 <thead>
@@ -168,7 +197,14 @@
                         </a>
                       </div>
                     </th>
-                    <th>Fecha Registro</th>
+                    <th>
+                      <div class="d-inline-block" style="margin-right: 0.5rem;">Fecha Registro</div>
+                      <div id="ordenarS" class="d-inline-block">
+                        <a class="badge text-dark2" (click)="onOrdenPedido('Fecha')">
+                          <fa-icon [icon]="sort"></fa-icon>
+                        </a>
+                      </div>
+                    </th>
                     <th>
                       <div class="d-inline-block" style="margin-right: 0.5rem;"> Proveedor</div>
                       <div id="ordenarS" class="d-inline-block">
@@ -198,7 +234,7 @@
                     <td>{{dato.area}}</td>
                     <td class="text-center">{{dato.strNumSecuencial}}</td>
                     <td>{{dato.fechaPedido}}</td>
-                    <td>{{dato.proveedor}}</td>
+                    <td   [ngClass]="{'bg-warning':!dato.boolProveedor}">{{dato.proveedor}}</td>
                     <td>
                       <div *ngFor="let datoItems of dato.listArticulosPedido; let indice2=index">
                         <ul id="utilitarioI" class="d-flex"
@@ -213,8 +249,8 @@
                     <td>{{dato.estadoProceso}}</td>
                     <td class="text-center " id="utilitarioI">
                       <mat-checkbox color="primary" *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'"
-                        id="isCheck{{indice}}revision" name="isCheck{{indice}}revision" [disabled]="resultBusquedaMostrar[indice].estadoProceso=='Pendiente Aprobación' || resultBusquedaMostrar[indice].estadoProceso=='Rechazada'"
-                        #isCheck{{indice}}revision="ngModel" [(ngModel)]="resultBusquedaMostrar[indice].archivada" (ngModelChange)="onRevision(dato)">
+                        id="isCheck{{indice}}revision" name="isCheck{{indice}}revision" [disabled]="dato.estadoProceso=='Pendiente Aprobación' || dato.estadoProceso=='Anulada'"
+                        #isCheck{{indice}}revision="ngModel" [(ngModel)]="dato.archivada" (ngModelChange)="onRevision(dato)">
                       </mat-checkbox>
                       <a class="badge text-primario" (click)="onConvertPdf(dato)"
                         matTooltip="Te permite visualizar a detalladamente la orden" matTooltipPosition="left"

@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { cItemKardex, cKardex, cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cItemKardex, cKardex, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import jsPDF from 'jspdf';
@@ -48,7 +48,6 @@ export class KardexComponent implements OnInit {
   fechaHoy = new cFecha();
   strFechaMarcar: string = "";
   controlMovimiento: number = 0; //0 nunca se ha realizado movimientos, 1 no hay movimientos en ese periodo, 2 si hay movimientos;
-  listBodega: cVario[] = [];
   private _oneKardex: cKardex = new cKardex(this.fechaHoy.anio + "-" + this.fechaHoy.mes);
 
   faprint = faPrint;
@@ -56,54 +55,42 @@ export class KardexComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cargarBodega();
+    this.oneKardex.BodegaSelect=this.dato.selectBodega;
     if (this.dato.auxId != null) {
-      this.cargarData();
       this.onFiltrarCantidadesBodega();
     }
-  }
-
-  cargarBodega() {
-    if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
-      this._variosService.getVariosPrioridad("Puerto").subscribe(dato => {
-        dato.forEach(x => {
-          if (x.categoria == "Puerto" && x.prioridadNivel == 1)
-            this.listBodega.push(x);
-        });
-      });
-    } else
-      this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-        this.listBodega = dato;
-      });
   }
 
   cargarData() {
     this.oneKardex.listItems = [];
     this.strFechaMarcar = "";
-    var strParametro = this._productoBservice.formData.planta + "@" + this.dato.auxId + "@" + this.oneKardex.tipoVista + "@" + this.oneKardex.fechaBusqueda + "@" + this._oneKardex.BodegaSelect;
-    this._productoBservice.getKardexProducto(strParametro)
-      .subscribe((dato: any) => {
-        if (dato.exito == 1) {
-          if (dato.message == "Ok") {
-            this.controlMovimiento = 2;
-            if (dato.data.preListItems.length != 0) {
-              var auxPreKardex: cKardex = new cKardex();
-              auxPreKardex.completarKardex(this.oneKardex.cantidadInicial, 0, dato.data.preListItems);
-              this.oneKardex.completarKardex(auxPreKardex.listItems[auxPreKardex.listItems.length - 1].datoSaldo.cantidad, auxPreKardex.listItems[auxPreKardex.listItems.length - 1].datoSaldo.precioU, dato.data.listItems);
-            } else {
-              if(dato.data.listItems.length!=0){
-                if (dato.data.listItems[0].tipoItem == "Compra")
-                this.oneKardex.completarKardex(this.oneKardex.cantidadInicial, dato.data.listItems[0].precio, dato.data.listItems);
-              else this.oneKardex.completarKardex(this.oneKardex.cantidadInicial, 0, dato.data.listItems);
+    if(this.oneKardex.BodegaSelect!="SIN ASIGNAR"){
+      var strParametro = this._productoBservice.formData.planta + "@" + this.dato.auxId + "@" + this.oneKardex.tipoVista + "@" + this.oneKardex.fechaBusqueda + "@" + this._oneKardex.BodegaSelect;
+      this._productoBservice.getKardexProducto(strParametro)
+        .subscribe((dato: any) => {
+          if (dato.exito == 1) {
+            if (dato.message == "Ok") {
+              this.controlMovimiento = 2;
+              if (dato.data.preListItems.length != 0) {
+                var auxPreKardex: cKardex = new cKardex();
+                auxPreKardex.completarKardex(this.oneKardex.cantidadInicial, 0, dato.data.preListItems);
+                this.oneKardex.completarKardex(auxPreKardex.listItems[auxPreKardex.listItems.length - 1].datoSaldo.cantidad, auxPreKardex.listItems[auxPreKardex.listItems.length - 1].datoSaldo.precioU, dato.data.listItems);
+              } else {
+                this.oneKardex.cantidadInicial = this.productoBservice.formData.listBodegaProducto.find(x => x.nombreBodega == this.oneKardex.BodegaSelect).cantInicial;
+                if (dato.data.listItems.length != 0) {
+                  if (dato.data.listItems[0].tipoItem == "Compra")
+                    this.oneKardex.completarKardex(this.oneKardex.cantidadInicial, dato.data.listItems[0].precio, dato.data.listItems);
+                  else this.oneKardex.completarKardex(this.oneKardex.cantidadInicial, 0, dato.data.listItems);
+                }
               }
-            }
-            if (this.oneKardex.listItems.length == 0)
-              this.controlMovimiento = 1;
-            this.strFechaMarcar = "  al mes de " + this.fechaHoy.transformarStrMes(this.oneKardex.fechaBusqueda);
-          } else this.controlMovimiento = 0;
-        }
-      },
-        error => console.error(error));
+              if (this.oneKardex.listItems.length == 0)
+                this.controlMovimiento = 1;
+              this.strFechaMarcar = "  al mes de " + this.fechaHoy.transformarStrMes(this.oneKardex.fechaBusqueda);
+            } else this.controlMovimiento = 0;
+          }
+        },
+          error => console.error(error));
+    }
   }
 
   onConvertPdfOne() {
@@ -320,7 +307,7 @@ export class KardexComponent implements OnInit {
       dialoConfig.data = { auxId };
       this.dialog.open(ViewCompraModelComponent, dialoConfig);
     }
-    if (tipo == 1 && dataIn.guia != '---' && dataIn.tipoItem == "Orden Trabajo") {
+    if (tipo == 1 && dataIn.guia != '---' && (dataIn.tipoItem == "Orden Trabajo" || dataIn.tipoItem == "Traspaso Bodega")) {
       var auxId = dataIn.relacionGuiaId;
       dialoConfig.data = { auxId };
       this.dialog.open(ViewTrabajoModelComponent, dialoConfig);
@@ -337,19 +324,10 @@ export class KardexComponent implements OnInit {
   }
 
   onFiltrarCantidadesBodega() {
-    this.oneKardex.cantidadInicial = 0;
+    this.controlMovimiento = -1;
     this.oneKardex.cantidadDisponible = 0;
-    this._productoBservice.formData.listBodegaProducto.forEach(x => {
-      if (this.oneKardex.BodegaSelect == "all") {
-        this.oneKardex.cantidadDisponible = this.oneKardex.cantidadDisponible + x.disponibilidad;
-        this.oneKardex.cantidadInicial = this.oneKardex.cantidadInicial + x.cantInicial;
-      } else {
-        if (x.nombreBodega == this.oneKardex.BodegaSelect) {
-          this.oneKardex.cantidadDisponible = this.oneKardex.cantidadDisponible + x.disponibilidad;
-          this.oneKardex.cantidadInicial = this.oneKardex.cantidadInicial + x.cantInicial;
-        }
-      }
-    });
-
+    if(this.oneKardex.BodegaSelect!="SIN ASIGNAR"){
+      this.oneKardex.cantidadInicial= this.dato.listBodegasIn.find(x=>x.nombreBodega==this.oneKardex.BodegaSelect).cantidadInicial;
+    }
   }
 }

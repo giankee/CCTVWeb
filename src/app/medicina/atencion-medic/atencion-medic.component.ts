@@ -8,6 +8,7 @@ import { PermisoService } from 'src/app/shared/medicina/permiso.service';
 import listCie10 from 'src/assets/cie10code.json';
 import { jsPDF } from "jspdf";
 import { PacienteService } from 'src/app/shared/medicina/paciente.service';
+import { ConsultaMedicService } from 'src/app/shared/bodega/consulta-medic.service';
 
 @Component({
   selector: 'app-atencion-medic',
@@ -42,12 +43,16 @@ export class AtencionMedicComponent implements OnInit {
   okBttnSubmit: boolean = true;
   listCie10Array = listCie10;
   permisoOpened: number = 0 //0 cerrarSinGuardar //1 abrir, //2 cerrarCompleta
+
+  medicinaOpened: number = 0 //0 cerrarSinGuardar //2 abrir, //3 cerrarCompleta
   //ieesOpened:number=0;
   datosIees: cPlantillaIees = new cPlantillaIees();
   soloAnios: string;
+  agregarMedicamento: boolean = false;
+  medicamentoTexto:string;
 
   fasave = faSave; fatimescircle = faTimesCircle;
-  constructor(private _atencionMedicService: AtencionService, private toastr: ToastrService, private _permisoMedicService: PermisoService, private _pacienteService: PacienteService) { }
+  constructor(private _atencionMedicService: AtencionService, private toastr: ToastrService, private _permisoMedicService: PermisoService, private _pacienteService: PacienteService,private consultaMedicService: ConsultaMedicService) { }
 
   ngOnInit(): void {
     this._atencionMedicService.formData = new cAtencionMedic();
@@ -93,6 +98,9 @@ export class AtencionMedicComponent implements OnInit {
               this.onConvertPdfReceta();
             if (this.atencionMedicService.formData.citaIESS)
               this.onConvertPdfCertificadoIESS();
+              if(this.agregarMedicamento && this.medicinaOpened==3){
+                this.onGuardarMedicamento()
+              }
           } else this.toastr.error('Se ha producido un inconveniente', 'Error');
           this.cerrar.emit(true);
         }
@@ -113,14 +121,36 @@ export class AtencionMedicComponent implements OnInit {
     }
   }
 
+  onChangeMedicamento() {
+    if (this.agregarMedicamento){
+      this.medicamentoTexto="";
+      this.medicinaOpened = 2;
+    }
+     
+  }
+
   recibirRes(salir: string) {
     if (salir == '0') {
       this.permisoOpened = 0;
+      this.medicinaOpened = 0;
       this.atencionMedicService.formData.reposo = false;
+      this.agregarMedicamento = false;
     } else {
-      var aux = salir.split("-");
-      this.permisoOpened = Number(aux[0]);
-      this.atencionMedicService.formData.permisoIdOpcional = Number(aux[1]);
+      if (this.permisoOpened == 1) {
+        var aux = salir.split("-");
+        this.permisoOpened = Number(aux[0]);
+        this.atencionMedicService.formData.permisoIdOpcional = Number(aux[1]);
+      }
+      if (this.medicinaOpened == 2) {
+        this.consultaMedicService.formData.paciente=this.pacienteService.datoPersona.datosEnterprice.empleado;
+        this.consultaMedicService.formData.sintomas=this.atencionMedicService.formData.motivoAtencion;
+        this.medicinaOpened=3;
+
+        this.consultaMedicService.formData.listReceta.forEach(x=>{
+          this.medicamentoTexto= this.medicamentoTexto +"\n"+ " * "+ x.cantidad + "    " + x.inventario.nombre;
+        });
+        this.atencionMedicService.formData.prescripcion= this.atencionMedicService.formData.prescripcion + this.medicamentoTexto;
+      }
     }
   }
 
@@ -129,7 +159,6 @@ export class AtencionMedicComponent implements OnInit {
     if (this.datosIees.isOpen == 0) {
       this.atencionMedicService.formData.citaIESS = false;
     }
-    //this.onConvertPdfCertificadoIESS();
   }
 
   onConvertPdfAtencion() {
@@ -390,7 +419,7 @@ export class AtencionMedicComponent implements OnInit {
     if (this.datosIees.enfermedad) {
       doc.text("X", 79, (y + 40));
     }
-    if(this.datosIees.aislamiento){
+    if (this.datosIees.aislamiento) {
       doc.text("X", 164, (y + 40));
     }
 
@@ -487,5 +516,17 @@ export class AtencionMedicComponent implements OnInit {
     doc.text("1309708665", 95, (y + 8));
     doc.text("Doctora en Medicina y Cirugía General / Médico Ocupacional", 55, (y + 12));
     doc.save("Certificado_IESS" + "_" + this.pacienteService.datoPersona.datosEnterprice.empleado + "_" + this.atencionMedicService.formData.fechaAtencion + ".pdf");
+  }
+
+  onGuardarMedicamento(){
+    this.consultaMedicService.insertarConsumoInterno(this.consultaMedicService.formData).subscribe(
+      (res: any) => {
+        if (res.exito == 1) {
+          this.toastr.success('Registro satisfactorio', 'Consumo Registrado');
+        } else {
+          this.okBttnSubmit = false;
+          this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
+        };
+      });
   }
 }

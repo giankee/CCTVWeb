@@ -1,9 +1,15 @@
-<section [ngClass]="{'dashboard-header':!isOpen}">
-  <div [ngClass]="{'container-fluid':!isOpen}">
-    <div [ngClass]="{'boxCliente pt-1':!isOpen}">
+<div class="d-flex flex-row-reverse" id=utilitarioI *ngIf="isOpen==2">
+  <a (click)="onTerminar('0')" class="btn text-secundario btn-block mt-2" style="width: 50px;">
+    <fa-icon [icon]="fatimescircle" size="2x"></fa-icon>
+  </a>
+</div>
+
+<section [ngClass]="{'dashboard-header':isOpen==0}">
+  <div [ngClass]="{'container-fluid':isOpen==0}">
+    <div [ngClass]="{'boxCliente pt-1':isOpen==0}">
       <form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)">
         <div class="bodyCard" *ngIf="consultaMedicService.formData">
-          <div class="row mt-3">
+          <div class="row mt-3" *ngIf="isOpen!=2">
             <div class="col-12 col-md-8">
               <h4 class="text-center">Recopilación datos del Pasciente</h4>
             </div>
@@ -12,7 +18,7 @@
                 [(ngModel)]="consultaMedicService.formData.fechaRegistro" min="2020-01-01" max="{{fechaHoy.strFecha}}">
             </div>
           </div>
-          <div class="row boxForm mt-2">
+          <div class="row boxForm mt-2"  *ngIf="isOpen!=2">
             <div class="col-12 col-md-6 col-lg-4">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
@@ -74,7 +80,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 "
+            <div class="col-12 col-md-6"
               [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado == 'enfermeria', 'col-lg-12':conexcionService.UserR.rolAsignado == 'verificador-medic'}">
               <div class="form-group">
                 <div class="title ml-2">
@@ -98,12 +104,6 @@
               <div class="card" style="height: 380px;">
                 <div class="card-header boxForm d-flex justify-content-between">
                   <h5 class="text-dark2" style="padding-top: 9px;">Lista de Medicamento</h5>
-                  <a [routerLink] (click)="onNewItem()" class="btn bttn-Primario btn-sm"
-                    [ngClass]="{'bttn-Error':!okAddNewBotton }"
-                    matTooltip="No se puede añadir material si existen campos vacios" matTooltipPosition="left"
-                    matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
-                    <fa-icon [icon]="faplus"></fa-icon> Añadir
-                  </a>
                 </div>
                 <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px; height: 100%;">
                   <table class="table">
@@ -169,7 +169,7 @@
                         </td>
                         <td id="inputSearchP">
                           <div class="row">
-                            <div  style="padding-left: 0.5rem; padding-right:1px;"
+                            <div style="padding-left: 0.5rem; padding-right:1px;"
                               [ngClass]="{'col-10':!consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0,'col-4':consultaMedicService.formData.listReceta[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length>0}">
                               <input
                                 name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}cantidad"
@@ -213,6 +213,19 @@
                         </td>
                       </tr>
                     </tbody>
+                    <tfoot *ngIf="consultaMedicService.formData.listReceta.length>0">
+                      <tr>
+                        <td colspan="3"></td>
+                        <td>
+                          <a [routerLink] (click)="onNewItem()" class="btn btnNewRedondo"
+                            [ngClass]="{'bttn-Error':!okAddNewBotton }"
+                            matTooltip="No se puede añadir medicamentos si existen campos vacios" matTooltipPosition="left"
+                            matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
+                            <fa-icon [icon]="faplus"></fa-icon>
+                          </a>
+                        </td>
+                      </tr>
+                    </tfoot>
                   </table>
                   <div class="paginationPadre" *ngIf="consultaMedicService.formData.listReceta!=null">
                     <nav>
@@ -236,12 +249,17 @@
             </div>
           </div>
           <div class="row boxForm mt-2 justify-content-center">
-            <div class="col-6 mb-2 px-4">
+            <div class="col-6 mb-2 px-4" *ngIf="isOpen!=2">
               <button class="btn bttn-Primario btn-block " type="submit" [disabled]="formOrden.invalid || !okBttnSubmit"
                 [ngClass]="{'bttn-Error':!okBttnSubmit }" matTooltip="Campos Vacios Revisar*" matTooltipPosition="above"
                 matTooltipClass="tooltipRed" [matTooltipDisabled]="okBttnSubmit">
                 <fa-icon [icon]="fasave"></fa-icon> Procesar
               </button>
+            </div>
+            <div class="col-6 mb-2 px-4" *ngIf="isOpen==2">
+              <a (click)="onTerminar('1')" class="btn bttn-Primario btn-block">
+                <fa-icon [icon]="fasave"></fa-icon> Agregar
+              </a>
             </div>
           </div>
         </div>

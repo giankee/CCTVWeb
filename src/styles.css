@@ -863,3 +863,23 @@ body {
 .scroll.v2{
   height: 71vh;
 }
+
+.btnNewRedondo{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border-color: chartreuse;
+  border-width: 2px;
+  padding-top: 2px;
+  padding-left: 6px;
+  color: chartreuse;
+}
+.btnNewRedondo:hover{
+  color: chartreuse;
+}
+
+.btnNewRedondo.bttn-Error,
+.btnNewRedondo.bttn-Error:hover {
+  color: var(--MicolorPrimario);
+  border-color: var(--MicolorPrimario);
+}

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, faFlag, faSave, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { ToastrService } from 'ngx-toastr';
-import { cBodega, cOrdenEC } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cCompraO, cOrdenEC } from 'src/app/shared/bodega/ordenEC';
 import { OrdenECService } from 'src/app/shared/orden-e-c.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
-import { cVario, cWhatsapp } from 'src/app/shared/otrosServices/varios';
+import { cWhatsapp } from 'src/app/shared/otrosServices/varios';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 import Swal from 'sweetalert2';
@@ -44,7 +44,7 @@ export class ComprasVerificacionComponent implements OnInit {
     this._conexcionService = value;
   }
 
-  listBarcos: cBodega[] = [];
+  listBarcos: cBodega;
   listOrdenesMostrar: cOrdenEC[] = [];
   spinnerOnOff: boolean = true;
   paginacion = new cPaginacion(25);
@@ -55,7 +55,7 @@ export class ComprasVerificacionComponent implements OnInit {
 
   constructor(private _conexcionService: ConexionService, private _variosService: VariosService, private _ordenECService: OrdenECService, private toastr: ToastrService, private whatsappService: WhatsappService, private _consultaMedicService: ConsultaMedicService) {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato.filter(x => x.encargadoBodega == this._conexcionService.UserR.nombreU);
+      this.listBarcos = dato.find(x => x.encargadoBodega == this._conexcionService.UserR.nombreU);
       this.restartListPendientes();
     });
   }
@@ -65,35 +65,24 @@ export class ComprasVerificacionComponent implements OnInit {
 
   onSave(datoIn: cOrdenEC) {
     if (datoIn.listPcomprasO.find(x => x.marcar) != undefined) {
+      var auxListComprasO:cCompraO[]=[];
       datoIn.listPcomprasO.forEach(x => {
-        if (x.marcar)
+        if (x.marcar){
           x.estadoCompra = "Procesada";
+          auxListComprasO.push(x);
+        }
       });
       if (datoIn.listPcomprasO.find(x => x.estadoCompra == "Pendiente") == undefined)
         datoIn.estadoProceso = "Procesada";
-      this.ordenECService.verificacionOrdenCompra(datoIn).subscribe(
+        datoIn.listPcomprasO=auxListComprasO;
+        this.ordenECService.verificacionOrdenCompra(datoIn).subscribe(
         (res: any) => {
           if (res.message == "Ok") {
             if (this.openReporte) {
               this.openReporte = false;
-              this._consultaMedicService.insertarConsumoInterno(this._consultaMedicService.formData).subscribe(
-                (res: any) => {
-                  if (res.exito == 1) {
-                    this.toastr.success('Registro satisfactorio', 'Reporte Registrado');
-                  } else this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
-                });
             }
             this.toastr.success('Actualización de Inventario satisfactorio', 'Orden Verificada');
-            if (res.auxmessage == "Procesada") {
-              this.restartListPendientes(this.paginacion.pagActualIndex);
-            } else {
-              for (var i = 0; i < datoIn.listPcomprasO.length; i++) {
-                if (datoIn.listPcomprasO[i].estadoCompra == "Procesada") {
-                  datoIn.listPcomprasO.splice(i, 1);
-                  i--;
-                }
-              }
-            }
+            this.restartListPendientes(this.paginacion.pagActualIndex);
           }
         },
         err => {
@@ -136,9 +125,7 @@ export class ComprasVerificacionComponent implements OnInit {
 
   restartListPendientes(valorPage?: number) {
     this.listOrdenesMostrar = [];
-    for (var i = 0; i < this.listBarcos.length; i++) {
-      var strParam = this.listBarcos[i].nombreBodega;
-      this.ordenECService.getVerificarMedicamento("ENFERMERIA@DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A@" + strParam).subscribe(dato => {
+      this.ordenECService.getVerificarMedicamento("ENFERMERIA@DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A@" + this.listBarcos.nombreBodega).subscribe(dato => {
         dato.forEach(x => {
           x.fechaRegistroBodega = x.fechaRegistroBodega.substring(0, 10);
           x.listPcomprasO.forEach(y => y.marcar = false);
@@ -150,7 +137,7 @@ export class ComprasVerificacionComponent implements OnInit {
           this.paginacion.updateIndex(valorPage);
         else this.paginacion.updateIndex(0);
       });
-    }
+    
   }
 
   generarReporte(observacionIn) {
@@ -174,6 +161,7 @@ export class ComprasVerificacionComponent implements OnInit {
         + '\nLos datos de la compra son:'
         + '\n'
         + '\n*Factura:* ' + this.ordenECService.formData.factura
+        + '\n*Marea:* ' + this.ordenECService.formData.marea
         + '\n*Fecha de Registro* ' + this.ordenECService.formData.fechaRegistroBodega
         + '\n*Usuario:* ' + this.ordenECService.formData.guardiaCargoUser
         + '\n'
@@ -284,9 +272,6 @@ export class ComprasVerificacionComponent implements OnInit {
         doc.line(290, (y - valorG), 290, y);//right
         doc.line(5, y, 290, y);//down
       }
-
-
-
     }
     return (doc.output('datauristring'));
   }
@@ -303,6 +288,8 @@ export class ComprasVerificacionComponent implements OnInit {
         auxReceta.inventarioId = this.ordenECService.formData.listPcomprasO[i].productoId;
         auxReceta.cantidad = this.ordenECService.formData.listPcomprasO[i].cantidad * this.ordenECService.formData.listPcomprasO[i].producto.contenidoNeto;
         auxReceta.inventario.rellenarObjeto(this.ordenECService.formData.listPcomprasO[i].producto);
+        if(this.ordenECService.formData.listPcomprasO[i].loteMedic!="SIN ASIGNAR")
+          auxReceta.loteId=this.ordenECService.formData.listPcomprasO[i].loteMedic;
         this.consultaMedicService.formData.agregarOneItem(auxReceta);
       }
     }
@@ -318,9 +305,11 @@ export class ComprasVerificacionComponent implements OnInit {
     } else
       this.openReporte = false;
   }
+
   onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views
     this.paginacion.selectPagination = Number(control.value);
     this.paginacion.getNumberIndex(this.listOrdenesMostrar.length);
     this.paginacion.updateIndex(0);
   }
+  
 }

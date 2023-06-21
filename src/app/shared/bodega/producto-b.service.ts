@@ -75,6 +75,14 @@ export class ProductoBService {
   }
 
 
+  getProductosJustificacionMedic(strParametros:string): Observable<cProducto_B[]> { // pedir medicamento
+    return this.http.get<cProducto_B[]>(this.serverUrl+'/getProductosJustificacionMedic/'+strParametros);
+  }
+
+  getProductosCaducadosMedic(strParametros:string): Observable<cProducto_B[]> {//caducados
+    return this.http.get<cProducto_B[]>(this.serverUrl+'/getProductosCaducadosMedic/'+strParametros);
+  }
+
   /*solo pruebas si funciona
   getProductosPlantaSinBodega(strParametros:string): Observable<cProducto_B[]> {//compra proveedor
     return this.http.get<cProducto_B[]>(this.serverUrl+'/getProductosPlantaSinBodega/'+strParametros);

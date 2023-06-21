@@ -69,7 +69,7 @@
                 <fa-icon [icon]="fausertag"></fa-icon> Compra Proveedor
               </a>
             </div>
-            <div class="col-12 col-md-6" >
+            <div class="col-12 col-md-6">
               <a *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'" [routerLink] id="BtnPrincipal"
                 (click)="onStart('Devolucion Compra')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="fausertag"></fa-icon> Devolución Compra
@@ -116,7 +116,7 @@
                           <div class="results" *ngIf="showSearchSelectG=='1'">
                             <ul>
                               <li *ngFor="let data of listPersonalFiltros$ | async">
-                                <div (click)="onChoosePersonal(data, 'Personal')" >
+                                <div (click)="onChoosePersonal(data, 'Personal')">
                                   <a class="name">{{data.nombreP}}</a>
                                 </div>
                                 <label>{{data.tipoPersona}}</label>
@@ -129,9 +129,9 @@
                               <li class="titulo"> Lista Choferes</li>
                               <li *ngFor="let datoC of listChoferesIn">
                                 <div (click)="onChoosePersonal(datoC,'Chofer')">
-                                  <a  class="name">{{datoC.empleado}}</a>
+                                  <a class="name">{{datoC.empleado}}</a>
                                 </div>
-                                
+
                                 <label>Chofer</label>
                               </li>
                             </ul>
@@ -203,12 +203,12 @@
                           <div class="results" *ngIf="showSearchSelectG=='2'">
                             <ul *ngIf="ordenESService.formData.tipoOrden!='Balde'">
                               <li *ngFor="let data of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'notAll' ">
-                                <div (click)="onChooseLugar(data)" >
-                                  <a  class="name">{{data.nombreLugar}}</a>
+                                <div (click)="onChooseLugar(data)">
+                                  <a class="name">{{data.nombreLugar}}</a>
                                 </div>
                               </li>
                               <li>
-                                <div (click)="showSearchSelectG=0"><a  class="name">Nuevo Lugar</a></div> 
+                                <div (click)="showSearchSelectG=0"><a class="name">Nuevo Lugar</a></div>
                               </li>
                             </ul>
                             <ul *ngIf="ordenESService.formData.tipoOrden=='Balde'">
@@ -221,23 +221,27 @@
                             </ul>
                             <ul *ngIf="ordenESService.formData.tipoOrden!='Balde'">
                               <li class="titulo"> El Puerto de Manta</li>
-                              <li *ngFor="let datoPrio of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Puerto' ">
+                              <li
+                                *ngFor="let datoPrio of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Puerto' ">
                                 <div (click)="onChooseLugar(datoPrio)">
-                                  <a  class="name">{{datoPrio.nombreLugar}}</a>
+                                  <a class="name">{{datoPrio.nombreLugar}}</a>
                                 </div>
                               </li>
                             </ul>
                             <ul *ngIf="ordenESService.formData.tipoOrden!='Balde'">
                               <li class="titulo"> Areas de Planta</li>
-                              <li *ngFor="let datoPrio of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Planta' ">
+                              <li
+                                *ngFor="let datoPrio of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Planta' ">
                                 <div (click)="onChooseLugar(datoPrio)">
-                                  <a  class="name">{{datoPrio.nombreLugar}}</a>
+                                  <a class="name">{{datoPrio.nombreLugar}}</a>
                                 </div>
                               </li>
                             </ul>
-                            <ul *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' && ordenESService.formData.tipoOrden=='Salida'">
+                            <ul
+                              *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' && ordenESService.formData.tipoOrden=='Salida'">
                               <li class="titulo"> Proveedores</li>
-                              <li *ngFor="let datoProveedor of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Proveedor' ">
+                              <li
+                                *ngFor="let datoProveedor of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Proveedor' ">
                                 <div (click)="onChooseLugar(datoProveedor)">
                                   <a class="name">{{datoProveedor.nombreLugar}}</a>
                                 </div>
@@ -384,6 +388,59 @@
                   </div>
                 </div>
               </div>
+              <div class="row boxForm my-2"
+                *ngIf="ordenESService.formData.planta=='P MANACRIPEX' && ordenESService.formData.tipoOrden!='Balde'">
+                <div class="col-12 col-md-3 px-3">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend mr-2">
+                      <div class="title"><strong>Tanque de Agua:</strong></div>
+                    </div>
+                    <mat-checkbox name="checkTankAgua" #checkTankAgua="ngModel" color="primary"
+                      [(ngModel)]="ordenESService.formData.isTanqueAgua"
+                      [disabled]="ordenESService.formData.isTanqueGasolina"></mat-checkbox>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3 px-3">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend mr-2">
+                      <div class="title"><strong>Tanque de Combustible:</strong></div>
+                    </div>
+                    <mat-checkbox name="checkTankGasolina" #checkTankGasolina="ngModel" color="primary"
+                      [(ngModel)]="ordenESService.formData.isTanqueGasolina"
+                      [disabled]="ordenESService.formData.isTanqueAgua"></mat-checkbox>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3 px-3">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend mr-2">
+                      <div class="title"><strong>AGUAHER:</strong></div>
+                    </div>
+                    <mat-checkbox name="checkAguaHer" #checkAguaHer="ngModel" color="primary"
+                      [(ngModel)]="ordenESService.formData.saleAGUAHER"
+                      [disabled]="!ordenESService.formData.isTanqueAgua"></mat-checkbox>
+                  </div>
+                </div>
+                <div class="col-12 col-md-3 px-3">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend mr-2">
+                      <div class="title"><strong>PETROECUADOR:</strong></div>
+                    </div>
+                    <mat-checkbox name="checkPETROECUADOR" #checkPETROECUADOR="ngModel" color="primary"
+                      [(ngModel)]="ordenESService.formData.salePETROECUADOR"
+                      [disabled]="!ordenESService.formData.isTanqueGasolina"></mat-checkbox>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4 px-4"
+                  *ngIf="ordenESService.formData.isTanqueGasolina || ordenESService.formData.isTanqueAgua">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend mr-2">
+                      <div class="title"><strong>Fecha Registro:</strong></div>
+                    </div>
+                    <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
+                      [(ngModel)]="ordenESService.formData.fechaRegistro" min="2023-01-01" max="{{fechaHoy.strFecha}}">
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="bodyCard" *ngIf="strFases=='Articulos'">
               <div class="bodyCard">
@@ -391,18 +448,13 @@
                   <div class="card-header boxForm d-flex justify-content-between">
                     <h5 class="text-dark2" style="padding-top: 9px;">Lista Productos
                       {{ordenESService.formData.tipoOrden=="Salida"? 'Salientes': 'Entrantes'}}</h5>
-                    <a [routerLink] (click)="onNewProductos()" class="btn bttn-Primario btn-sm"
-                      [ngClass]="{'bttn-Error':!okAddNewBotton }"
-                      matTooltip="No se puede añadir tareas si existen campos vacios" matTooltipPosition="left"
-                      matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
-                      <fa-icon [icon]="faplus"></fa-icon> Añadir
-                    </a>
                   </div>
                   <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px; height: 100%;">
                     <table class="table">
                       <thead>
                         <tr class="text-center">
-                          <th scope="col" style="width:5%" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'">Inventario</th>
+                          <th scope="col" style="width:5%" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'">
+                            Inventario</th>
                           <th scope="col" style="width:35%;">Producto</th>
                           <th scope="col" style="width:20%;">Cantidad</th>
                           <th scope="col" style="width:30%;">Observación</th>
@@ -515,13 +567,21 @@
                               <span
                                 *ngIf="(buscarGuiaR && ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].checkRevision)"
                                 class="input-group-text  input-src span">/{{ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].cantidadPendiente}}</span>
-                              <div *ngIf="ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].checkInventario" style="width: 40%;">
-                                <select class="form-control input-src" name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega" #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega="ngModel"
-                                [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.SelectBodega" required>
-                                <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                                <option *ngFor="let datoBodega of ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto" value="{{datoBodega.nombreBodega}}">{{datoBodega.nombreBodega}}: Stock: {{datoBodega.disponibilidad}}
-                                </option>
-                              </select>
+                              <div
+                                *ngIf="ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].checkInventario"
+                                style="width: 40%;">
+                                <select class="form-control input-src"
+                                  name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega"
+                                  #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}selectBodega="ngModel"
+                                  [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.SelectBodega"
+                                  required>
+                                  <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                                  <option
+                                    *ngFor="let datoBodega of ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto"
+                                    value="{{datoBodega.nombreBodega}}">{{datoBodega.nombreBodega}}: Stock:
+                                    {{datoBodega.disponibilidad}}
+                                  </option>
+                                </select>
                               </div>
                             </div>
                           </td>
@@ -539,7 +599,7 @@
                               color="primary"
                               #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}retorna="ngModel"
                               [(ngModel)]="ordenESService.formData.listArticulosO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].retorna"
-                              [disabled]="buscarGuiaVE">
+                              [disabled]="buscarGuiaVE || (ordenESService.formData.isTanqueAgua||ordenESService.formData.isTanqueGasolina)">
                             </mat-checkbox>
                           </td>
                           <td class="justify-content-center" id="utilitarioI">
@@ -551,6 +611,19 @@
                           </td>
                         </tr>
                       </tbody>
+                      <tfoot *ngIf="ordenESService.formData.listArticulosO.length>0">
+                        <tr>
+                          <td colspan="4"></td>
+                          <td>
+                            <a [routerLink] (click)="onNewProductos()" class="btn btnNewRedondo"
+                              [ngClass]="{'bttn-Error':!okAddNewBotton }"
+                              matTooltip="No se puede añadir material si existen campos vacios" matTooltipPosition="left"
+                              matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
+                              <fa-icon [icon]="faplus"></fa-icon>
+                            </a>
+                          </td>
+                        </tr>
+                      </tfoot>
                     </table>
                     <div class="paginationPadre" *ngIf="ordenESService.formData.listArticulosO!=null">
                       <nav>
@@ -689,7 +762,8 @@
           </a>
         </div>
         <div>
-          <app-compra-proveedor [isOpen]="proveedorIsOpened" (cerrar)="recibirRes($event, 'proveedor')"></app-compra-proveedor>
+          <app-compra-proveedor [isOpen]="proveedorIsOpened" (cerrar)="recibirRes($event, 'proveedor')">
+          </app-compra-proveedor>
         </div>
       </div>
       <div class="boxCliente pt-0" *ngIf="strFases=='Devolucion'">
@@ -699,7 +773,8 @@
           </a>
         </div>
         <div>
-          <app-devolucion-compra [isOpen]="devolucionIsOpened" (cerrar)="recibirRes($event, 'devolucion')"></app-devolucion-compra>
+          <app-devolucion-compra [isOpen]="devolucionIsOpened" (cerrar)="recibirRes($event, 'devolucion')">
+          </app-devolucion-compra>
         </div>
       </div>
     </div>

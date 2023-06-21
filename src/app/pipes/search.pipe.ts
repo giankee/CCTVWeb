@@ -7,7 +7,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class SearchPipe implements PipeTransform {
 
   transform(list: any[], inText: string, tDato: string): any[] {
-    if (inText.length <1 || (inText == "")) return list;
+    if (inText.length < 1 || (inText == "")) return list;
     switch (tDato) {
       case 'cCarro':
         return list.filter(carro => carro.numMatricula.toLowerCase().includes(inText.toLowerCase()) || carro.marca.toLowerCase().includes(inText.toLowerCase()) || carro.propietario.toLowerCase().includes(inText.toLowerCase()));
@@ -21,9 +21,10 @@ export class SearchPipe implements PipeTransform {
         return list.filter(productoB => productoB.codigo.includes(inText) || productoB.marca.includes(inText) || productoB.nombre.includes(inText) || productoB.categoria.includes(inText) || productoB.proveedor.toLowerCase().includes(inText.toLowerCase()));
       case 'cBalde':
         return list.filter(balde => balde.numBalde.toString().includes(inText) || balde.ubicacionActual.includes(inText) || balde.actividad.toLowerCase().includes(inText.toLowerCase()) || balde.estadoBalde.toLowerCase().includes(inText.toLowerCase()));
-        case 'cReportGeneralMedic':
+      case 'cReportGeneralMedic':
         return list.filter(reportAB => reportAB.enfermedadCIE10.toLowerCase().includes(inText.toLowerCase()));
+      case 'cPedido':
+        return list.filter(pedido => pedido.strNumSecuencial.toUpperCase().includes(inText.toUpperCase())|| pedido.proveedor.toUpperCase().includes(inText.toUpperCase()));
     }
   }
-
 }

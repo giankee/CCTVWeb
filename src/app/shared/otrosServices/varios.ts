@@ -90,12 +90,12 @@ export class cFecha {
         this.strFecha = this.anio + '-' + strmonth + '-' + strday;
         this.inHasta = this.strFecha;
         if (this.mes == 1)
-            this.inDesde = (this.anio - 1) + '-12-' + strday;
+            this.inDesde = (this.anio - 1) + '-12-01';
         else {
             if (this.mes <= 10)
                 strmonth = "0" + (this.mes - 1);
             else strmonth = "" + (this.mes - 1);
-            this.inDesde = this.anio + '-' + strmonth + '-' + strday;
+            this.inDesde = this.anio + '-' + strmonth + '-01';
         }
         if (this.hora < 10)
             strHour = "0" + this.hora;
@@ -204,8 +204,7 @@ export class cFecha {
                         if (incluirFinSemana == false) {
                             if (this.sacarStrDiaLaboral(Number(separarB[0]), i, j)){
                                 difDia++;
-                            }
-                                
+                            } 
                         } else difDia++;
                     }
                 }
@@ -263,10 +262,6 @@ export class cFecha {
             return false;
         return true;
     }
-
-    transformarFechasString(fechaIn:string){
-
-    }
 }
 
 export class cParemetos {
@@ -308,9 +303,10 @@ export class cParemetos {
 }
 
 export class cParemetosOrdenInterna {
+    planta:string="P MANACRIPEX";
     tipoO: string = "Trabajo Interno";
     strPersona: string = "";
-    strBodegaOrigen: string = "GENERAL";
+    strBodegaOrigen: string = "All";
     strArea: string = "null";
     strProducto: string = "";
     productoCodigo: string = "null";
@@ -325,7 +321,7 @@ export class cParemetosOrdenInterna {
 
     }
     transformarParametro(fDesdeIn: string, fHastaIn: string): string {
-        var strparam = "P MANACRIPEX@" + this.tipoO + "@" + fDesdeIn + "@" + fHastaIn + "@" + this.strBodegaOrigen + "@" + this.strArea + "@" + this.productoCodigo + "@";
+        var strparam = this.planta+"@" + this.tipoO + "@" + fDesdeIn + "@" + fHastaIn + "@" + this.strBodegaOrigen + "@" + this.strArea + "@" + this.productoCodigo + "@";
         if (this.strPersona != "")
             strparam = strparam + this.strPersona;
         else strparam = strparam + "null";
@@ -586,11 +582,13 @@ export class cParemetosGeneral {
     strCampoC: string = "";
     strCampoD: string = "";
     strCampoE: string = "";
+    strCampoF: string = "";
     numCampoA: number = undefined;
     numCampoB: number = undefined;
     numCampoC: number = undefined;
     numCampoD: number = undefined;
     numCampoE: number = undefined;
+    numCampoF: number = undefined;
 
     fechaH: string;
     fechaA: string;
@@ -610,11 +608,13 @@ export class cParemetosGeneral {
         this.strCampoC = "";
         this.strCampoD = "";
         this.strCampoE="";
+        this.strCampoF="";
         this.numCampoA = undefined;
         this.numCampoB = undefined;
         this.numCampoC = undefined;
         this.numCampoD = undefined;
         this.numCampoE=undefined;
+        this.numCampoF=undefined;
 
         var fechaHoy = new cFecha();
         this.fechaH = fechaHoy.strFecha;

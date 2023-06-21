@@ -9,24 +9,24 @@
     </div>
   </div>
   <div class="main-menu"
-    *ngIf="conexcionService.UserR.rolAsignado=='admin' || conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='gv-m'">
+    *ngIf="conexcionService.UserR.rolAsignado=='admin' || conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='gv-m' || conexcionService.UserR.rolAsignado=='tinabg-m'">
     <ul class="side-menu list-unstyled">
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/OrdenSupervisor"]'>
           <fa-icon [icon]="fatasks"></fa-icon> Orden E/S
         </a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'">
         <a [routerLink]='["/VehiculosList"]'>
           <fa-icon [icon]="facar"></fa-icon> Vehículos
         </a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'">
         <a [routerLink]='["/PersonalList"]'>
           <fa-icon [icon]="fausers"></fa-icon> Personal
         </a>
       </li>
-      <li [routerLinkActive]="['active']">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'">
         <a [routerLink]='["/ProductosList"]'>
           <fa-icon [icon]="fatools"></fa-icon> Productos
         </a>
@@ -58,10 +58,14 @@
           <fa-icon [icon]="fadollyflatbed"></fa-icon> Control Bodega
         </a>
       </li>
-      <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'&& conexcionService.UserR.rolAsignado!='enfermeria'">
+      <li [routerLinkActive]="['active']" >
         <a [routerLink]='["/Bodega/trabajosInter"]'>
           <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'">
+        <a [routerLink]='["/Bodega/newTraspasoInter"]'>
+          <fa-icon [icon]="faexchange"></fa-icon> Traspaso Bodega
         </a>
       </li>
     </ul>
@@ -76,7 +80,7 @@
       </li>
     </ul>
   </div>
-  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='verificador-bodeguero'">
+  <div class="admin-menu" *ngIf="conexcionService.UserR.rolAsignado=='verificador-bodeguero'|| conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'">
     <h5 class="sidenav-heading">Menú Inventario</h5>
     <ul class="list-unstyled">
       <li [routerLinkActive]="['active']">
@@ -87,6 +91,26 @@
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Bodega/trabajosInter"]'>
           <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']">
+        <a [routerLink]='["/Bodega/newTrabajosInter"]'>
+          <fa-icon [icon]="fatasks"></fa-icon> Orden Trabajo
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='verificador-bodeguero-b'">
+        <a [routerLink]='["/Bodega/newTraspasoInter"]'>
+          <fa-icon [icon]="faexchange"></fa-icon> Traspaso Bodega
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.nombreU=='FERNANDA MORALES'">
+        <a [routerLink]='["/Bodega/compras"]'>
+          <fa-icon [icon]="fashoppingCart"></fa-icon> Compra Proveedor
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.nombreU=='FERNANDA MORALES'">
+        <a [routerLink]='["/Bodega/comprasInv"]'>
+          <fa-icon [icon]="fashoppingCart"></fa-icon> Gestión Compras
         </a>
       </li>
     </ul>
@@ -164,12 +188,12 @@
           <fa-icon [icon]="faclipboardList"></fa-icon> Lista Pedidos
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado!='pedido-super'">
+      <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Pedido/VerificacionPedido"]'>
           <fa-icon [icon]="faclipboardCheck"></fa-icon> Verificación
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="(conexcionService.UserR.nombreU=='CARLOS CEBALLOS'||conexcionService.UserR.nombreU=='JORGE SALAME' || conexcionService.UserR.nombreU=='PRUEBAG')">
+      <li [routerLinkActive]="['active']" *ngIf="(conexcionService.UserR.nombreU=='CARLOS CEBALLOS'||conexcionService.UserR.nombreU=='JORGE SALAME' ||conexcionService.UserR.nombreU=='CARLOS LOPEZ' || conexcionService.UserR.nombreU=='PRUEBAG')">
         <a [routerLink]='["/Pedido/AprobacionPedido"]'>
           <fa-icon [icon]="faclipboardCheck"></fa-icon> Aprobar Pedido
         </a>
@@ -184,8 +208,18 @@
           <fa-icon [icon]="faheartbeat"></fa-icon> Reportes Médicos
         </a>
       </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'||conexcionService.UserR.rolAsignado=='gpv-o'">
+        <a [routerLink]='["/Bodega/medicamentoCaducado"]'>
+          <fa-icon [icon]="fapills"></fa-icon> Reporte Caducidad
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'||conexcionService.UserR.rolAsignado=='gpv-o'">
+        <a [routerLink]='["/TanquesAGua/listTanqueros"]'>
+          <fa-icon [icon]="fawater"></fa-icon> Reporte Tanque
+        </a>
+      </li>
       <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='gv-m'">
+        *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' || conexcionService.UserR.rolAsignado=='gv-m'|| conexcionService.UserR.rolAsignado=='tinabg-m'">
         <a [routerLink]='["/Entrada-Salida"]'>
           <fa-icon [icon]="faexchangeAlt"></fa-icon> Entrada / Salida
         </a>
@@ -207,13 +241,13 @@
         </a>
       </li>
       <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='enfermeria'|| conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m'">
+        *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='enfermeria'|| conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&&conexcionService.UserR.nombreU=='FERNANDA MORALES' )">
         <a [routerLink]='["/BuscarFactura"]'>
           <fa-icon [icon]="faexchangeAlt"></fa-icon> Buscar Factura
         </a>
       </li>
       <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserR.rolAsignado=='verificador-bodeguero'">
+        *ngIf="conexcionService.UserR.rolAsignado=='verificador-bodeguero'||conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'">
         <a [routerLink]='["/Bodega/inventGroup"]'>
           <fa-icon [icon]="faobjerctunicion"></fa-icon> Agrupar inventario
         </a>
@@ -234,11 +268,16 @@
         </a>
       </li>
       <li [routerLinkActive]="['active']"
-      *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='tinabg-m'">
+      *ngIf="conexcionService.UserR.rolAsignado=='tinabg-m'||conexcionService.UserR.rolAsignado=='pedido-super'||(conexcionService.UserR.rolAsignado=='pedido-flota'&& conexcionService.UserR.nombreU == 'JORGE SALAME' )">
       <a [routerLink]='["/List-proveedor"]'>
         <fa-icon [icon]="fausertag"></fa-icon> Proveedores
       </a>
     </li>
+    <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='admin'"> <a
+      [routerLink]='["/TanquesAGua/subirExcel"]'>
+      <fa-icon [icon]="faucet"></fa-icon> Registrar Tanqueros Agua
+    </a>
+  </li>
       <!-- <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'">
         <a [routerLink]='["/Pedido/Reporte"]'>
           <fa-icon [icon]="fachartLine"></fa-icon> Reportes

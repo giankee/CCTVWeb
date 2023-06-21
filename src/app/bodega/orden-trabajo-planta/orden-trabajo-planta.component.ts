@@ -6,10 +6,10 @@ import { cOrdenTrabajoI } from 'src/app/shared/bodega/ordenTrabajo';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
 import { cFecha, cParemetosOrdenInterna, cVario } from 'src/app/shared/otrosServices/varios';
-import { faSort, faEye, faTimesCircle, faSearch, faAngleDown, faAngleLeft, faPrint, faArrowAltCircleLeft, faArrowAltCircleRight,faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faSort, faEye, faTimesCircle, faSearch, faAngleDown, faAngleLeft, faPrint, faArrowAltCircleLeft, faArrowAltCircleRight, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
-import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cBodegaArea, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ViewTrabajoModelComponent } from './view-trabajo-model/view-trabajo-model.component';
 
@@ -54,7 +54,8 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
   spinnerOnOff: boolean = true;
   ordenTrabajo: string = "default";
   _iconDownLeft: boolean = false;
-  listBodega: cVario[] = [];
+  listBodega: cBodega[] = [];
+  listAreas: cBodega[] = [];
   parametrosBusqueda: cParemetosOrdenInterna = new cParemetosOrdenInterna();
 
   listOrdenesMostrar$: Observable<cOrdenTrabajoI[]>;
@@ -68,21 +69,35 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
   fechaHoy = new cFecha();
   /**Fin paginatacion */
 
-  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch; 
-  faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight;faeyeslash=faEyeSlash
-  constructor(private _conexcionService: ConexionService, private _ordenInterService: OrdenTrabajoService,private _variosService: VariosService, private _productosBService: ProductoBService, private dialog: MatDialog) { }
+  sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch;
+  faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
+  constructor(private _conexcionService: ConexionService, private _ordenInterService: OrdenTrabajoService, private _variosService: VariosService, private _productosBService: ProductoBService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this._conexcionService.msg$.subscribe(mensajeStatus => {
       this.internetStatus = mensajeStatus.connectionStatus;
     });
-    
     this.cargarBodega();
   }
 
   cargarData() {//Datos de los ordenes traidos desde db
-    var strParametro = "P MANACRIPEX@Trabajo Interno@"+this.listBodegasFiltro;
-    this.spinnerOnOff = true;
+    var strParametro;
+    switch(this.conexcionService.UserR.rolAsignado){
+      case 'enfermeria':
+        strParametro = "ENFERMERIA@Traspaso Bodega@" + this.listBodegasFiltro;
+      break;
+      case 'verificador-bodeguero-b':
+        strParametro = "BARCOS@Trabajo Interno@" + this.listBodegasFiltro;
+      break;
+      case 'tinabg-m':
+      case 'bodega_verificador-m':
+      case 'verificador-bodeguero':
+        strParametro = "P MANACRIPEX@Trabajo Interno@" + this.listBodegasFiltro;
+      break;
+      case 'gpv-o':
+        strParametro = "OFICINAS@Traspaso Bodega@" + this.listBodegasFiltro;
+      break;
+    }
     this.listOrdenesMostrar$ = this._ordenInterService.getListOrdenesInter(strParametro).pipe(
       map((x: cOrdenTrabajoI[]) => {
         x.forEach(y => {
@@ -96,20 +111,54 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
   }
 
   cargarBodega() {
-    this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-      this.listBodega = dato;
-      if(this.conexcionService.UserR.rolAsignado!="tinabg-m")
-      this.listBodega.forEach(x=>{
-        if(x.encargadoBodega==this.conexcionService.UserR.nombreU){
-          if(this.listBodegasFiltro=="All"){
-            this.parametrosBusqueda.strBodegaOrigen=x.nombre;
-            this.listBodegasFiltro=x.nombre;
-          }
-          else this.listBodegasFiltro=this.listBodegasFiltro+'-'+x.nombre;
+    if (this.conexcionService.UserR.rolAsignado == "enfermeria" || this.conexcionService.UserR.rolAsignado=="gpv-o") {
+      this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+        this.listBodega = dato;
+        if(this.conexcionService.UserR.rolAsignado=="gpv-o"){
+          this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
+            dato.forEach(x=>{
+              this.listBodega.push(x);
+            });
+          });
         }
-      }) 
-      this.cargarData();
-    });
+        this.cargarData();
+      });
+    } else {
+      if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero-b") {
+        this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+          this.listBodega = dato.filter(x => (x.listAreas.find(y=>y.encargadoArea== this.conexcionService.UserR.nombreU)));
+          if(this.listBodega.length>0)
+            this.listBodegasFiltro=this.listBodega[0].nombreBodega;
+          this.cargarData();
+        });
+      } else {
+        this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
+          this.listAreas = dato;
+        });
+        this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+          this.listBodega = dato;
+          if (this.conexcionService.UserR.rolAsignado != "tinabg-m") {
+            this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
+            this.listBodega.forEach(x => {
+              if (this.listBodegasFiltro == "All")
+                this.listBodegasFiltro = x.nombreBodega;
+              else this.listBodegasFiltro = this.listBodegasFiltro + "-" + x.nombreBodega;
+            });
+            if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.listBodega.length == 1) {
+              this.parametrosBusqueda.strBodegaOrigen = this.listBodega[0].nombreBodega;
+              if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+                this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+                  for (var i = 0; i < dato.length; i++) {
+                    this.listBodega.push(dato[i]);
+                  }
+                });
+              }
+            }
+          }
+          this.cargarData();
+        });
+      }
+    }
   }
 
   onListProducto(value: string) {
@@ -120,7 +169,9 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
     var params = "" + value;
     if (value == "")
       params = "DatoNull";
-    params=params+"@P MANACRIPEX@2@"+this.parametrosBusqueda.strBodegaOrigen;
+    if (this.conexcionService.UserR.rolAsignado == "enfermeria")
+      params = params + "@ENFERMERIA@2@" + this.parametrosBusqueda.strBodegaOrigen;
+    else params = params + "@P MANACRIPEX@2@" + this.parametrosBusqueda.strBodegaOrigen;
     this.listProdFiltros$ = this._productosBService.getProductosSearch(params).pipe(
       map((x: cProducto_B[]) => x),
       finalize(() => this.parametrosBusqueda.spinLoadingG = 0)
@@ -158,6 +209,11 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
         this.ordenTrabajo = "up-E";
       else this.ordenTrabajo = "down-E";
     }
+    if (tipo == "Marea") {
+      if (this.ordenTrabajo == "default" || this.ordenTrabajo == "down-M")
+        this.ordenTrabajo = "up-M";
+      else this.ordenTrabajo = "down-M";
+    }
   }
 
   onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views
@@ -168,7 +224,30 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
 
   onFiltrarOrdenes() {
     this.spinnerOnOff = true;
-    var strParametros: string = this.parametrosBusqueda.transformarParametro(this.fechaHoy.inDesde, this.fechaHoy.inHasta);
+    var strParametros: string;
+    switch(this.conexcionService.UserR.rolAsignado){
+      case 'enfermeria':
+        this.parametrosBusqueda.planta="ENFERMERIA";
+      this.parametrosBusqueda.tipoO="Traspaso Bodega";
+      break;
+      case 'verificador-bodeguero-b':
+        this.parametrosBusqueda.planta="BARCOS";
+      this.parametrosBusqueda.tipoO="Trabajo Interno";
+      break;
+      case 'tinabg-m':
+      case 'bodega_verificador-m':
+      case 'verificador-bodeguero':
+        this.parametrosBusqueda.planta="P MANACRIPEX";
+      this.parametrosBusqueda.tipoO="Trabajo Interno";
+      break;
+    }
+    if(this._conexcionService.UserR.rolAsignado=='gpv-o'||(this.conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& this.conexcionService.UserR.nombreU=="FERNANDA MORALES")){
+      this.parametrosBusqueda.tipoO="All";
+      if((this.listBodega.find(x=>x.nombreBodega==this.parametrosBusqueda.strBodegaOrigen)).tipoBodega=="PUERTO")
+        this.parametrosBusqueda.planta="BARCOS";
+      else this.parametrosBusqueda.planta=this.listBodega.find(x=>x.nombreBodega==this.parametrosBusqueda.strBodegaOrigen).tipoBodega;
+    }
+    strParametros = this.parametrosBusqueda.transformarParametro(this.fechaHoy.inDesde, this.fechaHoy.inHasta);
     this.listOrdenesMostrar$ = this._ordenInterService.getFiltroOrdenes(strParametros).pipe(
       map((x: cOrdenTrabajoI[]) => {
         x.forEach(y => {

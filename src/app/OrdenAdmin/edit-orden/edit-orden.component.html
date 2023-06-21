@@ -22,6 +22,9 @@
                       class="form-control" required>
                       <option value="Entrada">Entrada</option>
                       <option value="Salida">Salida</option>
+                      <option value="Salida Tanque Agua">Salida Tanque Agua</option>
+                      <option value="Salida Tanque Combustible">Salida Tanque Combustible</option>
+                      <option value="Entrada Tanque Combustible">Entrada Tanque Combustible</option>
                     </select>
                     <input name="guiaDocumentacion" #guiaDocumentacion="ngModel"
                       [(ngModel)]="ordenESService.formData.numDocumentacion" class="form-control" required>
@@ -174,16 +177,16 @@
                     <tr class="text-center">
                       <th scope="col" style="width:5%" *ngIf="ordenESService.formData.planta=='OFICINAS'" >Inventario
                       </th>
-                      <th scope="col" style="width:30%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
+                      <th scope="col" style="width:25%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
                         {{ordenESService.formData.tipoOrden=='Materia Prima' ? 'Material' : 'Producto'}}
                       </th>
-                      <th scope="col" style="width:15%;">Cantidad</th>
+                      <th scope="col" style="width:25%;">Cantidad</th>
                       <th scope="col" style="width:15%;">Observación</th>
                       <th scope="col" style="width:5%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
                         Retorna</th>
                       <th scope="col" style="width:15%;" *ngIf="ordenESService.formData.tipoOrden!='Materia Prima'">
                         Verificador</th>
-                      <th scope="col" style="width:15%">Estado</th>
+                      <th scope="col" style="width:10%">Estado</th>
                     </tr>
                   </thead>
                   <tbody>

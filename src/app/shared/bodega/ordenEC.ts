@@ -1,3 +1,5 @@
+import { cFecha } from "../otrosServices/varios";
+
 export class cOrdenEC {
     idOrdenE_C: number = undefined;
     idCompraAutomatica: number = 0;
@@ -156,7 +158,7 @@ export class cCompraO {
     cargaIva: boolean = true;
     estadoCompra: string = "Procesada";
     loteMedic: string = null;
-    fechaVencimientoMedic: string = null;
+    fechaVencimientoMedic: string;
 
     /**Controladores Individuales*/
     marcar?: boolean = true;
@@ -171,7 +173,10 @@ export class cCompraO {
     ordenE_C?: cOrdenEC;
     producto?: cProducto_B;
 
-    constructor() { }
+    constructor() { 
+        let fechaHoy: cFecha = new cFecha();
+        this.fechaVencimientoMedic=fechaHoy.sacaSoloMes();
+    }
 
     rellenarProducto(productoIn: cProducto_B) {
         this.producto = new cProducto_B();
@@ -190,21 +195,22 @@ export class cCompraO {
 }
 
 export class cProducto_B {
-    idProductoStock?: number = undefined;
-    planta?: string = "OFICINAS";
-    codigo?: string = undefined;
-    nombre?: string = "";
-    categoria?: string = "SIN ASIGNAR";
-    marca?: string = "SIN ASIGNAR";
-    proveedor?: string = "SIN ASIGNAR";
-    precioStandar?: number = 0.00;
-    precioUltima?: number = 0.00;
-    tipoUnidad?: string = "UNIDAD";
-    contenidoNeto?: number = 1;
-    precioNeto?: number = 0;
-    rutaArchivo?: string = "/assets/img/imgDefecto.png";
-    descripcion?:string="";
-    estado?: number = 1;
+    idProductoStock: number = undefined;
+    planta: string = "OFICINAS";
+    codigo: string = undefined;
+    nombre: string = "";
+    numParte:string="";
+    categoria: string = "SIN ASIGNAR";
+    marca: string = "SIN ASIGNAR";
+    proveedor: string = "SIN ASIGNAR";
+    precioStandar: number = 0.00;
+    precioUltima: number = 0.00;
+    tipoUnidad: string = "UNIDAD";
+    contenidoNeto: number = 1;
+    precioNeto: number = 0;
+    rutaArchivo: string = "/assets/img/imgDefecto.png";
+    descripcion: string = "";
+    estado: number = 1;
 
     /**Arreglos */
     listBodegaProducto?: cBodegaProducto[] = [];
@@ -219,8 +225,26 @@ export class cProducto_B {
     constructor(plantaIn?: string, proveedorIn?: string) {
         if (plantaIn != null)
             this.planta = plantaIn;
+            else this.planta= "OFICINAS";
         if (proveedorIn != null)
             this.proveedor = proveedorIn;
+        else this.proveedor= "SIN ASIGNAR";
+        
+        this.idProductoStock = undefined;
+        this.codigo= undefined;
+        this.nombre= "";
+        this.numParte="";
+        this.categoria= "SIN ASIGNAR";
+        this.marca= "SIN ASIGNAR";
+        this.precioStandar = 0.00;
+        this.precioUltima = 0.00;
+        this.tipoUnidad= "UNIDAD";
+        this.contenidoNeto = 1;
+        this.precioNeto = 0;
+        this.rutaArchivo= "/assets/img/imgDefecto.png";
+        this.descripcion= "";
+        this.estado = 1;
+
     }
 
     /*Metodos*/
@@ -230,6 +254,7 @@ export class cProducto_B {
         this.codigo = objIn.codigo;
         this.planta = objIn.planta;
         this.nombre = objIn.nombre;
+        this.numParte=objIn.numParte;
         this.categoria = objIn.categoria;
         this.proveedor = objIn.proveedor;
         this.marca = objIn.marca;
@@ -239,7 +264,7 @@ export class cProducto_B {
         this.tipoUnidad = objIn.tipoUnidad;
         this.contenidoNeto = objIn.contenidoNeto;
         this.precioNeto = objIn.precioNeto;
-        this.descripcion=objIn.descripcion;
+        this.descripcion = objIn.descripcion;
         this.estado = objIn.estado;
 
         if (objIn.listBodegaProducto != null) {
@@ -275,7 +300,7 @@ export class cProducto_B {
         this.SelectBodega = "SIN ASIGNAR";
         this.contenidoNeto = null;
         this.precioNeto = 0;
-        this.descripcion=null;
+        this.descripcion = null;
     }
 
     agregarOneBodega(dataIn?: cBodegaProducto, bodegaIn?: string) {
@@ -293,7 +318,7 @@ export class cProducto_B {
         }
         this.listComponentesProducto.push(auxComponente);
     }
-    
+
 }
 
 export class cBodegaProducto {
@@ -303,7 +328,7 @@ export class cBodegaProducto {
     inventarioId?: number = undefined;
     cantInicial?: number = 0;
     disponibilidad?: number = 0;
-    cantMinima?: number = 1;
+    cantMinima?: number = 0;
     percha?: number = 0;
     fila?: number = 0;
     numCasillero?: number = 0;
@@ -344,7 +369,7 @@ export class cBodegaProducto {
         if (objIn.listAreas != null) {
             this.listAreas = []
             if (objIn.listAreas.length > 0) {
-                objIn.listAreas.forEach(x=>{
+                objIn.listAreas.forEach(x => {
                     this.agregarOneLote(x);
                 })
             }
@@ -409,7 +434,8 @@ export class cBodegaSubAreaProducto {
         this.nombreSub = objIn.nombreSub;
         this.bodegaProductoId = objIn.bodegaProductoId;
         this.disponibilidad = objIn.disponibilidad;
-        this.fechaVencimiento=objIn.fechaVencimiento.substr(0, 10);
+        this.fechaVencimiento = objIn.fechaVencimiento.substr(0,7 );
+        
 
         if (objIn.bodegaProducto != null)
             this.bodegaProducto = objIn.bodegaProducto;
@@ -482,6 +508,7 @@ export class cItemKardex {
     factura: string = "---";
     tipoItem: string = ""; //Compra, Salida,Entrada, Devolucion, oredentrabajo
     lugarTransaccion = "";
+    lugarOrigen = "";
     relacionGuiaId: number = undefined;
     relacionFacturaId: number = undefined;
     datoEntrada: cSaldosKardex;
@@ -490,7 +517,7 @@ export class cItemKardex {
 
     constructor() { }
 
-    completarObj(dataIn) {
+    completarObj(dataIn, lugarBodegaIn?: string) {
         this.fecha = dataIn.fecha.substr(0, 10);
         if (dataIn.guia != 0)
             this.guia = "" + dataIn.guia;
@@ -498,9 +525,10 @@ export class cItemKardex {
             this.factura = "" + dataIn.factura;
         this.tipoItem = dataIn.tipoItem;
         this.lugarTransaccion = dataIn.lugarTransaccion;
+        this.lugarOrigen = dataIn.lugarOrigen;
         this.relacionGuiaId = dataIn.relacionGuiaId;
         this.relacionFacturaId = dataIn.relacionFacturaId;
-        if (this.tipoItem == "Compra" || this.tipoItem == "Entrada") {
+        if (this.tipoItem == "Compra" || this.tipoItem == "Entrada" || (this.tipoItem == "Traspaso Bodega" && this.lugarTransaccion == lugarBodegaIn)) {
             this.datoSalida = new cSaldosKardex();
             this.datoEntrada = new cSaldosKardex(dataIn.cantidad, dataIn.precio);
         } else {
@@ -512,7 +540,7 @@ export class cItemKardex {
 }
 
 export class cKardex {
-    tipoVista: string = "Mes"// Mes, Trimestral, Semestral
+    tipoVista: string = "Mes"// Mes, Trimestral, Semestral,  Anual
     fechaBusqueda: string = "";
     totalSumE: number = 0;
     totalSumS: number = 0;
@@ -542,9 +570,10 @@ export class cKardex {
             var auxUltimoP: number = this.datoInicial.precioU;
             for (var i = 0; i < listIn.length; i++) {
                 var nuevoItem: cItemKardex = new cItemKardex();
-                nuevoItem.completarObj(listIn[i]);
-                if (nuevoItem.tipoItem != "Entrada" && nuevoItem.tipoItem != "Compra")
+                nuevoItem.completarObj(listIn[i], this.BodegaSelect);
+                if (nuevoItem.tipoItem != "Entrada" && nuevoItem.tipoItem != "Compra" && (nuevoItem.tipoItem == "Traspaso Bodega" && this.BodegaSelect != nuevoItem.lugarTransaccion)) {
                     nuevoItem.datoSalida.calcuarSaldo(nuevoItem.datoSalida.cantidad, auxUltimoP);
+                }
                 this.totalSumS = this.totalSumS + nuevoItem.datoSalida.cantidad;
                 this.totalSumE = this.totalSumE + nuevoItem.datoEntrada.cantidad;
                 this.precioSumS = Number((this.precioSumS + nuevoItem.datoSalida.precioTotal).toFixed(2));
@@ -559,6 +588,23 @@ export class cKardex {
     }
 }
 
+export class cJustificacionMedicina {
+    inventarioId:number;
+    inventarioNombre:string;
+    isCompras:boolean;
+    isCaducado:boolean;
+    cantConsumido:number;
+    cantDiferencia:number;
+
+    compras:cJustificacionItem;
+    caducado:cJustificacionItem;
+}
+
+export class cJustificacionItem{
+    fecha:string;
+    cantidad:number;
+    marea:string;
+}
 export class cBodega {
     idBodega: number;
     tipoBodega: string;

@@ -30,6 +30,9 @@ export class OrdenPedidoService {
   verificacionOrdenPedido(formData: cOrdenPedido): Observable<cOrdenPedido> {
     return this.http.post<cOrdenPedido>(this.serverUrl+'/postVerificar', formData);
   }
+  verificacionMultiOrdenPedido(formData: cOrdenPedido[]): Observable<cOrdenPedido[]> {
+    return this.http.post<cOrdenPedido[]>(this.serverUrl+'/postMultiVerificar', formData);
+  }
 
   getFiltroPedidos(strParametros):Observable<cOrdenPedido[]>{//list consulta
     return this.http.get<cOrdenPedido[]>(this.serverUrl  + '/getFiltroaPedidos/'+strParametros);

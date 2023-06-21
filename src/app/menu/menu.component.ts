@@ -6,7 +6,7 @@ import { Observable, Subscription, fromEvent } from 'rxjs';
 
 import {
   faBars, faCircle, faSignOutAlt, faBell, faTasks, faCar, faUserPlus, faTools, faUsers, faEnvelope, faExchangeAlt, faClipboardCheck,
-  faShoppingCart, faBoxes, faDolly, faDollyFlatbed, faFileMedical, faMedkit, faBookMedical, faLaptopMedical, faCarCrash, faObjectGroup, faIdCardAlt, faPrescriptionBottleAlt, faHeartbeat, faClipboardList, faChartLine, faCartArrowDown, faWarehouse, faUserTag
+  faShoppingCart, faBoxes, faDolly, faDollyFlatbed, faFileMedical, faMedkit, faBookMedical, faLaptopMedical, faCarCrash, faObjectGroup, faIdCardAlt, faPrescriptionBottleAlt, faHeartbeat, faClipboardList, faChartLine, faCartArrowDown, faWarehouse, faUserTag, faPills, faFaucet, faTint
 } from '@fortawesome/free-solid-svg-icons';
 import { cNotificacion } from '../shared/ordenEs';
 import { NotificacionService } from '../shared/notificacion.service';
@@ -49,6 +49,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   fashoppingCart = faShoppingCart; faboxes = faBoxes; fadolly = faDolly; fadollyflatbed = faDollyFlatbed; fasquareplus = faPlusSquare;fachartLine=faChartLine;
   fafilemedical = faFileMedical; fakitmedical = faMedkit; fabookmedical = faBookMedical; falaptopmedic = faLaptopMedical; facarcrash = faCarCrash;fagarage=faWarehouse
   faobjerctunicion = faObjectGroup; faidcardalt = faIdCardAlt; faprescription = faPrescriptionBottleAlt;faheartbeat=faHeartbeat; faclipboardList= faClipboardList;
+  fapills=faPills;faucet=faFaucet;fawater=faTint;faexchange=faExchangeAlt;
 
   /**Parte Online/OffLine */
   public onlineEvent: Observable<Event>;

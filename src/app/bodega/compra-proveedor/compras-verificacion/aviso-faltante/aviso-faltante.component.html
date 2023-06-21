@@ -31,7 +31,7 @@
                           [(ngModel)]="consultaMedicService.formData.listReceta[indiceNewP].inventario.nombre"
                           class="form-control input-src">
                       </td>
-                      <td class="text-center" >{{consultaMedicService.formData.listReceta[indiceNewP].cantidad}}</td>
+                      <td class="text-center" >{{consultaMedicService.formData.listReceta[indiceNewP].cantidad  | number:'1.0-0'}}</td>
                       <td  id="inputSearchP">
                         <input name="in{{indiceNewP}}cantidadReal" type="number" min="0" maxlength="10" placeholder="#"
                           class="form-control  input-src"

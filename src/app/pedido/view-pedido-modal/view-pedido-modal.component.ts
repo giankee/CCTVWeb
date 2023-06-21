@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { OrdenPedidoService } from 'src/app/shared/pedido/orden-pedido.service';
 import { jsPDF } from "jspdf";
 import { cArticulosPedido, cOrdenPedido } from 'src/app/shared/pedido/pedido';
-import { faPrint, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPrint, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
@@ -11,6 +11,7 @@ import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { cEnterpriceProveedor, cVario } from 'src/app/shared/otrosServices/varios';
 import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { finalize, map } from 'rxjs/operators';
+import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 
 @Component({
   selector: 'app-view-pedido-modal',
@@ -18,6 +19,12 @@ import { finalize, map } from 'rxjs/operators';
   styles: []
 })
 export class ViewPedidoModalComponent implements OnInit {
+  public get conexcionService(): ConexionService {
+    return this._conexcionService;
+  }
+  public set conexcionService(value: ConexionService) {
+    this._conexcionService = value;
+  }
   public get enterpriceServise(): ApiEnterpriceService {
     return this._enterpriceServise;
   }
@@ -37,24 +44,28 @@ export class ViewPedidoModalComponent implements OnInit {
     this._ordenPedidoService = value;
   }
 
-  okFormChange:boolean=false;
+  okFormChange: boolean = true;
   spinnerOnOff: number = 0;
 
 
   listBarcos: cBodega[] = [];
   listAreas: cBodega[] = [];
-  listVehiculos:cBodega[]=[];
+  listVehiculos: cBodega[] = [];
   listProductosIn: cProducto_B[] = [];
   listProveedoresFiltros$: any;
+  okAddNewBotton: boolean = true;
 
-  faprint = faPrint; fatimes = faTimes; fasave = faSave; 
-  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewPedidoModalComponent>, private _ordenPedidoService: OrdenPedidoService,private _enterpriceServise: ApiEnterpriceService, private toastr: ToastrService, private _variosService: VariosService) {
+  faprint = faPrint; fatimes = faTimes; fasave = faSave; faplus = faPlus;
+  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewPedidoModalComponent>, private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService, private _enterpriceServise: ApiEnterpriceService, private toastr: ToastrService, private _variosService: VariosService) {
     this.cargarData();
-   }
+  }
 
   ngOnInit(): void {
-    
+    this._enterpriceServise.getProveedorSearch(this.ordenPedidoService.formData.proveedor).subscribe( (dato:any)=>{
+      this.cargarProductosProveedor(dato[0].cedrucpas);
+    });
   }
+
 
   cargarData() {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
@@ -63,16 +74,15 @@ export class ViewPedidoModalComponent implements OnInit {
     this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
       this.listVehiculos = dato;
     });
-    if (this.ordenPedidoService.formData.planta=="P MANACRIPEX") {
+    if (this.ordenPedidoService.formData.planta == "P MANACRIPEX") {
       this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
         this.listAreas = dato;
       });
     }
   }
 
-
   onBListProgProveedor(value: string) {
-    this.okFormChange=true;
+    this.okFormChange = true;
     this.ordenPedidoService.formData.spinnerLoadingP = true;
     this.ordenPedidoService.formData.showSearchSelect = true;
     this.ordenPedidoService.formData.proveedor = value;
@@ -103,7 +113,6 @@ export class ViewPedidoModalComponent implements OnInit {
       if (dato.exito == 1) {
         this.listProductosIn = dato.data;
         this.spinnerOnOff = 2;
-        this.ordenPedidoService.formData.agregarOneMaterial();
       } else {
         this.listProductosIn = [];
         this.spinnerOnOff = 0;
@@ -123,10 +132,6 @@ export class ViewPedidoModalComponent implements OnInit {
     doc.text("Orden de Pedido: " + auxSecuencial[1], 75, 20);
 
     y = 25;
-    doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 40));//left
-    doc.line(199, y, 199, (y + 40));//right
-    doc.line(9, (y + 40), 199, (y + 40));//down
     doc.setFontSize(13);
     doc.text("Datos de la orden", 20, (y + 5));
     doc.setFont("arial", "normal")
@@ -141,6 +146,7 @@ export class ViewPedidoModalComponent implements OnInit {
     doc.text(strDestino, 80, (y + 15));
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 20));
     doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 25));
+    doc.text("Tipo Pedido: " + orden.tipoPedido, 105, (y + 25));
     doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 30));
     if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada")
       doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 30));
@@ -150,7 +156,16 @@ export class ViewPedidoModalComponent implements OnInit {
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
     doc.text(auxlinea, 15, (y + 35));
     doc.setFont("arial", "normal");
-    y = y + 40;
+
+    var auxH = y + 40;
+    if (auxlinea.length > 1)
+      auxH = auxH + 5 + ((3 * auxlinea.length) + 2);
+    doc.line(9, y, 199, y);//up
+    doc.line(9, y, 9, (auxH));//left
+    doc.line(199, y, 199, auxH);//right
+    doc.line(9, auxH, 199, auxH);//down
+
+    y = auxH;
 
     doc.setFontSize(13);
     doc.setFont("arial", "bold");
@@ -163,15 +178,13 @@ export class ViewPedidoModalComponent implements OnInit {
     doc.line(199, y, 199, (y + 10));//right
     doc.line(9, (y + 10), 199, (y + 10));//down
 
-    doc.text("Código", 25, (y + 7));
-    doc.line(50, y, 50, (y + 10));//right
-    doc.text("Descripción", 70, (y + 7));
-    doc.line(110, y, 110, (y + 10));//right
-    doc.text("Cantidad", 112, (y + 7));
-    doc.line(130, y, 130, (y + 10));//right
-    doc.text("Área", 137, (y + 7));
-    doc.line(155, y, 155, (y + 10));//right
-    doc.text("Observación", 165, (y + 7));
+    doc.text("Código", 30, (y + 7));
+    doc.line(60, y, 60, (y + 10));//right
+    doc.text("Descripción", 80, (y + 7));
+    doc.line(120, y, 120, (y + 10));//right
+    doc.text("Cantidad", 122, (y + 7));
+    doc.line(140, y, 140, (y + 10));//right
+    doc.text("Observación", 160, (y + 7));
 
     doc.setFontSize(8);
     doc.setFont("arial", "normal");
@@ -187,9 +200,9 @@ export class ViewPedidoModalComponent implements OnInit {
     var auxPrueba: number;
 
     for (var i = 0; i < orden.listArticulosPedido.length; i++) {
-      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (35));
+      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (45));
       lineaNombre = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.nombre, (55));
-      lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (40));
+      lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (55));
       valorC = (3 * lineaCodigo.length) + 4;
       valorN = (3 * lineaNombre.length) + 4;
       valorO = (3 * lineaObservacion.length) + 4;
@@ -213,15 +226,13 @@ export class ViewPedidoModalComponent implements OnInit {
         doc.line(199, y, 199, (y + 10));//right
         doc.line(9, (y + 10), 199, (y + 10));//down
 
-        doc.text("Código", 25, (y + 7));
-        doc.line(50, y, 50, (y + 10));//right
-        doc.text("Descripción", 70, (y + 7));
-        doc.line(110, y, 110, (y + 10));//right
-        doc.text("Cantidad", 112, (y + 7));
-        doc.line(130, y, 130, (y + 10));//right
-        doc.text("Área", 137, (y + 7));
-        doc.line(155, y, 155, (y + 10));//right
-        doc.text("Observación", 165, (y + 7));
+        doc.text("Código", 30, (y + 7));
+        doc.line(60, y, 60, (y + 10));//right
+        doc.text("Descripción", 80, (y + 7));
+        doc.line(120, y, 120, (y + 10));//right
+        doc.text("Cantidad", 122, (y + 7));
+        doc.line(140, y, 140, (y + 10));//right
+        doc.text("Observación", 160, (y + 7));
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
@@ -230,16 +241,18 @@ export class ViewPedidoModalComponent implements OnInit {
       doc.line(9, (y - valorG), 9, y);//left
       auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
       doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
-      doc.line(50, (y - valorG), 50, y);//right
+      doc.line(60, (y - valorG), 60, y);//right
       auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
-      doc.text(lineaNombre, 55, (y - valorG + auxPrueba));
-      doc.line(110, (y - valorG), 110, y);//right
-      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 120, (y - ((valorG - 3) / 2)));
-      doc.line(130, (y - valorG), 130, y);//right
-      doc.text(orden.listArticulosPedido[i].destinoArea, 135, (y - ((valorG - 3) / 2)));
-      doc.line(155, (y - valorG), 155, y);//right
+      doc.text(lineaNombre, 65, (y - valorG + auxPrueba));
+      doc.line(120, (y - valorG), 120, y);//right
+      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 3) / 2)));
+      doc.line(140, (y - valorG), 140, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
-      doc.text(lineaObservacion, 15, (y - valorG + auxPrueba));
+      if (orden.listArticulosPedido[i].aviso) {
+        doc.setTextColor(255, 0, 0);
+        doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        doc.setTextColor(0, 0, 0);
+      } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -270,7 +283,7 @@ export class ViewPedidoModalComponent implements OnInit {
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
   }
 
-  onSubmit(form: NgForm){
+  onSubmit(form: NgForm) {
     if (this.okFormChange) {
       this.guardar();
     }
@@ -283,7 +296,7 @@ export class ViewPedidoModalComponent implements OnInit {
       auxLR = JSON.parse(JSON.stringify(this.ordenPedidoService.formData.listArticulosPedido));
       this.ordenPedidoService.formData.listArticulosPedido = [];
       this.ordenPedidoService.formData.listArticulosPedido = JSON.parse(JSON.stringify(auxLR));
-      this.okFormChange=true;
+      this.okFormChange = true;
     }
   }
 
@@ -291,12 +304,78 @@ export class ViewPedidoModalComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  onEliminar(){
-    this.ordenPedidoService.formData.estadoProceso="Anulada";
+  onEliminar() {
+    this.ordenPedidoService.formData.estadoProceso = "Anulada";
+    this.ordenPedidoService.formData.responsableAnulada = this.conexcionService.UserR.nombreU;
     this.guardar();
   }
 
-  guardar(){
+  onNewItem() {
+    if (this.comprobarNewR()) {
+      this.ordenPedidoService.formData.agregarOneMaterial();
+      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length-1].marcar=true;
+      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length-1].ordenPedidoId=this.ordenPedidoService.formData.idOrdenPedido;
+      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length-1].destinoArea=this.ordenPedidoService.formData.listArticulosPedido[0].destinoArea;
+    }
+  }
+
+  onListProducto(index: number, op: number, value: string | null) {
+    if (value != null) {
+      this.ordenPedidoService.formData.listArticulosPedido.forEach(x => x.showSearchSelect = 0);
+      this.ordenPedidoService.formData.listArticulosPedido[index].showSearchSelect = op;
+      this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = op;
+      this.ordenPedidoService.formData.listArticulosPedido[index].inventario.resetProducto();
+      if (value != "") {
+        if (op == 1)
+          this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = value;
+        else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre = value;
+      } else {
+        this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = 0;
+        this.ordenPedidoService.formData.listArticulosPedido[index].showSearchSelect = 0;
+      }
+    }
+  }
+
+  onChooseElemente(index, op: number, data?: cProducto_B) {
+    this.ordenPedidoService.formData.listArticulosPedido[index].showSearchSelect = 0;
+    this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = 3;
+    if (data == null) {
+      this.ordenPedidoService.formData.listArticulosPedido[index].inventario.contenidoNeto = 1;
+      if (this.ordenPedidoService.formData.planta == "FLOTA")
+        this.ordenPedidoService.formData.listArticulosPedido[index].inventario.planta = "FLOTA";
+      else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.planta = "P MANACRIPEX";
+      this.ordenPedidoService.formData.listArticulosPedido[index].inventario.proveedor = this.ordenPedidoService.formData.proveedor;
+      if (op == 1) {
+        var auxAux = this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo.split("COD_INV:");
+        if (auxAux.length == 2) {
+          this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre = auxAux[1];
+        } else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre = this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo;
+        this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = "COD_INV:" + this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre;
+      } else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = "COD_INV:" + this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre;
+    }
+    else {
+      this.ordenPedidoService.formData.listArticulosPedido[index].inventario.rellenarObjeto(data);
+      if (this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo == null || this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo == "") {
+        this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = "COD_INV:" + this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre;
+      }
+    }
+    this.ordenPedidoService.formData.listArticulosPedido[index].inventario.disBttnInput = op;
+  }
+
+  comprobarNewR() {
+    var flag = true;
+    if (this.ordenPedidoService.formData.listArticulosPedido.find(x => (x.cantidad <= 0  || x.destinoArea == "SIN ASIGNAR")) != undefined) {
+      flag = false;
+    }
+    this.okAddNewBotton = flag;
+    return (flag);
+  }
+
+  guardar() {
+    var fechaAux=this.ordenPedidoService.formData.fechaPedido.split(" ");
+    this.ordenPedidoService.formData.fechaPedido=fechaAux[0]+"T"+fechaAux[1];
+    fechaAux=this.ordenPedidoService.formData.fechaAprobacion.split(" ");
+    this.ordenPedidoService.formData.fechaAprobacion=fechaAux[0]+"T"+fechaAux[1];
     this.ordenPedidoService.actualizarPedido(this.ordenPedidoService.formData).subscribe(
       (res: any) => {
         if (res.message == "Ok") {
@@ -308,6 +387,6 @@ export class ViewPedidoModalComponent implements OnInit {
           this.dialogRef.close();
         }
       }
-    )
+    );
   }
 }

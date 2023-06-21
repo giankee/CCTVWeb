@@ -23,7 +23,7 @@ import { BaldeService } from '../shared/balde.service';
 import { cPaginacion } from '../shared/otrosServices/paginacion';
 import { finalize, map } from 'rxjs/operators';
 import { ProductoBService } from '../shared/bodega/producto-b.service';
-import { cProducto_B } from '../shared/bodega/ordenEC';
+import { cBodega, cProducto_B } from '../shared/bodega/ordenEC';
 import { cUsuario } from '../shared/user-info';
 
 
@@ -150,7 +150,7 @@ export class ClienteComponent implements OnInit {
 
   /**Control Productos */
   newListProductosIn: cProducto[] = [];
-
+  listBodega:cBodega[]=[];
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
   okContinuar: boolean = true;
@@ -204,7 +204,7 @@ export class ClienteComponent implements OnInit {
         this._conexcionService.UserR = new cUsuario();
         this.conexcionService.UserR.objCompletar(res);
         this.resetForm();
-        this._variosService.getVariosPrioridad(res.rolAsignado)//parece q no lo usare
+        this._variosService.getVariosPrioridad(res.rolAsignado)
           .subscribe(dato => {
             this.listLugarPrioridadIn = dato;
           },
@@ -291,9 +291,6 @@ export class ClienteComponent implements OnInit {
   onChooseLugar(data: any) {
     this._ordenESService.formData.destinoProcedencia = data.nombreLugar;
     this.showSearchSelectG = 0;
-    /* if (this._ordenESService.formData.tipoOrden == "Balde" && data.diasPrestamo != null)
-       this.diasPrestamo = data.diasPrestamo;
-     else this.diasPrestamo = null;*/
   }
 
   onListProducto(index: number, op: number, value: string) {
@@ -460,7 +457,18 @@ export class ClienteComponent implements OnInit {
             else this.onNewTinas();
             this.buscarExistGuiaBalde(this._ordenESService.formData.tipoOrden + " " + this._ordenESService.formData.tipoDocumentacion, this._ordenESService.formData.numDocumentacion, this._ordenESService.formData.destinoProcedencia);
 
-          } else this.buscarGuiaGeneral();
+          } else {
+            if(this.ordenESService.formData.isTanqueAgua||this.ordenESService.formData.isTanqueGasolina){
+              if(this.ordenESService.formData.isTanqueAgua){
+                this.onListProducto(0,2,"TANQUERO DE AGUA (M3)");
+              }else this.onListProducto(0,2,"TANQUERO DE COMBUSTIBLE (GALONES)");
+              if(this.ordenESService.formData.saleAGUAHER)
+              this.ordenESService.formData.planta="AGUAHER";
+              if(this.ordenESService.formData.salePETROECUADOR)
+              this.ordenESService.formData.planta="PETROECUADOR";
+            }
+            this.buscarGuiaGeneral();
+          }
         }
       } else {
         this.strFases = "Inicio";
@@ -579,7 +587,7 @@ export class ClienteComponent implements OnInit {
   }
 
   onNewProductos() {
-    if (this.comprobarNewP() && !this.buscarGuiaVE) {
+    if (this.comprobarNewP() && !this.buscarGuiaVE && !this.ordenESService.formData.isTanqueAgua && !this.ordenESService.formData.isTanqueGasolina) {
       this.ordenESService.formData.agregarOneArticulo(new cArticulosO());
       this.paginacion.getNumberIndex(this.ordenESService.formData.listArticulosO.length);
       this.paginacion.updateIndex(this.paginacion.pagTotal.length - 1);
@@ -674,6 +682,12 @@ export class ClienteComponent implements OnInit {
             if (this._ordenESService.formData.tipoDocumentacion == "Ninguna")
               this._ordenESService.formData.numDocumentacion = "Ninguna";
             else this._ordenESService.formData.numDocumentacion = this._ordenESService.formData.tipoDocumentacion + ": " + this._ordenESService.formData.numDocumentacion;
+          }
+          if(this.ordenESService.formData.isTanqueAgua){
+            this.ordenESService.formData.tipoOrden=this.ordenESService.formData.tipoOrden+ " Tanque Agua";
+          }
+          if(this.ordenESService.formData.isTanqueGasolina){
+            this.ordenESService.formData.tipoOrden=this.ordenESService.formData.tipoOrden+ " Tanque Combustible";
           }
           if (auxNewP.length > 0) {
             this._productoService.insertarMultiplesProductos(auxNewP).subscribe(
@@ -789,7 +803,7 @@ export class ClienteComponent implements OnInit {
           x.estadoProducto = "Pendiente Verificación";
         });
       } else {
-        if (this._ordenESService.formData.tipoOrden == "Salida" && this.listLugarPrioridadIn.find(x => x.nombre == this._ordenESService.formData.destinoProcedencia && (x.categoria == 'Puerto' || x.categoria == 'Planta')) != undefined)
+        if (this._ordenESService.formData.tipoOrden == "Salida" && this.listLugarPrioridadIn.find(x => x.nombre == this._ordenESService.formData.destinoProcedencia) != undefined)
           this._ordenESService.formData.estadoProceso = "Pendiente Verificación";
         if (this._ordenESService.formData.listArticulosO.find(x => x.retorna) != undefined) {//de una vez para saber que tipo de estado tendra la orden
           if (this.ordenESService.formData.estadoProceso == "Procesada")
@@ -828,7 +842,6 @@ export class ClienteComponent implements OnInit {
         }
       }
     }
-    //if (1 == (1 - 1))
     this._ordenESService.insertarOrdenES(this.ordenESService.formData).subscribe(
       (res: any) => {
         this.okBttnSubmit = true;
@@ -967,6 +980,12 @@ export class ClienteComponent implements OnInit {
             for (var i = 0; i < dato.data.length; i++) {
               for (var j = 0; j < dato.data[i].listArticulosO.length; j++) {
                 this.ordenESService.formData.agregarOneArticulo(dato.data[i].listArticulosO[j], 1);
+                if(this.conexcionService.UserR.rolAsignado=="gpv-o"){
+                  if(this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length-1].inventarioId!=0){
+                    let auxObservacion= dato.data[i].listArticulosO[j].observacion.split(':'); 
+                    this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length-1].inventario.SelectBodega=auxObservacion[1];
+                  }
+                }
               }
             }
             this.paginacion.getNumberIndex(this._ordenESService.formData.listArticulosO.length);
@@ -1327,139 +1346,6 @@ export class ClienteComponent implements OnInit {
     return (doc.output('datauristring'));
   }
 
-  /*onImagenSeleccioanda(file: FileList, strCap?: string) {
-    strCap = "prueba";
-    var reader = new FileReader();
-    var auxWhatsapp: cWhatsapp;
-    var auxNombre = file[0].name.split(".");
-    var self = this;
-    reader.readAsDataURL(file[0]);
-    auxWhatsapp = {
-      phone: "+(593)988964391",
-      title: auxNombre[0],
-      caption: "prueba con el caption 2 now",
-      media: "",
-      message: "prueba :smile: 2 con texxto",
-      type: file[0].type
-    }
-    //auxWhatsapp.phone="593999786121";
-    auxWhatsapp.phone="593984958499";
-    reader.addEventListener("load", function (event: any) {
-      var rutaCompleta = event.target.result.toString();
-      var auxparte = rutaCompleta.split("base64,");
-      auxWhatsapp.media = auxparte[1];
-      console.table(auxWhatsapp);
-      self._whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
-        res => {
-          self.toastr.warning('Mensaje', 'Correcto');
-        },
-        err => {
-          console.log(err);
-        }
-      )
-    });
-  }*/
-  /*onImagenSeleccioandaG(file: FileList, strCap?: string) {
-    var reader = new FileReader();
-    var auxWhatsapp: cWhatsapp;
-    var auxNombre = file[0].name.split(".");
-    var self = this;
-    reader.readAsDataURL(file[0]);
-    auxWhatsapp = {
-      chatname: "Prueba ES",
-      title: auxNombre[0],
-      caption: "El caption para imagen",
-      media: "",
-      message: "El mensaje para cualquer documento",
-      type: file[0].type
-    }
-    reader.addEventListener("load", function (event: any) {
-      var rutaCompleta = event.target.result.toString();
-      var auxparte = rutaCompleta.split("base64,");
-      auxWhatsapp.media = auxparte[1];
-      self._whatsappService.sendMessageMGroup(auxWhatsapp).subscribe(
-        res => {
-          self.toastr.warning('Mensaje', 'Correcto');
-        },
-        err => {
-          console.log(err);
-        }
-      )
-    });
-  }*/
-  /*logoutWhatsapp(){
-    var aux: cWhatsapp;
-    aux = {
-      password: "12345A",
-      message: ""
-    }
-    this._whatsappService.logoutWhatsapp(aux).subscribe(
-      res => {
-        console.table(res);
-        this.toastr.warning('Mensaje', 'Correcto');
-      },
-      err => {
-        console.log(err);
-      }
-    )
-  }*/
-  /*buscarGroupchat() {
-    var aux: cWhatsapp;
-    aux = {
-      phone: "593984958499",
-    }
-    this._whatsappService.buscarContact(aux).subscribe(
-      res => {
-        console.table(res);
-        this.toastr.warning('Mensaje', 'Correcto');
-      },
-      err => {
-        console.log(err);
-      }
-    )
-  }*/
-  /*viewAllContacts() {
-     this._whatsappService.viewAllContacts().subscribe(
-       res => {
-         console.table(res);
-       },
-       err => {
-         console.log(err);
-       }
-     )
-   }*/
-  /*onSendMultipleMessage(file: FileList) {
-    var auxPhones:string[]=["+(593)988964391","593999786121","593984958499"];
-    var reader = new FileReader();
-    var auxWhatsapp: cWhatsapp;
-    var auxNombre = file[0].name.split(".");
-    var self = this;
-    reader.readAsDataURL(file[0]);
-    auxWhatsapp = {
-      phones:auxPhones,
-      title: auxNombre[0],
-      caption: "prueba 1 con el caption",
-      media: "",
-      message: "prueba 1 :smile: con texto",
-      type: file[0].type
-    }
-    reader.addEventListener("load", function (event: any) {
-      var rutaCompleta = event.target.result.toString();
-      var auxparte = rutaCompleta.split("base64,");
-      auxWhatsapp.media = auxparte[1];
-      console.table(auxWhatsapp);
-      self._whatsappService.sendMultipleMessageWhat(auxWhatsapp).subscribe(
-        res => {
-          console.table(res);
-          self.toastr.warning('Mensaje', 'Correcto');
-        },
-        err => {
-          console.log(err);
-        }
-      )
-    });
-  }*/
-
   //Listo
   sendMessage(ordenES: cOrdenEs) {
     var aux: cWhatsapp;
@@ -1578,7 +1464,7 @@ export class ClienteComponent implements OnInit {
                 }
               );
           } else {
-            auxWhatsapp.phone = '593-939335731';
+            auxWhatsapp.phone = '593-939335731';//made
             this._whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
               res => {
                 if (res.status != "error")

@@ -8,18 +8,20 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class OrdenESService {
-  serverUrl = environment.baseUrlCCTVL + 'cctv_ordenES';
-  serverUrl2 = environment.baseUrlCCTVL + 'cctv_galeriaArchivoOrden';
-  serverUrl3 = environment.baseUrlCCTVL + 'cctv_articuloO';
+  serverUrlBase = environment.baseUrlCCTVL;
+  serverUrl;
+  serverUrl2;
+  serverUrl3;
   formData: cOrdenEs;
 
   constructor(private http: HttpClient) {
     var URLactual = window.location;
     if(URLactual.hostname!='192.168.2.97'){
-      this.serverUrl=environment.baseUrlCCTVP + 'cctv_ordenES';
-      this.serverUrl2 = environment.baseUrlCCTVP + 'cctv_galeriaArchivoOrden';
-      this.serverUrl3 = environment.baseUrlCCTVP + 'cctv_articuloO';
+      this.serverUrlBase = environment.baseUrlCCTVP;
     }
+    this.serverUrl = this.serverUrlBase + 'cctv_ordenES';
+    this.serverUrl2 = this.serverUrlBase + 'cctv_galeriaArchivoOrden';
+    this.serverUrl3 = this.serverUrlBase + 'cctv_articuloO';
    }
 
   insertarOrdenES(formData:cOrdenEs): Observable<cOrdenEs>{//cliente
@@ -75,5 +77,18 @@ export class OrdenESService {
   }
   actualizarMultipleArtO(formDataArticulos: cArticulosO[]): Observable<cArticulosO[]> {
     return this.http.post<cArticulosO[]>(this.serverUrl3+'/postMultipleArtO' ,formDataArticulos);
+  }
+
+  /**Real */
+  postMultiplesOrdenes(formOrdenes: cOrdenEs[]): Observable<cOrdenEs[]> {
+    return this.http.post<cOrdenEs[]>(this.serverUrl+'/postMultiplesOrdenes' ,formOrdenes);
+  }
+
+  getLugaresDiferentes(): Observable<string[]> {//admin
+    return this.http.get<string[]>(this.serverUrlBase+'vcctv_reportTanques/getLugaresDiferentes');
+  }
+  
+  getFiltroReportTanques(strParametros):Observable<any[]>{//filtro admin
+    return this.http.get<any[]>(this.serverUrlBase  + 'vcctv_reportTanques/getFiltroReportTanques/'+strParametros);
   }
 }

@@ -13,12 +13,12 @@
           <h4 class="text-center">Datos del Pedido</h4>
         </div>
         <div class="col-12 col-md-4">
-          <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
+          <input class="form-control" type="datetime-local" name="fechaRegistro" #fechaRegistro="ngModel"
             [(ngModel)]="ordenPedidoService.formData.fechaPedido" (ngModelChange)="okFormChange=true" min="2022-01-01">
         </div>
       </div>
       <div class="row boxForm mt-2">
-        <div class="col-12 col-sm-12 col-md-6 col-lg-4">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-3">
           <div class="form-group" id="selectProveedor">
             <div class="title ml-2 ml-md-3">
               <strong>Proveedor: </strong>
@@ -28,7 +28,7 @@
                 <div class="limit-width">
                   <input name="ProveedorIn" #ProveedorIn="ngModel" [(ngModel)]="ordenPedidoService.formData.proveedor"
                     (ngModelChange)="onBListProgProveedor($event?.toUpperCase())" maxlength="100"
-                    placeholder="Nombre del proveedor" class="form-control input-src"
+                    placeholder="Nombre del proveedor" class="form-control input-src" [disabled]="ordenPedidoService.formData.boolProveedor"
                     [ngClass]="{'loading':ordenPedidoService.formData.spinnerLoading}" required>
                   <div class="results" *ngIf="ordenPedidoService.formData.showSearchSelect">
                     <ul>
@@ -42,25 +42,45 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3 col-lg-4">
+        <div class="col-12 col-sm-6 col-md-6 col-lg-3">
           <div class="form-group">
             <div class="title ml-2 ml-md-3">
-              <strong>{{ordenPedidoService.formData.planta=="P MANACRIPEX"?'Empresa':'Tipo Pedido'}}:</strong>
+              <strong>Tipo Pedido:</strong>
             </div>
-            <div id="inputSearchP" *ngIf="ordenPedidoService.formData.planta=='FLOTA'">
+            <div id="inputSearchP">
               <div class="wrapper">
                 <div class="limit-width">
                   <select class="form-control input-src" name="inSelectTipoPedido" #inSelectTipoPedido="ngModel"
                     [(ngModel)]="ordenPedidoService.formData.tipoPedido" required (ngModelChange)="okFormChange=true">
-                    <option value="Consumo">Consumo Muelle</option>
-                    <option value="Faena Marítima">Faena Marítima</option>
-                    <option value="Bodega Muella">Bodega Muelle</option>
-                    <option value="Veda">Veda</option>
+                    <option *ngIf="ordenPedidoService.formData.planta=='FLOTA'" value="Consumo">Consumo
+                      Muelle</option>
+                    <option *ngIf="ordenPedidoService.formData.planta=='FLOTA'" value="Faena Marítima">Faena
+                      Marítima</option>
+                    <option *ngIf="ordenPedidoService.formData.planta=='FLOTA'" value="Bodega Muella">Bodega
+                      Muelle</option>
+                    <option *ngIf="ordenPedidoService.formData.planta=='FLOTA'" value="Veda">Veda</option>
+                    <option
+                    *ngIf="ordenPedidoService.formData.planta=='FLOTA'||ordenPedidoService.formData.planta=='P OFICINAS'"
+                    value="Servicios Profesionales">Servicios Profesionales</option>
+                  <option
+                    *ngIf="ordenPedidoService.formData.planta=='P MANACRIPEX'||ordenPedidoService.formData.planta=='P OFICINAS'"
+                    value="Orden de Compra">Orden Compra</option>
+                  <option
+                    *ngIf="ordenPedidoService.formData.planta=='P MANACRIPEX'||ordenPedidoService.formData.planta=='P OFICINAS'"
+                    value="Orden de Trabajo">
+                    Orden Trabajo</option>
                   </select>
                 </div>
               </div>
             </div>
-            <div id="inputSearchP" *ngIf="ordenPedidoService.formData.planta=='P MANACRIPEX'">
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-6 col-lg-3">
+          <div class="form-group">
+            <div class="title ml-2 ml-md-3">
+              <strong>Empresa:</strong>
+            </div>
+            <div id="inputSearchP">
               <div class="wrapper">
                 <div class="limit-width">
                   <select class="form-control input-src" name="inSelectEmpresa" #inSelectEmpresa="ngModel"
@@ -75,7 +95,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3 col-lg-4">
+        <div class="col-12 col-sm-6 col-md-6 col-lg-3">
           <div class="form-group">
             <div class="title ml-2 ml-md-3">
               <strong>{{ordenPedidoService.formData.planta=="P MANACRIPEX"?"Área":"Barco"}}:</strong>
@@ -84,18 +104,18 @@
               <div class="wrapper">
                 <div class="limit-width">
                   <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
-                    [(ngModel)]="ordenPedidoService.formData.area" (ngModelChange)="onNewItem()" required>
+                    [(ngModel)]="ordenPedidoService.formData.area" required>
                     <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
                     <option *ngFor="let datoBarco of listBarcos |filtrarBarcosEmpresa:ordenPedidoService.formData.empresa" value="{{datoBarco.nombreBodega}}">
                       {{datoBarco.nombreBodega}}</option>
                       <option *ngIf="ordenPedidoService.formData.planta=='P MANACRIPEX'&& ordenPedidoService.formData.empresa=='MANACRIPEX'" value="P MANACRIPEX">P MANACRIPEX</option>
-                  </select>
+                      <option *ngIf="ordenPedidoService.formData.planta=='P OFICINAS'" value="P OFICINAS">OFICINAS</option>
+                    </select>
                 </div>
               </div>
             </div>
           </div>
         </div>
- 
         <div class="col-12">
           <div class="form-group">
             <div class="title ml-2 ml-md-3">
@@ -124,9 +144,9 @@
                 <thead>
                   <tr class="text-center">
                     <th scope="col" style="width:45%;">Material</th>
-                    <th scope="col" style="width:15%;">Cantidad</th>
-                    <th scope="col" style="width:20%;">Observación</th>
-                    <th scope="col" style="width:20%;">Área</th>
+                    <th scope="col" style="width:10%;">Cantidad</th>
+                    <th scope="col" style="width:25%;">Observación</th>
+                    <th scope="col" style="width:15%;">Área</th>
                     <th scope="col" style="width:5%;"></th>
                   </tr>
                 </thead>
@@ -138,12 +158,11 @@
                           <div class="wrapper">
                             <div class="limit-width">
                               <input name="in{{indiceNewP}}codigoProducto" #in{{indiceNewP}}codigoProducto="ngModel"
-                                disabled
                                 [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].inventario.codigo"
-                                (ngModelChange)="onListProducto(indiceNewP,1,$event?.toUpperCase())" maxlength="100"
+                                (ngModelChange)="onListProducto(indiceNewP,1,$event?.toUpperCase())"
                                 placeholder="Código Material" class="form-control input-src"
                                 [ngClass]="{'loading':datoListP.spinnerLoading==1}"
-                                [disabled]="datoListP.inventario.disBttnInput==2" required>
+                                [disabled]="datoListP.inventario.disBttnInput==2|| !datoListP.marcar" required>
                               <div class="results" style="position:relative;"
                                 *ngIf="datoListP.showSearchSelect==1 && listProductosIn.length>0">
                                 <ul>
@@ -161,10 +180,10 @@
                             <div class="limit-width">
                               <input name="in{{indiceNewP}}nombreProducto" #in{{indiceNewP}}nombreProducto="ngModel"
                                 [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].inventario.nombre"
-                                (ngModelChange)="onListProducto(indiceNewP,2,$event?.toUpperCase())" maxlength="100"
+                                (ngModelChange)="onListProducto(indiceNewP,2,$event?.toUpperCase())"
                                 placeholder="Nombre Material" class="form-control input-src"
-                                [ngClass]="{'loading':datoListP.spinnerLoading==1}" disabled
-                                [disabled]="datoListP.inventario.disBttnInput==1" required>
+                                [ngClass]="{'loading':datoListP.spinnerLoading==1}"
+                                [disabled]="datoListP.inventario.disBttnInput==1 || !datoListP.marcar" required>
                               <div class="results" style="position:relative;"
                                 *ngIf="datoListP.showSearchSelect==2 && listProductosIn.length>0">
                                 <ul>
@@ -189,9 +208,29 @@
                       </div>
                     </td>
                     <td id="inputSearchP">
-                      <textarea name="in{{indiceNewP}}observacion" #in{{indiceNewP}}observacion="ngModel" (ngModelChange)="okFormChange=true"
-                        [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion"
-                        class="form-control input-src" maxlength="300" placeholder="Ingrese su observación"></textarea>
+                      <div class="row">
+                        <div class="col-10" style="padding-left: 0.5px; padding-right:0.5px;">
+                          <div class="wrapper">
+                            <div class="limit-width">
+                              <textarea name="in{{indiceNewP}}observacion" #in{{indiceNewP}}observacion="ngModel" (ngModelChange)="okFormChange=true"
+                              [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion"
+                              class="form-control input-src" maxlength="300" placeholder="Ingrese su observación"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                          <div class="wrapper">
+                            <div class="limit-width">
+                              <mat-checkbox class="ml-3" color="primary"
+                                id="in{{indiceNewP}}aviso" [disabled]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion==''"
+                                name="in{{indiceNewP}}aviso"
+                                #in{{indiceNewP}}aviso="ngModel"
+                                [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].aviso">
+                              </mat-checkbox>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td id="inputSearchP" *ngIf="ordenPedidoService.formData.area!= 'P MANACRIPEX'">
                       <select class="form-control input-src" name="in{{indiceNewP}}area"
@@ -221,6 +260,19 @@
                     </td>
                   </tr>
                 </tbody>
+                <tfoot *ngIf="ordenPedidoService.formData.listArticulosPedido.length>0">
+                  <tr>
+                    <td colspan="4"></td>
+                    <td>
+                      <a [routerLink] (click)="onNewItem()" class="btn btnNewRedondo"
+                        [ngClass]="{'bttn-Error':!okAddNewBotton }"
+                        matTooltip="No se puede añadir material si existen campos vacios" matTooltipPosition="left"
+                        matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
+                        <fa-icon [icon]="faplus"></fa-icon>
+                      </a>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>

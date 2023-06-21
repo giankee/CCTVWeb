@@ -3,8 +3,6 @@ import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, 
 import { ToastrService } from 'ngx-toastr';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
-import { VariosService } from 'src/app/shared/otrosServices/varios.service';
-import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 import { OrdenPedidoService } from 'src/app/shared/pedido/orden-pedido.service';
 import { cOrdenPedido } from 'src/app/shared/pedido/pedido';
 
@@ -41,15 +39,29 @@ export class PedidosVerificacionComponent implements OnInit {
     this.listOrdenesMostrar = [];
     var parametros;
     if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
-    parametros = "FLOTA@Pendiente Verificación";
+      parametros = "FLOTA@Pendiente Verificación";
     if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
       parametros = "P MANACRIPEX@Pendiente Verificación";
+    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
+      parametros = "P OFICINAS@Pendiente Verificación";
     this.ordenPedidoService.getListPedido(parametros).subscribe(dato => {
       dato.forEach(x => {
-        x.fechaPedido = x.fechaPedido.substring(0, 10);
+        var fecha = x.fechaPedido.split('T');
+        x.fechaPedido = fecha[0] + " " + fecha[1];
+
+        fecha = x.fechaAprobacion.split('T');
+        x.fechaAprobacion = fecha[0] + " " + fecha[1];
+
         let auxSecuencial = x.numSecuencial.split("-");
         x.strNumSecuencial = auxSecuencial[1];
-        x.listArticulosPedido.forEach(y => y.marcar = false);
+        for(var i =0; i<x.listArticulosPedido.length;i++){
+          x.listArticulosPedido[i].marcar=false;
+          if(x.listArticulosPedido[i].estadoArticuloPedido=="Procesada"||x.listArticulosPedido[i].estadoArticuloPedido=="No Procesada"){
+            x.listArticulosPedido.splice(i,1);
+            i--;
+          }
+        }
+        
         this.listOrdenesMostrar.push(x);
       });
       this.spinnerOnOff = false;
@@ -60,7 +72,7 @@ export class PedidosVerificacionComponent implements OnInit {
     });
   }
 
-  onSave(datoIn: cOrdenPedido, tipoIn: number) {
+  /* onSave(datoIn: cOrdenPedido, tipoIn: number) {
     if (datoIn.listArticulosPedido.find(x => x.marcar) != undefined) {
       datoIn.listArticulosPedido.forEach(x => {
         if (x.marcar) {
@@ -69,10 +81,14 @@ export class PedidosVerificacionComponent implements OnInit {
           else x.estadoArticuloPedido = "No Procesada";
         }
       });
-      if (datoIn.listArticulosPedido.find(x => x.estadoArticuloPedido == "Pendiente") == undefined){
+      if (datoIn.listArticulosPedido.find(x => x.estadoArticuloPedido == "Pendiente") == undefined) {
         datoIn.estadoProceso = "Procesada";
-        datoIn.verificacionUser=this.conexcionService.UserR.nombreU;
+        datoIn.verificacionUser = this.conexcionService.UserR.nombreU;
       }
+      var fechaAux = datoIn.fechaPedido.split(" ");
+      datoIn.fechaPedido = fechaAux[0] + "T" + fechaAux[1];
+      var fechaAux = datoIn.fechaAprobacion.split(" ");
+      datoIn.fechaAprobacion = fechaAux[0] + "T" + fechaAux[1];
       this.ordenPedidoService.verificacionOrdenPedido(datoIn).subscribe(
         (res: any) => {
           if (res.message == "Ok") {
@@ -92,7 +108,40 @@ export class PedidosVerificacionComponent implements OnInit {
         err => {
           console.log(err);
         });
+
     }
+  } */
+
+  onSaveMasive(tipoIn: number) {
+    var soloDatosCheck: cOrdenPedido[] = this.listOrdenesMostrar.filter(x => x.listArticulosPedido.find(y => y.marcar));
+    soloDatosCheck.forEach(x => {
+      x.listArticulosPedido.forEach(y => {
+        if (y.marcar) {
+          if (tipoIn == 1)
+            y.estadoArticuloPedido = "Procesada";
+          else y.estadoArticuloPedido = "No Procesada";
+        }
+      });
+      if (x.listArticulosPedido.find(x => x.estadoArticuloPedido == "Pendiente") == undefined){
+        x.estadoProceso = "Procesada";
+        x.verificacionUser=this.conexcionService.UserR.nombreU;
+      }
+      var fechaAux= x.fechaPedido.split(" ");
+      x.fechaPedido= fechaAux[0]+"T"+fechaAux[1];
+      var fechaAux= x.fechaAprobacion.split(" ");
+      x.fechaAprobacion= fechaAux[0]+"T"+fechaAux[1];
+
+    });
+    this.ordenPedidoService.verificacionMultiOrdenPedido(soloDatosCheck).subscribe(
+      (res: any) => {
+        if (res.message == "Ok") {
+          this.toastr.success('Actualización de pedido satisfactorio', 'Orden Verificada');
+          this.restartListPendientes(this.paginacion.pagActualIndex);
+        }
+      },
+      err => {
+        console.log(err);
+      });
   }
 
   onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views

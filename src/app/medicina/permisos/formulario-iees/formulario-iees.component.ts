@@ -31,5 +31,6 @@ export class FormularioIeesComponent implements OnInit {
   onComprobarTime(){
     let fechaHoy: cFecha = new cFecha();
     this.crearFormulario.totalDias = fechaHoy.compararFechasDias(this.crearFormulario.fechaSalida, this.crearFormulario.fechaRegreso, this.crearFormulario.incluirFinSemana);
+    this.crearFormulario.totalDias++;
   }
 }

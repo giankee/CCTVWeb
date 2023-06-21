@@ -52,6 +52,7 @@ export class OrdenPedidoComponent implements OnInit {
   listBarcos: cBodega[] = [];
   listAreas: cBodega[] = [];
   listVehiculos: cBodega[] = [];
+  guardarDataProveedor: cEnterpriceProveedor;
   listProveedoresFiltros$: any;
 
   okAddNewBotton: boolean = true;
@@ -70,13 +71,12 @@ export class OrdenPedidoComponent implements OnInit {
     this.spinnerOnOff = 1;
     this.enterpriceService.getProductoProveedor(proveedorIn).subscribe((dato: any) => {
       this.listProductosIn = [];
+      this.spinnerOnOff = 2;
       if (dato.exito == 1) {
         this.listProductosIn = dato.data;
-        this.spinnerOnOff = 2;
-        if (this.ordenPedidoService.formData.area != "SIN ASIGNAR")
-          this.ordenPedidoService.formData.agregarOneMaterial();
-      } else this.spinnerOnOff = 0;
-
+      }
+      if (this.ordenPedidoService.formData.area != "SIN ASIGNAR")
+        this.ordenPedidoService.formData.agregarOneMaterial();
     }, error => console.error(error));
   }
 
@@ -95,13 +95,12 @@ export class OrdenPedidoComponent implements OnInit {
   }
 
   resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
-    if (form != null) {
-      form.resetForm();
-    }
     if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
       this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "FLOTA");
-    else this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
-
+    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
+      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
+    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
+      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "P OFICINAS");
     this.spinnerOnOff = 0;
     this.okBttnSubmit = true;
   }
@@ -130,11 +129,12 @@ export class OrdenPedidoComponent implements OnInit {
     if (data != null) {
       this._ordenPedidoService.formData.proveedor = data.proveedor;
       this.cargarProductosProveedor(data.cedrucpas);
+      this.guardarDataProveedor = data;
     } else {
+      this.guardarDataProveedor = null;
       this.spinnerOnOff = 2;
       this.listProductosIn = [];
     }
-
   }
 
   async onSubmit(form: NgForm) {
@@ -143,7 +143,16 @@ export class OrdenPedidoComponent implements OnInit {
       let fechaSeparar = this.ordenPedidoService.formData.fechaPedido.split("-");
       this.ordenPedidoService.formData.numSecuencial = fechaSeparar[1] + "-" + fechaSeparar[0];
       var auxOrdenesG: cOrdenPedido[] = [];
+      var fechaHoy: cFecha = new cFecha();
 
+      this.ordenPedidoService.formData.fechaAprobacion = fechaHoy.strFecha;
+      if (this.conexcionService.UserR.nombreU == "CARLOS CEBALLOS" || this.conexcionService.UserR.nombreU == "JORGE SALAME" || this.conexcionService.UserR.nombreU == "PRUEBAG") {
+        this.ordenPedidoService.formData.responsableAprobacion = this.conexcionService.UserR.nombreU;
+        this.ordenPedidoService.formData.estadoProceso = "Pendiente Verificación";
+        this.ordenPedidoService.formData.fechaAprobacion = this.ordenPedidoService.formData.fechaAprobacion + "T" + fechaHoy.strHoraA;
+      }
+      this.ordenPedidoService.formData.fechaPedido = this.ordenPedidoService.formData.fechaPedido + "T" + fechaHoy.strHoraA;
+      this.ordenPedidoService.formData.sacarRuc();
       for (var i = 0; i < this.ordenPedidoService.formData.listArticulosPedido.length - 1; i++) {
         for (var j = i + 1; j < this.ordenPedidoService.formData.listArticulosPedido.length; j++) {
           if (this.ordenPedidoService.formData.listArticulosPedido[i].inventario.codigo == this.ordenPedidoService.formData.listArticulosPedido[j].inventario.codigo &&
@@ -159,24 +168,13 @@ export class OrdenPedidoComponent implements OnInit {
       var index = -1;
 
       for (var i = 0; i < this.ordenPedidoService.formData.listArticulosPedido.length; i++) {
-        this.ordenPedidoService.formData.fechaAprobacion = this.ordenPedidoService.formData.fechaPedido;
-        if (this.conexcionService.UserR.rolAsignado == "pedido-flota") {
-          this.ordenPedidoService.formData.listArticulosPedido[i].inventario.planta = "FLOTA";
-          if (this.ordenPedidoService.formData.area == "BP BERNARDITA B" || this.ordenPedidoService.formData.area == "BP CAP DANNY B" || this.ordenPedidoService.formData.area == "BP CAP TINO B" || this.ordenPedidoService.formData.area == "BP EL CONDE")
-            this.ordenPedidoService.formData.empresa = "B&B TUNE";
-          if (this.ordenPedidoService.formData.area == "BP MARINERO" || this.ordenPedidoService.formData.area == "BP CAP BERNY B")
-            this.ordenPedidoService.formData.empresa = "DANIEL BUEHS";
-          if (this.ordenPedidoService.formData.area == "BP SOUTHERN QUEEN")
-            this.ordenPedidoService.formData.empresa = "MANACRIPEX";
-        } else this.ordenPedidoService.formData.listArticulosPedido[i].inventario.planta = "P MANACRIPEX";
-        this.ordenPedidoService.formData.sacarRuc();
+        this.ordenPedidoService.formData.listArticulosPedido[i].inventario.planta = this.ordenPedidoService.formData.planta;
         this.ordenPedidoService.formData.listArticulosPedido[i].cantidadPendiente = this.ordenPedidoService.formData.listArticulosPedido[i].cantidad;
-        if (this.conexcionService.UserR.userName == "CARLOS CEBALLOS" || this.conexcionService.UserR.nombreU == "JORGE SALAME")
-          this.ordenPedidoService.formData.estadoProceso = "Pendiente Verificación";
 
-        index = auxOrdenesG.findIndex(x => x.listArticulosPedido[0].destinoArea == this.ordenPedidoService.formData.listArticulosPedido[i].destinoArea)
+        index = auxOrdenesG.findIndex(x => x.strLugarA == this.ordenPedidoService.formData.listArticulosPedido[i].destinoArea)
         if (index == -1) {
           var auxOrden: cOrdenPedido = JSON.parse(JSON.stringify(this.ordenPedidoService.formData));
+          auxOrden.strLugarA = this.ordenPedidoService.formData.listArticulosPedido[i].destinoArea;
           auxOrden.listArticulosPedido = [];
           auxOrden.listArticulosPedido.push(this.ordenPedidoService.formData.listArticulosPedido[i]);
           auxOrdenesG.push(auxOrden);
@@ -185,10 +183,10 @@ export class OrdenPedidoComponent implements OnInit {
       const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       for (var i = 0; i < auxOrdenesG.length; i++) {
         await sleep(2000 * i);
-        this.guardar(auxOrdenesG[i])
+        this.guardar(auxOrdenesG[i]);
       }
       await sleep(2000);
-      this.resetForm(form);
+      this.resetForm();
     } else this.okBttnSubmit = true;
   }
 
@@ -201,6 +199,7 @@ export class OrdenPedidoComponent implements OnInit {
   }
 
   guardar(datoOrden: cOrdenPedido) {
+    if(this.conexcionService.UserR.nombreU!="PRUEBAG")
     this.ordenPedidoService.insertarOrdenPedido(datoOrden).subscribe(
       (res: any) => {
         if (res.exito == 1) {
@@ -212,6 +211,7 @@ export class OrdenPedidoComponent implements OnInit {
           this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
         };
       });
+    else this.sendMessageGroupNotification(JSON.parse(JSON.stringify(datoOrden)));
   }
 
   comprobarNewR() {
@@ -256,7 +256,9 @@ export class OrdenPedidoComponent implements OnInit {
     this.ordenPedidoService.formData.listArticulosPedido[index].spinnerLoading = 3;
     if (data == null) {
       this.ordenPedidoService.formData.listArticulosPedido[index].inventario.contenidoNeto = 1;
-      this.ordenPedidoService.formData.listArticulosPedido[index].inventario.planta = "FLOTA";
+      if (this.ordenPedidoService.formData.planta == "FLOTA")
+        this.ordenPedidoService.formData.listArticulosPedido[index].inventario.planta = "FLOTA";
+      else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.planta = "P MANACRIPEX";
       this.ordenPedidoService.formData.listArticulosPedido[index].inventario.proveedor = this.ordenPedidoService.formData.proveedor;
       if (op == 1) {
         var auxAux = this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo.split("COD_INV:");
@@ -266,7 +268,12 @@ export class OrdenPedidoComponent implements OnInit {
         this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = "COD_INV:" + this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre;
       } else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = "COD_INV:" + this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre;
     }
-    else this.ordenPedidoService.formData.listArticulosPedido[index].inventario.rellenarObjeto(data);
+    else {
+      this.ordenPedidoService.formData.listArticulosPedido[index].inventario.rellenarObjeto(data);
+      if (this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo == null || this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo == "") {
+        this.ordenPedidoService.formData.listArticulosPedido[index].inventario.codigo = "COD_INV:" + this.ordenPedidoService.formData.listArticulosPedido[index].inventario.nombre;
+      }
+    }
     this.ordenPedidoService.formData.listArticulosPedido[index].inventario.disBttnInput = op;
   }
 
@@ -282,10 +289,6 @@ export class OrdenPedidoComponent implements OnInit {
     doc.text("Orden de Pedido " + auxSecuencial[1], 75, 20);
 
     y = 25;
-    doc.line(9, y, 199, y);//up
-    doc.line(9, y, 9, (y + 35));//left
-    doc.line(199, y, 199, (y + 35));//right
-    doc.line(9, (y + 35), 199, (y + 35));//down
     doc.setFontSize(13);
     doc.text("Datos de la orden", 20, (y + 5));
     doc.setFont("arial", "normal")
@@ -294,9 +297,7 @@ export class OrdenPedidoComponent implements OnInit {
     doc.text("Empresa: " + orden.empresa, 80, (y + 10));
     doc.text("RUC: " + orden.strRuc, 140, (y + 10));
     doc.text("Tipo de Pedido: " + orden.tipoPedido, 15, (y + 15));
-    if (orden.area == "P MANACRIPEX")
-      strDestino = "Área: " + orden.listArticulosPedido[0].destinoArea;
-    else strDestino = "Lugar: " + orden.area + " - Sub-Área: " + orden.listArticulosPedido[0].destinoArea;
+    strDestino = "Lugar: " + orden.area + " - Sub-Área: " + orden.listArticulosPedido[0].destinoArea;
     doc.text(strDestino, 80, (y + 15));
 
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 20));
@@ -306,7 +307,16 @@ export class OrdenPedidoComponent implements OnInit {
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
     doc.text(auxlinea, 15, (y + 30));
     doc.setFont("arial", "normal");
-    y = y + 35;
+
+    var auxH = y + 35;
+    if (auxlinea.length > 1)
+      auxH = auxH + 5 + ((3 * auxlinea.length) + 2);
+    doc.line(9, y, 199, y);//up
+    doc.line(9, y, 9, (auxH));//left
+    doc.line(199, y, 199, auxH);//right
+    doc.line(9, auxH, 199, auxH);//down
+
+    y = auxH;
 
     doc.setFontSize(13);
     doc.setFont("arial", "bold");
@@ -319,15 +329,13 @@ export class OrdenPedidoComponent implements OnInit {
     doc.line(199, y, 199, (y + 10));//right
     doc.line(9, (y + 10), 199, (y + 10));//down
 
-    doc.text("Código", 25, (y + 7));
-    doc.line(50, y, 50, (y + 10));//right
-    doc.text("Descripción", 70, (y + 7));
-    doc.line(110, y, 110, (y + 10));//right
-    doc.text("Cantidad", 112, (y + 7));
-    doc.line(130, y, 130, (y + 10));//right
-    doc.text("Área", 137, (y + 7));
-    doc.line(155, y, 155, (y + 10));//right
-    doc.text("Observación", 165, (y + 7));
+    doc.text("Código", 30, (y + 7));
+    doc.line(60, y, 60, (y + 10));//right
+    doc.text("Descripción", 80, (y + 7));
+    doc.line(120, y, 120, (y + 10));//right
+    doc.text("Cantidad", 122, (y + 7));
+    doc.line(140, y, 140, (y + 10));//right
+    doc.text("Observación", 160, (y + 7));
 
     doc.setFontSize(8);
     doc.setFont("arial", "normal");
@@ -343,9 +351,9 @@ export class OrdenPedidoComponent implements OnInit {
     var auxPrueba: number;
 
     for (var i = 0; i < orden.listArticulosPedido.length; i++) {
-      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (35));
+      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (45));
       lineaNombre = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.nombre, (55));
-      lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (40));
+      lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (55));
       valorC = (3 * lineaCodigo.length) + 4;
       valorN = (3 * lineaNombre.length) + 4;
       valorO = (3 * lineaObservacion.length) + 4;
@@ -369,15 +377,13 @@ export class OrdenPedidoComponent implements OnInit {
         doc.line(199, y, 199, (y + 10));//right
         doc.line(9, (y + 10), 199, (y + 10));//down
 
-        doc.text("Código", 25, (y + 7));
-        doc.line(50, y, 50, (y + 10));//right
-        doc.text("Descripción", 70, (y + 7));
-        doc.line(110, y, 110, (y + 10));//right
-        doc.text("Cantidad", 112, (y + 7));
-        doc.line(130, y, 130, (y + 10));//right
-        doc.text("Área", 137, (y + 7));
-        doc.line(155, y, 155, (y + 10));//right
-        doc.text("Observación", 165, (y + 7));
+        doc.text("Código", 30, (y + 7));
+        doc.line(60, y, 60, (y + 10));//right
+        doc.text("Descripción", 80, (y + 7));
+        doc.line(120, y, 120, (y + 10));//right
+        doc.text("Cantidad", 122, (y + 7));
+        doc.line(140, y, 140, (y + 10));//right
+        doc.text("Observación", 160, (y + 7));
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
@@ -386,16 +392,18 @@ export class OrdenPedidoComponent implements OnInit {
       doc.line(9, (y - valorG), 9, y);//left
       auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
       doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
-      doc.line(50, (y - valorG), 50, y);//right
+      doc.line(60, (y - valorG), 60, y);//right
       auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
-      doc.text(lineaNombre, 55, (y - valorG + auxPrueba));
-      doc.line(110, (y - valorG), 110, y);//right
-      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 120, (y - ((valorG - 3) / 2)));
-      doc.line(130, (y - valorG), 130, y);//right
-      doc.text(orden.listArticulosPedido[i].destinoArea, 135, (y - ((valorG - 3) / 2)));
-      doc.line(155, (y - valorG), 155, y);//right
+      doc.text(lineaNombre, 65, (y - valorG + auxPrueba));
+      doc.line(120, (y - valorG), 120, y);//right
+      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 3) / 2)));
+      doc.line(140, (y - valorG), 140, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
-      doc.text(lineaObservacion, 15, (y - valorG + auxPrueba));
+      if(orden.listArticulosPedido[i].aviso){
+        doc.setTextColor(255,0,0);
+        doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        doc.setTextColor(0,0,0);
+      }else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -405,25 +413,15 @@ export class OrdenPedidoComponent implements OnInit {
       y = 40;
     } else y = 265;
     var personaSubArea = null;
-    if (orden.area == "P MANACRIPEX") {
-      personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
-    } else {
-      var auxArea: cBodega = this.listBarcos.find(x => x.nombreBodega == orden.area);
-      if (auxArea == undefined) {
-        auxArea = this.listVehiculos.find(x => x.nombreBodega == orden.area);
-      }
-      if (auxArea != undefined) {
-        personaSubArea = auxArea.listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
-      }
-    }
-    if (personaSubArea == null)
-      personaSubArea = "Encargado " + orden.listArticulosPedido[0].destinoArea;
+    personaSubArea = "Encargado " + orden.listArticulosPedido[0].destinoArea;
 
     doc.line(18, y, 63, y);//Firma1
     doc.text("Firma " + orden.cargoUser, 25, y + 5);
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + personaSubArea, 146, y + 5);
-    doc.save("Pedido_" + orden.numSecuencial + ".pdf");
+
+    if (this.conexcionService.UserR.nombreU == "CARLOS CEBALLOS" || this.conexcionService.UserR.nombreU == "JORGE SALAME" || this.conexcionService.UserR.nombreU == "PRUEBAG")
+      doc.save("Pedido_" + orden.numSecuencial + ".pdf");
     return (doc.output('datauristring'));
   }
 
@@ -437,34 +435,33 @@ export class OrdenPedidoComponent implements OnInit {
       media: auxBase[1],
       type: "application/pdf"
     }
-    var encabezado: string;
-    var asunto: string;
-    var lineaAux: string;
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta") {
+    var encabezado: string = ':bell: *Notificación Pedido ' + orden.empresa + '* :bell:';
+    var asunto: string = "pedido a *" + orden.proveedor + "* para el área *" + orden.listArticulosPedido[0].destinoArea + "*";
+    var lineaAux: string = '\n*Área:* ' + orden.listArticulosPedido[0].destinoArea;
+    
+    if (orden.planta == "P MANACRIPEX") {
       if (orden.estadoProceso == "Pendiente Aprobación")
         auxWhatsapp.phone = "593-999263188";
       else auxWhatsapp.chatname = "PEDIDOS MANACRIPEX";
-      encabezado = ':bell: *Notificación Pedido ' + orden.empresa + '* :bell:';
-      if (orden.area == "P MANACRIPEX") {
-        asunto = "pedido a *" + orden.proveedor + "* para el área *" + orden.listArticulosPedido[0].destinoArea + "*";
-        lineaAux = '\n*Área:* ' + orden.listArticulosPedido[0].destinoArea;
-      } else {
-        asunto = "pedido a *" + orden.proveedor + "* para el área *" + orden.area + "*";
+      if (orden.area != "P MANACRIPEX") {
+        asunto = "pedido a *" + orden.proveedor + "* para el barco *" + orden.area + "*";
         lineaAux = '\n*Barco:* ' + orden.area + ' :anchor:';
       }
-    } else {
-      if (orden.estadoProceso == "Pendiente Aprobación")
-        auxWhatsapp.phone = "593-984146975";
-      else auxWhatsapp.chatname = "PEDIDOS FLOTA";
-      encabezado = ':bell: *Notificación Pedido ' + orden.tipoPedido + '* :bell:';
+    }
+    if (orden.planta == "FLOTA") {
       asunto = "pedido a *" + orden.proveedor + "* para el barco *" + orden.area + "*";
       lineaAux = '\n*Barco:* ' + orden.area + ' :anchor:';
+      if (orden.estadoProceso == "Pendiente Aprobación")
+        auxWhatsapp.phone = "593-987402667";
+      else auxWhatsapp.chatname = "PEDIDOS FLOTA PDF";
     }
-
+    if (orden.planta == "P OFICINAS")
+      auxWhatsapp.phone = "593-999486327";
+    
     var auxNumSecuencial = orden.numSecuencial.split('-');
     auxWhatsapp.message = encabezado
       + '\n'
-      + '\n:wave: Saludos Compañeros:'
+      + '\n:wave: Saludos:'
       + '\nSe les informa que se ha generado un ' + asunto
       + '\nLos datos del pedido son:'
       + '\n'
@@ -478,15 +475,16 @@ export class OrdenPedidoComponent implements OnInit {
 
     if (this.conexcionService.UserR.nombreU == "PRUEBAG") {
       auxWhatsapp.phone = "593-999786121";
+      auxWhatsapp.chatname = "PEDIDOS FLOTA PDF";
     }
 
-    if (orden.estadoProceso == "Pendiente Aprobación" || this.conexcionService.UserR.nombreU == "PRUEBAG") {
+    if (orden.estadoProceso == "Pendiente Aprobación") {
       auxWhatsapp.chatname = "";
       this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
         res => {
           if (res.status != "error")
             this.toastr.success('Mensaje enviado Correctamente', 'Notificación enviada');
-          else this.toastr.success('Notificación enviada', 'Mensaje enviado Correctamente');
+          else this.toastr.error('Error', 'Mensaje NO enviado');
         },
         err => {
           console.log(err);
@@ -494,11 +492,31 @@ export class OrdenPedidoComponent implements OnInit {
       );
     }
     else {
+      auxWhatsapp.phone = "";
       this.whatsappService.sendMessageMGroup(auxWhatsapp).subscribe(
         res => {
           if (res.status == "error")
-            this.toastr.warning('Notificación error: ' + res.message, 'Mensaje no enviado');
-          else this.toastr.success('Notificación enviada', 'Mensaje enviado Correctamente');
+            this.toastr.error('Error', 'Mensaje NO enviado');
+          else this.toastr.success('Mensaje enviado Correctamente', 'Notificación enviada');
+          
+          if (this.guardarDataProveedor != null) {
+            if (this.guardarDataProveedor.telefono != null) {
+              auxWhatsapp.chatname = "";
+              if (this.conexcionService.UserR.nombreU == "PRUEBAG") {
+                auxWhatsapp.phone = "593-999786121";
+              }else auxWhatsapp.phone = this.guardarDataProveedor.telefono;
+              this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
+                res => {
+                  if (res.status != "error")
+                    this.toastr.success('Mensaje enviado al Proveedor', 'Notificación enviada Proveedor');
+                  else this.toastr.error('Error', 'Mensaje NO enviado');
+                },
+                err => {
+                  console.log(err);
+                }
+              );
+            }
+          }
         },
         err => {
           console.log(err);

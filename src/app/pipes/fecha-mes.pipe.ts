@@ -7,8 +7,11 @@ export class FechaMesPipe implements PipeTransform {
 
   transform(value: string): string {
     var aux = value.split('-');
-    if (aux.length == 2)
-      return value;
-    return aux[0] + "-" + aux[1];
+    var soloMes= Number(aux[1]);
+    var result = aux[0] + "-";
+    if (soloMes < 10)
+      result = result + '0' + soloMes;
+    else result = result + soloMes;
+    return result;
   }
 }

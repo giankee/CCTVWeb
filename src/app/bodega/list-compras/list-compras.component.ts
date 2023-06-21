@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
-import { cOrdenEC } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cOrdenEC } from 'src/app/shared/bodega/ordenEC';
 import { OrdenECService } from 'src/app/shared/orden-e-c.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
@@ -11,6 +11,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ViewCompraModelComponent } from '../view-compra-model/view-compra-model.component';
 import jsPDF from 'jspdf';
 import { SortPipe } from 'src/app/pipes/sort.pipe';
+import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 
 @Component({
   selector: 'app-list-compras',
@@ -37,10 +38,12 @@ export class ListComprasComponent implements OnInit {
   selectParam: string = "";
   _iconDownLeft: boolean = false;
   ordenGuia: string = "default";
+  listBodega: cBodega[] = [];
 
   listOrdenesMostrar$: Observable<cOrdenEC[]>;
   dataOrdenesResult: cOrdenEC[] = [];
-  auxPlanta:string;
+  auxPlanta: string;
+  auxBodega:string="";
   /**Para pagination y fecha Entrada*/
   paginacion = new cPaginacion(25);
   fechaHoy = new cFecha();
@@ -48,25 +51,36 @@ export class ListComprasComponent implements OnInit {
 
   faquestion = faQuestion; sort = faSort; fapencilAlt = faPencilAlt; faeye = faEye; faeraser = faEraser; fasave = faSave; fatimesCircle = faTimesCircle; fasearch = faSearch;
   faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight; faeyeslash = faEyeSlash
-  constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private dialog: MatDialog, private ordenarPipe: SortPipe) { 
-    if(this.conexcionService.UserR.rolAsignado=="tinabg-m"||this.conexcionService.UserR.rolAsignado=="bodega_verificador-m")
-    this.auxPlanta = "P MANACRIPEX";
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
-    this.auxPlanta = "OFICINAS";
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
-    this.auxPlanta = "ENFERMERIA";
+  constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private dialog: MatDialog, private ordenarPipe: SortPipe, private variosService: VariosService) {
+
   }
 
   ngOnInit(): void {
-    this._conexcionService.msg$.subscribe(mensajeStatus => {
-      this.internetStatus = mensajeStatus.connectionStatus;
+    this.cargarBodega();
+  }
+
+  cargarBodega() {
+    this.variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+      this.listBodega = dato;
+      if (this.conexcionService.UserR.rolAsignado == "tinabg-m" || this.conexcionService.UserR.rolAsignado == "bodega_verificador-m" || this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
+        this.auxPlanta = "P MANACRIPEX";
+        if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
+          this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
+          this.auxBodega="@"+this.listBodega[0].nombreBodega;
+        }
+      } if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+        this.auxPlanta = "OFICINAS";
+      if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+        this.auxPlanta = "ENFERMERIA";
+
+
+      this.cargarData();
     });
-    this.cargarData();
   }
 
   cargarData() {//Datos de los ordenes traidos desde db
     this.spinnerOnOff = true;
-    this.listOrdenesMostrar$ = this._ordenECService.getListOrdenesCompra(this.auxPlanta).pipe(
+    this.listOrdenesMostrar$ = this._ordenECService.getListOrdenesCompra(this.auxPlanta+this.auxBodega).pipe(
       map((x: cOrdenEC[]) => {
         x.forEach(y => {
           y.fechaRegistroBodega = y.fechaRegistroBodega.substring(0, 10);
@@ -80,13 +94,14 @@ export class ListComprasComponent implements OnInit {
 
   onListParam(value: string) {
     this.spinnerOnOff = true;
-    var strParametro = this.auxPlanta+"@"+this.fechaHoy.inDesde + "@" + this.fechaHoy.inHasta+"@"
+    var strParametro = this.auxPlanta + "@" + this.fechaHoy.inDesde + "@" + this.fechaHoy.inHasta + "@"
     if (value != "") {
       const regex = /^[0-9]*$/;
       if (regex.test(value))
         strParametro = strParametro + value + "@null";
       else strParametro = strParametro + "null@" + value;
     } else strParametro = strParametro + "null@null";
+    strParametro=strParametro+this.auxBodega;
     this.listOrdenesMostrar$ = this.ordenECService.getCompraSearch(strParametro).pipe(
       map((x: cOrdenEC[]) => {
         x.forEach(y => {

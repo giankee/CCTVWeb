@@ -8,7 +8,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { NgForm } from '@angular/forms';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
 import { jsPDF } from "jspdf";
-import { cFecha, cVario } from 'src/app/shared/otrosServices/varios';
+import { cFecha } from 'src/app/shared/otrosServices/varios';
 import { SortPipe } from 'src/app/pipes/sort.pipe';
 import { SearchPipe } from 'src/app/pipes/search.pipe';
 import Swal from 'sweetalert2';
@@ -83,29 +83,25 @@ export class ListProductoBComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.resetForm();
     this.cargarBodega();
   }
 
   cargarData() {//Datos de los productos traidos desde db
     this.listProductosIn = [];
     var strParametro = "P MANACRIPEX@All";
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
-      strParametro = "OFICINAS@All";
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
-      strParametro = "ENFERMERIA@All";
+    if (this._conexcionService.UserR.rolAsignado == 'gpv-o' || (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && (this.conexcionService.UserR.nombreU == "SERGIO JARA" || this.conexcionService.UserR.nombreU == "FELIX LANDIN"))) {
+      if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+        strParametro = "OFICINAS@All";
+      else strParametro = "OFICINAS@" + this.filtrarBodegas();
     }
+    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+      strParametro = "ENFERMERIA@All";
     if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
-      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
+      this.selecBodegaFiltro = this.filtrarBodegas();
       strParametro = "ENFERMERIA@" + this.selecBodegaFiltro;
     }
-    if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero') {
-      this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
-      strParametro = "P MANACRIPEX@" + this.selecBodegaFiltro;
-    }
-    if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
-      this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
-      strParametro = "P MANACRIPEX@GENERAL-ACEITE-3";
+    if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero' || this._conexcionService.UserR.rolAsignado == "bodega_verificador-m" || this._conexcionService.UserR.rolAsignado == "verificador-bodeguero-b") {
+      strParametro = "P MANACRIPEX@" + this.filtrarBodegas();
     }
     this._productoBService.getProductosPlanta(strParametro)
       .subscribe(dato => {
@@ -120,8 +116,23 @@ export class ListProductoBComponent implements OnInit {
         }
         this.paginacion.getNumberIndex(this.listProductosIn.length);
         this.paginacion.updateIndex(0);
+        this.resetForm();
       },
         error => console.error(error));
+  }
+
+  filtrarBodegas(): string {
+    var strNombreBodegas: string = "";
+    if(this.conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'){
+      this.listBodega = this.listBodega.filter(x => (x.listAreas.find(y=>y.encargadoArea== this.conexcionService.UserR.nombreU))!=undefined);
+    } else this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU || (this.conexcionService.UserR.nombreU == "FERNANDA MORALES" && x.tipoBodega == "PUERTO"));
+    this.listBodega.forEach(x => {
+      if (strNombreBodegas == "") {
+        strNombreBodegas = x.nombreBodega;
+      }
+      else strNombreBodegas = strNombreBodegas + "-" + x.nombreBodega;
+    });
+    return strNombreBodegas;
   }
 
   cargarBodega() {
@@ -130,11 +141,34 @@ export class ListProductoBComponent implements OnInit {
         this.listBodega = dato;
         this.cargarData();
       });
-    } else
-      this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
-        this.listBodega = dato;
-        this.cargarData();
-      });
+    } else {
+      if (this.conexcionService.UserR.rolAsignado == "gpv-o" || (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && (this.conexcionService.UserR.nombreU == "SERGIO JARA" || this.conexcionService.UserR.nombreU == "FELIX LANDIN"))) {
+        this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
+          this.listBodega = dato;
+          this.cargarData();
+        });
+      } else {
+        if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero-b") {
+          this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+            this.listBodega = dato;
+            this.cargarData();
+          });
+        } else {
+          this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+            this.listBodega = dato;
+            if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+              this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+                for (var i = 0; i < dato.length; i++) {
+                  this.listBodega.push(dato[i]);
+                }
+                this.cargarData();
+              });
+            } else this.cargarData();
+          });
+        }
+      }
+    }
+
   }
 
   resetForm() {//Para que los valores en el html esten vacios
@@ -144,11 +178,15 @@ export class ListProductoBComponent implements OnInit {
     if (this._conexcionService.UserR.rolAsignado == 'enfermeria' || this.conexcionService.UserR.rolAsignado == "verificador-medic")
       this._productoBService.formData = new cProducto_B("ENFERMERIA");
     if (this._conexcionService.UserR.rolAsignado == 'tinabg-m' || this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
+      this._productoBService.formData = new cProducto_B("P MANACRIPEX");
       if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
-        this._productoBService.formData = new cProducto_B("P MANACRIPEX");
         this.selectBodegaAux = "GENERAL";
         this.onNewBodega();
-      } else this._productoBService.formData = new cProducto_B("P MANACRIPEX");
+      }
+      if (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
+        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
+        this.onNewBodega();
+      }
     }
     this.productoBService.formData.contenidoNeto = 1;
     this.nuevoCategoria = "";
@@ -164,10 +202,10 @@ export class ListProductoBComponent implements OnInit {
     }
   }
 
-  onNewLote(indiceIn:number){
+  onNewLote(indiceIn: number) {
     this.productoBService.formData.listBodegaProducto[indiceIn].agregarOneLote();
-    if(this.productoBService.formData.listBodegaProducto[indiceIn].idBodegaProducto!=undefined){
-      this.productoBService .formData.listBodegaProducto[indiceIn].listAreas[this.productoBService .formData.listBodegaProducto[indiceIn].listAreas.length-1].bodegaProductoId=this.productoBService .formData.listBodegaProducto[indiceIn].idBodegaProducto;
+    if (this.productoBService.formData.listBodegaProducto[indiceIn].idBodegaProducto != undefined) {
+      this.productoBService.formData.listBodegaProducto[indiceIn].listAreas[this.productoBService.formData.listBodegaProducto[indiceIn].listAreas.length - 1].bodegaProductoId = this.productoBService.formData.listBodegaProducto[indiceIn].idBodegaProducto;
     }
   }
 
@@ -311,9 +349,16 @@ export class ListProductoBComponent implements OnInit {
       const dialoConfig = new MatDialogConfig();
       dialoConfig.autoFocus = true;
       dialoConfig.disableClose = true;
-      dialoConfig.height = "85%";
-      dialoConfig.width = "90%";
-      dialoConfig.data = { auxId }
+      dialoConfig.height = "90%";
+      dialoConfig.width = "100%";
+
+      var auxListBodegas: { nombreBodega:string, cantidadInicial:number}[]=[];
+      this.listBodega.forEach(x=>{
+        auxListBodegas.push({'nombreBodega':x.nombreBodega,"cantidadInicial":dataIn.listBodegaProducto.find(y=>y.nombreBodega==x.nombreBodega)!=undefined ? dataIn.listBodegaProducto.find(y=>y.nombreBodega==x.nombreBodega).cantInicial:0});
+      });
+      const selectBodega = this.selecBodegaFiltro;
+      const listBodegasIn = auxListBodegas;
+      dialoConfig.data = { auxId, selectBodega, listBodegasIn }
       this.dialog.open(KardexComponent, dialoConfig);
     } else {
       Swal.fire({
@@ -428,13 +473,14 @@ export class ListProductoBComponent implements OnInit {
     var lineaProveedor;
     var lineaStockG;
     var lineaStockM;
+    var saltar: boolean;
     for (var i = 0; i < data.length; i++) {
       lineaNombre = doc.splitTextToSize(data[i].nombre, (50));
       lineaProveedor = doc.splitTextToSize(data[i].proveedor, (55));
       lineaStockG = [];
       lineaStockM = [];
       lineaBodegaG = [];
-
+      saltar = false;
       for (var j = 0; j < data[i].listBodegaProducto.length; j++) {
         var auaxNombreBodega = data[i].listBodegaProducto[j].nombreBodega;
         if (data[i].listBodegaProducto[j].nombreBodega.includes("Bodega")) {
@@ -444,18 +490,24 @@ export class ListProductoBComponent implements OnInit {
         var auxCantidadTotal = 0;
         if (this.selecBodegaFiltro != "SIN ASIGNAR") {
           if (data[i].listBodegaProducto[j].nombreBodega == this.selecBodegaFiltro) {
-            lineaBodegaG.push(auaxNombreBodega);
-            lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
-            auxCantidadTotal = data[i].listBodegaProducto[j].disponibilidad;
-            if (data[i].listBodegaProducto[j].listAreas != null) {
-              if (data[i].listBodegaProducto[j].listAreas.length > 0) {
-                data[i].listBodegaProducto[j].listAreas.forEach(x => {
-                  auxCantidadTotal = auxCantidadTotal + x.disponibilidad;
-                });
+
+            if (data[i].listBodegaProducto[j].disponibilidad == 0 && data[i].listBodegaProducto[j].cantMinima == 0)
+              saltar = true;
+            else {
+              lineaBodegaG.push(auaxNombreBodega);
+              lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
+              auxCantidadTotal = data[i].listBodegaProducto[j].disponibilidad;
+              if (data[i].listBodegaProducto[j].listAreas != null) {
+                if (data[i].listBodegaProducto[j].listAreas.length > 0) {
+                  data[i].listBodegaProducto[j].listAreas.forEach(x => {
+                    auxCantidadTotal = auxCantidadTotal + x.disponibilidad;
+                  });
+                }
               }
+              lineaStockG.push(auxCantidadTotal.toString());
+              lineaStockM.push(data[i].listBodegaProducto[j].cantMinima.toString());
             }
-            lineaStockG.push(auxCantidadTotal.toString());
-            lineaStockM.push(data[i].listBodegaProducto[j].cantMinima.toString());
+
           }
         }
         else {
@@ -473,90 +525,90 @@ export class ListProductoBComponent implements OnInit {
           lineaStockM.push(data[i].listBodegaProducto[j].cantMinima.toString());
         }
       }
+      if (!saltar) {
+        valorN = (3.5 * lineaNombre.length) + 4;
+        valorP = (3.5 * lineaProveedor.length) + 4;
+        valorB = (3.5 * lineaBodegaG.length) + 4;
 
-      valorN = (3.5 * lineaNombre.length) + 4;
-      valorP = (3.5 * lineaProveedor.length) + 4;
-      valorB = (3.5 * lineaBodegaG.length) + 4;
+        if (valorB >= valorP && valorB >= valorN) {
+          valorG = valorB;
+        }
+        if (valorP >= valorB && valorP >= valorN) {
+          valorG = valorP;
+        }
+        if (valorN >= valorB && valorN >= valorP) {
+          valorG = valorN;
+        }
+        y = y + valorG;
 
-      if (valorB >= valorP && valorB >= valorN) {
-        valorG = valorB;
-      }
-      if (valorP >= valorB && valorP >= valorN) {
-        valorG = valorP;
-      }
-      if (valorN >= valorB && valorN >= valorP) {
-        valorG = valorN;
-      }
-      y = y + valorG;
+        if (y > 200) {
+          doc.text("Pág. #" + Npag, 280, 207);
+          Npag++;
+          doc.addPage();
+          doc.text("Pág. #" + Npag, 280, 207);
+          doc.setFontSize(10);
+          doc.setFont("arial", "bold")
+          y = 15;
+          doc.line(5, (y), 290, (y));//up
+          doc.line(5, y, 5, (y + 10));//left
+          doc.line(290, y, 290, (y + 10));//right
+          doc.line(5, (y + 10), 290, (y + 10));//down
 
-      if (y > 200) {
-        doc.text("Pág. #" + Npag, 280, 207);
-        Npag++;
-        doc.addPage();
-        doc.text("Pág. #" + Npag, 280, 207);
-        doc.setFontSize(10);
-        doc.setFont("arial", "bold")
-        y = 15;
-        doc.line(5, (y), 290, (y));//up
-        doc.line(5, y, 5, (y + 10));//left
-        doc.line(290, y, 290, (y + 10));//right
-        doc.line(5, (y + 10), 290, (y + 10));//down
+          doc.text("Código", 10, (y + 7));
+          doc.line(25, y, 25, (y + 10));//right
+          doc.text("Descripción", 50, (y + 7));
+          doc.line(80, y, 80, (y + 10));//right
+          doc.text("Proveedor", 105, (y + 7));
+          doc.line(140, y, 140, (y + 10));//right
+          doc.text("Marca", 152, (y + 7));
+          doc.line(170, y, 170, (y + 10));//right
+          doc.text("Categoría", 178, (y + 7));
+          doc.line(200, y, 200, (y + 10));//right
+          doc.text("Ubicación", 208, (y + 7));
+          doc.line(237, y, 237, (y + 10));//right
+          doc.text("Existencia", 238, (y + 7));
+          doc.line(255, y, 255, (y + 10));//right
 
-        doc.text("Código", 10, (y + 7));
-        doc.line(25, y, 25, (y + 10));//right
-        doc.text("Descripción", 50, (y + 7));
-        doc.line(80, y, 80, (y + 10));//right
-        doc.text("Proveedor", 105, (y + 7));
-        doc.line(140, y, 140, (y + 10));//right
-        doc.text("Marca", 152, (y + 7));
-        doc.line(170, y, 170, (y + 10));//right
-        doc.text("Categoría", 178, (y + 7));
-        doc.line(200, y, 200, (y + 10));//right
-        doc.text("Ubicación", 208, (y + 7));
-        doc.line(237, y, 237, (y + 10));//right
-        doc.text("Existencia", 238, (y + 7));
-        doc.line(255, y, 255, (y + 10));//right
+          if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+            doc.text("Mínimo", 256, (y + 7));
+            doc.line(270, y, 270, (y + 10));//right
+            doc.text("Real", 275, (y + 7));
+          } else doc.text("Real", 274, (y + 7));
+
+
+          y = y + 10 + valorG;
+          doc.setFontSize(8);
+          doc.setFont("arial", "normal");
+        }
+        doc.line(5, (y - valorG), 5, y);//left
+        doc.line(290, (y - valorG), 290, y);//right
+        doc.line(5, y, 290, y);//down +10y1y2
+
+        doc.text(data[i].codigo, 7, (y - ((valorG - 3) / 2)));
+        doc.line(25, (y - valorG), 25, y);//right
+        auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
+        doc.text(lineaNombre, 30, (y - valorG + auxLinea));
+        doc.line(80, (y - valorG), 80, y);//right
+        auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
+        doc.text(lineaProveedor, 83, (y - valorG + auxLinea));
+        doc.line(140, (y - valorG), 140, y);//right
+        doc.text(data[i].marca, 145, (y - ((valorG - 3) / 2)));
+        doc.line(170, (y - valorG), 170, y);//right
+        doc.text(data[i].categoria, 175, (y - ((valorG - 3) / 2)));
+        doc.line(200, (y - valorG), 200, y);//right
+        auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
+        doc.text(lineaBodegaG, 202, (y - valorG + auxLinea));
+        doc.line(237, (y - valorG), 237, y);//right
+        auxLinea = Number((valorG - (3 * lineaStockG.length + (3 * (lineaStockG.length - 1)))) / 2.5) + (2 + lineaStockG.length);
+        doc.text(lineaStockG, 245, (y - valorG + auxLinea));
+        doc.line(255, (y - valorG), 255, y);//right
 
         if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
-          doc.text("Mínimo", 256, (y + 7));
-          doc.line(270, y, 270, (y + 10));//right
-          doc.text("Real", 275, (y + 7));
-        } else doc.text("Real", 274, (y + 7));
-
-
-        y = y + 10 + valorG;
-        doc.setFontSize(8);
-        doc.setFont("arial", "normal");
+          auxLinea = Number((valorG - (3 * lineaStockM.length + (3 * (lineaStockM.length - 1)))) / 2.5) + (2 + lineaStockM.length);
+          doc.text(lineaStockM, 260, (y - valorG + auxLinea));
+          doc.line(270, (y - valorG), 270, y);//right
+        }
       }
-      doc.line(5, (y - valorG), 5, y);//left
-      doc.line(290, (y - valorG), 290, y);//right
-      doc.line(5, y, 290, y);//down +10y1y2
-
-      doc.text(data[i].codigo, 7, (y - ((valorG - 3) / 2)));
-      doc.line(25, (y - valorG), 25, y);//right
-      auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
-      doc.text(lineaNombre, 30, (y - valorG + auxLinea));
-      doc.line(80, (y - valorG), 80, y);//right
-      auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
-      doc.text(lineaProveedor, 83, (y - valorG + auxLinea));
-      doc.line(140, (y - valorG), 140, y);//right
-      doc.text(data[i].marca, 145, (y - ((valorG - 3) / 2)));
-      doc.line(170, (y - valorG), 170, y);//right
-      doc.text(data[i].categoria, 175, (y - ((valorG - 3) / 2)));
-      doc.line(200, (y - valorG), 200, y);//right
-      auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
-      doc.text(lineaBodegaG, 202, (y - valorG + auxLinea));
-      doc.line(237, (y - valorG), 237, y);//right
-      auxLinea = Number((valorG - (3 * lineaStockG.length + (3 * (lineaStockG.length - 1)))) / 2.5) + (2 + lineaStockG.length);
-      doc.text(lineaStockG, 245, (y - valorG + auxLinea));
-      doc.line(255, (y - valorG), 255, y);//right
-
-      if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
-        auxLinea = Number((valorG - (3 * lineaStockM.length + (3 * (lineaStockM.length - 1)))) / 2.5) + (2 + lineaStockM.length);
-        doc.text(lineaStockM, 260, (y - valorG + auxLinea));
-        doc.line(270, (y - valorG), 270, y);//right
-      }
-
     }
     doc.save("ListaProductos_" + this.fechaHoy.strFecha + ".pdf");
   }
@@ -586,7 +638,7 @@ export class ListProductoBComponent implements OnInit {
       if (dataIn[i].Codigo && dataIn[i].Descripcion && dataIn[i].Bodega && dataIn[i].Proveedor && dataIn[i].Precio_U != null && dataIn[i].Stock != null) {
         if (dataIn[i].Codigo.toString().match(validadorExpresion) && dataIn[i].Descripcion.toString().match(validadorExpresion)) {
           index = -1;
-          if ((index = this.listProdFiltradosExcel.findIndex(x => x.codigo == dataIn[i].Codigo.toString().toUpperCase() && x.proveedor == dataIn[i].Proveedor.toUpperCase())) == -1) {
+          if ((index = this.listProdFiltradosExcel.findIndex(x => x.codigo == dataIn[i].Codigo.toString().toUpperCase() && x.descripcion == dataIn[i].Descripcion.toString().toUpperCase() && x.proveedor == dataIn[i].Proveedor.toUpperCase())) == -1) {
             auxProducto = new cProducto_B("P MANACRIPEX", dataIn[i].Proveedor.toUpperCase());
             auxProducto.codigo = dataIn[i].Codigo.toString().toUpperCase();
             auxProducto.nombre = dataIn[i].Descripcion.toString().toUpperCase();

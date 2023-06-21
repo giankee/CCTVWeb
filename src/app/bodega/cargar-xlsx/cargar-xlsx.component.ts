@@ -34,7 +34,7 @@ export class CargarXLSXComponent implements OnInit {
         x.contenidoNeto=1;
         x.disBttnInput = 1;
         var index = -1;
-        if ((index = this.dato.prelist.findIndex(y => y.codigo == x.codigo && y.proveedor == x.proveedor)) != -1) {
+        if ((index = this.dato.prelist.findIndex(y => y.codigo == x.codigo && y.nombre== x.nombre && y.proveedor == x.proveedor)) != -1) {
           for (var i = 0; i < x.listBodegaProducto.length; i++) {
             if (this.dato.prelist[index].listBodegaProducto.find(y => y.nombreBodega == x.listBodegaProducto[i].nombreBodega)) {
               x.listBodegaProducto.splice(i, 1);
@@ -50,10 +50,10 @@ export class CargarXLSXComponent implements OnInit {
     }
   }
 
-
   onExit() {
     this.dialogRef.close();
   }
+
   onUpdateSelect(control) {//cuando hacen cambio en el numero de registrso por views
     this.paginacion.selectPagination = Number(control.value);
     this.paginacion.getNumberIndex(this.productosMostrar.length);

@@ -4,7 +4,7 @@
       <div class="col-12 py-2">
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
-            <h5><a class="text-dark2">Lista de Medicamento</a></h5>
+            <h5><a class="text-dark2">Lista de Medicamento Caducados</a></h5>
             <a class="text-dark2" (click)="onConvertPDFAll()">
               <fa-icon [icon]="faprint"></fa-icon>
             </a>
@@ -15,8 +15,9 @@
                 <div class="form-group inputForm">
                   <div class="title"><strong> Barco:</strong></div>
                   <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
-                    [(ngModel)]="selecBodegaFiltro" [disabled]="conexcionService.UserR.rolAsignado == 'verificador-medic'">
+                    [(ngModel)]="selecBodegaFiltro">
                     <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
                     <option *ngFor="let datobodega of listBarcos" value="{{datobodega.nombreBodega}}">
                       {{datobodega.nombreBodega}}</option>
                   </select>
@@ -27,13 +28,13 @@
                   <div class="title"><strong> Tipo:</strong></div>
                   <select class="form-control" name="selecTipoFiltroIn" #selecBodegaFiltroIn="ngModel"
                     [(ngModel)]="selecTipoFiltro">
-                    <option selected value="Faltantes">FALTANTES</option>
-                    <option value="Sobrantes">SOBRANTES</option>
+                    <option selected value="Caducado">CADUCADOS</option>
+                    <option value="Caducar">POR CADUCAR</option>
                   </select>
                 </div>
               </div>
               <div class="col-12 col-md-2">
-                <a [routerLink] (click)="onBuscarDiferencias()" class="btn bttn-Primario btn-block mt-md-4">
+                <a [routerLink] (click)="onBuscarCaducidad()" class="btn bttn-Primario btn-block mt-md-4">
                   <fa-icon [icon]="fasearch"></fa-icon> Buscar
                 </a>
               </div>
@@ -44,34 +45,43 @@
               <mat-spinner color="accent"></mat-spinner>
             </div>
           </div>
-          <div *ngIf="spinnerOnOff==2 && listProductosIn!=null">
+          <div *ngIf="spinnerOnOff==2 && listJustificacion!=null">
             <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
               <table class="table">
                 <thead>
                   <tr class="text-center">
-                    <th>#</th>
-                    <th>Producto</th>
-                    <th>Cant Unitaria Mínima</th>
-                    <th>Unidades Disponibles</th>
-                    <th>Diferencia</th>
+                    <th rowspan="2" style="width: 10%; vertical-align: middle;">#</th>
+                    <th rowspan="2" style="width: 30%; vertical-align: middle;">Producto</th>
+                    <th colspan="3" style="width: 30%;">{{selecTipoFiltro=='Caducado'?'Caducado':'Por Caducar'}}</th>
+                    <th colspan="3" style="width: 30%;">Última Compra</th>
                   </tr>
+                  <tr class="text-center">
+                    <th>Lote</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                    <th>Marea</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                  <tr>
                 </thead>
-                <tbody *ngIf="(listProductosIn | filtroBodega:selecBodegaFiltro) as resultBusqueda">
-                  <div style="display: none;">{{getDataFiltro(resultBusqueda)}}</div>
-                  <tr *ngIf="resultBusqueda.length==0">
-                    <td class="font-italic text-center" colspan="5">
-                      No hay necesidad de reponer Medicamento
+                <tbody>
+                  <tr *ngIf="listJustificacion.length==0">
+                    <td class="font-italic text-center" colspan="8">
+                      No hay medicamentos
+                      {{selecTipoFiltro=='Caducado'?'caducados':'por caducar en los proximos tres meses'}}
                     </td>
                   </tr>
-                  <tr
-                    *ngFor="let datoP of resultBusqueda; let indice=index"
+                  <tr *ngFor="let datoJ of listJustificacion; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
-                    <td>{{datoP.nombre}}</td>
-                    <td class="text-center">{{datoP.listBodegaProducto[0].cantMinima}}</td>
-                    <td class="text-center">{{datoP.sumStock}}</td>
-                    <td class="text-center" *ngIf="selecTipoFiltro=='Faltantes'" >{{datoP.listBodegaProducto[0].cantMinima - datoP.sumStock}}</td>
-                    <td class="text-center" *ngIf="selecTipoFiltro=='Sobrantes'" >{{datoP.sumStock - datoP.listBodegaProducto[0].cantMinima}}</td>
+                    <td>{{datoJ.inventarioNombre}}</td>
+                    <td>{{datoJ.caducado.marea}}</td>
+                    <td class="text-center">{{datoJ.caducado.cantidad}}</td>
+                    <td class="text-center">{{datoJ.caducado.fecha|fechaFormat}}</td>
+                    <td *ngIf="!datoJ.isCompras" colspan="3" class="text-center">No hay Compras</td>
+                    <td class="text-center" *ngIf="datoJ.isCompras">{{datoJ.compras.marea}}</td>
+                    <td class="text-center" *ngIf="datoJ.isCompras">{{datoJ.compras.cantidad}}</td>
+                    <td class="text-center" *ngIf="datoJ.isCompras">{{datoJ.compras.fecha|fechaFormat}}</td>
                   </tr>
                 </tbody>
               </table>
