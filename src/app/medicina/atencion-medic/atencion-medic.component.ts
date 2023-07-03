@@ -147,9 +147,9 @@ export class AtencionMedicComponent implements OnInit {
         this.medicinaOpened=3;
 
         this.consultaMedicService.formData.listReceta.forEach(x=>{
-          this.medicamentoTexto= this.medicamentoTexto +"\n"+ " * "+ x.cantidad + "    " + x.inventario.nombre;
+          this.medicamentoTexto= this.medicamentoTexto +"\n"+ " * ("+ x.cantidad + ")    " + x.inventario.nombre;
         });
-        this.atencionMedicService.formData.prescripcion= this.atencionMedicService.formData.prescripcion + this.medicamentoTexto;
+        this.atencionMedicService.formData.observacion= this.atencionMedicService.formData.observacion + this.medicamentoTexto;
       }
     }
   }

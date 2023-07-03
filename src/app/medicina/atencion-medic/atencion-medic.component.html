@@ -90,13 +90,12 @@
                       onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                       [(ngModel)]="atencionMedicService.formData.presionA" class="form-control input-src">
                     <span class="input-group-text" style="height: 1.8rem;">/</span>
-                    <input type="number" name="presionB" #presionB="ngModel" min="1" pattern="[0-9]{1,2}" maxlength="2"
-                      required placeholder="00"
+                    <input type="number" name="presionB" #presionB="ngModel" min="1" pattern="[0-9]{1,2}" maxlength="3"
+                      required placeholder="000"
                       onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !== 107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                       [(ngModel)]="atencionMedicService.formData.presionB" class="form-control input-src">
                   </div>
                 </div>
-
               </div>
             </div>
             <div class="col-12 col-sm-6 col-md-3 col-lg-3">

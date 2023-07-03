@@ -630,11 +630,29 @@ export class cAuxMedicamentos {
     medicamentoId: number;
     nombreMedicamento: string;
     cantidadOcupada: number;
+    descripcionMedicamento:string;
+    fechaConsumo:string;
+    sintomasConsumo:string;
 
-    constructor(medicamentoIdIn: number, nombreMedicamentoIn: string, cantidadIn: number) {
+    constructor(medicamentoIdIn: number, nombreMedicamentoIn: string, cantidadIn: number, descripcionIn:string) {
         this.medicamentoId = medicamentoIdIn;
         this.nombreMedicamento = nombreMedicamentoIn;
         this.cantidadOcupada = cantidadIn;
+        if(descripcionIn!=null)
+        this.descripcionMedicamento=descripcionIn;
+        else this.descripcionMedicamento="";
+        this.fechaConsumo="";
+        this.sintomasConsumo="";
+    }
+}
+
+export class cAuxMedicamentosByPaciente {
+    nombrePaciente: string;
+    listMedicamentos:cAuxMedicamentos[];
+
+    constructor(nombrePacienteIn: string) {
+        this.nombrePaciente = nombrePacienteIn;
+        this.listMedicamentos=[];
     }
 }
 

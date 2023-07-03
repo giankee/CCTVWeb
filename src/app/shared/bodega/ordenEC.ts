@@ -173,9 +173,9 @@ export class cCompraO {
     ordenE_C?: cOrdenEC;
     producto?: cProducto_B;
 
-    constructor() { 
+    constructor() {
         let fechaHoy: cFecha = new cFecha();
-        this.fechaVencimientoMedic=fechaHoy.sacaSoloMes();
+        this.fechaVencimientoMedic = fechaHoy.sacaSoloMes();
     }
 
     rellenarProducto(productoIn: cProducto_B) {
@@ -199,7 +199,7 @@ export class cProducto_B {
     planta: string = "OFICINAS";
     codigo: string = undefined;
     nombre: string = "";
-    numParte:string="";
+    numParte: string = "";
     categoria: string = "SIN ASIGNAR";
     marca: string = "SIN ASIGNAR";
     proveedor: string = "SIN ASIGNAR";
@@ -225,24 +225,24 @@ export class cProducto_B {
     constructor(plantaIn?: string, proveedorIn?: string) {
         if (plantaIn != null)
             this.planta = plantaIn;
-            else this.planta= "OFICINAS";
+        else this.planta = "OFICINAS";
         if (proveedorIn != null)
             this.proveedor = proveedorIn;
-        else this.proveedor= "SIN ASIGNAR";
-        
+        else this.proveedor = "SIN ASIGNAR";
+
         this.idProductoStock = undefined;
-        this.codigo= undefined;
-        this.nombre= "";
-        this.numParte="";
-        this.categoria= "SIN ASIGNAR";
-        this.marca= "SIN ASIGNAR";
+        this.codigo = undefined;
+        this.nombre = "";
+        this.numParte = "";
+        this.categoria = "SIN ASIGNAR";
+        this.marca = "SIN ASIGNAR";
         this.precioStandar = 0.00;
         this.precioUltima = 0.00;
-        this.tipoUnidad= "UNIDAD";
+        this.tipoUnidad = "UNIDAD";
         this.contenidoNeto = 1;
         this.precioNeto = 0;
-        this.rutaArchivo= "/assets/img/imgDefecto.png";
-        this.descripcion= "";
+        this.rutaArchivo = "/assets/img/imgDefecto.png";
+        this.descripcion = "";
         this.estado = 1;
 
     }
@@ -254,7 +254,7 @@ export class cProducto_B {
         this.codigo = objIn.codigo;
         this.planta = objIn.planta;
         this.nombre = objIn.nombre;
-        this.numParte=objIn.numParte;
+        this.numParte = objIn.numParte;
         this.categoria = objIn.categoria;
         this.proveedor = objIn.proveedor;
         this.marca = objIn.marca;
@@ -434,9 +434,8 @@ export class cBodegaSubAreaProducto {
         this.nombreSub = objIn.nombreSub;
         this.bodegaProductoId = objIn.bodegaProductoId;
         this.disponibilidad = objIn.disponibilidad;
-        this.fechaVencimiento = objIn.fechaVencimiento.substr(0,7 );
-        
-
+        if (objIn.fechaVencimiento != null)
+            this.fechaVencimiento = objIn.fechaVencimiento;
         if (objIn.bodegaProducto != null)
             this.bodegaProducto = objIn.bodegaProducto;
     }
@@ -589,21 +588,21 @@ export class cKardex {
 }
 
 export class cJustificacionMedicina {
-    inventarioId:number;
-    inventarioNombre:string;
-    isCompras:boolean;
-    isCaducado:boolean;
-    cantConsumido:number;
-    cantDiferencia:number;
+    inventarioId: number;
+    inventarioNombre: string;
+    isCompras: boolean;
+    isCaducado: boolean;
+    cantConsumido: number;
+    cantDiferencia: number;
 
-    compras:cJustificacionItem;
-    caducado:cJustificacionItem;
+    compras: cJustificacionItem;
+    caducado: cJustificacionItem;
 }
 
-export class cJustificacionItem{
-    fecha:string;
-    cantidad:number;
-    marea:string;
+export class cJustificacionItem {
+    fecha: string;
+    cantidad: number;
+    marea: string;
 }
 export class cBodega {
     idBodega: number;

@@ -91,4 +91,10 @@ export class OrdenESService {
   getFiltroReportTanques(strParametros):Observable<any[]>{//filtro admin
     return this.http.get<any[]>(this.serverUrlBase  + 'vcctv_reportTanques/getFiltroReportTanques/'+strParametros);
   }
+
+
+  /*solo Temporal */
+  PruebaCambiarInventario(strParametros:string): Observable<any> {
+    return this.http.get<any>(this.serverUrl+'/PruebaCambiarInventario/'+strParametros);
+  }
 }

@@ -12,10 +12,10 @@ export class FiltrarBarcosEmpresaPipe implements PipeTransform {
     if(inText=="SIN ASIGNAR")
     return list;
     if(inText=="MANACRIPEX"){
-      return list.filter(x=>x.nombreBodega=="BP SOUTHERN QUEEN"|| x.nombreBodega.includes('MFA0072') || x.nombreBodega.includes('MDC0144')|| x.nombreBodega.includes('GMY0717')|| x.nombreBodega.includes('MPB1828')|| x.nombreBodega.includes('MBF2585')|| x.nombreBodega.includes('MBB8463')|| x.nombreBodega.includes('CN122')|| x.nombreBodega.includes('MONTACARGA') || x.nombreBodega.includes('MPD3559') || x.nombreBodega.includes('R-44')|| x.nombreBodega.includes('HANGAR'));
+      return list.filter(x=>x.nombreBodega=="BP SOUTHERN QUEEN"|| x.nombreBodega.includes('MFA0072') || x.nombreBodega.includes('MDC0144')|| x.nombreBodega.includes('GMY0717')|| x.nombreBodega.includes('MPB1828')|| x.nombreBodega.includes('MBF2585')|| x.nombreBodega.includes('MBB8463')|| x.nombreBodega.includes('CN122')|| x.nombreBodega.includes('MONTACARGA') || x.nombreBodega.includes('MPD3559') || x.nombreBodega.includes('R44')|| x.nombreBodega.includes('HANGAR'));
     }
     if(inText=="DANIEL BUEHS"){
-      return list.filter(x=>x.nombreBodega=="BP CAP BERNY B"|| x.nombreBodega=="BP MARINERO" || x.nombreBodega.includes('MBB8381') || x.nombreBodega.includes('GRJ0635')|| x.nombreBodega.includes('MBB4187')|| x.nombreBodega.includes('MBA7617')|| x.nombreBodega.includes('MBD9438')|| x.nombreBodega.includes('MPB1818')|| x.nombreBodega.includes('PJE0048')|| x.nombreBodega.includes('MBD3559')|| x.nombreBodega.includes('R-44')|| x.nombreBodega.includes('REMOLQUE AGUA')|| x.nombreBodega.includes('REMOLQUE COMBUSTIBLE')|| x.nombreBodega.includes('FINCA'));
+      return list.filter(x=>x.nombreBodega=="BP CAP BERNY B"|| x.nombreBodega=="BP MARINERO" || x.nombreBodega.includes('MBB8381') || x.nombreBodega.includes('GRJ0635')|| x.nombreBodega.includes('MBB4187')|| x.nombreBodega.includes('MBA7617')|| x.nombreBodega.includes('MBD9438')|| x.nombreBodega.includes('MPB1818')|| x.nombreBodega.includes('PJE0048')|| x.nombreBodega.includes('MBD3559')|| x.nombreBodega.includes('R44')|| x.nombreBodega.includes('REMOLQUE AGUA')|| x.nombreBodega.includes('REMOLQUE COMBUSTIBLE')|| x.nombreBodega.includes('FINCA'));
     }
     if(inText=="B&B TUNE"){
       return list.filter(x=>x.nombreBodega=="BP BERNARDITA B"||x.nombreBodega=="BP EL CONDE"|| x.nombreBodega=="BP CAP TINO B"|| x.nombreBodega=="BP CAP DANNY B"|| x.nombreBodega.includes('RT870') || x.nombreBodega.includes('RT760E')|| x.nombreBodega.includes('TN-00-00067'));

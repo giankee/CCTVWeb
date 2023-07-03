@@ -211,9 +211,13 @@ export class TraspasoInternoComponent implements OnInit {
               this.toastr.success('Registro satisfactorio', 'Traspaso Exitoso');
               this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
               if (this.ordenTrabajoService.formData.destinoLugar != "ENFERMERIA GENERAL") {
-                if (this.listBodegaOrigen.find(x => x.nombreBodega == this._ordenTrabajoService.formData.bodega).encargadoBodega != this.listBodegaDestino.find(x => x.nombreBodega == this.ordenTrabajoService.formData.destinoLugar).encargadoBodega) {
-                  this.sendMediaMessage(this.ordenTrabajoService.formData, this.listBodegaDestino.find(x => x.nombreBodega == this.ordenTrabajoService.formData.destinoLugar).telefonoEncargado)
-                } else this.onConvertPdfOne(this.ordenTrabajoService.formData);
+                var auxBodega= this.listBodegaDestino.find(x=>x.nombreBodega==this.ordenTrabajoService.formData.destinoLugar);
+                var auxNum=auxBodega.telefonoEncargado;
+                if(this.ordenTrabajoService.formData.destinoLugar.includes("BP")){
+                  var auxBodegaArea= auxBodega.listAreas.find(x=>x.nombreArea=="Máquina")
+                  auxNum=auxBodegaArea.telefonoEncargado;
+                }
+                this.sendMediaMessage(this.ordenTrabajoService.formData, auxNum)
               }
             } else {
               this.okBttnSubmit = false;

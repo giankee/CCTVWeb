@@ -142,17 +142,17 @@
                       </th>
                       <th
                         *ngIf="ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0)"
-                        style="width: 10%;">Total Indv</th>
+                        style="width: 5%;">Total Indv</th>
                       <th
                         *ngIf="!okCompraManual && (ordenECService.formData.estadoProceso=='Procesada' ||ordenECService.formData.estadoProceso=='Pendiente Verificación'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica!=0))"
-                        style="width: 20%;">Tipo Unidad</th>
+                        style="width: 25%;">Tipo Unidad</th>
                       <th
                         *ngIf="ordenECService.formData.estadoProceso=='Procesada'|| (ordenECService.formData.estadoProceso=='Temporal' && ordenECService.formData.idCompraAutomatica==0 )"
                         style="width: 15%;">Destino Bodega</th>
                       <th *ngIf="!okCompraManual && ordenECService.formData.planta=='ENFERMERIA'" style="width: 20%;">
                         Lote
                       </th>
-                      <th *ngIf="!okCompraManual && ordenECService.formData.planta=='ENFERMERIA'" style="width: 20%;">
+                      <th *ngIf="!okCompraManual && ordenECService.formData.planta=='ENFERMERIA'" style="width: 5%;">
                         Fecha de
                         Caducidad</th>
                       <th
