@@ -365,9 +365,7 @@ export class ListConsultaMedicComponent implements OnInit {
         for (var i = 0; i < this.dataOrdenesResult[index].listReceta.length; i++) {
           auxpalabra = this.dataOrdenesResult[index].listReceta[i].cantidad + " " + this.dataOrdenesResult[index].listReceta[i].inventario.nombre;
           lineaMedicamento = doc.splitTextToSize(auxpalabra, (100));
-          for (var il = 0; il < lineaMedicamento.length; il++) {
-            lineaMedicamentoG.push(lineaMedicamento[il])
-          }
+          lineaMedicamento.forEach(x=>lineaMedicamentoG.push(x));
 
           if (this.parametrosBusqueda.strBodegaOrigen != "SIN ASIGNAR" && this.parametrosBusqueda.strBodegaOrigen != "ENFERMERIA GENERAL") {
             var auxIndex = auxListMedicamentosConsumidos.findIndex(x => x.medicamentoId == this.dataOrdenesResult[index].listReceta[i].inventarioId && this.dataOrdenesResult[index].paciente != "MANACRIPEX");
@@ -375,14 +373,13 @@ export class ListConsultaMedicComponent implements OnInit {
             if (auxIndex != -1) {
               auxListMedicamentosConsumidos[auxIndex].cantidadOcupada = auxListMedicamentosConsumidos[auxIndex].cantidadOcupada + this.dataOrdenesResult[index].listReceta[i].cantidad;
             } else {
-              if (this.dataOrdenesResult[index].paciente != "MANACRIPEX") {
-                auxListMedicamentosConsumidos.push(newAuxMedicamento);
-              }
+              if (this.dataOrdenesResult[index].paciente != "MANACRIPEX")
+                auxListMedicamentosConsumidos.push(JSON.parse(JSON.stringify(newAuxMedicamento))); 
             }
             if (auxIndiceP != -1) {
               newAuxMedicamento.fechaConsumo = this.dataOrdenesResult[index].fechaRegistro;
               newAuxMedicamento.sintomasConsumo = this.dataOrdenesResult[index].sintomas;
-              auxListPacienteConsumos[auxIndiceP].listMedicamentos.push(newAuxMedicamento);
+              auxListPacienteConsumos[auxIndiceP].listMedicamentos.push(JSON.parse(JSON.stringify(newAuxMedicamento)));
             }
           }
         }
@@ -638,13 +635,13 @@ export class ListConsultaMedicComponent implements OnInit {
 
           doc2.setFontSize(11);
           doc2.setFont("arial", "bold");
-          doc2.text("*** Nota:", 30, (y + 11));
+          doc2.text("*** Nota:", 20, (y + 11));
           doc2.setFont("arial", "normal");
           doc2.setFontSize(10);
-          doc2.text("Estos medicamentos NO serán descontados en ningún momento y serán asumidos por la empresa.", 45, (y + 11));
+          doc2.text("Estos medicamentos NO serán descontados en ningún momento y serán asumidos por la empresa.", 37, (y + 11));
           doc2.setFontSize(11);
           doc2.setFont("arial", "bold");
-          doc2.text("***", 170, (y + 11));
+          doc2.text("***", 178, (y + 11));
         }
         doc2.save("personalConsulta" + this.fechaHoy.strFecha + ".pdf");
       }

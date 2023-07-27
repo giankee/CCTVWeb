@@ -99,8 +99,8 @@ export class EditOrdenComponent implements OnInit {
                   x.inventario.preBodega = separador[1];
                   x.observacion = separador[0];
                 }
-                if(this._ordenESService.formData.tipoOrden=="Entrada" && (x.cantidad>x.inventario.listBodegaProducto.find(x1=>x1.nombreBodega==x.inventario.SelectBodega).disponibilidad))
-                  x.showSearchSelect=1;
+                if (this._ordenESService.formData.tipoOrden == "Entrada" && (x.cantidad > x.inventario.listBodegaProducto.find(x1 => x1.nombreBodega == x.inventario.SelectBodega).disponibilidad))
+                  x.showSearchSelect = 1;
               },
                 error => console.error(error));
             }
@@ -126,7 +126,7 @@ export class EditOrdenComponent implements OnInit {
   onListPersonal(value: string) {
     this.spinLoadingG = 1;
     this.showSearchSelectG = 1;
-    this.ordenESService.formData.persona=new cPersonal();
+    this.ordenESService.formData.persona = new cPersonal();
     this.ordenESService.formData.personaId = null;
     this.ordenESService.formData.choferId = null;
     var params = "" + value;
@@ -286,14 +286,14 @@ export class EditOrdenComponent implements OnInit {
           });
         }
       }
-        this._ordenESService.actualizarOrdenES(this._ordenESService.formData).subscribe(
-          (res: any) => {
-            if (res.message == "Ok") {
-              this.toastr.success('Actualización satisfactoria', 'Orden Modificada');
-              this.dialogRef.close(this._ordenESService.formData);
-            }
+      this._ordenESService.actualizarOrdenES(this._ordenESService.formData).subscribe(
+        (res: any) => {
+          if (res.message == "Ok") {
+            this.toastr.success('Actualización satisfactoria', 'Orden Modificada');
+            this.dialogRef.close(this._ordenESService.formData);
           }
-        )
+        }
+      )
     }
   }
 }

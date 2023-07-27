@@ -208,14 +208,10 @@ export class CompraProveedorComponent implements OnInit {
               if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "UNIDAD") {
                 this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto = 1;
                 this._ordenECService.formData.listPcomprasO[i].producto.precioNeto = 0;
-              }
-              if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "CONTENIDO NETO") {
+              } else {
                 if (this.ordenECService.formData.listPcomprasO[i].producto.precioNeto == 0)
                   this.onSepararContenidoNeto(i);
               }
-              if (this._ordenECService.formData.listPcomprasO[i].producto.tipoUnidad == "EQUIVALENCIA")
-                this._ordenECService.formData.listPcomprasO[i].producto.precioNeto = 0;
-
               for (var j = i; j < this.ordenECService.formData.listPcomprasO.length - 1; j++) {
                 if (this.ordenECService.formData.listPcomprasO[i].producto.codigo == this.ordenECService.formData.listPcomprasO[j + 1].producto.codigo && this.ordenECService.formData.listPcomprasO[i].descripcionProducto == this.ordenECService.formData.listPcomprasO[j + 1].descripcionProducto) {
                   this.ordenECService.formData.listPcomprasO[i].cantidad = this.ordenECService.formData.listPcomprasO[i].cantidad + this.ordenECService.formData.listPcomprasO[j + 1].cantidad;
@@ -433,7 +429,7 @@ export class CompraProveedorComponent implements OnInit {
                   datoCompra.listCompraO[i].codigoprincipal = "COD_" + datoCompra.listCompraO[i].descripcion.toUpperCase();
                 } else datoCompra.listCompraO[i].codigoprincipal = datoCompra.listCompraO[i].codigoauxiliar;
               }
-              if ((indexP = dato.data.findIndex(x => x.codigo == datoCompra.listCompraO[i].codigoprincipal && x.descripcion==datoCompra.listCompraO[i].descripcion)) != -1) {
+              if ((indexP = dato.data.findIndex(x => x.codigo == datoCompra.listCompraO[i].codigoprincipal && x.nombre == datoCompra.listCompraO[i].descripcion)) != -1) {
                 auxArticuloCompra.productoId = dato.data[indexP].idProductoStock;
                 auxArticuloCompra.rellenarProducto(dato.data[indexP]);
                 auxArticuloCompra.producto.precioUltima = auxArticuloCompra.producto.precioStandar;
@@ -608,8 +604,12 @@ export class CompraProveedorComponent implements OnInit {
     }
   }
 
-  onSepararContenidoNeto(index) {
-    this.ordenECService.formData.listPcomprasO[index].producto.precioNeto = Number(((this._ordenECService.formData.listPcomprasO[index].precio - this.ordenECService.formData.listPcomprasO[index].descuento) / this.ordenECService.formData.listPcomprasO[index].producto.contenidoNeto).toFixed(2));
+  onSepararContenidoNeto(index: number) {
+    if (this._ordenECService.formData.listPcomprasO[index].producto.tipoUnidad == "CONTENIDO NETO") {
+      this.ordenECService.formData.listPcomprasO[index].producto.precioNeto = Number(((this._ordenECService.formData.listPcomprasO[index].precio - this.ordenECService.formData.listPcomprasO[index].descuento) / this.ordenECService.formData.listPcomprasO[index].producto.contenidoNeto).toFixed(2));
+    }
+    if (this._ordenECService.formData.listPcomprasO[index].producto.tipoUnidad == "EQUIVALENCIA")
+    this.ordenECService.formData.listPcomprasO[index].producto.precioNeto = Number(((this._ordenECService.formData.listPcomprasO[index].precio - this.ordenECService.formData.listPcomprasO[index].descuento) * this.ordenECService.formData.listPcomprasO[index].producto.contenidoNeto).toFixed(2));
   }
 
   onTransformarUnidad(index) {

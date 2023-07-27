@@ -240,7 +240,7 @@ export class ConsultaMedicComponent implements OnInit {
       })
     }
   }
-
+  
   convertPdf(orden: cConsultaMedic) {
     var y: number;
     var doc = new jsPDF();

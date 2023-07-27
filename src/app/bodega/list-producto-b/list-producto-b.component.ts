@@ -100,17 +100,16 @@ export class ListProductoBComponent implements OnInit {
       this.selecBodegaFiltro = this.filtrarBodegas();
       strParametro = "ENFERMERIA@" + this.selecBodegaFiltro;
     }
-    if ((this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero'&& this.conexcionService.UserR.nombreU!="FERNANDA MORALES") || this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
+    if ((this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && this.conexcionService.UserR.nombreU != "FERNANDA MORALES" && this.conexcionService.UserR.nombreU != "SERGIO JARA") || this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
       strParametro = "P MANACRIPEX@" + this.filtrarBodegas();
     }
-    if(this._conexcionService.UserR.rolAsignado == "verificador-bodeguero-b"){
+    if (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero-b") {
       strParametro = "BARCOS@" + this.filtrarBodegas();
     }
 
-    if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && this.conexcionService.UserR.nombreU=="FERNANDA MORALES") {
+    if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
       strParametro = "P MANACRIPEX-BARCOS@" + this.filtrarBodegas();
     }
-
     this._productoBService.getProductosPlanta(strParametro)
       .subscribe(dato => {
         for (var i = 0; i < dato.length; i++) {
@@ -131,8 +130,8 @@ export class ListProductoBComponent implements OnInit {
 
   filtrarBodegas(): string {
     var strNombreBodegas: string = "";
-    if(this.conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'){
-      this.listBodega = this.listBodega.filter(x => (x.listAreas.find(y=>y.encargadoArea== this.conexcionService.UserR.nombreU))!=undefined);
+    if (this.conexcionService.UserR.rolAsignado == 'verificador-bodeguero-b') {
+      this.listBodega = this.listBodega.filter(x => (x.listAreas.find(y => y.encargadoArea == this.conexcionService.UserR.nombreU)) != undefined);
     } else this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU || (this.conexcionService.UserR.nombreU == "FERNANDA MORALES" && x.tipoBodega == "PUERTO"));
     this.listBodega.forEach(x => {
       if (strNombreBodegas == "") {
@@ -160,7 +159,7 @@ export class ListProductoBComponent implements OnInit {
           this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
             this.listBodega = dato;
             this.cargarData();
-            
+
           });
         } else {
           this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
@@ -197,8 +196,16 @@ export class ListProductoBComponent implements OnInit {
         this.onNewBodega();
       }
     }
+    if (this._conexcionService.UserR.rolAsignado == 'gpv-o' || (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.conexcionService.UserR.nombreU == "SERGIO JARA")) {
+      this._productoBService.formData = new cProducto_B("OFICINAS");
+      if (this.conexcionService.UserR.nombreU == "SERGIO JARA") {
+        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
+        this.onNewBodega();
+      }
+    }
+
     if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero-b')
-    this._productoBService.formData = new cProducto_B("BARCOS");
+      this._productoBService.formData = new cProducto_B("BARCOS");
     this.productoBService.formData.contenidoNeto = 1;
     this.nuevoCategoria = "";
     this.nuevoProveedor = "";
@@ -363,9 +370,9 @@ export class ListProductoBComponent implements OnInit {
       dialoConfig.height = "90%";
       dialoConfig.width = "100%";
 
-      var auxListBodegas: { nombreBodega:string, cantidadInicial:number}[]=[];
-      this.listBodega.forEach(x=>{
-        auxListBodegas.push({'nombreBodega':x.nombreBodega,"cantidadInicial":dataIn.listBodegaProducto.find(y=>y.nombreBodega==x.nombreBodega)!=undefined ? dataIn.listBodegaProducto.find(y=>y.nombreBodega==x.nombreBodega).cantInicial:0});
+      var auxListBodegas: { nombreBodega: string, cantidadInicial: number }[] = [];
+      this.listBodega.forEach(x => {
+        auxListBodegas.push({ 'nombreBodega': x.nombreBodega, "cantidadInicial": dataIn.listBodegaProducto.find(y => y.nombreBodega == x.nombreBodega) != undefined ? dataIn.listBodegaProducto.find(y => y.nombreBodega == x.nombreBodega).cantInicial : 0 });
       });
       const selectBodega = this.selecBodegaFiltro;
       const listBodegasIn = auxListBodegas;
@@ -650,16 +657,16 @@ export class ListProductoBComponent implements OnInit {
         if (dataIn[i].Codigo.toString().match(validadorExpresion) && dataIn[i].Descripcion.toString().match(validadorExpresion)) {
           index = -1;
           if ((index = this.listProdFiltradosExcel.findIndex(x => x.codigo == dataIn[i].Codigo.toString().toUpperCase() && x.descripcion == dataIn[i].Descripcion.toString().toUpperCase() && x.proveedor == dataIn[i].Proveedor.toUpperCase())) == -1) {
-            auxProducto = new cProducto_B("P MANACRIPEX", dataIn[i].Proveedor.toUpperCase());
-            if(dataIn[i].Bodega.includes('BP'))
-            auxProducto.planta="BARCOS";
+            auxProducto = new cProducto_B(this.productoBService.formData.planta, dataIn[i].Proveedor.toUpperCase());
+            if (dataIn[i].Bodega.includes('BP'))
+              auxProducto.planta = "BARCOS";
             auxProducto.codigo = dataIn[i].Codigo.toString().toUpperCase();
             auxProducto.nombre = dataIn[i].Descripcion.toString().toUpperCase();
             auxProducto.precioStandar = dataIn[i].Precio_U;
             if (dataIn[i].Unidad != null)
               auxProducto.tipoUnidad = dataIn[i].Unidad.toString();
             auxProducto.agregarOneBodega(null, dataIn[i].Bodega.toUpperCase());
-            auxProducto.listBodegaProducto[0].planta=auxProducto.planta;
+            auxProducto.listBodegaProducto[0].planta = auxProducto.planta;
             auxProducto.listBodegaProducto[0].cantInicial = dataIn[i].Stock;
             auxProducto.listBodegaProducto[0].disponibilidad = dataIn[i].Stock;
             if (dataIn[i].NumCasillero != undefined)

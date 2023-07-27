@@ -205,6 +205,8 @@ export class cProducto_B {
     proveedor: string = "SIN ASIGNAR";
     precioStandar: number = 0.00;
     precioUltima: number = 0.00;
+    precioNacional:number=0.00;
+    precioVenta:number=0.00;
     tipoUnidad: string = "UNIDAD";
     contenidoNeto: number = 1;
     precioNeto: number = 0;
@@ -238,6 +240,8 @@ export class cProducto_B {
         this.marca = "SIN ASIGNAR";
         this.precioStandar = 0.00;
         this.precioUltima = 0.00;
+        this.precioNacional=0.00;
+        this.precioVenta=0.00;
         this.tipoUnidad = "UNIDAD";
         this.contenidoNeto = 1;
         this.precioNeto = 0;
@@ -260,6 +264,8 @@ export class cProducto_B {
         this.marca = objIn.marca;
         this.precioStandar = objIn.precioStandar;
         this.precioUltima = objIn.precioUltima;
+        this.precioNacional=objIn.precioNacional;
+        this.precioVenta=objIn.precioVenta;
         this.rutaArchivo = objIn.rutaArchivo;
         this.tipoUnidad = objIn.tipoUnidad;
         this.contenidoNeto = objIn.contenidoNeto;
@@ -291,6 +297,8 @@ export class cProducto_B {
         this.categoria = "SIN ASIGNAR";
         this.marca = "SIN ASIGNAR";
         this.precioUltima = 0;
+        this.precioNacional=0;
+        this.precioVenta=0;
         this.tipoUnidad = "UNIDAD";
         this.estado = 1;
         this.rutaArchivo = "/assets/img/imgDefecto.png";
@@ -318,7 +326,6 @@ export class cProducto_B {
         }
         this.listComponentesProducto.push(auxComponente);
     }
-
 }
 
 export class cBodegaProducto {
