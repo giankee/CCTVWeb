@@ -142,6 +142,12 @@
                         </a>
                       </div>
                     </th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='enfermeria'|| conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& conexcionService.UserR.nombreU=='FERNANDA MORALES')">
+                      Marea
+                    </th>
+                    <th *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& conexcionService.UserR.nombreU=='FERNANDA MORALES')">
+                      Horas Servicio
+                    </th>
                     <th *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
                       <div class="d-inline-block" style="margin-right: 0.5rem;"> Marea</div>
                       <div id="ordenarS" class="d-inline-block">
@@ -178,7 +184,8 @@
                     <td>{{dato.fechaRegistro}}</td>
                     <td *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& conexcionService.UserR.nombreU=='FERNANDA MORALES')">{{dato.tipoOrden}} </td>
                     <td>{{dato.bodega}}</td>
-                    <td *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">{{dato.marea!=null?dato.marea: '---'}}</td>
+                    <td class="text-center" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='enfermeria'|| conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& conexcionService.UserR.nombreU=='FERNANDA MORALES')">{{dato.marea!=null?dato.marea: '---'}}</td>
+                    <td class="text-center" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'|| conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'||(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& conexcionService.UserR.nombreU=='FERNANDA MORALES')">{{dato.horasServicio!=0?dato.horasServicio: '---'}}</td>
                     <td>{{dato.destinoLugar}}</td>
                     <td>{{dato.personaResponsable}}</td>
                     <td>

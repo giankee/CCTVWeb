@@ -183,8 +183,11 @@ export class CompraProveedorComponent implements OnInit {
     } else {
       if (this._ordenECService.formData.planta == "ENFERMERIA") {
         if (this.selectBarcoCompra != "SIN ASIGNAR") {
+          if(this.selectBarcoCompra=='ENFERMERIA GENERAL')
+          this.ordenECService.formData.estadoProceso="Procesada";
           this.ordenECService.formData.listPcomprasO.forEach(x => {
             x.destinoBodega = this.selectBarcoCompra;
+            if(this.selectBarcoCompra!="ENFERMERIA GENERAL")
             x.estadoCompra = "Pendiente";
           });
         } else this.okBttnSubmit = 3;
@@ -630,7 +633,7 @@ export class CompraProveedorComponent implements OnInit {
     else doc.text("Material Traspaso", 115, 15);
 
     doc.setFontSize(13);
-    if (this._ordenECService.formData.planta == "ENFERMERIA")
+    if (this._ordenECService.formData.planta == "ENFERMERIA" && this.selectBarcoCompra!="ENFERMERIA GENERAL")
       doc.text("Barco: " + this.selectBarcoCompra, 200, 25);
     else doc.text("Bodega: " + bodegaIn, 20, 25);
     y = 30;

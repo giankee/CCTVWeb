@@ -183,7 +183,6 @@ export class NewOrdenTrabajoComponent implements OnInit {
               this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
             };
           });
-          
       } else this.okBttnSubmit = true;
     }
   }

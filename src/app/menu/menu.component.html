@@ -230,7 +230,7 @@
           <fa-icon [icon]="faclipboardCheck"></fa-icon> Verificación
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='verificador-medic'"> <a
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'|| conexcionService.UserR.rolAsignado=='verificador-medic'"> <a
           [routerLink]='["/Bodega/verificacion"]'>
           <fa-icon [icon]="faclipboardCheck"></fa-icon> Recepción de Medicamento
         </a>

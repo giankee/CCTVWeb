@@ -70,6 +70,7 @@
               <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
                 [(ngModel)]="selectBarcoCompra">
                 <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
+                <option value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
                 <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombreBodega}}">
                   {{datobodega.nombreBodega}}</option>
               </select>

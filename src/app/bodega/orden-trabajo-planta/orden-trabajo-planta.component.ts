@@ -144,7 +144,7 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
                 this.listBodegasFiltro = x.nombreBodega;
               else this.listBodegasFiltro = this.listBodegasFiltro + "-" + x.nombreBodega;
             });
-            if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.listBodega.length == 1) {
+            if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.listBodega.length >= 1) {
               this.parametrosBusqueda.strBodegaOrigen = this.listBodega[0].nombreBodega;
               if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
                 this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {

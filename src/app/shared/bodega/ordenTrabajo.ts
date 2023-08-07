@@ -10,6 +10,7 @@ export class cOrdenTrabajoI {
     observacion: string = "";
     bodega: string = "GENERAL";
     marea:string=null;
+    horasServicio:number=0;
     destinoLugar: string = ""//a otra bodega o a areasBodega
     personaResponsable: string = "";
     bodeguero: string = "";
@@ -34,6 +35,8 @@ export class cOrdenTrabajoI {
         this.fechaRegistro = fechaHoy.strFecha;
         this.tipoOrden = "";
         this.observacion = "";
+        this.marea=null;
+        this.horasServicio=0;
         this.bodega = "GENERAL";
         this.bodeguero = "";
         this.destinoLugar = ""
@@ -51,6 +54,7 @@ export class cOrdenTrabajoI {
         this.observacion = dataIn.observacion;
         this.bodega = dataIn.bodega;
         this.marea=dataIn.marea;
+        this.horasServicio=dataIn.horasServicio;
         this.destinoLugar = dataIn.destinoLugar;
         this.guardiaCargoUser = dataIn.guardiaCargoUser;
         this.personaResponsable = dataIn.personaResponsable;

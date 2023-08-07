@@ -125,6 +125,8 @@ export class ComprasVerificacionComponent implements OnInit {
 
   restartListPendientes(valorPage?: number) {
     this.listOrdenesMostrar = [];
+    if(this._conexcionService.UserR.rolAsignado=="enfermeria")
+      this.listBarcos.nombreBodega="ENFERMERIA GENERAL";
       this.ordenECService.getVerificarMedicamento("ENFERMERIA@DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A@" + this.listBarcos.nombreBodega).subscribe(dato => {
         dato.forEach(x => {
           x.fechaRegistroBodega = x.fechaRegistroBodega.substring(0, 10);

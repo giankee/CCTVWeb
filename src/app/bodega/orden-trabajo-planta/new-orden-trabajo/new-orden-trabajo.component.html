@@ -52,6 +52,23 @@
                 </div>
               </div>
             </div>
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'">
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Horas Servicio: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <input name="horasServicio" #horasServicio="ngModel" type="number"
+                        [(ngModel)]="ordenTrabajoService.formData.horasServicio" required
+                        onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                        class="form-control" placeholder="Solo Número">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& ((conexcionService.UserR.nombreU == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega=='MECANICA NAVAL' )|| conexcionService.UserR.nombreU != 'FERNANDA MORALES' ))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">

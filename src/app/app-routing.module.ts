@@ -83,7 +83,7 @@ const routes: Routes = [
           { path: 'controlBodega', data: { permittedRoles: ['tinabg-m','bodega_verificador-m','enfermeria'] }, component: ControlESComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'trabajosInter', data: { permittedRoles: ['tinabg-m','bodega_verificador-m','verificador-bodeguero','verificador-bodeguero-b','enfermeria','gpv-o'] }, component: OrdenTrabajoPlantaComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'reportes', data: { permittedRoles: ['gpv-o','tinabg-m','bodega_verificador-m'] }, component: MainReporteComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'verificacion', data: { permittedRoles: ['verificador-medic'] }, component: ComprasVerificacionComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'verificacion', data: { permittedRoles: ['verificador-medic','enfermeria'] }, component: ComprasVerificacionComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'consulta', data: { permittedRoles: ['enfermeria','verificador-medic'] }, component: ConsultaMedicComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'consumoList', data: { permittedRoles: ['enfermeria','verificador-medic','gpv-o'] }, component: ListConsultaMedicComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'crearMedicamento', data: { permittedRoles: ['enfermeria'] }, component: CrearMedicamentoComponent, canDeactivate: [CanDeactivateGuard] },

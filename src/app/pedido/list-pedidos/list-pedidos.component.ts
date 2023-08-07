@@ -9,12 +9,13 @@ import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
 import { cFecha, cParemetosGeneral, cVario, cEnterpriceProveedor } from 'src/app/shared/otrosServices/varios';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
 import { OrdenPedidoService } from 'src/app/shared/pedido/orden-pedido.service';
-import { cOrdenPedido } from 'src/app/shared/pedido/pedido';
+import { cFacturasPedido, cOrdenPedido } from 'src/app/shared/pedido/pedido';
 import { ViewPedidoModalComponent } from '../view-pedido-modal/view-pedido-modal.component';
 import { jsPDF } from "jspdf";
 import { cBodega } from 'src/app/shared/bodega/ordenEC';
 import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
 import { ToastrService } from 'ngx-toastr';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-list-pedidos',
@@ -408,11 +409,11 @@ export class ListPedidosComponent implements OnInit {
         doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 2) / 2)));
         doc.line(140, (y - valorG), 140, y);//right
         auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
-        if(orden.listArticulosPedido[i].aviso){
-          doc.setTextColor(255,0,0);
+        if (orden.listArticulosPedido[i].aviso) {
+          doc.setTextColor(255, 0, 0);
           doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
-          doc.setTextColor(0,0,0);
-        }else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+          doc.setTextColor(0, 0, 0);
+        } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
         doc.line(199, (y - valorG), 199, y);//right
         doc.line(9, y, 199, y);//down
       }
@@ -442,19 +443,65 @@ export class ListPedidosComponent implements OnInit {
 
   onRevision(orden: cOrdenPedido) {
     if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Anulada") {
+      var srtFacturas: string;
       var fechaHoy: cFecha = new cFecha();
       var auxOrden: cOrdenPedido = new cOrdenPedido(orden.cargoUser, orden.planta);
       auxOrden.completarObject(orden);
       auxOrden.fechaArchivada = fechaHoy.strFecha + "T" + fechaHoy.strHoraA;
-      if (auxOrden.archivada)
-        auxOrden.responsableArchivada = this.conexcionService.UserR.nombreU;
-      else auxOrden.responsableArchivada = null;
-      this.ordenPedidoService.actualizarPedido(auxOrden).subscribe(
-        (res: any) => {
-          if (res.message == "Ok")
-            this.toastr.success('Revisión Actualizada', 'Actualizada');
-        }
-      )
+      auxOrden.responsableArchivada = this.conexcionService.UserR.nombreU;
+      if (auxOrden.archivada) {
+        Swal.fire({
+          icon: "warning",
+          title: "Estás seguro que quieres archivar esté pedido?",
+          text: "Ingrese las facturas separadas por un guión medio -",
+          input: 'text',
+          showCancelButton: true,
+          cancelButtonColor: '#E53935',
+          confirmButtonText: "Continuar!",
+          cancelButtonText: "Cancelar!",
+          customClass: {
+            confirmButton: 'btn btn-Primario mr-2',
+            cancelButton: 'btn btn-Secundario ml-2',
+          },
+          inputValidator: (value) => {
+            if (!value) {
+              return 'Ingrese mínimo una factura';
+            } else {
+              srtFacturas = value.toUpperCase();
+              if (!this.contieneNumeros(srtFacturas))
+                return "no cumple con el formato deseado.";
+            }
+          }
+        }).then((result) => {
+          if (result.value) {
+            if (result.value.includes("-")) {
+              var auxFacturas = result.value.split("-");
+              auxFacturas.forEach(x => {
+                auxOrden.agregarOneFactura(new cFacturasPedido(auxOrden.idOrdenPedido, Number(x)));
+              });
+            } else auxOrden.agregarOneFactura(new cFacturasPedido(auxOrden.idOrdenPedido, Number(result.value)));
+            this.edicionArchivada(auxOrden);
+          } else orden.archivada = false;
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Estás seguro que quieres borrar las facturas adjuntas?",
+          showCancelButton: true,
+          cancelButtonColor: '#E53935',
+          confirmButtonText: "Continuar!",
+          cancelButtonText: "Cancelar!",
+          customClass: {
+            confirmButton: 'btn btn-Primario mr-2',
+            cancelButton: 'btn btn-Secundario ml-2',
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            auxOrden.listFacturasPedido = [];
+            this.edicionArchivada(auxOrden);
+          } else orden.archivada = true;
+        });
+      }
     }
   }
 
@@ -635,9 +682,22 @@ export class ListPedidosComponent implements OnInit {
     const dialogRef = this.dialog.open(ViewPedidoModalComponent, dialoConfig);
 
     dialogRef.afterClosed().subscribe(
-        () => {
-          this.cargarData()
-        }
-    );   
+      () => {
+        this.cargarData()
+      }
+    );
+  }
+
+  contieneNumeros(cadena: string) {
+    return /^\d+-?\d+$/.test(cadena);
+  }
+
+  edicionArchivada(orden: cOrdenPedido) {
+    this.ordenPedidoService.actualizarPedido(orden).subscribe(
+      (res: any) => {
+        if (res.message == "Ok")
+          this.toastr.success('Revisión Actualizada', 'Actualizada');
+      }
+    )
   }
 }

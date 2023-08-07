@@ -15,22 +15,23 @@ export class cOrdenPedido {
     verificacionUser: string;
     fechaAprobacion: string;
     responsableAprobacion: string;
-    archivada:boolean;
+    archivada: boolean;
     fechaArchivada: string;
     responsableArchivada: string;
-    responsableAnulada:string;
+    responsableAnulada: string;
     estadoProceso: string;
 
     listArticulosPedido: cArticulosPedido[] = [];
 
+    listFacturasPedido: cFacturasPedido[] = [];
     /**Control */
     spinnerLoadingP: boolean;
     showSearchSelect: boolean;
     strNumSecuencial: string;
     strRuc: string;
-    strLugarA:string;
-    boolProveedor:boolean;
-    
+    strLugarA: string;
+    boolProveedor: boolean;
+
     constructor(cargoUserIn: string, plantaIn: string, proveedorIn?: string, areaIn?: string) {
         let fechaHoy: cFecha = new cFecha();
         this.idOrdenPedido = undefined;
@@ -51,16 +52,16 @@ export class cOrdenPedido {
         this.fechaAprobacion = fechaHoy.strFecha;
         this.cargoUser = cargoUserIn;
 
-        this.archivada=false;
+        this.archivada = false;
         this.responsableArchivada = null;
-        this.responsableAnulada=null;
+        this.responsableAnulada = null;
         this.fechaArchivada = fechaHoy.strFecha;;
         this.estadoProceso = "Pendiente Aprobación";
 
         this.spinnerLoadingP = false;
         this.showSearchSelect = false;
-        this.strLugarA="";
-        this.boolProveedor=false;
+        this.strLugarA = "";
+        this.boolProveedor = false;
     }
 
     completarObject(dataIn: cOrdenPedido) {
@@ -77,22 +78,30 @@ export class cOrdenPedido {
         this.verificacionUser = dataIn.verificacionUser;
         this.fechaAprobacion = dataIn.fechaAprobacion;
         this.responsableAprobacion = dataIn.responsableAprobacion;
-        this.archivada=dataIn.archivada;
+        this.archivada = dataIn.archivada;
         this.fechaArchivada = dataIn.fechaArchivada;
         this.responsableArchivada = dataIn.responsableArchivada;
-        this.responsableAnulada=dataIn.responsableAnulada;
+        this.responsableAnulada = dataIn.responsableAnulada;
         this.estadoProceso = dataIn.estadoProceso;
 
         let auxSecuencial = this.numSecuencial.split("-");
         this.strNumSecuencial = auxSecuencial[1];
-        this.boolProveedor=dataIn.boolProveedor;
-        
+        this.boolProveedor = dataIn.boolProveedor;
+
         if (dataIn.listArticulosPedido != null) {
             this.listArticulosPedido = [];
             dataIn.listArticulosPedido.forEach(dataMaterial => {
                 var auxMaterial: cArticulosPedido = new cArticulosPedido();
                 auxMaterial.completarObject(dataMaterial);
                 this.listArticulosPedido.push(auxMaterial);
+            });
+        }
+        if (dataIn.listFacturasPedido != null) {
+            this.listFacturasPedido = [];
+            dataIn.listFacturasPedido.forEach(dataFactura => {
+                var auxFactura: cFacturasPedido = new cFacturasPedido();
+                auxFactura.completarObject(dataFactura);
+                this.listFacturasPedido.push(auxFactura);
             });
         }
         this.sacarRuc();
@@ -103,6 +112,12 @@ export class cOrdenPedido {
         if (dataIn != null)
             auxArticulo.completarObject(dataIn);
         this.listArticulosPedido.push(auxArticulo);
+    }
+    agregarOneFactura(dataIn?: cFacturasPedido) {
+        var auxFactura = new cFacturasPedido();
+        if (dataIn != null)
+            auxFactura.completarObject(dataIn);
+        this.listFacturasPedido.push(auxFactura);
     }
 
     sacarRuc() {
@@ -120,9 +135,9 @@ export class cArticulosPedido {
     ordenPedidoId: number;
     inventarioId: number;
     cantidad: number;
-    cantidadPendiente:number;
+    cantidadPendiente: number;
     observacion: string;
-    aviso:boolean;
+    aviso: boolean;
     destinoArea: string;
     estadoArticuloPedido: string;
 
@@ -139,10 +154,10 @@ export class cArticulosPedido {
         this.ordenPedidoId = undefined;
         this.inventarioId = undefined;
         this.cantidad = 0;
-        this.cantidadPendiente=0;
+        this.cantidadPendiente = 0;
         this.observacion = "";
         this.destinoArea = "SIN ASIGNAR";
-        this.aviso=false;
+        this.aviso = false;
         this.estadoArticuloPedido = "Pendiente";
 
         this.inventario = new cProducto_B();
@@ -157,13 +172,41 @@ export class cArticulosPedido {
         this.ordenPedidoId = dataIn.ordenPedidoId;
         this.inventarioId = dataIn.inventarioId;
         this.cantidad = dataIn.cantidad;
-        this.cantidadPendiente=dataIn.cantidadPendiente;
+        this.cantidadPendiente = dataIn.cantidadPendiente;
         this.observacion = dataIn.observacion;
-        this.aviso=dataIn.aviso;
+        this.aviso = dataIn.aviso;
         this.destinoArea = dataIn.destinoArea;
         this.estadoArticuloPedido = dataIn.estadoArticuloPedido;
 
         if (dataIn.inventario != null)
             this.inventario.rellenarObjeto(dataIn.inventario);
+    }
+}
+
+export class cFacturasPedido {
+    idAdjFacturaPedido: number;
+    ordenPedidoId: number;
+    factura: number;
+    estado: number;
+
+    ordenPedido: cOrdenPedido;
+
+    constructor(ordenIdIn?: number, facturaIn?: number) {
+        this.idAdjFacturaPedido = undefined;
+        if (ordenIdIn != null)
+            this.ordenPedidoId = ordenIdIn;
+        else this.ordenPedidoId = undefined;
+        if (facturaIn != null)
+            this.factura = facturaIn;
+        else
+            this.factura = undefined;
+        this.estado = 1;
+    }
+
+    completarObject(dataIn: cFacturasPedido) {
+        this.idAdjFacturaPedido = dataIn.idAdjFacturaPedido;
+        this.ordenPedidoId = dataIn.ordenPedidoId;
+        this.factura = dataIn.factura;
+        this.estado = dataIn.estado;
     }
 }

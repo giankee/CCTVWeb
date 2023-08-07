@@ -43,6 +43,12 @@ export class ListProductoBComponent implements OnInit {
   public set showSelect1(value: number) {
     this._showSelect1 = value;
   }
+  public get showSelect2(): string {
+    return this._showSelect2;
+  }
+  public set showSelect2(value: string) {
+    this._showSelect2 = value;
+  }
 
   internetStatus: string = 'nline';
   filtroProducto = '';
@@ -62,6 +68,8 @@ export class ListProductoBComponent implements OnInit {
   modoEdicion: boolean = false;
   fechaHoy = new cFecha();
   private _showSelect1: number = 1;
+  private _showSelect2: string = "Precio Standar";
+
   selectBodegaAux: string = "SIN ASIGNAR";
   selecBodegaFiltro: string = "SIN ASIGNAR";
   dataProductosResult: cProducto_B[] = [];
@@ -273,6 +281,24 @@ export class ListProductoBComponent implements OnInit {
           else this.ordenBy = "m-up";
         };
         break;
+      case 3:
+        if (this.showSelect2 == "Precio Standar") {
+          if (this.ordenBy == "pstandar-up")
+            this.ordenBy = "pstandar-down";
+          else this.ordenBy = "pstandar-up";
+        }
+        if (this.showSelect2 == "Precio Nacional") {
+          if (this.ordenBy == "pnacional-up")
+            this.ordenBy = "pnacional-down";
+          else this.ordenBy = "pnacional-up";
+
+        };
+        if (this.showSelect2 == "Precio Venta") {
+          if (this.ordenBy == "pventa-up")
+            this.ordenBy = "pventa-down";
+          else this.ordenBy = "pventa-up";
+        };
+        break;
       default: this.ordenBy = "default";
     }
   }
@@ -456,17 +482,15 @@ export class ListProductoBComponent implements OnInit {
     doc.line(290, y, 290, (y + 10));//right
     doc.line(5, (y + 10), 290, (y + 10));//down
 
-    doc.text("Código", 10, (y + 7));
-    doc.line(25, y, 25, (y + 10));//right
+    doc.text("Código", 15, (y + 7));
+    doc.line(35, y, 35, (y + 10));//right
     doc.text("Descripción", 50, (y + 7));
-    doc.line(80, y, 80, (y + 10));//right
-    doc.text("Proveedor", 105, (y + 7));
-    doc.line(140, y, 140, (y + 10));//right
-    doc.text("Marca", 152, (y + 7));
-    doc.line(170, y, 170, (y + 10));//right
-    doc.text("Categoría", 178, (y + 7));
-    doc.line(200, y, 200, (y + 10));//right
-    doc.text("Ubicación", 208, (y + 7));
+    doc.line(95, y, 95, (y + 10));//right
+    doc.text("Proveedor", 120, (y + 7));
+    doc.line(160, y, 160, (y + 10));//right
+    doc.text(this.showSelect2, 164, (y + 7));
+    doc.line(190, y, 190, (y + 10));//right
+    doc.text("Ubicación", 205, (y + 7));
     doc.line(237, y, 237, (y + 10));//right
     doc.text("Existencia", 238, (y + 7));
     doc.line(255, y, 255, (y + 10));//right
@@ -474,8 +498,8 @@ export class ListProductoBComponent implements OnInit {
     if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
       doc.text("Mínimo", 256, (y + 7));
       doc.line(270, y, 270, (y + 10));//right
-      doc.text("Real", 275, (y + 7));
-    } else doc.text("Real", 274, (y + 7));
+      doc.text("Real", 274, (y + 7));
+    } else doc.text("Real", 265, (y + 7));
 
     y = y + 10;
     doc.setFontSize(8);
@@ -485,6 +509,7 @@ export class ListProductoBComponent implements OnInit {
     var valorP: number = 0;
     var valorB: number = 0;
     var valorG: number = 0;
+    var valorPrecio:number=0;
     var auxLinea: number;
     var lineaNombre;
     var lineaBodegaG;
@@ -493,26 +518,34 @@ export class ListProductoBComponent implements OnInit {
     var lineaStockM;
     var saltar: boolean;
     for (var i = 0; i < data.length; i++) {
-      lineaNombre = doc.splitTextToSize(data[i].nombre, (50));
-      lineaProveedor = doc.splitTextToSize(data[i].proveedor, (55));
+      lineaNombre = doc.splitTextToSize(data[i].nombre, (55));
+      lineaProveedor = doc.splitTextToSize(data[i].proveedor, (60));
+      switch(this._showSelect2){
+        case 'Precio Standar':
+          valorPrecio=data[i].precioStandar;
+        break;
+        case 'Precio Nacional':
+          valorPrecio=data[i].precioNacional;
+        break;
+        case 'Precio Venta':
+          valorPrecio=data[i].precioVenta;
+        break;
+        case 'Precio Neto':
+          valorPrecio=data[i].precioNeto;
+        break;
+      }
       lineaStockG = [];
       lineaStockM = [];
       lineaBodegaG = [];
       saltar = false;
       for (var j = 0; j < data[i].listBodegaProducto.length; j++) {
-        var auaxNombreBodega = data[i].listBodegaProducto[j].nombreBodega;
-        if (data[i].listBodegaProducto[j].nombreBodega.includes("Bodega")) {
-          var auxNum = data[i].listBodegaProducto[j].nombreBodega.split('odega:');
-          auaxNombreBodega = "#" + auxNum[1];
-        }
         var auxCantidadTotal = 0;
         if (this.selecBodegaFiltro != "SIN ASIGNAR") {
           if (data[i].listBodegaProducto[j].nombreBodega == this.selecBodegaFiltro) {
-
             if (data[i].listBodegaProducto[j].disponibilidad == 0 && data[i].listBodegaProducto[j].cantMinima == 0)
               saltar = true;
             else {
-              lineaBodegaG.push(auaxNombreBodega);
+              lineaBodegaG.push(data[i].listBodegaProducto[j].nombreBodega);
               lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
               auxCantidadTotal = data[i].listBodegaProducto[j].disponibilidad;
               if (data[i].listBodegaProducto[j].listAreas != null) {
@@ -529,7 +562,7 @@ export class ListProductoBComponent implements OnInit {
           }
         }
         else {
-          lineaBodegaG.push(auaxNombreBodega);
+          lineaBodegaG.push(data[i].listBodegaProducto[j].nombreBodega);
           lineaBodegaG.push("(P:" + data[i].listBodegaProducto[j].percha + ", F:" + data[i].listBodegaProducto[j].fila + ", C:" + data[i].listBodegaProducto[j].numCasillero + ", Pl:" + data[i].listBodegaProducto[j].numPalet + ")");
           auxCantidadTotal = auxCantidadTotal + data[i].listBodegaProducto[j].disponibilidad;
           if (data[i].listBodegaProducto[j].listAreas != null) {
@@ -572,17 +605,15 @@ export class ListProductoBComponent implements OnInit {
           doc.line(290, y, 290, (y + 10));//right
           doc.line(5, (y + 10), 290, (y + 10));//down
 
-          doc.text("Código", 10, (y + 7));
-          doc.line(25, y, 25, (y + 10));//right
+          doc.text("Código", 15, (y + 7));
+          doc.line(35, y, 35, (y + 10));//right
           doc.text("Descripción", 50, (y + 7));
-          doc.line(80, y, 80, (y + 10));//right
-          doc.text("Proveedor", 105, (y + 7));
-          doc.line(140, y, 140, (y + 10));//right
-          doc.text("Marca", 152, (y + 7));
-          doc.line(170, y, 170, (y + 10));//right
-          doc.text("Categoría", 178, (y + 7));
-          doc.line(200, y, 200, (y + 10));//right
-          doc.text("Ubicación", 208, (y + 7));
+          doc.line(95, y, 95, (y + 10));//right
+          doc.text("Proveedor", 120, (y + 7));
+          doc.line(160, y, 160, (y + 10));//right
+          doc.text(this.showSelect2, 164, (y + 7));
+          doc.line(190, y, 190, (y + 10));//right
+          doc.text("Ubicación", 205, (y + 7));
           doc.line(237, y, 237, (y + 10));//right
           doc.text("Existencia", 238, (y + 7));
           doc.line(255, y, 255, (y + 10));//right
@@ -590,8 +621,8 @@ export class ListProductoBComponent implements OnInit {
           if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
             doc.text("Mínimo", 256, (y + 7));
             doc.line(270, y, 270, (y + 10));//right
-            doc.text("Real", 275, (y + 7));
-          } else doc.text("Real", 274, (y + 7));
+            doc.text("Real", 274, (y + 7));
+          } else doc.text("Real", 265, (y + 7));
 
 
           y = y + 10 + valorG;
@@ -601,21 +632,18 @@ export class ListProductoBComponent implements OnInit {
         doc.line(5, (y - valorG), 5, y);//left
         doc.line(290, (y - valorG), 290, y);//right
         doc.line(5, y, 290, y);//down +10y1y2
-
-        doc.text(data[i].codigo, 7, (y - ((valorG - 3) / 2)));
-        doc.line(25, (y - valorG), 25, y);//right
+        doc.text(data[i].codigo, 8, (y - ((valorG - 3) / 2)));
+        doc.line(35, (y - valorG), 35, y);//right
         auxLinea = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + (2 + lineaNombre.length);
-        doc.text(lineaNombre, 30, (y - valorG + auxLinea));
-        doc.line(80, (y - valorG), 80, y);//right
+        doc.text(lineaNombre, 38, (y - valorG + auxLinea));
+        doc.line(95, (y - valorG), 95, y);//right
         auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
-        doc.text(lineaProveedor, 83, (y - valorG + auxLinea));
-        doc.line(140, (y - valorG), 140, y);//right
-        doc.text(data[i].marca, 145, (y - ((valorG - 3) / 2)));
-        doc.line(170, (y - valorG), 170, y);//right
-        doc.text(data[i].categoria, 175, (y - ((valorG - 3) / 2)));
-        doc.line(200, (y - valorG), 200, y);//right
+        doc.text(lineaProveedor, 98, (y - valorG + auxLinea));
+        doc.line(160, (y - valorG), 160, y);//right
+        doc.text('$ '+valorPrecio, 169, (y - ((valorG - 3) / 2)));
+        doc.line(190, (y - valorG), 190, y);//right
         auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
-        doc.text(lineaBodegaG, 202, (y - valorG + auxLinea));
+        doc.text(lineaBodegaG, 195, (y - valorG + auxLinea));
         doc.line(237, (y - valorG), 237, y);//right
         auxLinea = Number((valorG - (3 * lineaStockG.length + (3 * (lineaStockG.length - 1)))) / 2.5) + (2 + lineaStockG.length);
         doc.text(lineaStockG, 245, (y - valorG + auxLinea));
