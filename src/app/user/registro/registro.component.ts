@@ -84,24 +84,14 @@ export class RegistroComponent implements OnInit, PuedeDesactivar {
 
   onSubmit(form?: NgForm) {
     if (this.internetStatus == "nline") {
-      this._userService.insertarRegistro(this._userService.formData).subscribe(
+      this._userService.register(this._userService.formData).subscribe(
         (res: any) => {
-          if (res.message != null) {
+          if(res.exito==1){
+            this.toastr.success('Nuevo usuario creado!', 'Registro Exitoso.');
+            this.resetForm(form);
+          }else{
             this.toastr.error(res.message, 'Registro Fallido.');
-          } else
-            if (res.result) {
-              this.resetForm(form);
-              if (res.result2 == "New")
-                this.toastr.success('Nuevo usuario creado!', 'Registro Exitoso.');
-              else this.toastr.success('Usuario Actualizado!', 'Actualizacion Exitoso.');
-            } else {
-              res.errors.forEach(element => {
-                if (element.code == "DuplicateUserName") {
-                  this.toastr.error('Nombre de usuario existente', 'Registro fallido.');
-                }
-                else this.toastr.error(element.description, 'Registro fallido.');
-              });
-            }
+          }
         },
         err => {
           console.log(err);

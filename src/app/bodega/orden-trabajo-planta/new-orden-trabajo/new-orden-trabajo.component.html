@@ -14,7 +14,7 @@
             </div>
           </div>
           <div class="row boxForm mt-2">
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.nombreU=='FERNANDA MORALES'">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.name=='FERNANDA MORALES'||conexcionService.UserDataToken.name=='SERGIO JARA'">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Salida de Bodega: </strong>
@@ -35,7 +35,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserDataToken.role=='verificador-bodeguero-b'">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Marea: </strong>
@@ -52,7 +52,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserDataToken.role=='verificador-bodeguero-b'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Horas Servicio: </strong>
@@ -69,7 +69,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& ((conexcionService.UserR.nombreU == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega=='MECANICA NAVAL' )|| conexcionService.UserR.nombreU != 'FERNANDA MORALES' ))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero'&& ((conexcionService.UserDataToken.name == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega=='MECANICA NAVAL' )|| conexcionService.UserDataToken.name != 'FERNANDA MORALES' ))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Lugar de Destino: </strong>
@@ -91,7 +91,35 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserR.rolAsignado=='verificador-bodeguero-b'|| (conexcionService.UserR.nombreU == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL'))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Lugar de Destino: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
+                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
+                        <option selected disabled value="">-Seleccionar-</option>
+                        <option
+                            *ngFor="let datobodegaSub of listSubAreas"
+                            value="{{datobodegaSub.nombreArea}}">
+                            {{datobodegaSub.nombreArea}}
+                          </option>
+                        <option
+                            *ngFor="let datobodega of listAreas"
+                            value="{{datobodega.nombreBodega}}">
+                            {{datobodega.nombreBodega}}
+                          </option>
+                          
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero-b'|| (conexcionService.UserDataToken.name == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL'))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Lugar de Destino: </strong>

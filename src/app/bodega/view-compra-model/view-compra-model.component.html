@@ -6,14 +6,14 @@
       </div>
     </div>
   </div>
-  <form #formOrden="ngForm" autocomplete="off" *ngIf="ordenECService.formData!=null">
+  <form #formOrden="ngForm" autocomplete="off" *ngIf="ordenECService.formData!=null && enterpriceServise.formDocumento">
     <div class="container-fluid">
       <div id="content" #content class="row mInCajaPadre">
         <div class="col-12 mInCajaHijaOrden" style="padding-top: 0px;">
           <div class="row justify-content-end mt-1">
             <div class="col-4">
               <div>
-                <strong>Factura: {{enterpriceServise.formDocumento.documento}}</strong>
+                <strong>Factura: {{enterpriceServise.formDocumento.factura}}</strong>
               </div>
             </div>
           </div>
@@ -25,7 +25,7 @@
                     <strong>{{ordenECService.formData.proveedor}}</strong>
                   </div>
                   <div class="col-12">
-                    <strong>Ruc:</strong> {{enterpriceServise.formDocumento.crp_Proveedor}}
+                    <strong>Ruc:</strong> {{enterpriceServise.formDocumento.crp_proveedor}}
                   </div>
                   <div class="col-12">
                     <strong>Contribuyente Especial Nro:</strong> {{enterpriceServise.formDocumento.nro_contespecial}}
@@ -43,13 +43,13 @@
             <div class="col-12 col-sm-12 col-md-12 mInCajaHijaOrden">
               <div class="row">
                 <div class="col-12">
-                  <strong>Razón Social / Nombres y Apellidos: </strong> {{enterpriceServise.formDocumento.rS_Cliente}}
+                  <strong>Razón Social / Nombres y Apellidos: </strong> {{enterpriceServise.formDocumento.rs_cliente}}
                 </div>
                 <div class="col-12 col-sm-12 col-md-6">
-                  <strong>Identificación:</strong> {{enterpriceServise.formDocumento.crp_Cliente}}
+                  <strong>Identificación:</strong> {{enterpriceServise.formDocumento.crp_cliente}}
                 </div>
                 <div class="col-12 col-sm-12 col-md-6">
-                  <strong>Fecha Emisión:</strong> {{enterpriceServise.formDocumento.emi_Fecha}}
+                  <strong>Fecha Emisión:</strong> {{enterpriceServise.formDocumento.emi_fecha}}
                 </div>
               </div>
             </div>
@@ -58,7 +58,7 @@
             <div class="col-12">
               <div class="card">
                 <div class="card-headerModal">
-                  <h5>Lista Articulos {{ordenECService.formData.planta=='ENFERMERIA' ? ' Para '+ordenECService.formData.listPcomprasO[0].destinoBodega  : ''}}</h5>
+                  <h5>Lista Articulos {{ordenECService.formData.planta=='ENFERMERIA' ? ' Para ' + ordenECService.formData.listPcomprasO[0].destinoBodega  : ''}}</h5>
                 </div>
                 <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
                   <table class="table">
@@ -68,6 +68,7 @@
                         <th scope="col">Cantidad</th>
                         <th scope="col">Cont. Neto/ General</th>
                         <th scope="col">Descripción</th>
+                        <th *ngIf="ordenECService.formData.planta!='ENFERMERIA'" scope="col">Destino Bodega</th>
                         <th scope="col">Precio</th>
                         <th scope="col">Precio Neto</th>
                         <th scope="col">Descuento</th>
@@ -83,6 +84,7 @@
                         <td class="text-center" *ngIf="datoListC.producto.tipoUnidad=='CONTENIDO NETO'">{{datoListC.producto.contenidoNeto}} / {{datoListC.cantidad*datoListC.producto.contenidoNeto | number:'1.0-0'}}</td>
                         <td class="text-center" *ngIf="datoListC.producto.tipoUnidad=='EQUIVALENCIA'">{{datoListC.cantidad/datoListC.producto.contenidoNeto | number:'1.0-0'}}</td>
                         <td>{{datoListC.producto.nombre}}</td>
+                        <td class="text-center" *ngIf="ordenECService.formData.planta!='ENFERMERIA'">{{datoListC.destinoBodega}}</td>
                         <td class="text-center">${{datoListC.precio}}</td>
                         <td class="text-center">{{datoListC.producto.precioNeto!=0? '$'+datoListC.producto.precioNeto: '---' }}</td>
                         <td class="text-center">{{datoListC.descuento}}</td>

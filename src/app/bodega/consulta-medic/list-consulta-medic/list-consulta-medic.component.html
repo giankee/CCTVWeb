@@ -60,7 +60,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-6 col-md-4" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'||conexcionService.UserR.rolAsignado == 'gpv-o'">
+              <div class="col-6 col-md-4" *ngIf="conexcionService.UserDataToken.role == 'enfermeria'||conexcionService.UserDataToken.role == 'gpv-o'">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Bodega:</strong></div>
                   <select class="form-control" name="selectBodega" #selectBodega="ngModel"
@@ -161,7 +161,7 @@
                         </a>
                       </div>
                     </th>
-                    <th *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'||parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL'">Marea</th>
+                    <th *ngIf="conexcionService.UserDataToken.role == 'verificador-medic'||parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL'">Marea</th>
                     <th>
                       <div class="d-inline-block" style="margin-right: 0.5rem;"> Paciente</div>
                       <div id="ordenarS" class="d-inline-block">
@@ -188,7 +188,7 @@
                     <td class="indice">{{dato.numOrdenSecuencial}}</td>
                     <td>{{dato.fechaRegistro}}</td>
                     <td>{{dato.bodegaOrigen}}</td>
-                    <td *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'||parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL'">{{dato.marea}}</td>
+                    <td *ngIf="conexcionService.UserDataToken.role == 'verificador-medic'||parametrosBusqueda.strBodegaOrigen != 'ENFERMERIA GENERAL'">{{dato.marea}}</td>
                     <td>{{dato.paciente}}</td>
                     <td>{{dato.sintomas}}</td>
                     <td>
@@ -206,7 +206,7 @@
                         matTooltipClass="tooltipBlack">
                         <fa-icon [icon]="faeye"></fa-icon>
                       </a>
-                      <a *ngIf="dato.estadoConsulta=='Pendiente' && conexcionService.UserR.rolAsignado == 'enfermeria' && dato.bodegaOrigen!='ENFERMERIA GENERAL'" class="badge text-primario d-none d-sm-block" (click)="onPrepararModalAtencion(dato)"
+                      <a *ngIf="dato.estadoConsulta=='Pendiente' && conexcionService.UserDataToken.role == 'enfermeria' && dato.bodegaOrigen!='ENFERMERIA GENERAL'" class="badge text-primario d-none d-sm-block" (click)="onPrepararModalAtencion(dato)"
                       matTooltip="Te permite transformar consulta a una atención médica" matTooltipPosition="left"
                       matTooltipClass="tooltipBlack">
                       <fa-icon [icon]="faexchange"></fa-icon>

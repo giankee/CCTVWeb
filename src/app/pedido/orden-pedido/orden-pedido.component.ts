@@ -87,7 +87,7 @@ export class OrdenPedidoComponent implements OnInit {
     this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
       this.listVehiculos = dato;
     });
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta") {
+    if (this.conexcionService.UserDataToken.role == "pedido-planta") {
       this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
         this.listAreas = dato;
       });
@@ -95,12 +95,12 @@ export class OrdenPedidoComponent implements OnInit {
   }
 
   resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
-      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "FLOTA");
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
-      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
-    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
-      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserR.nombreU, "P OFICINAS");
+    if (this.conexcionService.UserDataToken.role == "pedido-flota")
+      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserDataToken.name, "FLOTA");
+    if (this.conexcionService.UserDataToken.role == "pedido-planta")
+      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserDataToken.name, "P MANACRIPEX");
+    if (this.conexcionService.UserDataToken.role == "pedido-super")
+      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserDataToken.name, "P OFICINAS");
     this.spinnerOnOff = 0;
     this.okBttnSubmit = true;
   }
@@ -146,8 +146,8 @@ export class OrdenPedidoComponent implements OnInit {
       var fechaHoy: cFecha = new cFecha();
 
       this.ordenPedidoService.formData.fechaAprobacion = fechaHoy.strFecha;
-      if (this.conexcionService.UserR.nombreU == "CARLOS CEBALLOS" || this.conexcionService.UserR.nombreU == "JORGE SALAME" || this.conexcionService.UserR.nombreU == "PRUEBAG") {
-        this.ordenPedidoService.formData.responsableAprobacion = this.conexcionService.UserR.nombreU;
+      if (this.conexcionService.UserDataToken.name == "CARLOS CEBALLOS" || this.conexcionService.UserDataToken.name == "JORGE SALAME" || this.conexcionService.UserDataToken.name == "PRUEBAG") {
+        this.ordenPedidoService.formData.responsableAprobacion = this.conexcionService.UserDataToken.name;
         this.ordenPedidoService.formData.estadoProceso = "Pendiente Verificación";
         this.ordenPedidoService.formData.fechaAprobacion = this.ordenPedidoService.formData.fechaAprobacion + "T" + fechaHoy.strHoraA;
       }
@@ -199,7 +199,6 @@ export class OrdenPedidoComponent implements OnInit {
   }
 
   guardar(datoOrden: cOrdenPedido) {
-    if(this.conexcionService.UserR.nombreU!="PRUEBAG")
     this.ordenPedidoService.insertarOrdenPedido(datoOrden).subscribe(
       (res: any) => {
         if (res.exito == 1) {
@@ -211,7 +210,6 @@ export class OrdenPedidoComponent implements OnInit {
           this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
         };
       });
-    else this.sendMessageGroupNotification(JSON.parse(JSON.stringify(datoOrden)));
   }
 
   comprobarNewR() {
@@ -420,7 +418,7 @@ export class OrdenPedidoComponent implements OnInit {
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + personaSubArea, 146, y + 5);
 
-    if (this.conexcionService.UserR.nombreU == "CARLOS CEBALLOS" || this.conexcionService.UserR.nombreU == "JORGE SALAME" || this.conexcionService.UserR.nombreU == "PRUEBAG")
+    if (this.conexcionService.UserDataToken.name == "CARLOS CEBALLOS" || this.conexcionService.UserDataToken.name == "JORGE SALAME" || this.conexcionService.UserDataToken.name == "PRUEBAG")
       doc.save("Pedido_" + orden.numSecuencial + ".pdf");
     return (doc.output('datauristring'));
   }
@@ -431,6 +429,7 @@ export class OrdenPedidoComponent implements OnInit {
       phone: "",
       chatname: "",
       message: "",
+      caption:"",
       title: "Pedido_" + orden.numSecuencial + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
@@ -459,7 +458,7 @@ export class OrdenPedidoComponent implements OnInit {
       auxWhatsapp.phone = "593-999486327";
     
     var auxNumSecuencial = orden.numSecuencial.split('-');
-    auxWhatsapp.message = encabezado
+    auxWhatsapp.caption = encabezado
       + '\n'
       + '\n:wave: Saludos:'
       + '\nSe les informa que se ha generado un ' + asunto
@@ -473,9 +472,9 @@ export class OrdenPedidoComponent implements OnInit {
       + '\nAdicionalmente se adjunta la orden detalladamente :paperclip:'
       + '\n----------------------------------';
 
-    if (this.conexcionService.UserR.nombreU == "PRUEBAG") {
+    if (this.conexcionService.UserDataToken.name == "PRUEBAG") {
       auxWhatsapp.phone = "593-999786121";
-      auxWhatsapp.chatname = "PEDIDOS FLOTA PDF";
+      auxWhatsapp.chatname = "PEDIDOS OFICINAS PDF";
     }
 
     if (orden.estadoProceso == "Pendiente Aprobación") {
@@ -502,7 +501,7 @@ export class OrdenPedidoComponent implements OnInit {
           if (this.guardarDataProveedor != null) {
             if (this.guardarDataProveedor.telefono != null) {
               auxWhatsapp.chatname = "";
-              if (this.conexcionService.UserR.nombreU == "PRUEBAG") {
+              if (this.conexcionService.UserDataToken.name == "PRUEBAG") {
                 auxWhatsapp.phone = "593-999786121";
               }else auxWhatsapp.phone = this.guardarDataProveedor.telefono;
               this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(

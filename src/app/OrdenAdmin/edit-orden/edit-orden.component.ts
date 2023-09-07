@@ -211,11 +211,13 @@ export class EditOrdenComponent implements OnInit {
   onChooseElemente(index, data: any) {
     this._ordenESService.formData.listArticulosO[index].showSearchSelect = 0;
     if (this._ordenESService.formData.listArticulosO[index].checkInventario) {
+      this.ordenESService.formData.listArticulosO[index].productoId=0;
       this._ordenESService.formData.listArticulosO[index].inventario.rellenarObjeto(data);
       this._ordenESService.formData.listArticulosO[index].inventarioId = data.idProductoStock;
       this._ordenESService.formData.listArticulosO[index].inventario.preBodega = "SIN ASIGNAR";
       this.onComprobarStock(index);
     } else {
+      this.ordenESService.formData.listArticulosO[index].inventarioId=0;
       this._ordenESService.formData.listArticulosO[index].producto.completarObj(data);
       this._ordenESService.formData.listArticulosO[index].productoId = data.idProducto;
     }

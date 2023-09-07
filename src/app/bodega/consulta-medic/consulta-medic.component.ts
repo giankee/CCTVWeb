@@ -64,7 +64,7 @@ export class ConsultaMedicComponent implements OnInit {
   faoutdent = faOutdent; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; fasave = faSave;
   constructor(private _conexcionService: ConexionService, private variosService: VariosService, private _consultaMedicService: ConsultaMedicService, private _productoBService: ProductoBService, private _enterpriceService: ApiEnterpriceService, private toastr: ToastrService) {
     this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato.filter(x => x.encargadoBodega == this._conexcionService.UserR.nombreU);;
+      this.listBarcos = dato.filter(x => x.encargadoBodega.includes(this._conexcionService.UserDataToken.name));
       this.resetForm();
     });
   }
@@ -76,10 +76,10 @@ export class ConsultaMedicComponent implements OnInit {
     if (form != null) {
       form.resetForm();
     }
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
-      this._consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserR.nombreU, "ENFERMERIA GENERAL");
+    if (this._conexcionService.UserDataToken.role == 'enfermeria')
+      this._consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserDataToken.name, "ENFERMERIA GENERAL");
     else
-      this._consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserR.nombreU, this.listBarcos[0].nombreBodega);
+      this._consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserDataToken.name, this.listBarcos[0].nombreBodega);
     this._consultaMedicService.formData.agregarOneItem();
     this.paginacion.getNumberIndex(1);
     this.paginacion.updateIndex(0);
@@ -142,7 +142,7 @@ export class ConsultaMedicComponent implements OnInit {
         else this._consultaMedicService.formData.listReceta[index].inventario.codigo = value.toUpperCase();
 
         strParametro = strParametro + "@ENFERMERIA@" + op + "@";
-        if (this.conexcionService.UserR.rolAsignado == "enfermeria")
+        if (this.conexcionService.UserDataToken.role == "enfermeria")
           strParametro = strParametro + "ENFERMERIA GENERAL";
         else strParametro = strParametro + this.listBarcos[0].nombreBodega;
         this.listProdFiltros$ = this._productoBService.getProductosSearch(strParametro).pipe(
@@ -170,7 +170,7 @@ export class ConsultaMedicComponent implements OnInit {
       this._consultaMedicService.formData.paciente = value;
       var strParametro = "all@" + value + '@SIN ASIGNAR';
       var auxBarcoSelect = "";
-      if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
+      if (this._conexcionService.UserDataToken.role == 'verificador-medic') {
         strParametro = "Tripulantes@" + value + '@SIN ASIGNAR';
         var auxBarco = this.listBarcos[0].nombreBodega.split(' ');
         switch (auxBarco.length) {
@@ -260,7 +260,7 @@ export class ConsultaMedicComponent implements OnInit {
 
     doc.text("Bodega: ", 20, (y + 10));
     doc.text(orden.bodegaOrigen, 37, (y + 10));
-    if (this.conexcionService.UserR.rolAsignado == "verificador-medic") {
+    if (this.conexcionService.UserDataToken.role == "verificador-medic") {
       doc.text("Marea: ", 105, (y + 10));
       doc.text(orden.marea, 120, (y + 10));
     }

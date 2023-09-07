@@ -31,25 +31,33 @@ export class ViewCompraModelComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.dato.auxId != null) {
-      this._ordenECService.formData = new cOrdenEC();
-      this._enterpriceServise.formDocumento = new cEnterpriceDocumento();
-      this.cargarData();
-    }
+      if (this._ordenECService.formData != null) {
+        if(this.ordenECService.formData.idOrdenE_C==this.dato.auxId)
+        this.cargarDocumento();
+        else this.cargarDataCompra();
+      } else this.cargarDataCompra();
+    } else this.onExit();
   }
-
-  cargarData() {
+  cargarDataCompra(){
+    this._ordenECService.formData = new cOrdenEC();
     this._ordenECService.getOneOrden(this.dato.auxId)
       .subscribe((datoOne: any) => {
         if (datoOne.exito == 1) {
           if (datoOne.message == "Ok") {
             this._ordenECService.formData.completar(datoOne.data);
-            this._enterpriceServise.getOneDocumento(this._ordenECService.formData.idCompraAutomatica.toString())
-              .subscribe((datoDocumento: any) => {
-                this._enterpriceServise.formDocumento.completar(datoDocumento);
-              },
-                error => console.error(error));
-          } else this.onExit();
+            this.cargarDocumento();
+          }
+          else this.onExit();
         } else this.onExit();
+      },
+        error => console.error(error));
+  }
+
+  cargarDocumento() {
+    this._enterpriceServise.formDocumento = new cEnterpriceDocumento();
+    this._enterpriceServise.getOneDocumento(this._ordenECService.formData.idCompraAutomatica.toString())
+      .subscribe((datoDocumento: any) => {
+        this._enterpriceServise.formDocumento.completar(datoDocumento);
       },
         error => console.error(error));
   }
@@ -81,9 +89,9 @@ export class ViewCompraModelComponent implements OnInit {
 
     doc.setFont("arial", "normal");
     doc.setFontSize(12);
-    doc.text(this._enterpriceServise.formDocumento.documento, 230, 25);
+    doc.text(this._enterpriceServise.formDocumento.factura, 230, 25);
     doc.text(this._ordenECService.formData.proveedor, 35, (y + 7));
-    doc.text(this._enterpriceServise.formDocumento.crp_Proveedor, 23, (y + 14));
+    doc.text(this._enterpriceServise.formDocumento.crp_proveedor, 23, (y + 14));
     doc.text(this._enterpriceServise.formDocumento.nro_contespecial, 67, (y + 21));
 
     doc.text(this._enterpriceServise.formDocumento.claveacceso, 50, y + 32);
@@ -108,9 +116,9 @@ export class ViewCompraModelComponent implements OnInit {
 
     doc.setFont("arial", "normal");
     doc.setFontSize(12);
-    doc.text(this._enterpriceServise.formDocumento.rS_Cliente, 85, (y + 7));
-    doc.text(this._enterpriceServise.formDocumento.crp_Cliente, 42, (y + 14));
-    doc.text(this._enterpriceServise.formDocumento.emi_Fecha, 140, (y + 14));
+    doc.text(this._enterpriceServise.formDocumento.rs_cliente, 85, (y + 7));
+    doc.text(this._enterpriceServise.formDocumento.crp_cliente, 42, (y + 14));
+    doc.text(this._enterpriceServise.formDocumento.emi_fecha, 140, (y + 14));
 
 
     y = y + 25;
@@ -314,12 +322,11 @@ export class ViewCompraModelComponent implements OnInit {
         doc.line(20, (y - 7), 20, y);//right
         doc.text(this.ordenECService.formData.listPcomprasO[index].producto.nombre, 25, (y - 2));
         doc.line(200, (y - 7), 200, y);//right
-        doc.text(this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?this.ordenECService.formData.listPcomprasO[index].loteMedic: "---" , this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?205:218, (y - 2));
+        doc.text(this.ordenECService.formData.listPcomprasO[index].loteMedic != null ? this.ordenECService.formData.listPcomprasO[index].loteMedic : "---", this.ordenECService.formData.listPcomprasO[index].loteMedic != null ? 205 : 218, (y - 2));
         doc.line(240, (y - 7), 240, y);//right
-        doc.text(this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?this.ordenECService.formData.listPcomprasO[index].fechaVencimientoMedic: "---" , this.ordenECService.formData.listPcomprasO[index].loteMedic!=null?245:262, (y - 2));
+        doc.text(this.ordenECService.formData.listPcomprasO[index].loteMedic != null ? this.ordenECService.formData.listPcomprasO[index].fechaVencimientoMedic : "---", this.ordenECService.formData.listPcomprasO[index].loteMedic != null ? 245 : 262, (y - 2));
       }
     }
-
     doc.save("Compra_" + this.ordenECService.formData.factura + "_" + this._ordenECService.formData.fechaRegistroBodega + ".pdf");
   }
 

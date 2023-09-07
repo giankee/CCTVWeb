@@ -51,7 +51,7 @@ export class MainReporteComponent implements OnInit {
   sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch; faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight;
   constructor(private _conexcionService: ConexionService, private _enterpriceServise: ApiEnterpriceService, private _productoBServie: ProductoBService, private _ordenECSercie: OrdenECService) {
     this.parametrosBusqueda = new cParmtoReporte("P MANACRIPEX");
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+    if (this._conexcionService.UserDataToken.role == 'gpv-o')
       this.parametrosBusqueda = new cParmtoReporte("OFICINAS");
   }
 

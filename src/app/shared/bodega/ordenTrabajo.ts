@@ -3,7 +3,7 @@ import { cProducto_B } from "./ordenEC";
 
 export class cOrdenTrabajoI {
     idOrdenTraba: number = undefined;
-    numOrdenSecuencial: number = undefined;
+    numOrdenSecuencial: number = 0;
     planta: string = "";
     fechaRegistro: string = "";
     tipoOrden: string = "";//trabajo, traspaso

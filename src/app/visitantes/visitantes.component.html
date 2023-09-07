@@ -1,5 +1,5 @@
-<div class="page" *ngIf="conexcionService.UserR!=null">
-  <nav aria-label="site nav" class="navbar" *ngIf="conexcionService.UserR.rolAsignado!=null">
+<div class="page" *ngIf="conexcionService.UserDataToken!=null">
+  <nav aria-label="site nav" class="navbar" *ngIf="conexcionService.UserDataToken.role!=null">
     <div class="container-fluid">
       <div class="navbar-holder d-flex align-items-center justify-content-between">
         <div>
@@ -18,7 +18,7 @@
             </a>
           </li>
           <li class="d-none d-sm-inline-block"><a class="nav-link disabled"> <span class="mr-1"><strong>User:</strong>
-                {{conexcionService.UserR.UserName}}</span>
+                {{conexcionService.UserDataToken.sub}}</span>
             </a>
           </li>
           <li>

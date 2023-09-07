@@ -212,7 +212,7 @@ export class ListOrdenesComponent implements OnInit {
     var params = "" + value;
     if (value == "")
       params = "DatoNull";
-    if (this._conexcionService.UserR.rolAsignado=="gpv-o")
+    if (this._conexcionService.UserDataToken.role=="gpv-o")
       params=params+"@OFICINAS";
     else params=params+"@p MANACRIPEX";
     

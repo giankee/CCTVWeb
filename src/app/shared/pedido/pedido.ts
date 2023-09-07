@@ -128,6 +128,16 @@ export class cOrdenPedido {
         if (this.empresa == "MANACRIPEX")
             this.strRuc = "1391700830001";
     }
+
+    corregirFechas() {
+        if (this.fechaPedido.includes(" "))
+            this.fechaPedido = this.fechaPedido.replace(" ", "T");
+        if (this.fechaAprobacion.includes(" "))
+            this.fechaAprobacion = this.fechaAprobacion.replace(" ", "T");
+        if (this.fechaArchivada.includes(" "))
+            this.fechaArchivada = this.fechaArchivada.replace(" ", "T");
+
+    }
 }
 
 export class cArticulosPedido {

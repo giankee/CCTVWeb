@@ -43,9 +43,9 @@ export class ListComprasComponent implements OnInit {
   listOrdenesMostrar$: Observable<cOrdenEC[]>;
   dataOrdenesResult: cOrdenEC[] = [];
   auxPlanta: string;
-  auxBodega:string="";
+  selecBodegaFiltro: string = "SIN ASIGNAR";
   /**Para pagination y fecha Entrada*/
-  paginacion = new cPaginacion(25);
+  paginacion = new cPaginacion(50);
   fechaHoy = new cFecha();
   /**Fin paginatacion */
 
@@ -60,27 +60,44 @@ export class ListComprasComponent implements OnInit {
   }
 
   cargarBodega() {
-    this.variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
-      this.listBodega = dato;
-      if (this.conexcionService.UserR.rolAsignado == "tinabg-m" || this.conexcionService.UserR.rolAsignado == "bodega_verificador-m" || this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
-        this.auxPlanta = "P MANACRIPEX";
-        if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
-          this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
-          this.auxBodega="@"+this.listBodega[0].nombreBodega;
-        }
-      } if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+    var auxTipoBodega = "";
+    switch (this._conexcionService.UserDataToken.role) {
+      case 'adminSuper':
+        this.auxPlanta = "GENERAL";
+        auxTipoBodega = "OFICINAS-P MANACRIPEX-PUERTO";
+        break;
+      case 'gpv-o':
+      case 'verificador-bodeguero-h':
         this.auxPlanta = "OFICINAS";
-      if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+        auxTipoBodega = "OFICINAS";
+        break;
+      case 'enfermeria':
         this.auxPlanta = "ENFERMERIA";
-
-
+        auxTipoBodega = "PUERTO";
+        break;
+      case 'tinabg-m':
+      case 'bodega_verificador-m':
+      case 'verificador-bodeguero':
+        this.auxPlanta = "P MANACRIPEX";
+        auxTipoBodega = "P MANACRIPEX";
+        if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES")
+          auxTipoBodega = "P MANACRIPEX-PUERTO";
+        break;
+    }
+    this.variosService.getBodegasTipo(auxTipoBodega).subscribe(dato => {
+      this.listBodega = dato;
+      if ((this.conexcionService.UserDataToken.role == "verificador-bodeguero" || this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") && this.conexcionService.UserDataToken.name != "FERNANDA MORALES")
+        this.listBodega = this.listBodega.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
+      if (this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)) != undefined)
+        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
+      else this.selecBodegaFiltro = this.listBodega[0].nombreBodega;
       this.cargarData();
     });
   }
 
   cargarData() {//Datos de los ordenes traidos desde db
     this.spinnerOnOff = true;
-    this.listOrdenesMostrar$ = this._ordenECService.getListOrdenesCompra(this.auxPlanta+this.auxBodega).pipe(
+    this.listOrdenesMostrar$ = this._ordenECService.getListOrdenesCompra(this.auxPlanta + "@" + this.selecBodegaFiltro).pipe(
       map((x: cOrdenEC[]) => {
         x.forEach(y => {
           y.fechaRegistroBodega = y.fechaRegistroBodega.substring(0, 10);
@@ -101,7 +118,7 @@ export class ListComprasComponent implements OnInit {
         strParametro = strParametro + value + "@null";
       else strParametro = strParametro + "null@" + value;
     } else strParametro = strParametro + "null@null";
-    strParametro=strParametro+this.auxBodega;
+    strParametro = strParametro + "@" + this.selecBodegaFiltro;
     this.listOrdenesMostrar$ = this.ordenECService.getCompraSearch(strParametro).pipe(
       map((x: cOrdenEC[]) => {
         x.forEach(y => {
@@ -147,6 +164,8 @@ export class ListComprasComponent implements OnInit {
   }
 
   onModal(dataIn: cOrdenEC) {
+    this._ordenECService.formData = new cOrdenEC();
+    this.ordenECService.formData.completar(dataIn);
     const dialoConfig = new MatDialogConfig();
     dialoConfig.autoFocus = true;
     dialoConfig.disableClose = true;

@@ -86,7 +86,7 @@ export class ListPedidosComponent implements OnInit {
       this.cargarData();
     });
 
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta") {
+    if (this.conexcionService.UserDataToken.role == "pedido-planta") {
       this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
         this.listAreas = dato;
       });
@@ -96,9 +96,9 @@ export class ListPedidosComponent implements OnInit {
   cargarData() {
     this.spinnerOnOff = true;
     var parametro = "SUPER@All";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
+    if (this.conexcionService.UserDataToken.role == "pedido-planta")
       parametro = "P MANACRIPEX@All";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
+    if (this.conexcionService.UserDataToken.role == "pedido-flota")
       parametro = "FLOTA@All";
     this.listPedidosMostrar$ = this.ordenPedidoService.getListPedido(parametro).pipe(
       map((x: cOrdenPedido[]) => {
@@ -108,6 +108,9 @@ export class ListPedidosComponent implements OnInit {
 
           fecha = y.fechaAprobacion.split('T');
           y.fechaAprobacion = fecha[0] + " " + fecha[1];
+
+          fecha = y.fechaArchivada.split('T');
+          y.fechaArchivada = fecha[0] + " " + fecha[1];
 
           let auxSecuencial = y.numSecuencial.split("-");
           y.strNumSecuencial = auxSecuencial[1];
@@ -251,7 +254,7 @@ export class ListPedidosComponent implements OnInit {
     auxOrden.completarObject(datoIn);
     auxOrden.sacarRuc();
 
-    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
+    if (this.conexcionService.UserDataToken.role == "pedido-super")
       this.convertPdf1(auxOrden);
     else this.convertPdf2(auxOrden);
   }
@@ -300,14 +303,21 @@ export class ListPedidosComponent implements OnInit {
 
     doc.text("Proveedor: " + orden.proveedor, 15, (y + 15));
     doc.text("Usuario Sistema: " + orden.cargoUser, 15, (y + 19));
-    doc.text("Tipo Pedido: " + orden.tipoPedido, 105, (y + 19));
-
-    doc.text("Estado de la Orden: " + orden.estadoProceso, 15, (y + 23));
+    doc.text("Estado de la Orden: " + orden.estadoProceso, 80, (y + 19));
     if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Rechazada")
-      doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 105, (y + 23));
+      doc.text("Fecha Aprobación: " + orden.fechaAprobacion, 140, (y + 19));
     if (orden.estadoProceso == "Rechazada")
-      doc.text("Fecha Rechazada: " + orden.fechaAprobacion, 105, (y + 23));
+      doc.text("Fecha Rechazada: " + orden.fechaAprobacion, 140, (y + 19));
 
+    var auxFacturas: string = "";
+    if (orden.listFacturasPedido.length > 0) {
+      orden.listFacturasPedido.forEach(x => {
+        if (auxFacturas == "")
+          auxFacturas = x.factura.toString();
+        else auxFacturas = auxFacturas + " - " + x.factura.toString();
+      });
+    }
+    doc.text("Facturas adjuntas: " + (auxFacturas != '' ? auxFacturas : "---"), 15, (y + 23));
     var auxlinea = doc.splitTextToSize("Justificación: " + orden.justificacion, (165));
     doc.text(auxlinea, 15, (y + 27));
 
@@ -441,20 +451,28 @@ export class ListPedidosComponent implements OnInit {
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
   }
 
-  onRevision(orden: cOrdenPedido) {
+  onRevision(orden: cOrdenPedido, recursividad: boolean) {
     if (orden.estadoProceso != "Pendiente Aprobación" && orden.estadoProceso != "Anulada") {
-      var srtFacturas: string;
+      var srtFacturas: string = "";
       var fechaHoy: cFecha = new cFecha();
       var auxOrden: cOrdenPedido = new cOrdenPedido(orden.cargoUser, orden.planta);
       auxOrden.completarObject(orden);
-      auxOrden.fechaArchivada = fechaHoy.strFecha + "T" + fechaHoy.strHoraA;
-      auxOrden.responsableArchivada = this.conexcionService.UserR.nombreU;
-      if (auxOrden.archivada) {
+      auxOrden.fechaArchivada = fechaHoy.strFecha + " " + fechaHoy.strHoraA;
+      auxOrden.responsableArchivada = this.conexcionService.UserDataToken.name;
+      if (auxOrden.archivada || recursividad) {
+        if (auxOrden.listFacturasPedido.length > 0)
+          auxOrden.listFacturasPedido.forEach(x => {
+            x.estado=0;
+            if (srtFacturas == "")
+              srtFacturas = x.factura.toString();
+            else srtFacturas = srtFacturas + "-" + x.factura;
+          });
         Swal.fire({
           icon: "warning",
           title: "Estás seguro que quieres archivar esté pedido?",
           text: "Ingrese las facturas separadas por un guión medio -",
           input: 'text',
+          inputValue: srtFacturas,
           showCancelButton: true,
           cancelButtonColor: '#E53935',
           confirmButtonText: "Continuar!",
@@ -477,11 +495,18 @@ export class ListPedidosComponent implements OnInit {
             if (result.value.includes("-")) {
               var auxFacturas = result.value.split("-");
               auxFacturas.forEach(x => {
+                if((auxOrden.listFacturasPedido.find(y=>y.factura.toString()==x)==undefined))
                 auxOrden.agregarOneFactura(new cFacturasPedido(auxOrden.idOrdenPedido, Number(x)));
+                else auxOrden.listFacturasPedido.find(y=>y.factura.toString()==x).estado=1;
               });
             } else auxOrden.agregarOneFactura(new cFacturasPedido(auxOrden.idOrdenPedido, Number(result.value)));
+            auxOrden.corregirFechas();
             this.edicionArchivada(auxOrden);
-          } else orden.archivada = false;
+            orden.listFacturasPedido=auxOrden.listFacturasPedido;
+          } else {
+            if(recursividad)
+              orden.archivada=true
+            else orden.archivada = false;}
         });
       } else {
         Swal.fire({
@@ -498,8 +523,12 @@ export class ListPedidosComponent implements OnInit {
         }).then((result) => {
           if (result.isConfirmed) {
             auxOrden.listFacturasPedido = [];
+            auxOrden.corregirFechas();
             this.edicionArchivada(auxOrden);
-          } else orden.archivada = true;
+          } else {
+            orden.archivada = true;
+            this.onRevision(orden, true);
+          }
         });
       }
     }
@@ -689,14 +718,14 @@ export class ListPedidosComponent implements OnInit {
   }
 
   contieneNumeros(cadena: string) {
-    return /^\d+-?\d+$/.test(cadena);
+    return /^(?:\d+|-)+$/.test(cadena);
   }
 
   edicionArchivada(orden: cOrdenPedido) {
-    this.ordenPedidoService.actualizarPedido(orden).subscribe(
+    this.ordenPedidoService.achivarPedido(orden).subscribe(
       (res: any) => {
         if (res.message == "Ok")
-          this.toastr.success('Revisión Actualizada', 'Actualizada');
+          this.toastr.success('Factura Archivada', 'Actualizada');
       }
     )
   }

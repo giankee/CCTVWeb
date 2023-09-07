@@ -45,8 +45,8 @@ export class PedirMedicamentoComponent implements OnInit {
   constructor(private _productoBService: ProductoBService, private _variosService: VariosService, private _conexcionService: ConexionService) {
     this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBarcos = dato;
-      if (this.conexcionService.UserR.rolAsignado != "enfermeria")
-        this.selecBodegaFiltro = dato.find(x => x.encargadoBodega == this._conexcionService.UserR.nombreU).nombreBodega;
+      if (this.conexcionService.UserDataToken.role != "enfermeria")
+        this.selecBodegaFiltro = dato.find(x => x.encargadoBodega.includes(this._conexcionService.UserDataToken.name)).nombreBodega;
     });
   }
 
@@ -84,7 +84,7 @@ export class PedirMedicamentoComponent implements OnInit {
   }
 
   onConvertPDFAll() {
-    if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
+    if (this.conexcionService.UserDataToken.role == "enfermeria") {
       if (this.listJustificacion.length != 0)
         this.onConvertPdfAllSuper();
       else this.onConvertPdfAllCliente();

@@ -80,8 +80,8 @@ export class ListConsultaMedicComponent implements OnInit {
   ngOnInit(): void {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBodega = dato;
-      if (this._conexcionService.UserR.rolAsignado == "verificador-medic")
-        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
+      if (this._conexcionService.UserDataToken.role == "verificador-medic")
+        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
       this.parametrosBusqueda.anio = this.fechaHoy.anio.toString();
       this.parametrosBusqueda.strBodegaOrigen = this.selecBodegaFiltro;
       this.cargarData();
@@ -134,7 +134,7 @@ export class ListConsultaMedicComponent implements OnInit {
   }
 
   onModal(dataIn: cConsultaMedic) {
-    this.consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserR.nombreU);
+    this.consultaMedicService.formData = new cConsultaMedic(this._conexcionService.UserDataToken.name);
     this.consultaMedicService.formData.completarObject(dataIn);
     const dialoConfig = new MatDialogConfig();
     dialoConfig.autoFocus = true;

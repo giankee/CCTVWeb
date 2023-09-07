@@ -79,7 +79,7 @@ export class TransConsultaAtencionComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.atencionMedicService.formData.spinnerLoading) { console.table(this.atencionMedicService.formData);
+    if (this.atencionMedicService.formData.spinnerLoading) {
       this.atencionMedicService.insertarAtencion(this.atencionMedicService.formData).subscribe(
         (res: any) => {
           if (res.exito == 1) {

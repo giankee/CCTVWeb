@@ -41,4 +41,8 @@ export class OrdenPedidoService {
   actualizarPedido(formData: cOrdenPedido): Observable<cOrdenPedido> {
     return this.http.put<cOrdenPedido>(this.serverUrl  + '/'+formData.idOrdenPedido ,formData);
   }
+
+  achivarPedido(formData: cOrdenPedido): Observable<cOrdenPedido> {
+    return this.http.put<cOrdenPedido>(this.serverUrl  + '/putArchivarPedido/'+formData.idOrdenPedido ,formData);
+  }
 }

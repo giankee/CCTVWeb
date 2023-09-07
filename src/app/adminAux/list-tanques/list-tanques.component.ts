@@ -22,11 +22,12 @@ export class ListTanquesComponent implements OnInit {
   ngOnInit(): void {
     this.cargarLugares();
   }
-   cargarLugares(){
-    this.ordenESService.getLugaresDiferentes().subscribe(dato => {
-      this.listLugares = dato;
-    });
-   }
+  
+  cargarLugares(){
+  this.ordenESService.getLugaresDiferentes().subscribe(dato => {
+    this.listLugares = dato;
+  });
+  }
 
   onGenerarR(){
     if(this.parametrosBusqueda.tipoR!="SIN ASIGNAR"){
@@ -40,7 +41,6 @@ export class ListTanquesComponent implements OnInit {
       this.ordenESService.getFiltroReportTanques(parametros).subscribe((dato:any )=> {
         this.listResultados=dato.data;
         this.spinnerOnOff=2;
-        console.table(this.listResultados);
       });
     }
     

@@ -71,7 +71,7 @@ export class AgruparInventarioComponent implements OnInit {
 
   cargarBodega() {
     this._variosService.getLugarSearch("Bodega@b").subscribe(dato => {
-      this.selectBodegaAux = dato.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombre;
+      this.selectBodegaAux = dato.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombre;
       this.cargarData();
     });
   }
@@ -157,10 +157,10 @@ export class AgruparInventarioComponent implements OnInit {
       if (this.productoBService.formData.sumStock > 0) {
         this.productoBService.formData.listBodegaProducto[0].disponibilidad = this.productoBService.formData.listBodegaProducto[0].disponibilidad + this.productoBService.formData.sumStock;
 
-        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX", this.selectBodegaAux);
-        this._ordenTrabajoService.formData.bodeguero = this.conexcionService.UserR.nombreU;
+        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "P MANACRIPEX", this.selectBodegaAux);
+        this._ordenTrabajoService.formData.bodeguero = this.conexcionService.UserDataToken.name;
         this._ordenTrabajoService.formData.tipoOrden = "Armar Kit";
-        this._ordenTrabajoService.formData.personaResponsable = this.conexcionService.UserR.nombreU;
+        this._ordenTrabajoService.formData.personaResponsable = this.conexcionService.UserDataToken.name;
         this._ordenTrabajoService.formData.destinoLugar = this.selectBodegaAux;
         for (var i = 0; i < this._productoBService.formData.listComponentesProducto.length; i++) {
           this._ordenTrabajoService.formData.agregarOneMaterial();

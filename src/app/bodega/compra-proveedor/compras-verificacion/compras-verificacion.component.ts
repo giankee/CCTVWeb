@@ -55,7 +55,7 @@ export class ComprasVerificacionComponent implements OnInit {
 
   constructor(private _conexcionService: ConexionService, private _variosService: VariosService, private _ordenECService: OrdenECService, private toastr: ToastrService, private whatsappService: WhatsappService, private _consultaMedicService: ConsultaMedicService) {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato.find(x => x.encargadoBodega == this._conexcionService.UserR.nombreU);
+      this.listBarcos = dato.find(x => x.encargadoBodega.includes(this._conexcionService.UserDataToken.name));
       this.restartListPendientes();
     });
   }
@@ -125,7 +125,7 @@ export class ComprasVerificacionComponent implements OnInit {
 
   restartListPendientes(valorPage?: number) {
     this.listOrdenesMostrar = [];
-    if(this._conexcionService.UserR.rolAsignado=="enfermeria")
+    if(this._conexcionService.UserDataToken.role=="enfermeria")
       this.listBarcos.nombreBodega="ENFERMERIA GENERAL";
       this.ordenECService.getVerificarMedicamento("ENFERMERIA@DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A@" + this.listBarcos.nombreBodega).subscribe(dato => {
         dato.forEach(x => {
@@ -144,19 +144,20 @@ export class ComprasVerificacionComponent implements OnInit {
 
   generarReporte(observacionIn) {
     var auxBase = this.onConvertPdfOne().split('base64,');
-    if (this.conexcionService.UserR.phoneNumber == "593-999786121")
-      var personas: string[][] = [[this.conexcionService.UserR.nombreU, this.conexcionService.UserR.phoneNumber], ["Giancarlo Alvarez", "593-999786121"], ["Carlos Lopez", "593-999786121"], ["Veronica Chumo", "593-999786121"]];
-    else var personas: string[][] = [[this.conexcionService.UserR.nombreU, this.conexcionService.UserR.phoneNumber], ["Giancarlo Alvarez", "593-999786121"], ["Carlos Lopez", "593-999486327"], ["Veronica Chumo", "593-983514650"]];
+    if (this.conexcionService.UserDataToken.whatsAppPhone == "593-999786121")
+      var personas: string[][] = [[this.conexcionService.UserDataToken.name, this.conexcionService.UserDataToken.whatsAppPhone], ["Giancarlo Alvarez", "593-999786121"], ["Carlos Lopez", "593-999786121"], ["Veronica Chumo", "593-999786121"]];
+    else var personas: string[][] = [[this.conexcionService.UserDataToken.name, this.conexcionService.UserDataToken.whatsAppPhone], ["Giancarlo Alvarez", "593-999786121"], ["Carlos Lopez", "593-999486327"], ["Veronica Chumo", "593-983514650"]];
     var auxWhatsapp: cWhatsapp;
     for (var i = 0; i < personas.length; i++) {
       auxWhatsapp = {
         phone: personas[i][1],
         message: "",
+        caption:"",
         title: this.ordenECService.formData.planta + "_" + this.ordenECService.formData.fechaRegistroBodega + "-" + this.ordenECService.formData.factura + ".pdf",
         media: auxBase[1],
         type: "application/pdf"
       };
-      auxWhatsapp.message = ':bell: *Notificación Reporte de Inconsistencia*:exclamation: :bell:'
+      auxWhatsapp.caption = ':bell: *Notificación Reporte de Inconsistencia*:exclamation: :bell:'
         + '\n'
         + '\n:wave: Saludos ' + personas[i][0]
         + '\nSe le informa que se ha generado un reporte en la revisión de medicamentos para el barco *' + this.ordenECService.formData.listPcomprasO[0].destinoBodega + '*.'
@@ -279,7 +280,7 @@ export class ComprasVerificacionComponent implements OnInit {
   }
 
   crearOrdenFaltanteMedicamento(observacionIn: string) {
-    this.consultaMedicService.formData = new cConsultaMedic(this.conexcionService.UserR.nombreU, this.ordenECService.formData.listPcomprasO[0].destinoBodega);
+    this.consultaMedicService.formData = new cConsultaMedic(this.conexcionService.UserDataToken.name, this.ordenECService.formData.listPcomprasO[0].destinoBodega);
     this.consultaMedicService.formData.paciente = "MANACRIPEX";
     this.consultaMedicService.formData.sintomas = observacionIn;
     this.consultaMedicService.formData.marea = this.ordenECService.formData.marea;

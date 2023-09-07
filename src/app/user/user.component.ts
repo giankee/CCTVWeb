@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { NgForm } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { cUsuario } from '../shared/user-info';
+import { cDataToken, cLoginU } from '../shared/user-info';
 import { cWhatsapp } from '../shared/otrosServices/varios';
 import { WhatsappService } from '../shared/otrosServices/whatsapp.service';
 import { ConexionService } from '../shared/otrosServices/conexion.service';
@@ -33,7 +33,7 @@ export class UserComponent implements OnInit {
 
   ngOnInit(): void {
     if (localStorage.getItem('token') != null)//Si es que existe un token! carga datos del usuario
-      this.cargarDataUser();
+      this.crearUserData(localStorage.getItem('token'));
     else
       this.resetForm();
   }
@@ -41,7 +41,7 @@ export class UserComponent implements OnInit {
   resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
     if (form != null)
       form.resetForm();
-    this._userService.formData = new cUsuario();
+    this._userService.loginForm = new cLoginU();
   }
 
   onSubmit() {//Pasa los datos del formulario y llama al servicio login 
@@ -50,16 +50,17 @@ export class UserComponent implements OnInit {
         (res: any) => {
           if (res.message == "Ok") {
             this.modoActualizar = false;
-            this.cargarDataUser();
+            //this.cargarDataUser(); //obsoleto
             this.toastr.success('La contraseña fue actualizada correctamente', 'Actualizar Contraseña.');
           } else this.toastr.error(res.message, 'Error!');
         })
     } else
-      this._userService.login(this._userService.formData).subscribe(
+      this._userService.login(this._userService.loginForm).subscribe(
         (res: any) => {
-          if (!res.message) {//existe un usuario con ese nombre y contrasenia
-            localStorage.setItem('token', res.token);
-            this.cargarDataUser();//Manda a cargar los datos del usuario para saber el rol
+          if (res.exito==1) {//existe un usuario con ese nombre y contrasenia
+            localStorage.setItem('token', res.data);
+            this.crearUserData(res.data);
+            //this.cargarDataUser();//Manda a cargar los datos del usuario para saber el rol /obsoleto
           }
           else
             this.toastr.error('Nombre de usuario o contraseña incorrecto.', 'Inicio de sessión fallido.');
@@ -70,7 +71,7 @@ export class UserComponent implements OnInit {
       );
   }
 
-  cargarDataUser() {//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
+  /*cargarDataUser() {//tengo que cambiar esto
     this._userService.getUserData().subscribe(
       (res: any) => {
         if (res.temporalPassword) {
@@ -78,52 +79,66 @@ export class UserComponent implements OnInit {
           this.modoActualizar = true;
           this._userService.formData.userName = res.userName;
         } else {
-          this.conexcionService.UserR = new cUsuario();
-          this.conexcionService.UserR.objCompletar(res);
-          switch (res.rolAsignado) {
-            case 'admin':
-            case 'gpv-o':
-            case 'gv-m':
-            case 'tinabg-m':
-              this.router.navigateByUrl('/OrdenSupervisor');
-              break;
-            case 'guardia':
-              this.router.navigateByUrl('/OrdenGuardia');
-              break;
-            case 'bodega_verificador-m':
-              this.router.navigateByUrl('/Bodega/controlBodega');
-              break;
-            case 'enfermeria':
-              this.router.navigateByUrl('/Bodega/controlBodega');
-              break;
-            case 'verificador-medic':
-              this.router.navigateByUrl('/Bodega/verificacion');
-              break;
-            case 'verificador-bodeguero':
-              this.router.navigateByUrl('/Bodega/inventarioList');
-              break;
-            case 'verificador-bodeguero-b':
-              this.router.navigateByUrl('/Bodega/inventarioList');
-              break;
-            case 'pedido-flota':
-              this.router.navigateByUrl('/Pedido/VerificacionPedido');
-              break;
-            case 'pedido-planta':
-              this.router.navigateByUrl('/Pedido/Orden');
-              break;
-            case 'pedido-super':
-              this.router.navigateByUrl('/Pedido/PedidosList');
-              break;
-          }
+          
+          this.redirigirUsuario(this.conexcionService.UserDataToken.role);
         }
       },
       err => {
         console.log(err);
       },
     );
+  }*/
+
+  crearUserData(tokeIn:string){
+    this.conexcionService.UserDataToken=new cDataToken(tokeIn);
+    this.redirigirUsuario(this.conexcionService.UserDataToken.role);
   }
 
-  //Listo
+  redirigirUsuario(rolIn:string|string[]){
+    var auxRol="";
+    if(typeof rolIn === 'string')
+      auxRol=rolIn;
+    else auxRol=rolIn[0];
+    switch (auxRol) {
+      case 'admin':
+      case 'gpv-o':
+      case 'gv-m':
+      case 'tinabg-m':
+        this.router.navigateByUrl('/OrdenSupervisor');
+        break;
+      case 'guardia':
+        this.router.navigateByUrl('/OrdenGuardia');
+        break;
+      case 'bodega_verificador-m':
+        this.router.navigateByUrl('/Bodega/controlBodega');
+        break;
+      case 'enfermeria':
+        this.router.navigateByUrl('/Bodega/controlBodega');
+        break;
+      case 'verificador-medic':
+        this.router.navigateByUrl('/Bodega/verificacion');
+        break;
+      case 'verificador-bodeguero':
+      case 'verificador-bodeguero-b':
+        case 'verificador-bodeguero-h':
+        this.router.navigateByUrl('/Bodega/inventarioList');
+        break;
+      case 'pedido-flota':
+        this.router.navigateByUrl('/Pedido/VerificacionPedido');
+        break;
+      case 'pedido-planta':
+        this.router.navigateByUrl('/Pedido/Orden');
+        break;
+      case 'pedido-super':
+        this.router.navigateByUrl('/Pedido/PedidosList');
+        break;
+      case 'adminSuper':
+        this.router.navigateByUrl('/Bodega/comprasInv');
+        break;
+    }
+  }
+
+  //Tengo que arreglar
   onChangePass() {
     var auxNombreUsuario;
     Swal.fire({
@@ -146,10 +161,7 @@ export class UserComponent implements OnInit {
       }
     }).then((result) => {//la respuesta de los inputs
       if (result.value) {//si recive una respuesta positiva osea Ok
-        var auxUserRecuperar: cUsuario = {
-          userName: auxNombreUsuario
-        }
-        this._userService.changePass(auxUserRecuperar).subscribe(//cambia el password anterior y te regresa un codigo temporal para poder iniciar sesion
+        this._userService.changePass(auxNombreUsuario).subscribe(//cambia el password anterior y te regresa un codigo temporal para poder iniciar sesion
           (res: any) => {
             if (res.message) {
               this.toastr.error(res.message, 'Error!');

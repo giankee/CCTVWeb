@@ -6,7 +6,7 @@
           <div class="row mt-3">
             <div class="col-12 col-md-8">
               <h4 class="text-center">Recopilación datos para Traspaso de
-                {{conexcionService.UserR.rolAsignado!='enfermeria' ? ' Bodega' : ' Medicamento'}}</h4>
+                {{conexcionService.UserDataToken.role!='enfermeria' ? ' Bodega' : ' Medicamento'}}</h4>
             </div>
             <div class="col-12 col-md-4">
               <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
@@ -17,7 +17,7 @@
             <div class="col-12 col-md-6 col-lg-4">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
-                  <strong class="ml-3">Salida de {{conexcionService.UserR.rolAsignado!='enfermeria'?'Bodega':'Barco'}}: </strong>
+                  <strong class="ml-3">Salida de {{conexcionService.UserDataToken.role!='enfermeria'?'Bodega':'Barco'}}: </strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
@@ -33,7 +33,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-2" *ngIf="conexcionService.UserR.rolAsignado=='enfermeria'">
+            <div class="col-12 col-md-6 col-lg-2" *ngIf="conexcionService.UserDataToken.role=='enfermeria'">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Marea: </strong>
@@ -50,7 +50,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado!='enfermeria'">
+            <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserDataToken.role!='enfermeria'">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Bodega de Destino: </strong>
@@ -70,7 +70,7 @@
               </div>
             </div>
             <div class="col-12 col-md-6 col-lg-3"
-              [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado!='enfermeria' }">
+              [ngClass]="{'col-lg-4':conexcionService.UserDataToken.role!='enfermeria' }">
               <div class="form-group">
                 <div class="title ml-2">
                   <strong class="ml-3">Responsable de Bodega de Destino: </strong>
@@ -88,7 +88,7 @@
               </div>
             </div>
             <div class="col-12 col-md-6 col-lg-3"
-              [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado!='enfermeria' }">
+              [ngClass]="{'col-lg-4':conexcionService.UserDataToken.role!='enfermeria' }">
               <div class="form-group">
                 <div class="title ml-2">
                   <strong class="ml-3">Responsable de Bodeguero Saliente: </strong>

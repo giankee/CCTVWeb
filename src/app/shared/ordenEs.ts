@@ -110,12 +110,10 @@ export class cOrdenEs {
             for (var i = 0; i < dataIn.listArticulosO.length; i++)
                 this.agregarOneArticulo(dataIn.listArticulosO[i]);
         }
-        if (dataIn.listGaleriaArchivoOrdenes != null) {
-            console.log("hay algo en galeria")
-        } else this.listGaleriaArchivoOrdenes = null;
-        if (dataIn.listTinasO != null) {
-            console.log("hay algo en tinas")
-        } else this.listTinasO = null;
+        if (dataIn.listGaleriaArchivoOrdenes == null) 
+        this.listGaleriaArchivoOrdenes = null;
+        if (dataIn.listTinasO == null) 
+        this.listTinasO = null;
         if (dataIn.persona != null) {
             this.persona.completarPersonal(dataIn.persona);
         }
@@ -163,15 +161,19 @@ export class cArticulosO {
         if (dataIn.productoId != null) {
             this.inventario = null;
             this.productoId = dataIn.productoId;
-            if (dataIn.producto != null)
+            if (dataIn.producto != null){
+                this.producto= new cProducto();
                 this.producto.completarObj(dataIn.producto);
+            }
         }
         if (dataIn.inventarioId != null) {
             this.checkInventario = true;
             this.producto = null;
             this.inventarioId = dataIn.inventarioId;
-            if (dataIn.inventario != null)
+            if (dataIn.inventario != null){
+                this.inventario=new cProducto_B();
                 this.inventario.rellenarObjeto(dataIn.inventario);
+            }
         }
     }
 }

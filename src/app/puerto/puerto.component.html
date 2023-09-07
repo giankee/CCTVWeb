@@ -1,6 +1,6 @@
-<div [ngClass]="{'page':conexcionService.UserR.rolAsignado!='gpv-o'}" *ngIf="conexcionService.UserR!=null">
-  <div *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
-    <nav class="navbar" *ngIf="conexcionService.UserR.rolAsignado!=null ">
+<div [ngClass]="{'page':conexcionService.UserDataToken.role!='gpv-o'}" *ngIf="conexcionService.UserDataToken!=null">
+  <div *ngIf="conexcionService.UserDataToken.role!='gpv-o'">
+    <nav class="navbar" *ngIf="conexcionService.UserDataToken.role!=null ">
       <div class="container-fluid">
         <div class="navbar-holder d-flex align-items-center justify-content-between">
           <div>
@@ -19,11 +19,11 @@
               </a>
             </li>
             <li><a class="nav-link disabled"> <span class="d-none d-sm-inline-block mr-1"><strong>User:</strong>
-                  {{conexcionService.UserR.UserName}}</span>
+                  {{conexcionService.UserDataToken.sub}}</span>
               </a>
             </li>
             <li>
-              <a class="nav-link" (click)="logOut()"> <span class="mr-1">Salir</span>
+              <a class="nav-link" (click)="_userService.logout()"> <span class="mr-1">Salir</span>
                 <fa-icon [icon]="fasignOut"></fa-icon>
               </a>
             </li>
@@ -55,16 +55,16 @@
                 </span>
               </div>
               <div style="width: 96%;" class="row justify-content-center text-center">
-                <div class="col-12 col-sm-6 pr-0 pr-sm-1" [ngClass]="{'col-sm-12':conexcionService.UserR.rolAsignado!='verificador-m'&&conexcionService.UserR.rolAsignado!='bodega_verificador-m'}">
+                <div class="col-12 col-sm-6 pr-0 pr-sm-1" [ngClass]="{'col-sm-12':conexcionService.UserDataToken.role!='verificador-m'&&conexcionService.UserDataToken.role!='bodega_verificador-m'}">
                   <input type="text" class="form-control" name="filtroOrden" maxlength="10" placeholder="Buscar.."
                   [(ngModel)]="filtroOrden">
                 </div>
                 <div class="col-6 col-sm-3 pr-0">
-                  <a *ngIf="conexcionService.UserR.rolAsignado=='verificador-m'|| conexcionService.UserR.rolAsignado=='bodega_verificador-m'" (click)="onChangeBusqueda(1)"
+                  <a *ngIf="conexcionService.UserDataToken.role=='verificador-m'|| conexcionService.UserDataToken.role=='bodega_verificador-m'" (click)="onChangeBusqueda(1)"
                   class="input-group-text btn d-block" [ngClass]="{'act':btnVerificacion}">Pendiente Verificación</a>
                 </div>
                 <div class="col-6 col-sm-3 px-0">
-                  <a *ngIf="conexcionService.UserR.rolAsignado=='verificador-m' || conexcionService.UserR.rolAsignado=='bodega_verificador-m'" (click)="onChangeBusqueda(2)"
+                  <a *ngIf="conexcionService.UserDataToken.role=='verificador-m' || conexcionService.UserDataToken.role=='bodega_verificador-m'" (click)="onChangeBusqueda(2)"
                   class="input-group-text btn d-block" [ngClass]="{'act':!btnVerificacion}">Pendiente Retorno</a>
                 </div>
               </div>
@@ -117,7 +117,7 @@
                     <td>{{dato.fechaRegistro}} {{dato.horaRegistro}}</td>
                     <td>
                       <div *ngFor="let datoItems of dato.listArticulosO; let indice2=index">
-                        <ul id="utilitarioI" *ngIf="conexcionService.UserR.rolAsignado!='verificador-m'&&conexcionService.UserR.rolAsignado!='bodega_verificador-m'">
+                        <ul id="utilitarioI" *ngIf="conexcionService.UserDataToken.role!='verificador-m'&&conexcionService.UserDataToken.role!='bodega_verificador-m'">
                           <input type="checkbox" name="int{{indice+selectPagination*pagActualIndex}}check{{indice2}}"
                             #int{{indice+selectPagination*pagActualIndex}}check{{indice2}}="ngModel"
                             [(ngModel)]="datoItems.checkRevision"
@@ -125,7 +125,7 @@
                             (change)="onCambiarPage=false">
                           {{datoItems.cantidad}} {{datoItems.producto?.nombre}} {{datoItems.inventario?.nombre}}|| {{datoItems.observacion}}
                         </ul>
-                        <ul id="utilitarioI" *ngIf="conexcionService.UserR.rolAsignado=='verificador-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m'">
+                        <ul id="utilitarioI" *ngIf="conexcionService.UserDataToken.role=='verificador-m'||conexcionService.UserDataToken.role=='bodega_verificador-m'">
                           <input type="checkbox" name="int{{indice+selectPagination*pagActualIndex}}check{{indice2}}"
                             #int{{indice+selectPagination*pagActualIndex}}check{{indice2}}="ngModel"
                             [(ngModel)]="datoItems.checkRevision" [disabled]="!btnVerificacion"
@@ -136,12 +136,12 @@
                     </td>
                     <td>{{dato.estadoProceso}}</td>
                     <td class="text-center" id="utilitarioI">
-                      <a *ngIf="dato.destinoProcedencia!='P MANACRIPEX' && (((conexcionService.UserR.rolAsignado=='verificador-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m')&& btnVerificacion)||(dato.destinoProcedencia!='OFICINAS'&& (conexcionService.UserR.rolAsignado!='verificador-m'&&conexcionService.UserR.rolAsignado!='bodega_verificador-m')))"
+                      <a *ngIf="dato.destinoProcedencia!='P MANACRIPEX' && (((conexcionService.UserDataToken.role=='verificador-m'||conexcionService.UserDataToken.role=='bodega_verificador-m')&& btnVerificacion)||(dato.destinoProcedencia!='OFICINAS'&& (conexcionService.UserDataToken.role!='verificador-m'&&conexcionService.UserDataToken.role!='bodega_verificador-m')))"
                         class="badge text-primario" matTooltip="Te permite guardar los datos orden seleccionada"
                         matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onsave(dato)">
                         <fa-icon [icon]="fasave" size="2x"></fa-icon>
                       </a>
-                      <a *ngIf="(conexcionService.UserR.rolAsignado=='verificador-m'||conexcionService.UserR.rolAsignado=='bodega_verificador-m') && btnVerificacion"
+                      <a *ngIf="(conexcionService.UserDataToken.role=='verificador-m'||conexcionService.UserDataToken.role=='bodega_verificador-m') && btnVerificacion"
                         class="badge text-primario" matTooltip="Te permite subir archivos" matTooltipPosition="left"
                         matTooltipClass="tooltipBlack" (click)="onImagenBotton(indice)">
                         <fa-icon [icon]="faFileUpload" size="2x"></fa-icon></a>

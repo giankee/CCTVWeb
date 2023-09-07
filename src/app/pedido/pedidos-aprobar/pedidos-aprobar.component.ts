@@ -52,11 +52,11 @@ export class PedidosAprobarComponent implements OnInit {
     this.listOrdenesMostrar = [];
 
     var parametros
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
+    if (this.conexcionService.UserDataToken.role == "pedido-flota")
       parametros = "FLOTA@Pendiente Aprobación";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
+    if (this.conexcionService.UserDataToken.role == "pedido-planta")
       parametros = "P MANACRIPEX@Pendiente Aprobación";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
+    if (this.conexcionService.UserDataToken.role == "pedido-super")
       parametros = "P OFICINAS@Pendiente Aprobación";
 
     this.ordenPedidoService.getListPedido(parametros).subscribe(dato => {
@@ -216,9 +216,9 @@ export class PedidosAprobarComponent implements OnInit {
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + personaSubArea, 146, y + 5);
 
-    if (this.conexcionService.UserR.nombreU == "CARLOS CEBALLOS" || this.conexcionService.UserR.nombreU == "JORGE SALAME" || this.conexcionService.UserR.nombreU == "PRUEBAG")
+    if (this.conexcionService.UserDataToken.name == "CARLOS CEBALLOS" || this.conexcionService.UserDataToken.name == "JORGE SALAME" || this.conexcionService.UserDataToken.name == "PRUEBAG")
       
-    if(this._conexcionService.UserR.nombreU!="CARLOS CEBALLOS")
+    if(this._conexcionService.UserDataToken.name!="CARLOS CEBALLOS")
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
     return (doc.output('datauristring'));
   }
@@ -230,9 +230,9 @@ export class PedidosAprobarComponent implements OnInit {
       auxOrden.estadoProceso = "Pendiente Verificación";
     else {
       auxOrden.estadoProceso = "Anulada";
-      auxOrden.responsableAnulada=this.conexcionService.UserR.nombreU;
+      auxOrden.responsableAnulada=this.conexcionService.UserDataToken.name;
     }
-    auxOrden.responsableAprobacion = this.conexcionService.UserR.nombreU;
+    auxOrden.responsableAprobacion = this.conexcionService.UserDataToken.name;
     auxOrden.fechaAprobacion = this.fechaActual.strFecha + "T" + this.fechaActual.strHoraA;
     var fechaAux = auxOrden.fechaPedido.split(" ");
     auxOrden.fechaPedido = fechaAux[0] + "T" + fechaAux[1];
@@ -256,6 +256,7 @@ export class PedidosAprobarComponent implements OnInit {
     var auxWhatsapp: cWhatsapp = {
       chatname: "",
       message: "",
+      caption:"",
       title: "Pedido_" + orden.numSecuencial + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
@@ -279,7 +280,7 @@ export class PedidosAprobarComponent implements OnInit {
       auxWhatsapp.chatname = "PEDIDOS OFICINAS PDF";
 
     var auxNumSecuencial = orden.numSecuencial.split('-');
-    auxWhatsapp.message = encabezado
+    auxWhatsapp.caption = encabezado
       + '\n'
       + '\n:wave: Saludos:'
       + '\nSe les informa que se ha generado un ' + asunto
@@ -308,7 +309,7 @@ export class PedidosAprobarComponent implements OnInit {
         if (res.length > 0) {
           if (res[0].telefono != null) {
             auxWhatsapp.chatname = "";
-            if (this.conexcionService.UserR.nombreU != "PRUEBAG")
+            if (this.conexcionService.UserDataToken.name != "PRUEBAG")
               auxWhatsapp.phone = res[0].telefono;
             else auxWhatsapp.phone = "593-999786121";
             this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(

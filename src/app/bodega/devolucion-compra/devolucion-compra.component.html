@@ -10,7 +10,7 @@
   </div>
   <div class="row boxForm mt-2">
     <div class="col-12 col-md-6"
-      [ngClass]="{'col-lg-5':conexcionService.UserR.rolAsignado != 'gpv-o','col-lg-4':conexcionService.UserR.rolAsignado == 'gpv-o'}">
+      [ngClass]="{'col-lg-5':conexcionService.UserDataToken.role != 'gpv-o','col-lg-4':conexcionService.UserDataToken.role == 'gpv-o'}">
       <div class="form-group">
         <div class="title ml-2">
           <strong class="ml-3">Proveedor:</strong>
@@ -34,7 +34,7 @@
       </div>
     </div>
     <div class="col-12 col-md-6"
-      [ngClass]="{'col-lg-5':conexcionService.UserR.rolAsignado != 'gpv-o','col-lg-3':conexcionService.UserR.rolAsignado == 'gpv-o'}">
+      [ngClass]="{'col-lg-5':conexcionService.UserDataToken.role != 'gpv-o','col-lg-3':conexcionService.UserDataToken.role == 'gpv-o'}">
       <div class="form-group">
         <div class="title ml-2">
           <strong class="ml-3">Factura:</strong>
@@ -45,7 +45,7 @@
           matTooltipPosition="above" matTooltipClass="tooltipRed" [matTooltipDisabled]="true">
       </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado == 'gpv-o'">
+    <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.role == 'gpv-o'">
       <div class="form-group">
         <div class="title ml-2">
           <strong class="ml-3">Guía Salida:</strong>

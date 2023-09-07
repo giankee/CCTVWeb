@@ -1,6 +1,6 @@
-<div [ngClass]="{'page':conexcionService.UserR.rolAsignado=='guardia'}" *ngIf="conexcionService.UserR!=null">
-  <div *ngIf="conexcionService.UserR.rolAsignado=='guardia'">
-    <nav class="navbar" *ngIf="conexcionService.UserR.rolAsignado!=null ">
+<div [ngClass]="{'page':conexcionService.UserDataToken.role=='guardia'}" *ngIf="conexcionService.UserDataToken!=null">
+  <div *ngIf="conexcionService.UserDataToken.role=='guardia'">
+    <nav class="navbar" *ngIf="conexcionService.UserDataToken.role!=null ">
       <div class="container-fluid">
         <div class="navbar-holder d-flex align-items-center justify-content-between">
           <div>
@@ -19,7 +19,7 @@
               </a>
             </li>
             <li><a class="nav-link disabled"> <span class="d-none d-sm-inline-block mr-1"><strong>User:</strong>
-                  {{conexcionService.UserR.UserName}}</span>
+                  {{conexcionService.UserDataToken.sub}}</span>
               </a>
             </li>
             <li>
@@ -58,19 +58,19 @@
             </div>
           </div>
           <div class="row boxForm align-items-center justify-content-center" style="height: 45%;">
-            <div class="col-12 col-md-6" *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
+            <div class="col-12 col-md-6" *ngIf="conexcionService.UserDataToken.role!='gpv-o'">
               <a [routerLink] id="BtnPrincipal" (click)="onStart('Balde')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="faboxes"></fa-icon> Control de Baldes
               </a>
             </div>
             <div class="col-12 col-md-6">
-              <a *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'" [routerLink] id="BtnPrincipal"
+              <a *ngIf="conexcionService.UserDataToken.role=='gpv-o'" [routerLink] id="BtnPrincipal"
                 (click)="onStart('Compras Proveedor')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="fausertag"></fa-icon> Compra Proveedor
               </a>
             </div>
             <div class="col-12 col-md-6">
-              <a *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'" [routerLink] id="BtnPrincipal"
+              <a *ngIf="conexcionService.UserDataToken.role=='gpv-o'" [routerLink] id="BtnPrincipal"
                 (click)="onStart('Devolucion Compra')" class="btn bttn-Primario btn-block">
                 <fa-icon [icon]="fausertag"></fa-icon> Devolución Compra
               </a>
@@ -85,7 +85,7 @@
                 Recopilación datos para la {{ordenESService.formData.tipoOrden=="Entrada"? 'entrada': 'salida'}}</h4>
               <h3 class="text-center" *ngIf="ordenESService.formData.tipoOrden=='Balde'">Recopilación datos para entrada
                 o salida de baldes</h3>
-              <div class="mt-2" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'">
+              <div class="mt-2" *ngIf="conexcionService.UserDataToken.role=='gpv-o'">
                 <strong class="ml-3">Lugar de {{ordenESService.formData.tipoOrden=="Entrada"? 'Entrada': 'Salida'}}:
                 </strong>
                 <mat-form-field appearance="fill" style="width: 25%;">
@@ -238,7 +238,7 @@
                               </li>
                             </ul>
                             <ul
-                              *ngIf="conexcionService.UserR.rolAsignado=='gpv-o' && ordenESService.formData.tipoOrden=='Salida'">
+                              *ngIf="conexcionService.UserDataToken.role=='gpv-o' && ordenESService.formData.tipoOrden=='Salida'">
                               <li class="titulo"> Proveedores</li>
                               <li
                                 *ngFor="let datoProveedor of listVariosFiltros$| async |lugaresCat:'cVistaSalida':'Proveedor' ">
@@ -312,7 +312,7 @@
                           [(ngModel)]="ordenESService.formData.checkGuiaR"></mat-checkbox>
                       </div>
                     </div>
-                    <input name="numGuiaRetorno" #numGuiaRetorno="ngModel" type="number"
+                    <input name="numGuiaRetorno" #numGuiaRetorno="ngModel"
                       [(ngModel)]="ordenESService.formData.numGuiaRetorno"
                       onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=8 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                       [disabled]="!ordenESService.formData.checkGuiaR" class="form-control" maxlength="20"
@@ -453,7 +453,7 @@
                     <table class="table">
                       <thead>
                         <tr class="text-center">
-                          <th scope="col" style="width:5%" *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'">
+                          <th scope="col" style="width:5%" *ngIf="conexcionService.UserDataToken.role=='gpv-o'">
                             Inventario</th>
                           <th scope="col" style="width:35%;">Producto</th>
                           <th scope="col" style="width:20%;">Cantidad</th>
@@ -467,7 +467,7 @@
                           *ngFor="let datoListP of ordenESService.formData.listArticulosO | slice:paginacion.startIndex:paginacion.endIndex; let indiceNewP=index"
                           [ngClass]="{'filaPar':(((indiceNewP+1)%2)==0)}">
                           <td class="justify-content-center text-center"
-                            *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'">
+                            *ngIf="conexcionService.UserDataToken.role=='gpv-o'">
                             <mat-checkbox
                               name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}checkInventario"
                               color="primary"

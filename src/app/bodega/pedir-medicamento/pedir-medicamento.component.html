@@ -15,7 +15,7 @@
                 <div class="form-group inputForm">
                   <div class="title"><strong> Barco:</strong></div>
                   <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
-                    [(ngModel)]="selecBodegaFiltro" [disabled]="conexcionService.UserR.rolAsignado == 'verificador-medic'">
+                    [(ngModel)]="selecBodegaFiltro" [disabled]="conexcionService.UserDataToken.role == 'verificador-medic'">
                     <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
                     <option *ngFor="let datobodega of listBarcos" value="{{datobodega.nombreBodega}}">
                       {{datobodega.nombreBodega}}</option>

@@ -113,6 +113,7 @@ import { ReporteCaducidadComponent } from './bodega/reportes/reporte-caducidad/r
 import { SubirExcelTanquesComponent } from './adminAux/subir-excel-tanques/subir-excel-tanques.component';
 import { ListTanquesComponent } from './adminAux/list-tanques/list-tanques.component';
 import { NewOrdenTrabajoComponent } from './bodega/orden-trabajo-planta/new-orden-trabajo/new-orden-trabajo.component';
+import { WhatsappTestComponent } from './whatsapp-test/whatsapp-test.component';
 
 
 @NgModule({
@@ -203,7 +204,8 @@ import { NewOrdenTrabajoComponent } from './bodega/orden-trabajo-planta/new-orde
     ReporteCaducidadComponent,
     SubirExcelTanquesComponent,
     ListTanquesComponent,
-    NewOrdenTrabajoComponent
+    NewOrdenTrabajoComponent,
+    WhatsappTestComponent
   ],
   imports: [
     BrowserModule,

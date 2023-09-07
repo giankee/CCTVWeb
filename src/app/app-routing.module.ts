@@ -48,6 +48,7 @@ import { ListTanquesComponent } from './adminAux/list-tanques/list-tanques.compo
 import { NewOrdenTrabajoComponent } from './bodega/orden-trabajo-planta/new-orden-trabajo/new-orden-trabajo.component';
 import { CompraProveedorComponent } from './bodega/compra-proveedor/compra-proveedor.component';
 import { TraspasoInternoComponent } from './bodega/traspaso-interno/traspaso-interno.component';
+import { WhatsappTestComponent } from './whatsapp-test/whatsapp-test.component';
 
 const routes: Routes = [
 
@@ -77,11 +78,11 @@ const routes: Routes = [
       },
       {
         path: 'Bodega', children: [
-          { path: 'inventarioList', data: { permittedRoles: ['admin','gpv-o','tinabg-m','bodega_verificador-m','enfermeria','verificador-medic','verificador-bodeguero','verificador-bodeguero-b'] }, component: ListProductoBComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'comprasInv', data: { permittedRoles: ['admin','gpv-o','tinabg-m','bodega_verificador-m','enfermeria','verificador-bodeguero'] }, component: ListComprasComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'compras', data: { permittedRoles: ['verificador-bodeguero'] }, component: CompraProveedorComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'inventarioList', data: { permittedRoles: ['admin','gpv-o','tinabg-m','bodega_verificador-m','enfermeria','verificador-medic','verificador-bodeguero','verificador-bodeguero-b','verificador-bodeguero-h'] }, component: ListProductoBComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'comprasInv', data: { permittedRoles: ['admin','gpv-o','tinabg-m','bodega_verificador-m','enfermeria','verificador-bodeguero','adminSuper','verificador-bodeguero-h'] }, component: ListComprasComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'compras', data: { permittedRoles: ['verificador-bodeguero','verificador-bodeguero-h'] }, component: CompraProveedorComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'controlBodega', data: { permittedRoles: ['tinabg-m','bodega_verificador-m','enfermeria'] }, component: ControlESComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'trabajosInter', data: { permittedRoles: ['tinabg-m','bodega_verificador-m','verificador-bodeguero','verificador-bodeguero-b','enfermeria','gpv-o'] }, component: OrdenTrabajoPlantaComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'trabajosInter', data: { permittedRoles: ['tinabg-m','bodega_verificador-m','verificador-bodeguero','verificador-bodeguero-b','enfermeria','gpv-o','verificador-bodeguero-h'] }, component: OrdenTrabajoPlantaComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'reportes', data: { permittedRoles: ['gpv-o','tinabg-m','bodega_verificador-m'] }, component: MainReporteComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'verificacion', data: { permittedRoles: ['verificador-medic','enfermeria'] }, component: ComprasVerificacionComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'consulta', data: { permittedRoles: ['enfermeria','verificador-medic'] }, component: ConsultaMedicComponent, canDeactivate: [CanDeactivateGuard] },
@@ -91,8 +92,8 @@ const routes: Routes = [
           { path: 'accidente', data: { permittedRoles: ['enfermeria'] }, component: NewAccidenteComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'inventGroup', data: { permittedRoles: ['verificador-bodeguero','verificador-bodeguero-b'] }, component: AgruparInventarioComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'medicamentoCaducado', data: { permittedRoles: ['gpv-o','','enfermeria'] }, component: ReporteCaducidadComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'newTrabajosInter', data: { permittedRoles: ['verificador-bodeguero','verificador-bodeguero-b']}, component: NewOrdenTrabajoComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'newTraspasoInter', data: { permittedRoles: ['verificador-bodeguero','gpv-o']}, component: TraspasoInternoComponent, canDeactivate: [CanDeactivateGuard] }
+          { path: 'newTrabajosInter', data: { permittedRoles: ['verificador-bodeguero','verificador-bodeguero-b','verificador-bodeguero-h']}, component: NewOrdenTrabajoComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'newTraspasoInter', data: { permittedRoles: ['verificador-bodeguero','gpv-o','verificador-bodeguero-h']}, component: TraspasoInternoComponent, canDeactivate: [CanDeactivateGuard] }
         ]
       },
       {
@@ -116,7 +117,7 @@ const routes: Routes = [
       {
         path: 'Pedido', children: [
           { path: 'Orden', data: { permittedRoles: ['pedido-flota','pedido-planta','pedido-super'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
-          { path: 'PedidosList', data: { permittedRoles: ['pedido-flota','pedido-planta','pedido-super'] }, component: ListPedidosComponent, canDeactivate: [CanDeactivateGuard] },
+          { path: 'PedidosList', data: { permittedRoles: ['pedido-flota','pedido-planta','pedido-super','verificador-bodeguero-h'] }, component: ListPedidosComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'VerificacionPedido', data: { permittedRoles: ['pedido-flota','pedido-planta','pedido-super'] }, component: PedidosVerificacionComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'AprobacionPedido', data: { permittedRoles: ['pedido-flota','pedido-planta','pedido-super'] }, component: PedidosAprobarComponent, canDeactivate: [CanDeactivateGuard] },
           { path: 'Reporte', data: { permittedRoles: ['pedido-flota','pedido-planta','pedido-super'] }, component: OrdenPedidoComponent, canDeactivate: [CanDeactivateGuard] },
@@ -130,10 +131,11 @@ const routes: Routes = [
       },
       { path: 'List-bodegas', component: ListBoodegasComponent, data: { permittedRoles: ['admin','gpv-o','tinabg-m'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'List-proveedor', component: ListProveedorComponent, data: { permittedRoles: ['pedido-flota','tinabg-m','pedido-super'] }, canDeactivate: [CanDeactivateGuard] },
-      { path: 'registrar', component: RegistroComponent, data: { permittedRoles: ['admin'] }, canDeactivate: [CanDeactivateGuard] },
+      { path: 'registrar', component: RegistroComponent, data: { permittedRoles: ['admin','adminSuper'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'Entrada-Salida', component: ClienteComponent, data: { permittedRoles: ['gpv-o','gv-m','tinabg-m'] }, canDeactivate: [CanDeactivateGuard] },
       { path: 'Verificador', component: PuertoComponent, data: { permittedRoles: ['gpv-o','bodega_verificador-m'] }, canDeactivate: [CanDeactivateGuard] },
-      { path: 'BuscarFactura', component: ComprasNoRealizadasComponent, data: { permittedRoles: ['gpv-o','bodega_verificador-m','tinabg-m','enfermeria','verificador-bodeguero'] }, canDeactivate: [CanDeactivateGuard] },
+      { path: 'BuscarFactura', component: ComprasNoRealizadasComponent, data: { permittedRoles: ['gpv-o','bodega_verificador-m','tinabg-m','enfermeria','verificador-bodeguero','verificador-bodeguero-h'] }, canDeactivate: [CanDeactivateGuard] },
+      { path: 'whatsapp-test', component: WhatsappTestComponent, data: { permittedRoles: ['admin'] }, canDeactivate: [CanDeactivateGuard] },
     ]
   },
   { path: 'OrdenGuardia', data: { permittedRoles: ['guardia'] }, component: ClienteComponent, canActivate: [AdminGuard], canDeactivate: [CanDeactivateGuard] },

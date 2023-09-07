@@ -1,85 +1,83 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { cUsuario } from './user-info';
+import { cDataToken, cLoginU, cRegisterU } from './user-info';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
+import { ConexionService } from './otrosServices/conexion.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   serverUrl = environment.baseUrlCCTVL + 'account';
-  serverUrl2 =environment.baseUrlCCTVL + 'perfilUsuario';
-  formData: cUsuario;
+  serverUrl2 = environment.baseUrlCCTVL + 'perfilUsuario';
+  formData: cRegisterU;
+  loginForm: cLoginU;
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router,private conexcionService: ConexionService) {
     var URLactual = window.location;
-    if(URLactual.hostname!='192.168.2.97'){
-      this.serverUrl=environment.baseUrlCCTVP + 'account';
-      this.serverUrl2 =environment.baseUrlCCTVP + 'perfilUsuario';
+    if (URLactual.hostname != '192.168.2.97') {
+      this.serverUrl = environment.baseUrlCCTVP + 'account';
+      this.serverUrl2 = environment.baseUrlCCTVP + 'perfilUsuario';
     }
-   }
-
-  //Listo
-  insertarRegistro(formData: cUsuario){
-    return this.http.post(this.serverUrl + '/Registro',formData)
   }
 
   //Listo
-  login(formData: cUsuario) {
-    return this.http.post(this.serverUrl + '/Login', formData);
+  register(formDataR: cRegisterU) {
+    return this.http.post(this.serverUrl + '/Registro', formDataR)
   }
 
-  changePass(formData: cUsuario) {
-    return this.http.put(this.serverUrl + '/ChangePassword/',formData);
+  //Listo
+  login(formDataL: cLoginU) {
+    return this.http.post(this.serverUrl + '/Login', formDataL);
   }
 
-  updatePass(formData: cUsuario) {
-    return this.http.put(this.serverUrl + '/UpdateUserData/',formData);
+  changePass(strUsername: string) {
+    return this.http.put(this.serverUrl + '/ChangePassword/', strUsername);
   }
 
-  getUserData() {
-    return this.http.get(this.serverUrl2);
+  updatePass(formDataR: cRegisterU) {
+    return this.http.put(this.serverUrl + '/UpdateUserData/', formDataR);
   }
 
   //Listo
   logout() {
     localStorage.removeItem("token");
-    localStorage.removeItem("tokenExpiration");
     this.router.navigate(["/user-Login"]);
   }
 
-  estaLogueado(): boolean {
-
-    var exp = localStorage.getItem("tokenExpiration");
-
-    if (!exp) {
-      // el token no existe
+  estaLogueado():boolean{
+    const token = localStorage.getItem('token');
+    if (!token)
       return false;
-    }
-    var now = new Date().getTime();
-    var dateExp = new Date(exp);
-
-    if (now >= dateExp.getTime()) {
-      // ya expiró el token
-      localStorage.removeItem('token');
-      localStorage.removeItem('tokenExpiration');
-      return false;
-    } else {
+    this.conexcionService.UserDataToken=new cDataToken(token);
+    const currentTimestamp = Math.floor(Date.now() / 1000); 
+    if(this.conexcionService.UserDataToken.exp> currentTimestamp){
       return true;
-    }
+    }else this.logout();
+    return false;
   }
 
-  roleMatch(allowedRoles): boolean {
+  roleMatch(allowedRoles: string[]): boolean {
+    const token = localStorage.getItem('token');
+    if (!token)
+      return false;
+    const payLoad = JSON.parse(window.atob(token.split('.')[1]));
+    const userRole: string | string[] = payLoad.role;
     var isMatch = false;
-    var payLoad = JSON.parse(window.atob(localStorage.getItem('token').split('.')[1]));
-    var userRole = payLoad.role;
-    allowedRoles.forEach(element => {
-      if (userRole == element) {
+    
+    if (typeof userRole === 'string') {
+      if (allowedRoles.includes(userRole)) {
         isMatch = true;
-        return false;
       }
-    });
+    }else if (Array.isArray(userRole)) {
+      for (const role of userRole) {
+        if (allowedRoles.includes(role)) {
+          isMatch = true;
+          break;
+        }
+      }
+    }
     return isMatch;
   }
 }

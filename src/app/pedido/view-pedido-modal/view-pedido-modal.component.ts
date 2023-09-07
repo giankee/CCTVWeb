@@ -66,7 +66,6 @@ export class ViewPedidoModalComponent implements OnInit {
     });
   }
 
-
   cargarData() {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBarcos = dato;
@@ -306,7 +305,7 @@ export class ViewPedidoModalComponent implements OnInit {
 
   onEliminar() {
     this.ordenPedidoService.formData.estadoProceso = "Anulada";
-    this.ordenPedidoService.formData.responsableAnulada = this.conexcionService.UserR.nombreU;
+    this.ordenPedidoService.formData.responsableAnulada = this.conexcionService.UserDataToken.name;
     this.guardar();
   }
 
@@ -372,10 +371,7 @@ export class ViewPedidoModalComponent implements OnInit {
   }
 
   guardar() {
-    var fechaAux=this.ordenPedidoService.formData.fechaPedido.split(" ");
-    this.ordenPedidoService.formData.fechaPedido=fechaAux[0]+"T"+fechaAux[1];
-    fechaAux=this.ordenPedidoService.formData.fechaAprobacion.split(" ");
-    this.ordenPedidoService.formData.fechaAprobacion=fechaAux[0]+"T"+fechaAux[1];
+    this.ordenPedidoService.formData.corregirFechas();
     this.ordenPedidoService.actualizarPedido(this.ordenPedidoService.formData).subscribe(
       (res: any) => {
         if (res.message == "Ok") {

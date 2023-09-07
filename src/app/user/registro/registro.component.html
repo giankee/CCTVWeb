@@ -2,10 +2,10 @@
   <div class="boxUser" *ngIf="userService.formData">
     <h2>Registrar</h2>
     <form #form='ngForm' class="mb-4" autocomplete="off" (submit)="onSubmit(form)">
-      <div class="form-group inputBox" *ngIf="conexcionService.UserR">
+      <div class="form-group inputBox" *ngIf="conexcionService.UserDataToken!=null">
         <select class="form-control" #rolAsignado="ngModel" name="rolAsignado"
-          [(ngModel)]="userService.formData.rolAsignado" *ngIf="conexcionService.UserR.rolAsignado">
-          <option value="admin" *ngIf="conexcionService.UserR.rolAsignado=='admin'">Admin</option>
+          [(ngModel)]="userService.formData.rolAsignado" *ngIf="conexcionService.UserDataToken.role">
+          <option value="admin" *ngIf="conexcionService.UserDataToken.role=='admin'">Admin</option>
           <option value="gv-m">Supervisor Guardia</option>
           <option value="gpv-o">Supervisor Oficina</option>
           <option value="tinabg-m">Supervisor Compras Planta Manacripex</option>
@@ -14,9 +14,11 @@
           <option value="verificador-medic">Verificador Medicamento Barco</option>
           <option value="verificador-bodeguero">Bodeguero Manacripex</option>
           <option value="verificador-bodeguero-b">Bodeguero Barco</option>
+          <option value="verificador-bodeguero-h">Bodeguero Hangar</option>
           <option value="pedido-flota">Pedidos Flota</option>
           <option value="pedido-planta">Pedidos Planta</option>
           <option value="pedido-super">Pedidos Supervisor</option>
+          <option value="adminSuper">Adminsitrador Superior</option>
         </select>
         <label class="normal">Tipo de Usuario</label>
       </div>
@@ -24,7 +26,7 @@
         <select class="form-control" #nombreU="ngModel" name="nombreU"
           [(ngModel)]="userService.formData.nombreU" required>
           <option *ngFor="let datoG of listGuardiasIn" value="{{datoG.empleado}}">{{datoG.empleado}}</option>
-          <option *ngIf="conexcionService.UserR.rolAsignado=='admin'" value="PruebaG">NOMBRE USUARIO</option>
+          <option *ngIf="conexcionService.UserDataToken.role=='admin'" value="PruebaG">NOMBRE USUARIO</option>
         </select>
         <label class="normal">Nombre del Guardia</label>
       </div>

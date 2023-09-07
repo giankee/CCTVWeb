@@ -37,7 +37,7 @@
             <mat-checkbox name="chechPerchaFila" #chechPerchaFila="ngModel" color="primary"
               [disabled]="!filtroTablaProd.checkBodega" [(ngModel)]="filtroTablaProd.chechPerchaFila">Percha Fila
             </mat-checkbox>
-            <div *ngIf="conexcionService.UserR.rolAsignado!='gpv-o'">
+            <div *ngIf="conexcionService.UserDataToken.role!='gpv-o'">
               <mat-checkbox name="CheckCasillero" #CheckCasillero="ngModel" color="primary"
                 [disabled]="!filtroTablaProd.checkBodega" [(ngModel)]="filtroTablaProd.CheckCasillero">Casillero
               </mat-checkbox>

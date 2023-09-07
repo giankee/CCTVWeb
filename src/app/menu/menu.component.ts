@@ -11,7 +11,7 @@ import {
 import { cNotificacion } from '../shared/ordenEs';
 import { NotificacionService } from '../shared/notificacion.service';
 import { faPlusSquare } from '@fortawesome/free-regular-svg-icons';
-import { cUsuario } from '../shared/user-info';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 @Component({
   selector: 'app-menu',
@@ -49,7 +49,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   fashoppingCart = faShoppingCart; faboxes = faBoxes; fadolly = faDolly; fadollyflatbed = faDollyFlatbed; fasquareplus = faPlusSquare;fachartLine=faChartLine;
   fafilemedical = faFileMedical; fakitmedical = faMedkit; fabookmedical = faBookMedical; falaptopmedic = faLaptopMedical; facarcrash = faCarCrash;fagarage=faWarehouse
   faobjerctunicion = faObjectGroup; faidcardalt = faIdCardAlt; faprescription = faPrescriptionBottleAlt;faheartbeat=faHeartbeat; faclipboardList= faClipboardList;
-  fapills=faPills;faucet=faFaucet;fawater=faTint;faexchange=faExchangeAlt;
+  fapills=faPills;faucet=faFaucet;fawater=faTint;faexchange=faExchangeAlt;fawhatsapp=faWhatsapp;
 
   /**Parte Online/OffLine */
   public onlineEvent: Observable<Event>;
@@ -63,19 +63,8 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.mIniciarConexion();
-    if (this._userService.estaLogueado) {
-      this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
-        (res: any) => {
-          this._conexcionService.UserR = new cUsuario();
-          this._conexcionService.UserR.objCompletar(res);
-        },
-        err => {
-          console.log(err);
-        },
-      );
-    }
-    else
-      this.router.navigate(["/user-Login"]);
+    if (!this._userService.estaLogueado())
+      this._userService.logout();
   }
 
   mIniciarConexion() {//Revisa si esta Online o Offline con sus respectivos mensajes
@@ -98,10 +87,6 @@ export class MenuComponent implements OnInit, OnDestroy {
       this._conexcionService.formData.connectionStatus = 'ffline';
       this._conexcionService.pasarStatus(this._conexcionService.formData);
     }));
-  }
-
-  logOut() {
-    this._userService.logout();
   }
 
   ngOnDestroy(): void {

@@ -22,7 +22,7 @@ export class ViewAccidenteModelComponent implements OnInit {
   constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewAccidenteModelComponent>, private _accidenteMedicService: AccidenteService) { }
 
   ngOnInit(): void {
-    if (this.dato.auxId != null) {console.table(this.dato)
+    if (this.dato.auxId != null) {
       if (this.dato.auxId != this.accidenteMedicService.formData.idAccidenteMedic)
         this.dialogRef.close();
       else{
@@ -76,6 +76,5 @@ export class ViewAccidenteModelComponent implements OnInit {
         this.galleryImages.push(auxGalleryImage);
       }
     }
-    console.table(this.galleryImages);
   }
 }

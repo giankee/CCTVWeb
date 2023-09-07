@@ -97,25 +97,25 @@ export class ListProductoBComponent implements OnInit {
   cargarData() {//Datos de los productos traidos desde db
     this.listProductosIn = [];
     var strParametro = "P MANACRIPEX@All";
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o' || (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.conexcionService.UserR.nombreU == "SERGIO JARA")) {
-      if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+    if (this._conexcionService.UserDataToken.role == 'gpv-o' || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h" && this.conexcionService.UserDataToken.name == "SERGIO JARA")) {
+      if (this._conexcionService.UserDataToken.role == 'gpv-o')
         strParametro = "OFICINAS@All";
       else strParametro = "OFICINAS@" + this.filtrarBodegas();
     }
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
+    if (this._conexcionService.UserDataToken.role == 'enfermeria')
       strParametro = "ENFERMERIA@All";
-    if (this._conexcionService.UserR.rolAsignado == 'verificador-medic') {
+    if (this._conexcionService.UserDataToken.role == 'verificador-medic') {
       this.selecBodegaFiltro = this.filtrarBodegas();
       strParametro = "ENFERMERIA@" + this.selecBodegaFiltro;
     }
-    if ((this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && this.conexcionService.UserR.nombreU != "FERNANDA MORALES" && this.conexcionService.UserR.nombreU != "SERGIO JARA") || this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
+    if ((this._conexcionService.UserDataToken.role == 'verificador-bodeguero' && this.conexcionService.UserDataToken.name != "FERNANDA MORALES" && this.conexcionService.UserDataToken.name != "SERGIO JARA") || this._conexcionService.UserDataToken.role == "bodega_verificador-m") {
       strParametro = "P MANACRIPEX@" + this.filtrarBodegas();
     }
-    if (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero-b") {
+    if (this._conexcionService.UserDataToken.role == "verificador-bodeguero-b") {
       strParametro = "BARCOS@" + this.filtrarBodegas();
     }
 
-    if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+    if (this._conexcionService.UserDataToken.role == 'verificador-bodeguero' && this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
       strParametro = "P MANACRIPEX-BARCOS@" + this.filtrarBodegas();
     }
     this._productoBService.getProductosPlanta(strParametro)
@@ -138,9 +138,9 @@ export class ListProductoBComponent implements OnInit {
 
   filtrarBodegas(): string {
     var strNombreBodegas: string = "";
-    if (this.conexcionService.UserR.rolAsignado == 'verificador-bodeguero-b') {
-      this.listBodega = this.listBodega.filter(x => (x.listAreas.find(y => y.encargadoArea == this.conexcionService.UserR.nombreU)) != undefined);
-    } else this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU || (this.conexcionService.UserR.nombreU == "FERNANDA MORALES" && x.tipoBodega == "PUERTO"));
+    if (this.conexcionService.UserDataToken.role == 'verificador-bodeguero-b') {
+      this.listBodega = this.listBodega.filter(x => (x.listAreas.find(y => y.encargadoArea == this.conexcionService.UserDataToken.name)) != undefined);
+    } else this.listBodega = this.listBodega.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name) || (this.conexcionService.UserDataToken.name == "FERNANDA MORALES" && x.tipoBodega == "PUERTO"));
     this.listBodega.forEach(x => {
       if (strNombreBodegas == "") {
         strNombreBodegas = x.nombreBodega;
@@ -151,19 +151,19 @@ export class ListProductoBComponent implements OnInit {
   }
 
   cargarBodega() {
-    if (this.conexcionService.UserR.rolAsignado == "enfermeria" || this.conexcionService.UserR.rolAsignado == "verificador-medic") {
+    if (this.conexcionService.UserDataToken.role == "enfermeria" || this.conexcionService.UserDataToken.role == "verificador-medic") {
       this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
         this.listBodega = dato;
         this.cargarData();
       });
     } else {
-      if (this.conexcionService.UserR.rolAsignado == "gpv-o" || (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && (this.conexcionService.UserR.nombreU == "SERGIO JARA" || this.conexcionService.UserR.nombreU == "FELIX LANDIN"))) {
+      if (this.conexcionService.UserDataToken.role == "gpv-o" || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")) {
         this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
           this.listBodega = dato;
           this.cargarData();
         });
       } else {
-        if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero-b") {
+        if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-b") {
           this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
             this.listBodega = dato;
             this.cargarData();
@@ -172,7 +172,7 @@ export class ListProductoBComponent implements OnInit {
         } else {
           this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
             this.listBodega = dato;
-            if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+            if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
               this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
                 for (var i = 0; i < dato.length; i++) {
                   this.listBodega.push(dato[i]);
@@ -189,32 +189,31 @@ export class ListProductoBComponent implements OnInit {
 
   resetForm() {//Para que los valores en el html esten vacios
     this.selectBodegaAux = "SIN ASIGNAR";
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+    if (this._conexcionService.UserDataToken.role == 'gpv-o')
       this._productoBService.formData = new cProducto_B("OFICINAS");
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria' || this.conexcionService.UserR.rolAsignado == "verificador-medic")
+    if (this._conexcionService.UserDataToken.role == 'enfermeria' || this.conexcionService.UserDataToken.role == "verificador-medic")
       this._productoBService.formData = new cProducto_B("ENFERMERIA");
-    if (this._conexcionService.UserR.rolAsignado == 'tinabg-m' || this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
+    if (this._conexcionService.UserDataToken.role == 'tinabg-m' || this._conexcionService.UserDataToken.role == 'bodega_verificador-m' || this.conexcionService.UserDataToken.role == "verificador-bodeguero") {
       this._productoBService.formData = new cProducto_B("P MANACRIPEX");
-      if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m") {
+      if (this._conexcionService.UserDataToken.role == "bodega_verificador-m") {
         this.selectBodegaAux = "GENERAL";
         this.onNewBodega();
       }
-      if (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
-        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
+      if (this._conexcionService.UserDataToken.role == "verificador-bodeguero") {
+        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
         this.onNewBodega();
       }
     }
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o' || (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.conexcionService.UserR.nombreU == "SERGIO JARA")) {
+    if (this._conexcionService.UserDataToken.role == 'gpv-o' || this._conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
       this._productoBService.formData = new cProducto_B("OFICINAS");
-      if (this.conexcionService.UserR.nombreU == "SERGIO JARA") {
-        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega == this.conexcionService.UserR.nombreU).nombreBodega;
+      if (this.conexcionService.UserDataToken.name == "SERGIO JARA") {
+        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
         this.onNewBodega();
       }
     }
 
-    if (this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero-b')
+    if (this._conexcionService.UserDataToken.role == 'verificador-bodeguero-b')
       this._productoBService.formData = new cProducto_B("BARCOS");
-    this.productoBService.formData.contenidoNeto = 1;
     this.nuevoCategoria = "";
     this.nuevoProveedor = "";
     this.nuevoMarca = "";
@@ -356,6 +355,14 @@ export class ListProductoBComponent implements OnInit {
       )
     }
     else {
+      if(this.conexcionService.UserDataToken.name=="FERNANDA MORALES"||this.conexcionService.UserDataToken.name=="SERGIO JARA"){
+        if(this.selecBodegaFiltro.includes("BP")||this.selecBodegaFiltro.includes("HELICOPTERO")){
+          this.productoBService.formData.planta="BARCOS";
+          this.productoBService.formData.listBodegaProducto[0].planta="BARCOS";
+          this.productoBService.formData.listBodegaProducto[0].nombreBodega=this.selecBodegaFiltro;
+          
+        }
+      }
       this._productoBService.insertarProducto(this._productoBService.formData).subscribe(
         (res: any) => {
           if (res.message == "DuplicateCode") {
@@ -378,6 +385,7 @@ export class ListProductoBComponent implements OnInit {
           }
         }
       );
+      
     }
   }
 
@@ -495,7 +503,7 @@ export class ListProductoBComponent implements OnInit {
     doc.text("Existencia", 238, (y + 7));
     doc.line(255, y, 255, (y + 10));//right
 
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+    if (this._conexcionService.UserDataToken.role == 'enfermeria') {
       doc.text("Mínimo", 256, (y + 7));
       doc.line(270, y, 270, (y + 10));//right
       doc.text("Real", 274, (y + 7));
@@ -618,7 +626,7 @@ export class ListProductoBComponent implements OnInit {
           doc.text("Existencia", 238, (y + 7));
           doc.line(255, y, 255, (y + 10));//right
 
-          if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+          if (this._conexcionService.UserDataToken.role == 'enfermeria') {
             doc.text("Mínimo", 256, (y + 7));
             doc.line(270, y, 270, (y + 10));//right
             doc.text("Real", 274, (y + 7));
@@ -649,7 +657,7 @@ export class ListProductoBComponent implements OnInit {
         doc.text(lineaStockG, 245, (y - valorG + auxLinea));
         doc.line(255, (y - valorG), 255, y);//right
 
-        if (this._conexcionService.UserR.rolAsignado == 'enfermeria') {
+        if (this._conexcionService.UserDataToken.role == 'enfermeria') {
           auxLinea = Number((valorG - (3 * lineaStockM.length + (3 * (lineaStockM.length - 1)))) / 2.5) + (2 + lineaStockM.length);
           doc.text(lineaStockM, 260, (y - valorG + auxLinea));
           doc.line(270, (y - valorG), 270, y);//right

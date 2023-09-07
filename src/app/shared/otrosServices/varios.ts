@@ -368,15 +368,15 @@ export class cEnterpriceProveedor {
 }
 
 export class cEnterpriceDocumento {
-    idDocumento: number;
+    iddocumento: number;
     claveacceso: string;
-    rS_Proveedor: string;
-    crp_Proveedor: string;
-    tP_Documento: string;
-    documento: string;
-    emi_Fecha: string;
-    rS_Cliente: string;
-    crp_Cliente: string = "";
+    rs_proveedor: string;
+    crp_proveedor: string;
+    tp_documento: string;
+    factura: string;
+    emi_fecha: string;
+    rs_cliente: string;
+    crp_cliente: string = "";
     nro_contespecial: string = "";
     anulado: number;
 
@@ -387,15 +387,15 @@ export class cEnterpriceDocumento {
     }
 
     completar(dataIn: cEnterpriceDocumento) {
-        this.idDocumento = dataIn.idDocumento;
+        this.iddocumento = dataIn.iddocumento;
         this.claveacceso = dataIn.claveacceso;
-        this.rS_Proveedor = dataIn.rS_Proveedor;
-        this.crp_Proveedor = dataIn.crp_Proveedor;
-        this.tP_Documento = dataIn.tP_Documento;
-        this.documento = dataIn.documento;
-        this.emi_Fecha = dataIn.emi_Fecha.substr(0, 10);
-        this.rS_Cliente = dataIn.rS_Cliente;
-        this.crp_Cliente = dataIn.crp_Cliente;
+        this.rs_proveedor = dataIn.rs_proveedor;
+        this.crp_proveedor = dataIn.crp_proveedor;
+        this.tp_documento = dataIn.tp_documento;
+        this.factura = dataIn.factura;
+        this.emi_fecha = dataIn.emi_fecha.substr(0, 10);
+        this.rs_cliente = dataIn.rs_cliente;
+        this.crp_cliente = dataIn.crp_cliente;
         this.nro_contespecial = dataIn.nro_contespecial;
         this.anulado = dataIn.anulado;
     }
@@ -403,7 +403,7 @@ export class cEnterpriceDocumento {
 
 export class cEnterpriceArticulosDocumento {
     idregistro: number;
-    iddocumento: number;
+    documentoid: number;
     codigoprincipal: string;
     codigoauxiliar: string;
     descripcion: string;
@@ -411,7 +411,7 @@ export class cEnterpriceArticulosDocumento {
     precio: number;
     descuento: number;
     subtotal: number;
-    documento?: cEnterpriceDocumento;
+    factura?: cEnterpriceDocumento;
 }
 
 export class cVistaSalida {

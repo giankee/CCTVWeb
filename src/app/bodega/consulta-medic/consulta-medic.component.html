@@ -44,7 +44,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">
+            <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserDataToken.role == 'verificador-medic'">
               <div class="form-group">
                 <div class="title ml-2">
                   <strong class="ml-3">Marea:</strong>
@@ -81,7 +81,7 @@
               </div>
             </div>
             <div class="col-12 col-md-6"
-              [ngClass]="{'col-lg-4':conexcionService.UserR.rolAsignado == 'enfermeria', 'col-lg-12':conexcionService.UserR.rolAsignado == 'verificador-medic'}">
+              [ngClass]="{'col-lg-4':conexcionService.UserDataToken.role == 'enfermeria', 'col-lg-12':conexcionService.UserDataToken.role == 'verificador-medic'}">
               <div class="form-group">
                 <div class="title ml-2">
                   <strong class="ml-3">Síntomas del Paciente: </strong>

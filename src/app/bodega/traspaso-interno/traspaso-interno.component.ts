@@ -75,22 +75,22 @@ export class TraspasoInternoComponent implements OnInit {
   }
 
   reset() {
-    if (this._conexcionService.UserR.rolAsignado == "enfermeria") {
-      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "ENFERMERIA");
+    if (this._conexcionService.UserDataToken.role == "enfermeria") {
+      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "ENFERMERIA");
     } else {
-      if (this._conexcionService.UserR.rolAsignado == "gpv-o"|| (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.conexcionService.UserR.nombreU == "SERGIO JARA")) {
-        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "OFICINAS");
-        if(this._conexcionService.UserR.nombreU=="SERGIO JARA"){
-          this.ordenTrabajoService.formData.bodega="SIN ASIGNAR";
-          this.ordenTrabajoService.formData.destinoLugar="SIN ASIGNAR";
-        }else this._ordenTrabajoService.formData.bodega = "Bodega Helicoptero";
-        this.ordenTrabajoService.formData.bodeguero = this.conexcionService.UserR.nombreU;
+      if (this._conexcionService.UserDataToken.role == "gpv-o" || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")) {
+        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "OFICINAS");
+        if (this._conexcionService.UserDataToken.name == "SERGIO JARA") {
+          this.ordenTrabajoService.formData.bodega = "HANGAR";
+          this.ordenTrabajoService.formData.destinoLugar = "SIN ASIGNAR";
+        } else this._ordenTrabajoService.formData.bodega = "Bodega Helicoptero";
+        this.ordenTrabajoService.formData.bodeguero = this.conexcionService.UserDataToken.name;
       }
       else {
-        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
-        if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
+        this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "P MANACRIPEX");
+        if (this._conexcionService.UserDataToken.role == "bodega_verificador-m")
           this._ordenTrabajoService.formData.bodega = "GENERAL";
-        if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+        if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
           this._ordenTrabajoService.formData.bodega = "MECANICA NAVAL";
           this.ordenTrabajoService.formData.bodeguero = "FERNANDA MORALES";
         }
@@ -103,34 +103,34 @@ export class TraspasoInternoComponent implements OnInit {
   }
 
   cargarBodega() {
-    if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
+    if (this.conexcionService.UserDataToken.role == "enfermeria") {
       this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
         this.listBodegaOrigen = dato;
       });
     } else {
-      if (this.conexcionService.UserR.rolAsignado == "gpv-o" || (this._conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.conexcionService.UserR.nombreU == "SERGIO JARA")) {
+      if (this.conexcionService.UserDataToken.role == "gpv-o" || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")) {
         this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
           this.listBodegaOrigen = JSON.parse(JSON.stringify(dato));
           this.listBodegaDestino = JSON.parse(JSON.stringify(this.listBodegaOrigen));
-          if (this.conexcionService.UserR.nombreU == "SERGIO JARA") {
+          if (this.conexcionService.UserDataToken.name == "SERGIO JARA") {
             this.listBodegaDestino = [];
-            this.listBodegaOrigen = this.listBodegaOrigen.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
+            this.listBodegaOrigen = this.listBodegaOrigen.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
           }
           this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
             for (var i = 0; i < dato.length; i++) {
-              if (this.conexcionService.UserR.nombreU == "SERGIO JARA") {
+              if (this.conexcionService.UserDataToken.name == "SERGIO JARA") {
                 if (dato[i].nombreBodega.includes("HELICOPTERO"))
-                this.listBodegaDestino.push(dato[i]);
-              }else this.listBodegaDestino.push(dato[i]);
+                  this.listBodegaDestino.push(dato[i]);
+              } else this.listBodegaDestino.push(dato[i]);
             }
           });
         });
       } else {
         this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
           this.listBodegaDestino = dato;
-          if (this.conexcionService.UserR.rolAsignado != 'tinabg-m') {
-            this.listBodegaOrigen = this.listBodegaDestino.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
-            if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+          if (this.conexcionService.UserDataToken.role != 'tinabg-m') {
+            this.listBodegaOrigen = this.listBodegaDestino.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
+            if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
               this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
                 for (var i = 0; i < dato.length; i++) {
                   this.listBodegaDestino.push(dato[i]);
@@ -212,9 +212,13 @@ export class TraspasoInternoComponent implements OnInit {
     if (this._conexcionService.formData.connectionStatus == "nline") {
       this.okBttnSubmit = false;
       if (this.comprobarNewM()) {
-        if (this.conexcionService.UserR.rolAsignado == "enfermeria")
+        if (this.conexcionService.UserDataToken.role == "enfermeria")
           this.ordenTrabajoService.formData.marea = this.ordenTrabajoService.formData.marea + "-" + this.fechaHoy.anio;
-        else this.ordenTrabajoService.formData.marea = null;
+        else {
+          this.ordenTrabajoService.formData.marea = null;
+          if(this.ordenTrabajoService.formData.destinoLugar.includes("BP")||this.ordenTrabajoService.formData.destinoLugar.includes("HELICOPTERO"))
+            this.ordenTrabajoService.formData.planta=this.ordenTrabajoService.formData.planta+"-BARCOS";
+        }
         this._ordenTrabajoService.traspasoBodega(this._ordenTrabajoService.formData).subscribe(
           (res: any) => {
             if (res.exito == 1) {
@@ -404,11 +408,12 @@ export class TraspasoInternoComponent implements OnInit {
     auxWhatsapp = {
       phone: telefonoIn,
       message: "",
+      caption:"",
       title: "Traspaso_" + traspaso.fechaRegistro + "_" + traspaso.numOrdenSecuencial + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
     }
-    auxWhatsapp.message = ':bell: *Notificación de Traspaso*:exclamation: :bell:'
+    auxWhatsapp.caption = ':bell: *Notificación de Traspaso*:exclamation: :bell:'
       + '\n'
       + '\n:wave: Saludos Compañero:'
       + '\nSe le informa que se ha registrado un trasposo de material de la bodega *' + traspaso.bodega + '* para la bodega *' + traspaso.destinoLugar + '*.'

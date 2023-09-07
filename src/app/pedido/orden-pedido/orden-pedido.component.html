@@ -56,21 +56,21 @@
                       <select class="form-control input-src" name="inSelectTipoPedido" #inSelectTipoPedido="ngModel"
                         [(ngModel)]="ordenPedidoService.formData.tipoPedido" required>
                         <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'" value="Consumo">Consumo
+                        <option *ngIf="conexcionService.UserDataToken.role=='pedido-flota'" value="Consumo">Consumo
                           Muelle</option>
-                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'" value="Faena Marítima">Faena
+                        <option *ngIf="conexcionService.UserDataToken.role=='pedido-flota'" value="Faena Marítima">Faena
                           Marítima</option>
-                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'" value="Bodega Muella">Bodega
+                        <option *ngIf="conexcionService.UserDataToken.role=='pedido-flota'" value="Bodega Muella">Bodega
                           Muelle</option>
                         <option value="Veda">Veda</option>
                         <option
-                          *ngIf="conexcionService.UserR.rolAsignado=='pedido-flota'||conexcionService.UserR.rolAsignado=='pedido-super'"
+                          *ngIf="conexcionService.UserDataToken.role=='pedido-flota'||conexcionService.UserDataToken.role=='pedido-super'"
                           value="Servicios Profesionales">Servicios Profesionales</option>
                         <option
-                          *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta'||conexcionService.UserR.rolAsignado=='pedido-super'"
+                          *ngIf="conexcionService.UserDataToken.role=='pedido-planta'||conexcionService.UserDataToken.role=='pedido-super'"
                           value="Orden de Compra">Orden Compra</option>
                         <option
-                          *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta'||conexcionService.UserR.rolAsignado=='pedido-super'"
+                          *ngIf="conexcionService.UserDataToken.role=='pedido-planta'||conexcionService.UserDataToken.role=='pedido-super'"
                           value="Orden de Trabajo">
                           Orden Trabajo</option>
                       </select>
@@ -116,12 +116,12 @@
                           value="{{datoBarco.nombreBodega}}">
                           {{datoBarco.nombreBodega}}</option>
                         <option
-                          *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta'&& ordenPedidoService.formData.empresa=='MANACRIPEX'"
+                          *ngIf="conexcionService.UserDataToken.role=='pedido-planta'&& ordenPedidoService.formData.empresa=='MANACRIPEX'"
                           value="P MANACRIPEX">P MANACRIPEX</option>
-                        <option *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'" value="P OFICINAS">OFICINAS
+                        <option *ngIf="conexcionService.UserDataToken.role=='pedido-super'" value="P OFICINAS">OFICINAS
                         </option>
                         <option
-                          *ngIf="conexcionService.UserR.rolAsignado=='pedido-super'&&(ordenPedidoService.formData.empresa=='MANACRIPEX'||ordenPedidoService.formData.empresa=='DANIEL BUEHS')"
+                          *ngIf="conexcionService.UserDataToken.role=='pedido-super'&&(ordenPedidoService.formData.empresa=='MANACRIPEX'||ordenPedidoService.formData.empresa=='DANIEL BUEHS')"
                           value="HANGAR">HANGAR</option>
                         <option
                           *ngFor="let datoVehiculos of listVehiculos |filtrarBarcosEmpresa:ordenPedidoService.formData.empresa"
@@ -244,7 +244,7 @@
                         </td>
                         <td id="inputSearchP">
                           <div class="row">
-                          <div class="col-11" style="padding-left: 0.5px; padding-right:1px;">
+                          <div class="col-10" style="padding-left: 0.5px; padding-right:1px;">
                             <div class="wrapper">
                               <div class="limit-width">
                                 <textarea name="in{{indiceNewP}}observacion" #in{{indiceNewP}}observacion="ngModel"
@@ -254,7 +254,7 @@
                               </div>
                             </div>
                           </div>
-                          <div class="col-1" style="padding-left: 0.5px; padding-right:1px;">
+                          <div class="col-2" style="padding-left: 0.5px; padding-right:2px;">
                             <div class="wrapper">
                               <div class="limit-width">
                                 <mat-checkbox class="ml-2" color="primary"
@@ -288,7 +288,7 @@
                           </select>
                         </td>
                         <td id="inputSearchP"
-                          *ngIf="conexcionService.UserR.rolAsignado=='pedido-planta' && ordenPedidoService.formData.area== 'P MANACRIPEX'">
+                          *ngIf="conexcionService.UserDataToken.role=='pedido-planta' && ordenPedidoService.formData.area== 'P MANACRIPEX'">
                           <select class="form-control input-src" name="in{{indiceNewP}}area"
                             #in{{indiceNewP}}area="ngModel"
                             [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].destinoArea"

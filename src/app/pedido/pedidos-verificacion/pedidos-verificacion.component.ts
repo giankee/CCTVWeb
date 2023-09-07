@@ -38,11 +38,11 @@ export class PedidosVerificacionComponent implements OnInit {
     this.spinnerOnOff = true;
     this.listOrdenesMostrar = [];
     var parametros;
-    if (this.conexcionService.UserR.rolAsignado == "pedido-flota")
+    if (this.conexcionService.UserDataToken.role == "pedido-flota")
       parametros = "FLOTA@Pendiente Verificación";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-planta")
+    if (this.conexcionService.UserDataToken.role == "pedido-planta")
       parametros = "P MANACRIPEX@Pendiente Verificación";
-    if (this.conexcionService.UserR.rolAsignado == "pedido-super")
+    if (this.conexcionService.UserDataToken.role == "pedido-super")
       parametros = "P OFICINAS@Pendiente Verificación";
     this.ordenPedidoService.getListPedido(parametros).subscribe(dato => {
       dato.forEach(x => {
@@ -83,7 +83,7 @@ export class PedidosVerificacionComponent implements OnInit {
       });
       if (datoIn.listArticulosPedido.find(x => x.estadoArticuloPedido == "Pendiente") == undefined) {
         datoIn.estadoProceso = "Procesada";
-        datoIn.verificacionUser = this.conexcionService.UserR.nombreU;
+        datoIn.verificacionUser = this.conexcionService.UserDataToken.name;
       }
       var fechaAux = datoIn.fechaPedido.split(" ");
       datoIn.fechaPedido = fechaAux[0] + "T" + fechaAux[1];
@@ -124,7 +124,7 @@ export class PedidosVerificacionComponent implements OnInit {
       });
       if (x.listArticulosPedido.find(x => x.estadoArticuloPedido == "Pendiente") == undefined){
         x.estadoProceso = "Procesada";
-        x.verificacionUser=this.conexcionService.UserR.nombreU;
+        x.verificacionUser=this.conexcionService.UserDataToken.name;
       }
       var fechaAux= x.fechaPedido.split(" ");
       x.fechaPedido= fechaAux[0]+"T"+fechaAux[1];

@@ -11,7 +11,6 @@ import { cPersonal } from '../shared/basicos';
 import { ApiEnterpriceService } from '../shared/otrosServices/api-enterprice.service';
 import Swal from 'sweetalert2';
 import { cPaginacion } from '../shared/otrosServices/paginacion';
-import { cUsuario } from '../shared/user-info';
 
 @Component({
   selector: 'app-puerto',
@@ -68,11 +67,9 @@ export class PuertoComponent implements OnInit {
 
   ngOnInit(): void {
     this.mIniciarConexion();
-    if (this._userService.estaLogueado) {
-      this.cargarDataUser();
-    }
-    else
-      this.router.navigate(["/user-Login"]);
+    if (!this._userService.estaLogueado())
+      this._userService.logout();
+    else this.cargarDataChoferes();
   }
 
   mIniciarConexion() {//Revisa si esta Online o Offline con sus respectivos mensajes
@@ -97,34 +94,17 @@ export class PuertoComponent implements OnInit {
     }));
   }
 
-  logOut() {
-    this._userService.logout();
-  }
-
-  cargarDataUser() {
-    this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
-      (res: any) => {
-        this._conexcionService.UserR = new cUsuario();
-        this.conexcionService.UserR.objCompletar(res);
-        this.cargarDataChoferes();
-      },
-      err => {
-        console.log(err);
-      },
-    );
-  }
-
   cargarData() {//Datos de los ordenes traidos desde db
-    if (this._conexcionService.UserR.rolAsignado == "verificador-m"||this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
+    if (this._conexcionService.UserDataToken.role == "verificador-m"||this._conexcionService.UserDataToken.role == "bodega_verificador-m")
       this.strES = "Entrada";
     this._ordenESService.getListOrdenesESVerificacion(this.strES)
       .subscribe(dato => {
         this.listOrdenesMostrar = [];
-        if (this._conexcionService.UserR.rolAsignado == "verificador-p")
+        if (this._conexcionService.UserDataToken.role == "verificador-p")
           this.listOrdenesMostrar = dato.filter(x => x.destinoProcedencia != "OFICINAS" && x.destinoProcedencia != "P MANACRIPEX");
-        if (this._conexcionService.UserR.rolAsignado == "verificador-m"||this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
+        if (this._conexcionService.UserDataToken.role == "verificador-m"||this._conexcionService.UserDataToken.role == "bodega_verificador-m")
           this.listOrdenesMostrar = dato.filter(x => x.planta == "P MANACRIPEX");
-        if (this._conexcionService.UserR.rolAsignado == "gpv-o")
+        if (this._conexcionService.UserDataToken.role == "gpv-o")
           this.listOrdenesMostrar = JSON.parse(JSON.stringify(dato));
 
         this.listOrdenesMostrar.forEach(y => {
@@ -135,7 +115,7 @@ export class PuertoComponent implements OnInit {
             if (aux != null)
               y.persona.resetChofer(aux.cedula, aux.empleado);
           }
-          if (this._conexcionService.UserR.rolAsignado != "verificador-m"&& this._conexcionService.UserR.rolAsignado != "bodega_verificador-m") {
+          if (this._conexcionService.UserDataToken.role != "verificador-m"&& this._conexcionService.UserDataToken.role != "bodega_verificador-m") {
             y.listArticulosO.forEach(y1 => {
               y1.checkRevision = false;
               if (y1.estadoProducto == "Procesada" || y1.estadoProducto == "Pendiente Retorno")
@@ -182,11 +162,11 @@ export class PuertoComponent implements OnInit {
       this._ordenESService.getGuiaPendienteRPlanta()
         .subscribe(dato => {
           this.listOrdenesMostrar = [];
-          if (this._conexcionService.UserR.rolAsignado == "verificador-p")
+          if (this._conexcionService.UserDataToken.role == "verificador-p")
             this.listOrdenesMostrar = dato.filter(x => x.destinoProcedencia != "OFICINAS" && x.destinoProcedencia != "P MANACRIPEX");
-          if (this._conexcionService.UserR.rolAsignado == "verificador-m"||this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
+          if (this._conexcionService.UserDataToken.role == "verificador-m"||this._conexcionService.UserDataToken.role == "bodega_verificador-m")
             this.listOrdenesMostrar = dato.filter(x => x.planta == "P MANACRIPEX");
-          if (this._conexcionService.UserR.rolAsignado == "gpv-o")
+          if (this._conexcionService.UserDataToken.role == "gpv-o")
             this.listOrdenesMostrar = JSON.parse(JSON.stringify(dato));
 
           this.listOrdenesMostrar.forEach(y => {
@@ -197,7 +177,7 @@ export class PuertoComponent implements OnInit {
               if (aux != null)
                 y.persona.resetChofer(aux.cedula, aux.empleado);
             }
-            if (this._conexcionService.UserR.rolAsignado != "verificador-m"&&this._conexcionService.UserR.rolAsignado != "bodega_verificador-m") {
+            if (this._conexcionService.UserDataToken.role != "verificador-m"&&this._conexcionService.UserDataToken.role != "bodega_verificador-m") {
               y.listArticulosO.forEach(y1 => {
                 y1.checkRevision = false;
                 if (y1.estadoProducto == "Procesada" || y1.estadoProducto == "Pendiente Retorno")
@@ -224,12 +204,12 @@ export class PuertoComponent implements OnInit {
       data.listArticulosO.forEach(x => {
         if (x.checkRevision && (x.responsableVerificador == "Verificador Pendiente" || x.responsableVerificador == null)) {
           x.estadoProducto = this.cambiarStatus(x.estadoProducto);
-          x.responsableVerificador = this._conexcionService.UserR.nombreU;
+          x.responsableVerificador = this._conexcionService.UserDataToken.name;
         }
       });
 
       if (data.listArticulosO.find(x => x.estadoProducto == "Pendiente" || x.estadoProducto == "Pendiente Verificación" || (x.estadoProducto == "Procesada" && x.responsableVerificador == null)) == undefined) {
-        if ((this._conexcionService.UserR.rolAsignado != "verificador-m"&&this._conexcionService.UserR.rolAsignado != "bodega_verificador-m") && data.estadoProceso == "Procesada Retorno V") {
+        if ((this._conexcionService.UserDataToken.role != "verificador-m"&&this._conexcionService.UserDataToken.role != "bodega_verificador-m") && data.estadoProceso == "Procesada Retorno V") {
           this.buscarGuiaGeneral(data.tipoOrden, data.destinoProcedencia, data.numGuiaRetorno, data.planta,JSON.parse(JSON.stringify(data.listArticulosO)) )
         }
         data.estadoProceso = this.cambiarStatus(data.estadoProceso);
@@ -244,7 +224,7 @@ export class PuertoComponent implements OnInit {
         }
       });
 
-      if (this._conexcionService.UserR.rolAsignado == "gpv-o") {
+      if (this._conexcionService.UserDataToken.role == "gpv-o") {
         var nombreVerificador: string;
         Swal.fire({
           title: 'Verificador de Puerto',
@@ -268,7 +248,7 @@ export class PuertoComponent implements OnInit {
         }).then((result) => {
           if (result.value) {
             for (var i = 0; i < this.ordenESService.formData.listArticulosO.length; i++) {
-              if (this.ordenESService.formData.listArticulosO[i].responsableVerificador == this._conexcionService.UserR.nombreU) {
+              if (this.ordenESService.formData.listArticulosO[i].responsableVerificador == this._conexcionService.UserDataToken.name) {
                 this.ordenESService.formData.listArticulosO[i].responsableVerificador = this.ordenESService.formData.listArticulosO[i].responsableVerificador + " Y " + nombreVerificador;
               }
             }

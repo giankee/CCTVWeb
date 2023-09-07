@@ -12,7 +12,7 @@
           </div>
         </div>
         <div class="row boxForm mt-2">
-          <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+          <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserDataToken.role != 'enfermeria'">
             <div class="form-group">
               <div class="title ml-2">
                 <strong class="ml-3">Proveedor:</strong>
@@ -50,7 +50,7 @@
                 [matTooltipDisabled]="true">
             </div>
           </div>
-          <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+          <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.role != 'enfermeria'">
             <div class="form-group">
               <div class="title ml-2">
                 <strong class="ml-3">Guía Remisión:</strong>
@@ -62,7 +62,7 @@
                 matTooltipPosition="above" matTooltipClass="tooltipRed" [matTooltipDisabled]="true">
             </div>
           </div>
-          <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+          <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.role == 'enfermeria'">
             <div class="form-group">
               <div class="title ml-2">
                 <strong class="ml-3">Destino Barco:</strong>
@@ -76,7 +76,7 @@
               </select>
             </div>
           </div>
-          <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+          <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.role == 'enfermeria'">
             <div class="form-group">
               <div class="title ml-2">
                 <strong class="ml-3">Marea:</strong>

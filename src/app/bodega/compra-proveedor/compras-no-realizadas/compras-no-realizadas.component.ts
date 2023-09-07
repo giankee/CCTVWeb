@@ -44,7 +44,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
   constructor(private _enterpriceServise: ApiEnterpriceService,private _conexcionService: ConexionService) { }
 
   ngOnInit(): void {
-    if(this._conexcionService.UserR.rolAsignado=="enfermeria"){
+    if(this._conexcionService.UserDataToken.role=="enfermeria"){
       this.selectProveedor="DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A";
       this.selectRuc="0990858322001";
     }
@@ -82,7 +82,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
     this.listComprasMostrar$ = this._enterpriceServise.getComprasNoRealizadas(strParametros).pipe(
       map((x: cEnterpriceDocumento[]) => {
         x.forEach(y => {
-          y.emi_Fecha = y.emi_Fecha.substring(0, 10);
+          y.emi_fecha = y.emi_fecha.substring(0, 10);
         });
         return x;
       }),

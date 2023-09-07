@@ -9,7 +9,7 @@
   <div class="container-fluid mt-3 mt-sm-4 px-1 px-md-3">
     <div class="row">
       <div class="col-12 col-lg-8"
-        [ngClass]="{'col-lg-8':(conexcionService.UserR.rolAsignado == 'enfermeria' || conexcionService.UserR.rolAsignado == 'gpv-o' || conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || conexcionService.UserR.rolAsignado =='tinabg-m' || (conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && (conexcionService.UserR.nombreU=='FERNANDA MORALES'||conexcionService.UserR.nombreU=='SERGIO JARA')))}">
+        [ngClass]="{'col-lg-8':(conexcionService.UserDataToken.role == 'enfermeria' || conexcionService.UserDataToken.role == 'gpv-o' || conexcionService.UserDataToken.role == 'bodega_verificador-m' || conexcionService.UserDataToken.role =='tinabg-m' || conexcionService.UserDataToken.role == 'verificador-bodeguero-h'|| (conexcionService.UserDataToken.role == 'verificador-bodeguero' && conexcionService.UserDataToken.name=='FERNANDA MORALES'))}">
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
             <h5><a class="text-dark2" (click)="onConvertPdfAll()">Lista de Productos Inventario</a></h5>
@@ -59,10 +59,10 @@
                     </div>
                   </th>
                   <th style="width: 25%; padding-left: 0%; padding-right: 0%;"
-                    *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">descripción
+                    *ngIf="conexcionService.UserDataToken.role == 'verificador-medic'">descripción
                   </th>
                   <th style="width: 25%; padding-left: 0%; padding-right: 0%;"
-                    *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                    *ngIf="conexcionService.UserDataToken.role != 'verificador-medic'">
                     <div class="d-inline-block" style="margin-right: 0.5rem;">
                       <select class="form-control" name="showSelectCPM" #showSelectCPM="ngModel"
                         [(ngModel)]="showSelect1">
@@ -78,7 +78,7 @@
                     </div>
                   </th>
                   <th style="width: 13%; padding-left: 0%; padding-right: 0%;"
-                    *ngIf="conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                    *ngIf="conexcionService.UserDataToken.role != 'verificador-medic'">
                     <div class="d-inline-block" style="margin-right: 0.5rem;">
                       <select class="form-control" name="showSelectPrecio" #showSelectPrecio="ngModel"
                         [(ngModel)]="showSelect2">
@@ -111,20 +111,20 @@
                   [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                   <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.codigo}}</strong></td>
                   <td (click)="onCompletarForm(datoP)" style="cursor: pointer;"><strong>{{datoP.nombre}}</strong></td>
-                  <td *ngIf="showSelect1==1 && conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                  <td *ngIf="showSelect1==1 && conexcionService.UserDataToken.role != 'verificador-medic'">
                     {{datoP.proveedor}}</td>
-                  <td *ngIf="showSelect1==2 && conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                  <td *ngIf="showSelect1==2 && conexcionService.UserDataToken.role != 'verificador-medic'">
                     {{datoP.categoria}}</td>
-                  <td *ngIf="showSelect1==3 && conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                  <td *ngIf="showSelect1==3 && conexcionService.UserDataToken.role != 'verificador-medic'">
                     {{datoP.marca}}</td>
 
-                  <td *ngIf="showSelect2=='Precio Standar' && conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                  <td *ngIf="showSelect2=='Precio Standar' && conexcionService.UserDataToken.role != 'verificador-medic'">
                     ${{datoP.precioStandar}}</td>
-                  <td *ngIf="showSelect2=='Precio Nacional' && conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                  <td *ngIf="showSelect2=='Precio Nacional' && conexcionService.UserDataToken.role != 'verificador-medic'">
                     ${{datoP.precioNacional}}</td>
-                  <td *ngIf="showSelect2=='Precio Venta' && conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                  <td *ngIf="showSelect2=='Precio Venta' && conexcionService.UserDataToken.role != 'verificador-medic'">
                     ${{datoP.precioVenta}}</td>
-                  <td *ngIf="showSelect2=='Precio Neto' && conexcionService.UserR.rolAsignado != 'verificador-medic'">
+                  <td *ngIf="showSelect2=='Precio Neto' && conexcionService.UserDataToken.role != 'verificador-medic'">
                     ${{datoP.precioNeto}}</td>
 
                   <td class="text-center" id="utilitarioI" *ngIf="listBodega.length>1">
@@ -135,7 +135,7 @@
                     </a>
                   </td>
                   <td class="text-center" id="utilitarioI"
-                    *ngIf="conexcionService.UserR.rolAsignado == 'verificador-medic'">{{datoP.descripcion}}
+                    *ngIf="conexcionService.UserDataToken.role == 'verificador-medic'">{{datoP.descripcion}}
                   </td>
                   <td class="text-center" id="utilitarioI" *ngIf="listBodega.length==1">{{datoP.sumStock}}</td>
                 </tr>
@@ -166,10 +166,10 @@
         </div>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12 col-12"
-        *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria' || conexcionService.UserR.rolAsignado == 'gpv-o' || conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || conexcionService.UserR.rolAsignado =='tinabg-m' || (conexcionService.UserR.rolAsignado == 'verificador-bodeguero' && (conexcionService.UserR.nombreU=='FERNANDA MORALES'||conexcionService.UserR.nombreU=='SERGIO JARA'))">
+        *ngIf="conexcionService.UserDataToken.role == 'enfermeria' || conexcionService.UserDataToken.role == 'gpv-o' || conexcionService.UserDataToken.role == 'bodega_verificador-m' || conexcionService.UserDataToken.role =='tinabg-m' || conexcionService.UserDataToken.role == 'verificador-bodeguero-h'||  (conexcionService.UserDataToken.role == 'verificador-bodeguero' && conexcionService.UserDataToken.name=='FERNANDA MORALES')">
         <div class="row">
-          <div class="col-12 mb-3"
-            *ngIf="conexcionService.UserR.rolAsignado != 'gpv-o' && conexcionService.UserR.rolAsignado != 'enfermeria'">
+          <!-- <div class="col-12 mb-3"
+            *ngIf="conexcionService.UserDataToken.role != 'gpv-o' && conexcionService.UserDataToken.role != 'enfermeria'">
             <div class="card">
               <div class="card-header">
                 <h5>Ingresar Documento</h5>
@@ -183,7 +183,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="col-12">
             <div class="card">
               <div class="card-header">
@@ -200,7 +200,7 @@
                           [(ngModel)]="productoBService.formData.codigo" class="form-control" maxlength="100"
                           placeholder="Código del producto" [datoAutoFocus]="autoFocus"
                           (ngModelChange)="productoBService.formData.codigo!=null && productoBService.formData.codigo = $event.toUpperCase()"
-                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion" required>
+                          [disabled]="conexcionService.UserDataToken.role == 'enfermeria'&& modoEdicion" required>
                         <label class="error" *ngIf="codigo.touched && codigo.errors?.required">Campo
                           Requerido</label>
                       </div>
@@ -210,11 +210,11 @@
                           [(ngModel)]="productoBService.formData.nombre" class="form-control" maxlength="75"
                           placeholder="Nombre del producto"
                           (ngModelChange)="productoBService.formData.nombre!=null && productoBService.formData.nombre = $event.toUpperCase()"
-                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion" required>
+                          [disabled]="conexcionService.UserDataToken.role == 'enfermeria'&& modoEdicion" required>
                         <label class="error" *ngIf="nombre.touched && nombre.errors?.required">Campo
                           Requerido</label>
                       </div>
-                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+                      <div class="form-group inputForm" *ngIf="conexcionService.UserDataToken.role != 'enfermeria'">
                         <div class="title"><strong>Número Parte:</strong></div>
                         <input id="idNumParte" name="numParte" #numParte="ngModel"
                           [(ngModel)]="productoBService.formData.numParte" class="form-control" maxlength="75"
@@ -228,14 +228,14 @@
                         <div [ngClass]="{'ocultarObj':productoBService.formData.proveedor=='-1NEW'}">
                           <select class="form-control" name="proveedor" #proveedor="ngModel" required
                             [(ngModel)]="productoBService.formData.proveedor"
-                            [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                            [disabled]="conexcionService.UserDataToken.role == 'enfermeria'&& modoEdicion"
                             (ngModelChange)="onComprobarFocus(1)">
                             <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
                             <option *ngFor="let datoProveedor of listProveedores" value="{{datoProveedor}}">
                               {{datoProveedor}}
                             </option>
                             <option value="-1NEW"
-                              *ngIf="!modoEdicion && conexcionService.UserR.rolAsignado != 'enfermeria'">** Nuevo
+                              *ngIf="!modoEdicion && conexcionService.UserDataToken.role != 'enfermeria'">** Nuevo
                               Registro **</option>
                           </select>
                           <label class="error" *ngIf="proveedor.touched && proveedor.errors?.required">Campo
@@ -294,7 +294,7 @@
                           <span class="input-group-text">$</span>
                           <input type="number" name="precioStandar" #precioStandar="ngModel" min="0" required
                             pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
-                            [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                            [disabled]="conexcionService.UserDataToken.role == 'enfermeria'&& modoEdicion"
                             onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                             [(ngModel)]="productoBService.formData.precioStandar" class="form-control" maxlength="10">
                           <label class="error" *ngIf="precioStandar.touched && precioStandar.errors?.required">Campo
@@ -307,7 +307,7 @@
                           <span class="input-group-text">$</span>
                           <input type="number" name="precioNacional" #precioNacional="ngModel" min="0"
                             pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
-                            [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                            [disabled]="conexcionService.UserDataToken.role == 'enfermeria'&& modoEdicion"
                             onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                             [(ngModel)]="productoBService.formData.precioNacional" class="form-control" maxlength="10">
 
@@ -319,7 +319,7 @@
                           <span class="input-group-text">$</span>
                           <input type="number" name="precioVenta" #precioVenta="ngModel" min="0"
                             pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
-                            [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                            [disabled]="conexcionService.UserDataToken.role == 'enfermeria'&& modoEdicion"
                             onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                             [(ngModel)]="productoBService.formData.precioVenta" class="form-control" maxlength="10">
                         </div>
@@ -348,13 +348,13 @@
                       <div class="form-group inputForm" *ngIf="productoBService.formData.tipoUnidad=='CONTENIDO NETO'">
                         <div class="title"><strong>Precio Neto:</strong></div>
                         <input id="precioN" name="precioNeto" #precioNeto="ngModel"
-                          [disabled]="conexcionService.UserR.rolAsignado == 'enfermeria'&& modoEdicion"
+                          [disabled]="conexcionService.UserDataToken.role == 'enfermeria'&& modoEdicion"
                           [(ngModel)]="productoBService.formData.precioNeto" class="form-control" maxlength="5"
                           required>
                         <label class="error" *ngIf="precioNeto.touched && precioNeto.errors?.required">Campo
                           Requerido</label>
                       </div>
-                      <div class="form-group inputForm" *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+                      <div class="form-group inputForm" *ngIf="conexcionService.UserDataToken.role == 'enfermeria'">
                         <div class="title"><strong>descripción:</strong></div>
                         <textarea id="idDescripcion" name="descripcion" #descripcion="ngModel"
                           [(ngModel)]="productoBService.formData.descripcion" class="form-control" maxlength="100"
@@ -363,7 +363,7 @@
                       <div class="form-group">
                         <div class="title"><strong>Lista de Bodegas:</strong></div>
                         <div class="subForm">
-                          <div class="row mb-1" *ngIf="conexcionService.UserR.rolAsignado != 'verificador-bodeguero'">
+                          <div class="row mb-1" *ngIf="conexcionService.UserDataToken.role != 'verificador-bodeguero'">
                             <div class="col-8">
                               <div class="form-group inputForm">
                                 <select class="form-control" name="SelectNewBodega" #SelectNewBodega="ngModel"

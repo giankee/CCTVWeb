@@ -82,21 +82,25 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
 
   cargarData() {//Datos de los ordenes traidos desde db
     var strParametro;
-    switch(this.conexcionService.UserR.rolAsignado){
+    switch (this.conexcionService.UserDataToken.role) {
       case 'enfermeria':
         strParametro = "ENFERMERIA@Traspaso Bodega@" + this.listBodegasFiltro;
-      break;
+        break;
       case 'verificador-bodeguero-b':
         strParametro = "BARCOS@Trabajo Interno@" + this.listBodegasFiltro;
-      break;
+        break;
       case 'tinabg-m':
       case 'bodega_verificador-m':
       case 'verificador-bodeguero':
         strParametro = "P MANACRIPEX@Trabajo Interno@" + this.listBodegasFiltro;
-      break;
+        break;
       case 'gpv-o':
         strParametro = "OFICINAS@Traspaso Bodega@" + this.listBodegasFiltro;
-      break;
+        break;
+      case 'verificador-bodeguero-h':
+        this.parametrosBusqueda.tipoO="All";
+        strParametro = "OFICINAS@All@" + this.listBodegasFiltro;
+        break;
     }
     this.listOrdenesMostrar$ = this._ordenInterService.getListOrdenesInter(strParametro).pipe(
       map((x: cOrdenTrabajoI[]) => {
@@ -111,24 +115,32 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
   }
 
   cargarBodega() {
-    if (this.conexcionService.UserR.rolAsignado == "enfermeria" || this.conexcionService.UserR.rolAsignado=="gpv-o") {
+    if (this.conexcionService.UserDataToken.role == "enfermeria" || this.conexcionService.UserDataToken.role == "gpv-o" || this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
       this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
         this.listBodega = dato;
-        if(this.conexcionService.UserR.rolAsignado=="gpv-o"){
-          this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
-            dato.forEach(x=>{
-              this.listBodega.push(x);
+        if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h")
+          this.listBodega = this.listBodega.filter(x => x.nombreBodega.includes("HELICOPTERO"));
+        if (this.conexcionService.UserDataToken.role != "enfermeria") {
+          this._variosService.getBodegasTipo("OFICINAS").subscribe((dato: any) => {
+            dato.forEach(x => {
+              if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
+                if (x.encargadoBodega.includes(this._conexcionService.UserDataToken.name)) {
+                  this.listBodega.push(x);
+                  this.parametrosBusqueda.strBodegaOrigen = x.nombreBodega;
+                }
+              } else this.listBodega.push(x);
             });
           });
         }
+
         this.cargarData();
       });
     } else {
-      if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero-b") {
+      if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-b") {
         this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-          this.listBodega = dato.filter(x => (x.listAreas.find(y=>y.encargadoArea== this.conexcionService.UserR.nombreU)));
-          if(this.listBodega.length>0)
-            this.listBodegasFiltro=this.listBodega[0].nombreBodega;
+          this.listBodega = dato.filter(x => (x.listAreas.find(y => y.encargadoArea == this.conexcionService.UserDataToken.name)));
+          if (this.listBodega.length > 0)
+            this.listBodegasFiltro = this.listBodega[0].nombreBodega;
           this.cargarData();
         });
       } else {
@@ -137,16 +149,16 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
         });
         this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
           this.listBodega = dato;
-          if (this.conexcionService.UserR.rolAsignado != "tinabg-m") {
-            this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
+          if (this.conexcionService.UserDataToken.role != "tinabg-m") {
+            this.listBodega = this.listBodega.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
             this.listBodega.forEach(x => {
               if (this.listBodegasFiltro == "All")
                 this.listBodegasFiltro = x.nombreBodega;
               else this.listBodegasFiltro = this.listBodegasFiltro + "-" + x.nombreBodega;
             });
-            if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero" && this.listBodega.length >= 1) {
+            if (this.conexcionService.UserDataToken.role == "verificador-bodeguero" && this.listBodega.length >= 1) {
               this.parametrosBusqueda.strBodegaOrigen = this.listBodega[0].nombreBodega;
-              if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+              if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
                 this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
                   for (var i = 0; i < dato.length; i++) {
                     this.listBodega.push(dato[i]);
@@ -169,9 +181,16 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
     var params = "" + value;
     if (value == "")
       params = "DatoNull";
-    if (this.conexcionService.UserR.rolAsignado == "enfermeria")
+
+    if (this.conexcionService.UserDataToken.role == "enfermeria")
       params = params + "@ENFERMERIA@2@" + this.parametrosBusqueda.strBodegaOrigen;
-    else params = params + "@P MANACRIPEX@2@" + this.parametrosBusqueda.strBodegaOrigen;
+    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
+      if (this.parametrosBusqueda.strBodegaOrigen.includes("HELICOPTERO"))
+        params = params + "@BARCOS@2@" + this.parametrosBusqueda.strBodegaOrigen;
+      else params = params + "@OFICINAS@2@" + this.parametrosBusqueda.strBodegaOrigen;
+    }
+    if (this.conexcionService.UserDataToken.role != "enfermeria" && this.conexcionService.UserDataToken.role != "verificador-bodeguero-h")
+      params = params + "@P MANACRIPEX@2@" + this.parametrosBusqueda.strBodegaOrigen;
     this.listProdFiltros$ = this._productosBService.getProductosSearch(params).pipe(
       map((x: cProducto_B[]) => x),
       finalize(() => this.parametrosBusqueda.spinLoadingG = 0)
@@ -225,27 +244,33 @@ export class OrdenTrabajoPlantaComponent implements OnInit {
   onFiltrarOrdenes() {
     this.spinnerOnOff = true;
     var strParametros: string;
-    switch(this.conexcionService.UserR.rolAsignado){
+    switch (this.conexcionService.UserDataToken.role) {
       case 'enfermeria':
-        this.parametrosBusqueda.planta="ENFERMERIA";
-      this.parametrosBusqueda.tipoO="Traspaso Bodega";
-      break;
+        this.parametrosBusqueda.planta = "ENFERMERIA";
+        this.parametrosBusqueda.tipoO = "Traspaso Bodega";
+        break;
       case 'verificador-bodeguero-b':
-        this.parametrosBusqueda.planta="BARCOS";
-      this.parametrosBusqueda.tipoO="Trabajo Interno";
-      break;
+        this.parametrosBusqueda.planta = "BARCOS";
+        this.parametrosBusqueda.tipoO = "Trabajo Interno";
+        break;
       case 'tinabg-m':
       case 'bodega_verificador-m':
       case 'verificador-bodeguero':
-        this.parametrosBusqueda.planta="P MANACRIPEX";
-      this.parametrosBusqueda.tipoO="Trabajo Interno";
-      break;
+        this.parametrosBusqueda.planta = "P MANACRIPEX";
+        this.parametrosBusqueda.tipoO = "Trabajo Interno";
+        break;
+      case 'verificador-bodeguero-h':
+        if (this.parametrosBusqueda.strBodegaOrigen.includes("HELICOPTERO")) {
+          this.parametrosBusqueda.planta = "BARCOS";
+        } else this.parametrosBusqueda.planta = "OFICINAS";
+        this.parametrosBusqueda.tipoO = this.parametrosBusqueda.tipoO;
+        break;
     }
-    if(this._conexcionService.UserR.rolAsignado=='gpv-o'||(this.conexcionService.UserR.rolAsignado=='verificador-bodeguero'&& this.conexcionService.UserR.nombreU=="FERNANDA MORALES")){
-      this.parametrosBusqueda.tipoO="All";
-      if((this.listBodega.find(x=>x.nombreBodega==this.parametrosBusqueda.strBodegaOrigen)).tipoBodega=="PUERTO")
-        this.parametrosBusqueda.planta="BARCOS";
-      else this.parametrosBusqueda.planta=this.listBodega.find(x=>x.nombreBodega==this.parametrosBusqueda.strBodegaOrigen).tipoBodega;
+    if (this._conexcionService.UserDataToken.role == 'gpv-o' || (this.conexcionService.UserDataToken.role == 'verificador-bodeguero' && this.conexcionService.UserDataToken.name == "FERNANDA MORALES")) {
+      this.parametrosBusqueda.tipoO = "All";
+      if ((this.listBodega.find(x => x.nombreBodega == this.parametrosBusqueda.strBodegaOrigen)).tipoBodega == "PUERTO")
+        this.parametrosBusqueda.planta = "BARCOS";
+      else this.parametrosBusqueda.planta = this.listBodega.find(x => x.nombreBodega == this.parametrosBusqueda.strBodegaOrigen).tipoBodega;
     }
     strParametros = this.parametrosBusqueda.transformarParametro(this.fechaHoy.inDesde, this.fechaHoy.inHasta);
     this.listOrdenesMostrar$ = this._ordenInterService.getFiltroOrdenes(strParametros).pipe(

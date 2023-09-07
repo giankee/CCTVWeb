@@ -105,7 +105,7 @@ export class ControlESComponent implements OnInit {
       case 'Traspaso':
         this._ordenTrabajoService.formData.tipoOrden = "Traspaso Bodega";
         this.listBodegaDestino=JSON.parse(JSON.stringify(this.listBodegaOrigen));
-        if (this._conexcionService.UserR.rolAsignado == "enfermeria") {
+        if (this._conexcionService.UserDataToken.role == "enfermeria") {
           this._ordenTrabajoService.formData.bodega = "SIN ASIGNAR";
           this._ordenTrabajoService.formData.destinoLugar = "ENFERMERIA GENERAL";
           this._ordenTrabajoService.formData.personaResponsable = "VERÓNICA CHUMO";
@@ -128,12 +128,12 @@ export class ControlESComponent implements OnInit {
     if (form != null) {
       form.resetForm();
     }
-    if (this._conexcionService.UserR.rolAsignado != "enfermeria") {
-      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "P MANACRIPEX");
-      if (this._conexcionService.UserR.rolAsignado == "bodega_verificador-m")
+    if (this._conexcionService.UserDataToken.role != "enfermeria") {
+      this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "P MANACRIPEX");
+      if (this._conexcionService.UserDataToken.role == "bodega_verificador-m")
         this._ordenTrabajoService.formData.bodega = "GENERAL";
       this.ordenTrabajoService.formData.destinoLugar="SIN ASIGNAR";
-    } else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserR.nombreU, "ENFERMERIA");
+    } else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "ENFERMERIA");
     this.strFases = "Inicio";
     this.okBttnSubmit = true;
   }

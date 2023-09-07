@@ -59,9 +59,9 @@ export class DevolucionCompraComponent implements OnInit {
 
   fasave = faSave; fasearch = faSearch; fatimes = faTimes; faplus = faPlus;
   constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private _enterpriceServise: ApiEnterpriceService, private toastr: ToastrService) {
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
-      this._ordenECService.formData = new cOrdenEC("OFICINAS", this._conexcionService.UserR.nombreU);
-    else this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserR.nombreU);
+    if (this._conexcionService.UserDataToken.role == 'gpv-o')
+      this._ordenECService.formData = new cOrdenEC("OFICINAS", this._conexcionService.UserDataToken.name);
+    else this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserDataToken.name);
     this._ordenECService.formData.estadoProceso = "Devolución";
   }
 
@@ -97,7 +97,7 @@ export class DevolucionCompraComponent implements OnInit {
       this.spinnerOnOff = 1;
       if (this._ordenECService.formData.proveedor != null && this._ordenECService.formData.factura != undefined) {
         var strParametros = this._ordenECService.formData.planta + "@" + this._ordenECService.formData.proveedor + "@" + this._ordenECService.formData.factura;
-        if (this._conexcionService.UserR.rolAsignado == 'gpv-o') {//si es con guia
+        if (this._conexcionService.UserDataToken.role == 'gpv-o') {//si es con guia
           if (this._ordenECService.formData.guiaRemision == null) {
             this.spinnerOnOff = 0;
             this.toastr.warning('Busqueda Fallida, falta ingresar la Guía de salida', 'Busqueda Error');

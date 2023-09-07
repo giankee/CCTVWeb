@@ -18,7 +18,7 @@
           </div>
           <div class="mt-2 px-4 pt-2 boxForm">
             <div class="row">
-              <div class="col-12 col-md-4">
+              <div class="col-6 col-md-3">
                 <div class="form-group inputForm">
                   <div class="title"><strong> Documentación:</strong></div>
                   <div class="input-group mb-3">
@@ -33,14 +33,26 @@
                   </div>
                 </div>
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-6 col-md-3" *ngIf="listBodega.length>1">
+                <div class="form-group inputForm">
+                  <div class="title"><strong> Bodega:</strong></div>
+                  <select class="form-control" name="selecBodegaFiltroIn" #selecBodegaFiltroIn="ngModel"
+                    [(ngModel)]="selecBodegaFiltro" (ngModelChange)="onListParam(selectParam)">
+                    <option selected value="SIN ASIGNAR">-Seleccionar-</option>
+                    <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombreBodega}}">
+                      {{datobodega.nombreBodega}}</option>
+                      <option *ngIf="conexcionService.UserDataToken.role == 'enfermeria'||conexcionService.UserDataToken.role == 'adminSuper'" value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
                 <div class="form-group inputForm">
                   <div class="title"><strong> Desde:</strong></div>
                   <input name="fechaDesde" type="date" #fechaDesde="ngModel" [(ngModel)]="fechaHoy.inDesde"
                     class="form-control" min="1900-01-01" max="{{fechaHoy.inHasta}}" (ngModelChange)="onListParam(selectParam)">
                 </div>
               </div>
-              <div class="col-6 col-md-4">
+              <div class="col-6 col-md-3">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Hasta:</strong></div>
                   <input name="fechaHasta" type="date" #fechaHasta="ngModel" [(ngModel)]="fechaHoy.inHasta"
@@ -70,7 +82,7 @@
                       </div>
                     </th>
                     <th>Fecha Registro</th>
-                    <th *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+                    <th *ngIf="conexcionService.UserDataToken.role != 'enfermeria'">
                       <div class="d-inline-block" style="margin-right: 0.5rem;">Proveedor</div>
                       <div id="ordenarS" class="d-inline-block">
                         <a class="badge text-dark2" (click)="onOrdenNombre('Proveedor')">
@@ -78,7 +90,7 @@
                         </a>
                       </div>
                     </th>
-                    <th *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'">
+                    <th *ngIf="conexcionService.UserDataToken.role == 'enfermeria'">
                       <div class="d-inline-block" style="margin-right: 0.5rem;">Barco</div>
                       <div id="ordenarS" class="d-inline-block">
                         <a class="badge text-dark2" (click)="onOrdenNombre('Barco')">
@@ -105,8 +117,8 @@
                     <td class="indice">{{indice+1}}</td>
                     <td>{{dato.factura}}</td>
                     <td>{{dato.fechaRegistroBodega}}</td>
-                    <td *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'"><strong>{{dato.proveedor}}</strong></td>
-                    <td *ngIf="conexcionService.UserR.rolAsignado == 'enfermeria'"><strong>{{dato.listPcomprasO[0].destinoBodega}}</strong></td>
+                    <td *ngIf="conexcionService.UserDataToken.role != 'enfermeria'"><strong>{{dato.proveedor}}</strong></td>
+                    <td *ngIf="conexcionService.UserDataToken.role == 'enfermeria'"><strong>{{dato.listPcomprasO[0].destinoBodega}}</strong></td>
                     <td>
                       <div *ngFor="let datoItems of dato.listPcomprasO">
                         <ul id="utilitarioI">
@@ -140,9 +152,9 @@
                 <ul class="pagination justify-content-center">
                   <li class="page-item d-none d-sm-block">
                     <select class="form-control" (change)="onUpdateSelect($event.target)">
-                      <option value="25">25</option>
                       <option value="50">50</option>
                       <option value="100">100</option>
+                      <option value="200">200</option>
                     </select>
                   </li>
                   <li class="page-item" [class.disabled]='paginacion.anteriorBlock'>

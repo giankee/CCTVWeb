@@ -42,11 +42,13 @@
                     <option value="Materia Prima">Entrada de Proveedores</option>
                     <option value="Salida Tanque Agua">Salida Tanque Agua</option>
                     <option value="Salida Tanque Combustible">Salida Tanque Combustible</option>
+                    <option value="Entrada Tanque Agua">Entrada Tanque Agua</option>
+                    <option value="Entrada Tanque Combustible">Entrada Tanque Combustible</option>
                     <option value="PR_fotos"
-                      *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='admin'">
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'||conexcionService.UserDataToken.role=='admin'">
                       Procesadas Verificadas con Fotos</option>
                     <option value="PR_snfotos"
-                      *ngIf="conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='admin'">
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'||conexcionService.UserDataToken.role=='admin'">
                       Procesadas Verificadas sin fotos</option>
                   </select>
                 </div>
@@ -326,7 +328,7 @@
                         matTooltipPosition="left" matTooltipClass="tooltipBlack">
                         <fa-icon [icon]="faeye"></fa-icon>
                       </a>
-                      <a *ngIf="conexcionService.UserR.rolAsignado=='admin'||conexcionService.UserR.rolAsignado=='gpv-o'||conexcionService.UserR.rolAsignado=='tinabg-m'"
+                      <a *ngIf="conexcionService.UserDataToken.role=='admin'||conexcionService.UserDataToken.role=='gpv-o'||conexcionService.UserDataToken.role=='tinabg-m'"
                         class="badge text-primario d-none d-sm-block" (click)="onModal(dato,2)"
                         matTooltip="Te permite modificar orden seleccionada" matTooltipPosition="left"
                         matTooltipClass="tooltipBlack">

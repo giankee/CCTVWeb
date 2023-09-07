@@ -24,7 +24,6 @@ import { cPaginacion } from '../shared/otrosServices/paginacion';
 import { finalize, map } from 'rxjs/operators';
 import { ProductoBService } from '../shared/bodega/producto-b.service';
 import { cBodega, cProducto_B } from '../shared/bodega/ordenEC';
-import { cUsuario } from '../shared/user-info';
 
 
 @Component({
@@ -150,7 +149,7 @@ export class ClienteComponent implements OnInit {
 
   /**Control Productos */
   newListProductosIn: cProducto[] = [];
-  listBodega:cBodega[]=[];
+  listBodega: cBodega[] = [];
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
   okContinuar: boolean = true;
@@ -190,30 +189,21 @@ export class ClienteComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this._userService.estaLogueado) {
-      this.cargarDataUser();
+    if (this._userService.estaLogueado()) {
+      this.resetForm();
+      var auxRol = "";
+      if (typeof this.conexcionService.UserDataToken.role === 'string')
+        auxRol = this.conexcionService.UserDataToken.role;
+      else this.conexcionService.UserDataToken.role[0];
+      this._variosService.getVariosPrioridad(auxRol)
+        .subscribe(dato => {
+          this.listLugarPrioridadIn = dato;
+        },
+          error => console.error(error));
       this.cargarDataCarro();
       this.cargarDataChoferes();
     }
-    else this.router.navigate(["/user-Login"]);
-  }
-
-  cargarDataUser() {
-    this._userService.getUserData().subscribe(//Recupera la informacion Del Usuario y lo redirige a la pagina que le correspoda su rol
-      (res: any) => {
-        this._conexcionService.UserR = new cUsuario();
-        this.conexcionService.UserR.objCompletar(res);
-        this.resetForm();
-        this._variosService.getVariosPrioridad(res.rolAsignado)
-          .subscribe(dato => {
-            this.listLugarPrioridadIn = dato;
-          },
-            error => console.error(error));
-      },
-      err => {
-        console.log(err);
-      },
-    );
+    else this.userService.logout();
   }
 
   onListPersonal(value: string) {
@@ -273,7 +263,7 @@ export class ClienteComponent implements OnInit {
     if (!value)
       params = "DatoNull";
     if (this._ordenESService.formData.tipoOrden == "Salida") {
-      if (this._conexcionService.UserR.rolAsignado == "gpv-o")
+      if (this._conexcionService.UserDataToken.role == "gpv-o")
         params = params + "@Salida OFICINAS";
       else params = params + "@" + this.ordenESService.formData.tipoOrden;
     } else params = params + "@" + this.ordenESService.formData.tipoOrden;
@@ -411,11 +401,11 @@ export class ClienteComponent implements OnInit {
     if (form != null) {
       form.resetForm();
     }
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o') {
-      this._ordenESService.formData = new cOrdenEs("OFICINAS", this._conexcionService.UserR.nombreU);
-      this._ordenESService.formData.responsableES = this._conexcionService.UserR.nombreU;
+    if (this._conexcionService.UserDataToken.role == 'gpv-o') {
+      this._ordenESService.formData = new cOrdenEs("OFICINAS", this._conexcionService.UserDataToken.name);
+      this._ordenESService.formData.responsableES = this._conexcionService.UserDataToken.name;
     } else {
-      this._ordenESService.formData = new cOrdenEs("P MANACRIPEX", this._conexcionService.UserR.nombreU);
+      this._ordenESService.formData = new cOrdenEs("P MANACRIPEX", this._conexcionService.UserDataToken.name);
       this._ordenESService.formData.responsableES = "MIGUEL MENDOZA";
     }
     /**New */
@@ -458,14 +448,14 @@ export class ClienteComponent implements OnInit {
             this.buscarExistGuiaBalde(this._ordenESService.formData.tipoOrden + " " + this._ordenESService.formData.tipoDocumentacion, this._ordenESService.formData.numDocumentacion, this._ordenESService.formData.destinoProcedencia);
 
           } else {
-            if(this.ordenESService.formData.isTanqueAgua||this.ordenESService.formData.isTanqueGasolina){
-              if(this.ordenESService.formData.isTanqueAgua){
-                this.onListProducto(0,2,"TANQUERO DE AGUA (M3)");
-              }else this.onListProducto(0,2,"TANQUERO DE COMBUSTIBLE (GALONES)");
-              if(this.ordenESService.formData.saleAGUAHER)
-              this.ordenESService.formData.planta="AGUAHER";
-              if(this.ordenESService.formData.salePETROECUADOR)
-              this.ordenESService.formData.planta="PETROECUADOR";
+            if (this.ordenESService.formData.isTanqueAgua || this.ordenESService.formData.isTanqueGasolina) {
+              if (this.ordenESService.formData.isTanqueAgua) {
+                this.onListProducto(0, 2, "TANQUERO DE AGUA (M3)");
+              } else this.onListProducto(0, 2, "TANQUERO DE COMBUSTIBLE (GALONES)");
+              if (this.ordenESService.formData.saleAGUAHER)
+                this.ordenESService.formData.planta = "AGUAHER";
+              if (this.ordenESService.formData.salePETROECUADOR)
+                this.ordenESService.formData.planta = "PETROECUADOR";
             }
             this.buscarGuiaGeneral();
           }
@@ -683,11 +673,11 @@ export class ClienteComponent implements OnInit {
               this._ordenESService.formData.numDocumentacion = "Ninguna";
             else this._ordenESService.formData.numDocumentacion = this._ordenESService.formData.tipoDocumentacion + ": " + this._ordenESService.formData.numDocumentacion;
           }
-          if(this.ordenESService.formData.isTanqueAgua){
-            this.ordenESService.formData.tipoOrden=this.ordenESService.formData.tipoOrden+ " Tanque Agua";
+          if (this.ordenESService.formData.isTanqueAgua) {
+            this.ordenESService.formData.tipoOrden = this.ordenESService.formData.tipoOrden + " Tanque Agua";
           }
-          if(this.ordenESService.formData.isTanqueGasolina){
-            this.ordenESService.formData.tipoOrden=this.ordenESService.formData.tipoOrden+ " Tanque Combustible";
+          if (this.ordenESService.formData.isTanqueGasolina) {
+            this.ordenESService.formData.tipoOrden = this.ordenESService.formData.tipoOrden + " Tanque Combustible";
           }
           if (auxNewP.length > 0) {
             this._productoService.insertarMultiplesProductos(auxNewP).subscribe(
@@ -859,8 +849,8 @@ export class ClienteComponent implements OnInit {
             this.sendMessageGroupNotification(res.data, res.message, res.auxmessage);
           }
           if (this.ordenESService.formData.tipoOrden == "Entrada" || this.ordenESService.formData.tipoOrden == "Salida") {//Control de errores
-            if ((this._conexcionService.UserR.rolAsignado != "gpv-o" && (this.ordenESService.formData.destinoProcedencia == "P MANACRIPEX" || this.ordenESService.formData.destinoProcedencia == "PLANTA MANACRIPEX" || this.ordenESService.formData.destinoProcedencia == "MANACRIPEX"))
-              || (this._conexcionService.UserR.rolAsignado == "gpv-o" && this.ordenESService.formData.destinoProcedencia == this.ordenESService.formData.planta)) {
+            if ((this._conexcionService.UserDataToken.role != "gpv-o" && (this.ordenESService.formData.destinoProcedencia == "P MANACRIPEX" || this.ordenESService.formData.destinoProcedencia == "PLANTA MANACRIPEX" || this.ordenESService.formData.destinoProcedencia == "MANACRIPEX"))
+              || (this._conexcionService.UserDataToken.role == "gpv-o" && this.ordenESService.formData.destinoProcedencia == this.ordenESService.formData.planta)) {
               this.sendMessage(this.ordenESService.formData);
             }
           }
@@ -870,6 +860,7 @@ export class ClienteComponent implements OnInit {
           this.resetForm(form);
         } else this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
       });
+
   }
 
   buscarExistGuiaBalde(paramO, paramG, paramL) {
@@ -980,10 +971,10 @@ export class ClienteComponent implements OnInit {
             for (var i = 0; i < dato.data.length; i++) {
               for (var j = 0; j < dato.data[i].listArticulosO.length; j++) {
                 this.ordenESService.formData.agregarOneArticulo(dato.data[i].listArticulosO[j], 1);
-                if(this.conexcionService.UserR.rolAsignado=="gpv-o"){
-                  if(this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length-1].inventarioId!=0){
-                    let auxObservacion= dato.data[i].listArticulosO[j].observacion.split(':'); 
-                    this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length-1].inventario.SelectBodega=auxObservacion[1];
+                if (this.conexcionService.UserDataToken.role == "gpv-o") {
+                  if (this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length - 1].inventarioId != 0) {
+                    let auxObservacion = dato.data[i].listArticulosO[j].observacion.split(':');
+                    this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length - 1].inventario.SelectBodega = auxObservacion[1];
                   }
                 }
               }
@@ -1363,10 +1354,10 @@ export class ClienteComponent implements OnInit {
         + '\n*Usuario Guardia:* ' + ordenES.guardiaCargoUser
         + '\n----------------------------------'
     }
-    if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "mariazabalu")
+    if (this._conexcionService.UserDataToken.sub == "daniel3" || this._conexcionService.UserDataToken.sub == "mariazabalu")
       aux.phone = "593999786121";
-    if (this._conexcionService.UserR.rolAsignado == "gpv-o" && this._conexcionService.UserR.phoneNumber != null)
-      aux.phone = this._conexcionService.UserR.phoneNumber;
+    if (this._conexcionService.UserDataToken.role == "gpv-o" && this._conexcionService.UserDataToken.whatsAppPhone != null)
+      aux.phone = this._conexcionService.UserDataToken.whatsAppPhone;
     this.whatsappService.sendMessageWhat(aux).subscribe(
       res => {
 
@@ -1383,11 +1374,12 @@ export class ClienteComponent implements OnInit {
     auxWhatsapp = {
       phone: "593960044851",
       message: "",
+      caption: "",
       title: orden.tipoOrden + "_" + orden.fechaRegistro + "-" + orden.numDocumentacion + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
     }
-    auxWhatsapp.message = ':bell: *Notificación Dato Duplicado *:exclamation: :bell:'
+    auxWhatsapp.caption = ':bell: *Notificación Dato Duplicado *:exclamation: :bell:'
       + '\n'
       + '\n:wave: Saludos Compañero:'
       + '\nSe le informa que se ha registrado una nueva orden de *' + orden.tipoOrden + '*'
@@ -1400,10 +1392,10 @@ export class ClienteComponent implements OnInit {
       + '\n*Usuario Guardia:* ' + orden.guardiaCargoUser
       + '\n----------------------------------';
 
-    if (this._conexcionService.UserR.userName == "daniel3")
+    if (this._conexcionService.UserDataToken.sub == "daniel3")
       auxWhatsapp.phone = "593999786121";
-    if (this._conexcionService.UserR.rolAsignado == "gpv-o")
-      auxWhatsapp.phone = this._conexcionService.UserR.phoneNumber;
+    if (this._conexcionService.UserDataToken.role == "gpv-o")
+      auxWhatsapp.phone = this._conexcionService.UserDataToken.whatsAppPhone;
     this._whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
       res => {
         if (res.status != "error")
@@ -1420,6 +1412,7 @@ export class ClienteComponent implements OnInit {
     var auxWhatsapp: cWhatsapp = {
       chatname: "",
       message: "",
+      caption: "",
       title: orden.tipoOrden + "_" + orden.fechaRegistro + "-" + orden.numDocumentacion + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
@@ -1435,11 +1428,11 @@ export class ClienteComponent implements OnInit {
         if (orden.tipoOrden == "Entrada")
           asunto = "entrada a *" + orden.planta + "* proveniente de *";
         if (orden.estadoProceso == "Pendiente" || orden.estadoProceso == "Pendiente Verificación") {
-          if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "MARIAZABALU")
+          if (this._conexcionService.UserDataToken.sub == "daniel3" || this._conexcionService.UserDataToken.sub == "MARIAZABALU")
             auxWhatsapp.chatname = "Prueba Muelle";
           else auxWhatsapp.chatname = "Despachos MCP-MUELLE";
 
-          auxWhatsapp.message = encabezado
+          auxWhatsapp.caption = encabezado
             + '\n'
             + '\n:wave: Saludos Compañeros:'
             + '\nSe les informa que se ha generado una salida hacia :anchor: *' + orden.destinoProcedencia + '*'
@@ -1477,7 +1470,7 @@ export class ClienteComponent implements OnInit {
           }
         }
         if (orden.estadoProceso == "Pendiente" || orden.estadoProceso == "Pendiente Retorno") {
-          if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "MARIAZABALU")
+          if (this._conexcionService.UserDataToken.sub == "daniel3" || this._conexcionService.UserDataToken.sub == "MARIAZABALU")
             auxWhatsapp.chatname = "Prueba ES";
           else auxWhatsapp.chatname = "MCPx Seguimiento ES";
           auxWhatsapp.message = encabezado
@@ -1512,7 +1505,7 @@ export class ClienteComponent implements OnInit {
           var auxRC = retornaCompleto.split("R-");
           asunto2 = "\nLa " + auxRC[1] + " se encuentra *Procesada* :white_check_mark: terminando así el seguimiento de la orden."
         }
-        if (this._conexcionService.UserR.userName == "daniel3" || this._conexcionService.UserR.userName == "MARIAZABALU")
+        if (this._conexcionService.UserDataToken.sub == "daniel3" || this._conexcionService.UserDataToken.sub == "MARIAZABALU")
           auxWhatsapp.chatname = "Prueba ES";
         else auxWhatsapp.chatname = "MCPx Seguimiento ES";
 
@@ -1521,7 +1514,7 @@ export class ClienteComponent implements OnInit {
         if (orden.tipoOrden == "Entrada")
           asunto = "entrada a *" + orden.planta + "* proveniente de *";
 
-        auxWhatsapp.message = encabezado
+        auxWhatsapp.caption = encabezado
           + '\n'
           + '\n:wave: Saludos Compañeros:'
           + '\nSe informa que se ha generado un retorno de ' + asunto + orden.destinoProcedencia + '*'
@@ -1556,11 +1549,11 @@ export class ClienteComponent implements OnInit {
         encabezado = ':bell: *Notificación Salida Baldes' + ' Planta MANACRIPEX* :bell:';
         asunto = "salida de *P MANACRIPEX* con destino a *";
 
-        if (this._conexcionService.UserR.userName == "daniel3")
+        if (this._conexcionService.UserDataToken.sub == "daniel3")
           auxWhatsapp.chatname = "Prueba ES"
         else auxWhatsapp.chatname = "MCPx Tinas Seguimiento";
 
-        auxWhatsapp.message = encabezado
+        auxWhatsapp.caption = encabezado
           + '\n'
           + '\n:wave: Saludos Compañeros:'
           + '\nSe informa que se ha generado una ' + asunto + orden.destinoProcedencia + '*,'
@@ -1594,11 +1587,11 @@ export class ClienteComponent implements OnInit {
           asunto = "salida con destino a *";
         }
 
-        if (this._conexcionService.UserR.userName == "daniel3")
+        if (this._conexcionService.UserDataToken.sub == "daniel3")
           auxWhatsapp.chatname = "Prueba ES"
         else auxWhatsapp.chatname = "MCPx Tinas Seguimiento";
 
-        auxWhatsapp.message = encabezado
+        auxWhatsapp.caption = encabezado
           + '\n'
           + '\n:wave: Saludos Compañeros:'
           + '\nSe informa que se ha generado una ' + asunto + orden.destinoProcedencia + '*,'

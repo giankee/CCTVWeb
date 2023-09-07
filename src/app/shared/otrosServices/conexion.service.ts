@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import {cUsuario } from '../user-info';
+import {cDataToken } from '../user-info';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class cConexion {
 export class ConexionService {
 
   formData: cConexion;
-  UserR: cUsuario;
+  UserDataToken:cDataToken;
   private _newStatus =new Subject<cConexion>();
   msg$ = this._newStatus.asObservable();
 

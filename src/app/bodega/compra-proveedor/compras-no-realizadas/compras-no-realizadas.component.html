@@ -8,7 +8,7 @@
           </div>
           <div class="mt-2 px-4 pt-2 boxForm">
             <div class="row">
-              <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserR.rolAsignado != 'enfermeria'">
+              <div class="col-12 col-md-6 col-lg-4" *ngIf="conexcionService.UserDataToken.role != 'enfermeria'">
                 <div class="form-group">
                   <div class="title ml-2">
                     <strong class="ml-3">Proveedor:</strong>
@@ -81,10 +81,10 @@
                     *ngFor="let dato of resultBusquedaMostrar; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
-                    <td>{{dato.crp_Proveedor}}</td>
-                    <td>{{dato.rS_Proveedor}}</td>
-                    <td>{{dato.documento}}</td>
-                    <td>{{dato.emi_Fecha}}</td>                    
+                    <td>{{dato.crp_proveedor}}</td>
+                    <td>{{dato.rs_proveedor}}</td>
+                    <td>{{dato.factura}}</td>
+                    <td>{{dato.emi_fecha}}</td>                    
                     <td>
                       <div *ngFor="let datoItems of dato.listCompraO">
                         <ul id="utilitarioI">

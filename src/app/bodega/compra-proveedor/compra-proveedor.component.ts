@@ -98,7 +98,7 @@ export class CompraProveedorComponent implements OnInit {
   }
 
   cargarBodega() {
-    if (this.conexcionService.UserR.rolAsignado == "enfermeria") {
+    if (this.conexcionService.UserDataToken.role == "enfermeria") {
       this.selectProveedor.fuente = "ENT";
       this.selectProveedor.proveedor = "DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A";
       this.selectProveedor.cedrucpas = "0990858322001";
@@ -106,16 +106,26 @@ export class CompraProveedorComponent implements OnInit {
         this.listBodega = dato;
       });
     } else {
-      if (this.conexcionService.UserR.rolAsignado == "gpv-o") {
+      if (this.conexcionService.UserDataToken.role == "gpv-o"||this.conexcionService.UserDataToken.role=="verificador-bodeguero-h") {
         this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
           this.listBodega = dato;
+          if(this.conexcionService.UserDataToken.role=="verificador-bodeguero-h"){
+            this.listBodega=this.listBodega.filter(x=>x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
+            this._variosService.getBodegasTipo("PUERTO").subscribe(dato2 => {
+              for (var i = 0; i < dato2.length; i++) {
+                if(dato2[i].nombreBodega.includes("HELICOPTERO"))
+                  this.listBodega.push(dato2[i]);
+              }
+            });
+          }
+            
         });
       } else {
         this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
           this.listBodega = dato;
-          if (this.conexcionService.UserR.rolAsignado == "verificador-bodeguero") {
-            this.listBodega = this.listBodega.filter(x => x.encargadoBodega == this.conexcionService.UserR.nombreU);
-            if (this.conexcionService.UserR.nombreU == "FERNANDA MORALES") {
+          if (this.conexcionService.UserDataToken.role == "verificador-bodeguero") {
+            this.listBodega = this.listBodega.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
+            if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
               this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
                 for (var i = 0; i < dato.length; i++) {
                   this.listBodega.push(dato[i]);
@@ -134,12 +144,12 @@ export class CompraProveedorComponent implements OnInit {
     }
     this.spinnerOnOff = 0;
     this.autoFocus = false;
-    if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
-      this._ordenECService.formData = new cOrdenEC("OFICINAS", this._conexcionService.UserR.nombreU);
-    if (this._conexcionService.UserR.rolAsignado == 'tinabg-m' || this._conexcionService.UserR.rolAsignado == 'bodega_verificador-m' || this._conexcionService.UserR.rolAsignado == 'verificador-bodeguero')
-      this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserR.nombreU);
-    if (this._conexcionService.UserR.rolAsignado == 'enfermeria')
-      this._ordenECService.formData = new cOrdenEC("ENFERMERIA", this._conexcionService.UserR.nombreU);
+    if (this._conexcionService.UserDataToken.role == 'gpv-o'||this.conexcionService.UserDataToken.role=="verificador-bodeguero-h")
+      this._ordenECService.formData = new cOrdenEC("OFICINAS", this._conexcionService.UserDataToken.name);
+    if (this._conexcionService.UserDataToken.role == 'tinabg-m' || this._conexcionService.UserDataToken.role == 'bodega_verificador-m' || this._conexcionService.UserDataToken.role == 'verificador-bodeguero')
+      this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserDataToken.name);
+    if (this._conexcionService.UserDataToken.role == 'enfermeria')
+      this._ordenECService.formData = new cOrdenEC("ENFERMERIA", this._conexcionService.UserDataToken.name);
   }
 
   onSubmit(form: NgForm) {
@@ -225,6 +235,8 @@ export class CompraProveedorComponent implements OnInit {
               }
             }
           }
+          if(this.ordenECService.formData.listPcomprasO.find(x=>x.destinoBodega.includes("BP")||x.destinoBodega.includes("HELICOPTERO"))!=undefined && this.ordenECService.formData.planta!="ENFERMERIA")
+            this.ordenECService.formData.planta=this.ordenECService.formData.planta+"-BARCOS";
           this.guardar();
         } else this.okBttnSubmit = 3;
       }
@@ -251,7 +263,7 @@ export class CompraProveedorComponent implements OnInit {
               var auxBodegas: cBodega[] = [];
               for (var i = 0; i < this._ordenECService.formData.listPcomprasO.length; i++) {
                 var auxBodega = this.listBodega.find(x => x.nombreBodega == this._ordenECService.formData.listPcomprasO[i].destinoBodega);
-                if (auxBodega.encargadoBodega != this._conexcionService.UserR.nombreU) {
+                if (!auxBodega.encargadoBodega.includes(this._conexcionService.UserDataToken.name)) {
                   if (auxBodegas.find(x => x.nombreBodega == auxBodega.nombreBodega) == undefined) {
                     auxBodegas.push(auxBodega);
                     this.sendMediaMessageTraspaso(this._ordenECService.formData, auxBodega);
@@ -263,8 +275,6 @@ export class CompraProveedorComponent implements OnInit {
           }
           this.onTerminar();
         } else {
-          if (res.message == "Error Producto")
-            this.toastr.warning('Producto Fallido', 'No se ha encontrado el código del prodcuto en la base de datos');
           if (res.message == "Bad Request")
             this.toastr.error('Registro Fallido', 'Datos inconcistentes');
         }
@@ -295,7 +305,7 @@ export class CompraProveedorComponent implements OnInit {
 
         if (dato.message == "ok" && dato.compra != null) {
           strTitulo = "Factura Encontrada!";
-          strTexto = "Se encontro " + dato.compra.tP_Documento + ': ' + dato.compra.documento + " emitida el " + dato.compra.emi_Fecha.substring(0, 10) + ", bajo la razón social: " + dato.compra.rS_Cliente;
+          strTexto = "Se encontro " + dato.compra.tp_documento + ': ' + dato.compra.factura + " emitida el " + dato.compra.emi_fecha.substring(0, 10) + ", bajo la razón social: " + dato.compra.rs_cliente;
           btn1Boton = "Continuar!";
           btn2Boton = "Cancelar!";
 
@@ -325,7 +335,7 @@ export class CompraProveedorComponent implements OnInit {
         }
         if (dato.message == "Duplicada" && dato.compra != null) {
           strTitulo = "Factura Duplicada!";
-          strTexto = "Se encontro " + dato.compra.tP_Documento + " registrada el " + dato.fecha + ", bajo la razón social: " + dato.compra.rS_Cliente;
+          strTexto = "Se encontro " + dato.compra.tp_documento + " registrada el " + dato.fecha + ", bajo la razón social: " + dato.compra.rs_cliente;
           if (dato.compra.listCompraO.length > 0)
             btn1Boton = "Continuar!";
           else btn1Boton = "Salir"
@@ -414,8 +424,8 @@ export class CompraProveedorComponent implements OnInit {
   rellenarCompraAuto(datoCompra: cEnterpriceDocumento) {
     if (datoCompra != null) {
       this.okCompraManual = false;
-      this._ordenECService.formData.idCompraAutomatica = datoCompra.idDocumento;
-      this._ordenECService.formData.factura = Number(datoCompra.documento);
+      this._ordenECService.formData.idCompraAutomatica = datoCompra.iddocumento;
+      this._ordenECService.formData.factura = Number(datoCompra.factura);
       this._productoBService.getProductosPlantaProveedor(this._ordenECService.formData.planta + "@" + this._ordenECService.formData.proveedor)
         .subscribe((dato: any) => {
           for (var i = 0; i < datoCompra.listCompraO.length; i++) {
@@ -573,7 +583,7 @@ export class CompraProveedorComponent implements OnInit {
   onAddNewP() {
     if (this.comprobarNewP()) {
       var auxArticuloCompra = new cCompraO();
-      if (this._conexcionService.UserR.rolAsignado == 'gpv-o')
+      if (this._conexcionService.UserDataToken.role == 'gpv-o')
         var auxProductoNew: cProducto_B = new cProducto_B("OFICINAS", this._ordenECService.formData.proveedor);
       else var auxProductoNew: cProducto_B = new cProducto_B("P MANACRIPEX", this._ordenECService.formData.proveedor);
       auxArticuloCompra.rellenarProducto(auxProductoNew);
@@ -774,11 +784,12 @@ export class CompraProveedorComponent implements OnInit {
     auxWhatsapp = {
       phone: telefonoIn,
       message: "",
+      caption:"",
       title: orden.planta + "_" + orden.fechaRegistroBodega + "-" + orden.factura + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
     }
-    auxWhatsapp.message = ':bell: *Notificación Compra Medicamento*:exclamation: :bell:'
+    auxWhatsapp.caption = ':bell: *Notificación Compra Medicamento*:exclamation: :bell:'
       + '\n'
       + '\n:wave: Saludos Compañero:'
       + '\nSe le informa que se ha registrado una nueva compra de medicamentos para el barco *' + this.selectBarcoCompra + '*.'
@@ -804,11 +815,12 @@ export class CompraProveedorComponent implements OnInit {
     auxWhatsapp = {
       phone: auxBodega.telefonoEncargado,
       message: "",
+      caption:"",
       title: orden.planta + "_" + orden.fechaRegistroBodega + "-" + orden.factura + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
     }
-    auxWhatsapp.message = ':bell: *Notificación Compra Material*:exclamation: :bell:'
+    auxWhatsapp.caption = ':bell: *Notificación Compra Material*:exclamation: :bell:'
       + '\n'
       + '\n:wave: Saludos Compañero:'
       + '\nSe le informa que se ha comprado material para la bodega *' + auxBodega.nombreBodega + '*.'
