@@ -100,27 +100,37 @@
       </li>
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Bodega/trabajosInter"]'>
-          <fa-icon [icon]="fatasks"></fa-icon> Trabajos Internos
+          <fa-icon [icon]="fatasks"></fa-icon>  {{conexcionService.UserDataToken.role=='verificador-bodeguero-h'?'Consumos':'Trabajos Internos'}} Realizados
         </a>
       </li>
       <li [routerLinkActive]="['active']">
         <a [routerLink]='["/Bodega/newTrabajosInter"]'>
-          <fa-icon [icon]="fatasks"></fa-icon> Orden Trabajo
+          <fa-icon [icon]="fatasks"></fa-icon> Nueva Orden{{conexcionService.UserDataToken.role=='verificador-bodeguero-h'?' Consumo':' Trabajo'}}
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.role!='verificador-bodeguero-b'">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
         <a [routerLink]='["/Bodega/newTraspasoInter"]'>
           <fa-icon [icon]="faexchange"></fa-icon> Traspaso Bodega
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.name=='FERNANDA MORALES'||conexcionService.UserDataToken.name=='SERGIO JARA'">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.name=='FERNANDA MORALES'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
         <a [routerLink]='["/Bodega/compras"]'>
           <fa-icon [icon]="fashoppingCart"></fa-icon> Compra Proveedor
         </a>
       </li>
-      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.name=='FERNANDA MORALES'||conexcionService.UserDataToken.name=='SERGIO JARA'">
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.name=='FERNANDA MORALES'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
         <a [routerLink]='["/Bodega/comprasInv"]'>
           <fa-icon [icon]="fashoppingCart"></fa-icon> Gestión Compras
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
+        <a [routerLink]="['/Bodega/ordenVerificacionTrabajo']">
+          <fa-icon [icon]="faclipboardCheck"></fa-icon> {{conexcionService.UserDataToken.name=='MARCO GARZON'?'Aprobar Orden Consumo':'Cerrar Orden Consumo'}}  <span class="badge badge-light">{{numBaner1}}</span>
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
+        <a [routerLink]="['/Bodega/ordenVerificacionTraspaso']">
+          <fa-icon [icon]="faclipboardCheck"></fa-icon> {{conexcionService.UserDataToken.name=='MARCO GARZON'?'Aprobar Traspaso':'Cerrar Traspaso'}}  <span class="badge badge-light">{{numBaner2}}</span>
         </a>
       </li>
     </ul>
@@ -259,13 +269,13 @@
         </a>
       </li>
       <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='enfermeria'|| conexcionService.UserDataToken.role=='tinabg-m'||conexcionService.UserDataToken.role=='bodega_verificador-m'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&&conexcionService.UserDataToken.name=='FERNANDA MORALES' )||(conexcionService.UserDataToken.role=='verificador-bodeguero-h' &&conexcionService.UserDataToken.name=='SERGIO JARA')">
+        *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='enfermeria'|| conexcionService.UserDataToken.role=='tinabg-m'||conexcionService.UserDataToken.role=='bodega_verificador-m'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&&conexcionService.UserDataToken.name=='FERNANDA MORALES' )||conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
         <a [routerLink]='["/BuscarFactura"]'>
           <fa-icon [icon]="faexchangeAlt"></fa-icon> Buscar Factura
         </a>
       </li>
       <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero'||conexcionService.UserDataToken.role=='verificador-bodeguero-b'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
+        *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero'||conexcionService.UserDataToken.role=='verificador-bodeguero-b'">
         <a [routerLink]='["/Bodega/inventGroup"]'>
           <fa-icon [icon]="faobjerctunicion"></fa-icon> Agrupar inventario
         </a>
@@ -288,12 +298,22 @@
         </a>
       </li>
       <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
+        <a [routerLink]='["/Pedido/Orden"]'>
+          <fa-icon [icon]="facartarrow"></fa-icon> Pedido Orden
+        </a>
+      </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h' && conexcionService.UserDataToken.name=='MARCO GARZON'">
+      <a [routerLink]='["/Pedido/AprobacionPedido"]'>
+        <fa-icon [icon]="faclipboardCheck"></fa-icon> Aprobar Pedido
+      </a>
+    </li>
+      <li [routerLinkActive]="['active']" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
         <a [routerLink]='["/Pedido/PedidosList"]'>
           <fa-icon [icon]="faclipboardList"></fa-icon> Lista Pedidos
         </a>
       </li>
       <li [routerLinkActive]="['active']"
-        *ngIf="conexcionService.UserDataToken.role=='tinabg-m'||conexcionService.UserDataToken.role=='pedido-super'||(conexcionService.UserDataToken.role=='pedido-flota'&& conexcionService.UserDataToken.name == 'JORGE SALAME' )">
+        *ngIf="conexcionService.UserDataToken.role=='tinabg-m'||conexcionService.UserDataToken.role=='pedido-super'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'||(conexcionService.UserDataToken.role=='pedido-flota'&& conexcionService.UserDataToken.name == 'JORGE SALAME' )">
         <a [routerLink]='["/List-proveedor"]'>
           <fa-icon [icon]="fausertag"></fa-icon> Proveedores
         </a>

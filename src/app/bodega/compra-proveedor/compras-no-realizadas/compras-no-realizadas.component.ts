@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
+import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
 import { cEnterpriceDocumento, cEnterpriceProveedor, cFecha } from 'src/app/shared/otrosServices/varios';
 
 @Component({
@@ -41,7 +42,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
    /**Fin paginatacion */
    
   fasearch = faSearch; fatimes = faTimes;
-  constructor(private _enterpriceServise: ApiEnterpriceService,private _conexcionService: ConexionService) { }
+  constructor(private _enterpriceServise: ApiEnterpriceService, private proveedorService: ProveedorService,private _conexcionService: ConexionService) { }
 
   ngOnInit(): void {
     if(this._conexcionService.UserDataToken.role=="enfermeria"){
@@ -55,7 +56,7 @@ export class ComprasNoRealizadasComponent implements OnInit {
     this.showSearchSelect = true;
     this.selectProveedor=value;
     if (value)
-      this.listProveedoresFiltros$ = this._enterpriceServise.getProveedorSearch(value).pipe(
+      this.listProveedoresFiltros$ = this.proveedorService.getProveedorUnificadaSearch(value).pipe(
         map((x: cEnterpriceProveedor[]) => {
           return x;
         }),

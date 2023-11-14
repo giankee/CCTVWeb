@@ -1,7 +1,8 @@
 <div class="jumtron">
   <div class="row justify-content-center">
     <div class="col-10 col-sm-11">
-      <h1 class="display-4 text-center">Trabajos Internos</h1>
+      <h1 class="display-4 text-center">
+        {{conexcionService.UserDataToken.role=='verificador-bodeguero-h'?'Consumos':'Trabajos Internos'}}</h1>
     </div>
   </div>
 </div>
@@ -20,13 +21,15 @@
           </div>
           <div class="mt-2 px-4 py-2 boxForm collapse" id="FiltroList">
             <div class="row">
-              <div class="col-12 col-md-4" *ngIf="conexcionService.UserDataToken.role != 'verificador-bodeguero-b' && (conexcionService.UserDataToken.role != 'verificador-bodeguero' || (conexcionService.UserDataToken.name == 'FERNANDA MORALES') ) ">
+              <div class="col-12 col-md-4"
+                *ngIf="conexcionService.UserDataToken.role != 'verificador-bodeguero-b' && (conexcionService.UserDataToken.role != 'verificador-bodeguero' || (conexcionService.UserDataToken.name == 'FERNANDA MORALES') ) ">
                 <div class="form-group inputForm">
-                  <div class="title"><strong>Bodega Origen:</strong></div>
+                  <div class="title"><strong>Origen:</strong></div>
                   <select class="form-control" name="selectBodega" #selectBodega="ngModel"
                     [(ngModel)]="parametrosBusqueda.strBodegaOrigen">
                     <option value="All">-Seleccionar-</option>
-                    <option *ngIf="conexcionService.UserDataToken.role == 'enfermeria'" value="ENFERMERIA GENERAL">ENFERMERIA GENERAL</option>
+                    <option *ngIf="conexcionService.UserDataToken.role == 'enfermeria'" value="ENFERMERIA GENERAL">
+                      ENFERMERIA GENERAL</option>
                     <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombreBodega}}">
                       {{datobodega.nombreBodega}}
                     </option>
@@ -49,24 +52,29 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-12 col-sm-6 col-md-4" *ngIf="conexcionService.UserDataToken.role == 'tinabg-m'||conexcionService.UserDataToken.role == 'bodega_verificador-m'">
+              <div class="col-12 col-sm-6 col-md-4"
+                *ngIf="conexcionService.UserDataToken.role == 'tinabg-m'||conexcionService.UserDataToken.role == 'bodega_verificador-m'">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Área Destino:</strong></div>
-                  <select class="form-control" name="selectArea" #selectArea="ngModel" *ngIf="conexcionService.UserDataToken.role!='enfermeria'"
-                    [(ngModel)]="parametrosBusqueda.strArea">
+                  <select class="form-control" name="selectArea" #selectArea="ngModel"
+                    *ngIf="conexcionService.UserDataToken.role!='enfermeria'" [(ngModel)]="parametrosBusqueda.strArea">
                     <option [ngValue]="'null'">-- Seleccionar --</option>
-                    <option *ngFor="let datoArea of listAreas" value="{{datoArea.nombreBodega}}">{{datoArea.nombreBodega}}</option>
+                    <option *ngFor="let datoArea of listAreas" value="{{datoArea.nombreBodega}}">
+                      {{datoArea.nombreBodega}}</option>
                   </select>
                 </div>
               </div>
-              <div class="col-12 col-sm-6 col-md-4" *ngIf="conexcionService.UserDataToken.role == 'verificador-bodeguero-h'">
+              <div class="col-12 col-sm-6 col-md-4"
+                *ngIf="conexcionService.UserDataToken.role == 'verificador-bodeguero-h'|| conexcionService.UserDataToken.role == 'tinabg-m'||conexcionService.UserDataToken.role == 'bodega_verificador-m'|| (conexcionService.UserDataToken.role == 'verificador-bodeguero'&&conexcionService.UserDataToken.name == 'FERNANDA MORALES' )">
                 <div class="form-group inputForm">
                   <div class="title"><strong>Tipo Orden:</strong></div>
                   <select class="form-control" name="selectArea" #selectArea="ngModel"
                     [(ngModel)]="parametrosBusqueda.tipoO">
                     <option [ngValue]="'All'">-- Todas --</option>
-                    <option [ngValue]="'Trabajo Interno'">Trabajo Interno</option>
+                    <option [ngValue]="'Trabajo Interno'">{{conexcionService.UserDataToken.role=='verificador-bodeguero-h'?'Consumo Interno':'Trabajo Interno'}}</option>
                     <option [ngValue]="'Traspaso Bodega'">Traspaso Bodega</option>
+                    <option *ngIf="conexcionService.UserDataToken.role == 'verificador-bodeguero-h'" value="Prestamo">Prestamo</option>
+                    <option *ngIf="conexcionService.UserDataToken.role == 'verificador-bodeguero-h'" value="Venta Repuesto">Venta Repuesto</option>
                   </select>
                 </div>
               </div>
@@ -120,7 +128,7 @@
       <div class="col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card">
           <div id="ordenarS" class="card-header d-flex justify-content-between">
-            <h5><a class="text-dark2">Lista Movimientos Internos</a></h5>
+            <h5><a class="text-dark2">Lista Movimientos</a></h5>
             <!-- <a class="text-dark2" (click)="onConvertPdfAll()">
               <fa-icon [icon]="faprint"></fa-icon>
             </a> -->
@@ -145,7 +153,9 @@
                     </th>
                     <th>Tipo Orden</th>
                     <th>Fecha Registro</th>
-                    <th *ngIf="conexcionService.UserDataToken.role=='gpv-o'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">Tipo Movimiento</th>
+                    <th
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
+                      Tipo Movimiento</th>
                     <th>
                       <div class="d-inline-block" style="margin-right: 0.5rem;"> Bodega Origen</div>
                       <div id="ordenarS" class="d-inline-block">
@@ -154,10 +164,12 @@
                         </a>
                       </div>
                     </th>
-                    <th *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='enfermeria'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
+                    <th
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='enfermeria'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
                       Marea
                     </th>
-                    <th *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
+                    <th
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
                       Horas Servicio
                     </th>
                     <th *ngIf="conexcionService.UserDataToken.role=='enfermeria'">
@@ -193,12 +205,18 @@
                     *ngFor="let dato of resultBusquedaMostrar |sort:ordenTrabajo:'cOrdenTrabajoI'| slice:paginacion.startIndex:paginacion.endIndex; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{dato.numOrdenSecuencial}}</td>
-                    <td>{{dato.tipoOrden}}</td>
+                    <td>{{conexcionService.UserDataToken.role=='verificador-bodeguero-h' && dato.tipoOrden=="Trabajo Interno"?'Consumo Interno':dato.tipoOrden}}</td>
                     <td>{{dato.fechaRegistro}}</td>
-                    <td *ngIf="conexcionService.UserDataToken.role=='gpv-o'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">{{dato.tipoOrden}} </td>
+                    <td
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
+                      {{dato.tipoOrden}} </td>
                     <td>{{dato.bodega}}</td>
-                    <td class="text-center" *ngIf="conexcionService.UserDataToken.role=='gpv-o'||conexcionService.UserDataToken.role=='enfermeria'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">{{dato.marea!=null?dato.marea: '---'}}</td>
-                    <td class="text-center" *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">{{dato.horasServicio!=0?dato.horasServicio: '---'}}</td>
+                    <td class="text-center"
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'||conexcionService.UserDataToken.role=='enfermeria'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
+                      {{dato.marea!=null?dato.marea: '---'}}</td>
+                    <td class="text-center"
+                      *ngIf="conexcionService.UserDataToken.role=='gpv-o'|| conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero'&& conexcionService.UserDataToken.name=='FERNANDA MORALES')">
+                      {{dato.horasServicio!=0?dato.horasServicio: '---'}}</td>
                     <td>{{dato.destinoLugar}}</td>
                     <td>{{dato.personaResponsable}}</td>
                     <td>
@@ -211,10 +229,15 @@
                     </td>
                     <td>{{dato.estadoProceso}}</td>
                     <td class="text-center" id="utilitarioI">
-                      <a class="badge text-primario d-none d-sm-block" (click)="onModal(dato)"
-                        matTooltip="Te permite visualizar a detalladamente la orden de trabajo interna"
+                      <a class="badge text-primario" *ngIf="dato.estadoProceso=='Procesada'||dato.estadoProceso=='Pendiente Aprobación'" (click)="onModal(dato)"
+                        matTooltip="Te permite visualizar a detalladamente la orden "
                         matTooltipPosition="left" matTooltipClass="tooltipBlack">
-                        <fa-icon [icon]="faeye"></fa-icon>
+                        <fa-icon class="fa-lg" [icon]="faeye"></fa-icon>
+                      </a>
+                      <a class="badge text-primario" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'&& dato.estadoProceso!='Procesada' && dato.estadoProceso!='Pendiente Aprobación'" (click)="onModal(dato,true)"
+                        matTooltip="Te permite editar la orden"
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack">
+                        <fa-icon class="fa-lg" [icon]="faeraser"></fa-icon>
                       </a>
                     </td>
                   </tr>

@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { cOrdenPedido } from 'src/app/shared/pedido/pedido';
-import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faEye, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { OrdenPedidoService } from 'src/app/shared/pedido/orden-pedido.service';
 import { ToastrService } from 'ngx-toastr';
 import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
 import { jsPDF } from "jspdf";
-import { VariosService } from 'src/app/shared/otrosServices/varios.service';
-import { cBodega } from 'src/app/shared/bodega/ordenEC';
 import { cFecha, cWhatsapp } from 'src/app/shared/otrosServices/varios';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
@@ -26,25 +24,13 @@ export class PedidosAprobarComponent implements OnInit {
   fechaActual: cFecha = new cFecha();
   listOrdenesMostrar: cOrdenPedido[] = [];
   spinnerOnOff: boolean = true;
-  listBarcos: cBodega[] = [];
-  listAreas: cBodega[] = [];
 
   /**Icon */
-  facheck = faCheck; fatimes = faTimes;
-  constructor(private _conexcionService: ConexionService, private ordenPedidoService: OrdenPedidoService, private proveedorService: ProveedorService, private toastr: ToastrService, private variosService: VariosService, private whatsappService: WhatsappService) { }
+  facheck = faCheck; fatimes = faTimes;faeye = faEye;
+  constructor(private _conexcionService: ConexionService, private ordenPedidoService: OrdenPedidoService, private proveedorService: ProveedorService, private toastr: ToastrService, private whatsappService: WhatsappService) { }
 
   ngOnInit(): void {
     this.restartListPendientes();
-    this.cargarData();
-  }
-
-  cargarData() {
-    this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato;
-    });
-    this.variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
-      this.listAreas = dato;
-    });
   }
 
   restartListPendientes() {
@@ -58,6 +44,8 @@ export class PedidosAprobarComponent implements OnInit {
       parametros = "P MANACRIPEX@Pendiente Aprobación";
     if (this.conexcionService.UserDataToken.role == "pedido-super")
       parametros = "P OFICINAS@Pendiente Aprobación";
+    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h")
+      parametros = "OMA@Pendiente Aprobación";
 
     this.ordenPedidoService.getListPedido(parametros).subscribe(dato => {
       dato.forEach(x => {
@@ -195,11 +183,11 @@ export class PedidosAprobarComponent implements OnInit {
       doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 3) / 2)));
       doc.line(140, (y - valorG), 140, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
-      if(orden.listArticulosPedido[i].aviso){
-        doc.setTextColor(255,0,0);
+      if (orden.listArticulosPedido[i].aviso) {
+        doc.setTextColor(255, 0, 0);
         doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
-        doc.setTextColor(0,0,0);
-      }else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        doc.setTextColor(0, 0, 0);
+      } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -216,23 +204,24 @@ export class PedidosAprobarComponent implements OnInit {
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + personaSubArea, 146, y + 5);
 
-    if (this.conexcionService.UserDataToken.name == "CARLOS CEBALLOS" || this.conexcionService.UserDataToken.name == "JORGE SALAME" || this.conexcionService.UserDataToken.name == "PRUEBAG")
-      
-    if(this._conexcionService.UserDataToken.name!="CARLOS CEBALLOS")
-    doc.save("Pedido_" + orden.numSecuencial + ".pdf");
+    if (this.conexcionService.UserDataToken.name == "CARLOS CEBALLOS" || this.conexcionService.UserDataToken.name == "JORGE SALAME" || this.conexcionService.UserDataToken.name == "PRUEBAG"||this.conexcionService.UserDataToken.role=="verificador-bodeguero-h")
+      if (this._conexcionService.UserDataToken.name != "CARLOS CEBALLOS")
+        doc.save("Pedido_" + orden.numSecuencial + ".pdf");
     return (doc.output('datauristring'));
   }
 
-  onSave(datoIn: cOrdenPedido, tipoIn: number) {
+  onSave(datoIn: cOrdenPedido, tipoIn: string) {
     var auxOrden: cOrdenPedido = new cOrdenPedido(datoIn.cargoUser, datoIn.planta);
     auxOrden.completarObject(datoIn);
-    if (tipoIn == 1)
+    if (tipoIn == 'Aprobado') {
       auxOrden.estadoProceso = "Pendiente Verificación";
+      auxOrden.responsableAprobacion = this.conexcionService.UserDataToken.name;
+    }
     else {
       auxOrden.estadoProceso = "Anulada";
-      auxOrden.responsableAnulada=this.conexcionService.UserDataToken.name;
+      auxOrden.responsableAnulada = this.conexcionService.UserDataToken.name;
     }
-    auxOrden.responsableAprobacion = this.conexcionService.UserDataToken.name;
+
     auxOrden.fechaAprobacion = this.fechaActual.strFecha + "T" + this.fechaActual.strHoraA;
     var fechaAux = auxOrden.fechaPedido.split(" ");
     auxOrden.fechaPedido = fechaAux[0] + "T" + fechaAux[1];
@@ -240,23 +229,22 @@ export class PedidosAprobarComponent implements OnInit {
 
     this.ordenPedidoService.actualizarPedido(auxOrden).subscribe(
       (res: any) => {
-        if (res.message == "Ok") {
-          if (tipoIn == 1) {
-            this.toastr.success('Actualización satisfactoria', 'Orden Aprobada');
-            this.sendMessageGroupNotification(auxOrden);
-          } else this.toastr.success('Actualización satisfactoria', 'Orden Rechazada');
-          this.restartListPendientes();
-        }
+        if (res.message == "Ok")
+          this.toastr.success('Operación satisfactoria', 'Orden Aprobada');
+        if (res.message == "Eliminar")
+          this.toastr.warning('Operación satisfactoria', 'Orden Rechazada');
+        this.sendMessageGroupNotification(auxOrden, tipoIn);
+        this.restartListPendientes();
       }
     );
   }
 
-  sendMessageGroupNotification(orden: cOrdenPedido) {
+  sendMessageGroupNotification(orden: cOrdenPedido, tipoIn: string) {
     var auxBase = this.convertPdf(orden).split('base64,');
     var auxWhatsapp: cWhatsapp = {
       chatname: "",
       message: "",
-      caption:"",
+      caption: "",
       title: "Pedido_" + orden.numSecuencial + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
@@ -264,6 +252,7 @@ export class PedidosAprobarComponent implements OnInit {
     var encabezado: string = ':bell: *Notificación Pedido ' + orden.empresa + '* :bell:';
     var asunto: string = "pedido a *" + orden.proveedor + "* para el área *" + orden.listArticulosPedido[0].destinoArea + "*";
     var lineaAux: string = '\n*Área:* ' + orden.listArticulosPedido[0].destinoArea;
+
     if (orden.planta == "P MANACRIPEX") {
       auxWhatsapp.chatname = "PEDIDOS MANACRIPEX";
       if (orden.area != "P MANACRIPEX") {
@@ -279,20 +268,29 @@ export class PedidosAprobarComponent implements OnInit {
     if (orden.planta == "P OFICINAS")
       auxWhatsapp.chatname = "PEDIDOS OFICINAS PDF";
 
+    if (orden.planta == "OMA") {
+      auxWhatsapp.chatname = "PEDIDOS, ORDENES OMA";
+      asunto = "pedido a *" + orden.proveedor + "* para el área *" + orden.area + "*";
+    }
+
     var auxNumSecuencial = orden.numSecuencial.split('-');
     auxWhatsapp.caption = encabezado
       + '\n'
       + '\n:wave: Saludos:'
-      + '\nSe les informa que se ha generado un ' + asunto
-      + '\nLos datos del pedido son:'
+      + '\nSe les informa que se ha *' + tipoIn + '* ' + asunto
       + '\n'
+      + '\nLos datos del pedido son:'
       + '\n*#' + auxNumSecuencial[1] + '*'
       + lineaAux
-      + '\n*Fecha:* ' + orden.fechaPedido
-      + '\n*Encargado del Pedido* ' + orden.cargoUser
-      + '\n----------------------------------'
-      + '\nAdicionalmente se adjunta la orden detalladamente :paperclip:'
-      + '\n----------------------------------';
+      + '\n*Fecha:* ' + orden.fechaPedido.substring(1, 10)
+      + '\n'
+      + '\n_Para consultas escribir por interno al encargado del pedido  *' + orden.cargoUser + '*_ : '
+      + '\n----------------------------------------';
+
+    if (this.conexcionService.UserDataToken.name == "PRUEBAG" || this.conexcionService.UserDataToken.sub.includes("3")) {
+      auxWhatsapp.phone = "593-999786121";
+      auxWhatsapp.chatname = "PEDIDOS PRUEBA";
+    }
 
     this.whatsappService.sendMessageMGroup(auxWhatsapp).subscribe(
       res => {
@@ -304,27 +302,28 @@ export class PedidosAprobarComponent implements OnInit {
         console.log(err);
       }
     );
-    this.proveedorService.getProveedorSearch(orden.proveedor).subscribe(
-      res => {
-        if (res.length > 0) {
-          if (res[0].telefono != null) {
-            auxWhatsapp.chatname = "";
-            if (this.conexcionService.UserDataToken.name != "PRUEBAG")
-              auxWhatsapp.phone = res[0].telefono;
-            else auxWhatsapp.phone = "593-999786121";
-            this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
-              res => {
-                if (res.status != "error")
-                  this.toastr.success('Mensaje enviado al Proveedor', 'Notificación enviada Proveedor');
-                else this.toastr.error('Error', 'Mensaje NO enviado');
-              },
-              err => {
-                console.log(err);
-              }
-            );
+    if (tipoIn == "Aprobado")
+      this.proveedorService.getProveedorUnificadaSearch(orden.proveedor).subscribe(
+        res => {
+          if (res.length > 0) {
+            if (res[0].telefono != null) {
+              auxWhatsapp.chatname = "";
+              if (this.conexcionService.UserDataToken.name == "PRUEBAG" || this.conexcionService.UserDataToken.sub.includes("3"))
+                auxWhatsapp.phone = "593-999786121"
+              else auxWhatsapp.phone = res[0].telefono;
+              this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
+                res => {
+                  if (res.status != "error")
+                    this.toastr.success('Mensaje enviado al Proveedor', 'Notificación enviada Proveedor');
+                  else this.toastr.error('Error', 'Mensaje NO enviado');
+                },
+                err => {
+                  console.log(err);
+                }
+              );
+            }
           }
         }
-      }
-    );
+      );
   }
 }

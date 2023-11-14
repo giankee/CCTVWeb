@@ -80,11 +80,9 @@ export class TraspasoInternoComponent implements OnInit {
     } else {
       if (this._conexcionService.UserDataToken.role == "gpv-o" || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")) {
         this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "OFICINAS");
-        if (this._conexcionService.UserDataToken.name == "SERGIO JARA") {
-          this.ordenTrabajoService.formData.bodega = "HANGAR";
-          this.ordenTrabajoService.formData.destinoLugar = "SIN ASIGNAR";
-        } else this._ordenTrabajoService.formData.bodega = "Bodega Helicoptero";
-        this.ordenTrabajoService.formData.bodeguero = this.conexcionService.UserDataToken.name;
+        if (this._conexcionService.UserDataToken.role == "gpv-o")
+          this._ordenTrabajoService.formData.bodega = "Bodega Helicoptero";
+        else this._ordenTrabajoService.formData.bodega = "HANGAR (DANIEL BUEHS)";
       }
       else {
         this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "P MANACRIPEX");
@@ -109,27 +107,15 @@ export class TraspasoInternoComponent implements OnInit {
       });
     } else {
       if (this.conexcionService.UserDataToken.role == "gpv-o" || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")) {
-        this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
-          this.listBodegaOrigen = JSON.parse(JSON.stringify(dato));
-          this.listBodegaDestino = JSON.parse(JSON.stringify(this.listBodegaOrigen));
-          if (this.conexcionService.UserDataToken.name == "SERGIO JARA") {
-            this.listBodegaDestino = [];
-            this.listBodegaOrigen = this.listBodegaOrigen.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
-          }
-          this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-            for (var i = 0; i < dato.length; i++) {
-              if (this.conexcionService.UserDataToken.name == "SERGIO JARA") {
-                if (dato[i].nombreBodega.includes("HELICOPTERO"))
-                  this.listBodegaDestino.push(dato[i]);
-              } else this.listBodegaDestino.push(dato[i]);
-            }
-          });
+        this._variosService.getBodegasTipo("OFICINAS-PUERTO").subscribe(dato => {
+          this.listBodegaOrigen = dato.filter(x => !x.nombreBodega.includes("HELICOPTERO") && x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+          this.listBodegaDestino = dato.filter(x => x.nombreBodega.includes("HELICOPTERO") && x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
         });
       } else {
         this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
           this.listBodegaDestino = dato;
           if (this.conexcionService.UserDataToken.role != 'tinabg-m') {
-            this.listBodegaOrigen = this.listBodegaDestino.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
+            this.listBodegaOrigen = this.listBodegaDestino.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
             if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
               this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
                 for (var i = 0; i < dato.length; i++) {
@@ -216,8 +202,12 @@ export class TraspasoInternoComponent implements OnInit {
           this.ordenTrabajoService.formData.marea = this.ordenTrabajoService.formData.marea + "-" + this.fechaHoy.anio;
         else {
           this.ordenTrabajoService.formData.marea = null;
-          if(this.ordenTrabajoService.formData.destinoLugar.includes("BP")||this.ordenTrabajoService.formData.destinoLugar.includes("HELICOPTERO"))
-            this.ordenTrabajoService.formData.planta=this.ordenTrabajoService.formData.planta+"-BARCOS";
+          if (this.ordenTrabajoService.formData.destinoLugar.includes("BP"))
+            this.ordenTrabajoService.formData.planta = this.ordenTrabajoService.formData.planta + "-BARCOS";
+            if (this.conexcionService.UserDataToken.role=="verificador-bodeguero-h"){
+              this.ordenTrabajoService.formData.planta = "OMA";
+              this.ordenTrabajoService.formData.estadoProceso="Pendiente";
+            }
         }
         this._ordenTrabajoService.traspasoBodega(this._ordenTrabajoService.formData).subscribe(
           (res: any) => {
@@ -226,11 +216,9 @@ export class TraspasoInternoComponent implements OnInit {
               this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
               if (this.ordenTrabajoService.formData.destinoLugar != "ENFERMERIA GENERAL") {
                 var auxBodega = this.listBodegaDestino.find(x => x.nombreBodega == this.ordenTrabajoService.formData.destinoLugar);
-                var auxNum = auxBodega.telefonoEncargado;
-                if (this.ordenTrabajoService.formData.destinoLugar.includes("BP")) {
-                  var auxBodegaArea = auxBodega.listAreas.find(x => x.nombreArea == "Máquina")
-                  auxNum = auxBodegaArea.telefonoEncargado;
-                }
+                var auxNum =""; 
+                if(auxBodega!=null && auxBodega.listEncargados.find(x=>x.cargo.includes("BODEGUERO"))!=null)
+                  auxNum=auxBodega.listEncargados.find(x=>x.cargo.includes("BODEGUERO")).telefono;
                 this.sendMediaMessage(this.ordenTrabajoService.formData, auxNum)
               }
             } else {
@@ -408,7 +396,7 @@ export class TraspasoInternoComponent implements OnInit {
     auxWhatsapp = {
       phone: telefonoIn,
       message: "",
-      caption:"",
+      caption: "",
       title: "Traspaso_" + traspaso.fechaRegistro + "_" + traspaso.numOrdenSecuencial + ".pdf",
       media: auxBase[1],
       type: "application/pdf"

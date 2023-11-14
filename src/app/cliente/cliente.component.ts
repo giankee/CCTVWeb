@@ -449,6 +449,10 @@ export class ClienteComponent implements OnInit {
 
           } else {
             if (this.ordenESService.formData.isTanqueAgua || this.ordenESService.formData.isTanqueGasolina) {
+              if (this.ordenESService.formData.tipoOrden == "Entrada") {
+                this.ordenESService.formData.destinoProcedencia = "P MANACRIPEX";
+                this.ordenESService.formData.isTanqueAgua ? this.ordenESService.formData.saleAGUAHER = true : this.ordenESService.formData.salePETROECUADOR = true;
+              }
               if (this.ordenESService.formData.isTanqueAgua) {
                 this.onListProducto(0, 2, "TANQUERO DE AGUA (M3)");
               } else this.onListProducto(0, 2, "TANQUERO DE COMBUSTIBLE (GALONES)");
@@ -832,6 +836,7 @@ export class ClienteComponent implements OnInit {
         }
       }
     }
+
     this._ordenESService.insertarOrdenES(this.ordenESService.formData).subscribe(
       (res: any) => {
         this.okBttnSubmit = true;
@@ -860,7 +865,6 @@ export class ClienteComponent implements OnInit {
           this.resetForm(form);
         } else this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
       });
-
   }
 
   buscarExistGuiaBalde(paramO, paramG, paramL) {
@@ -972,7 +976,7 @@ export class ClienteComponent implements OnInit {
               for (var j = 0; j < dato.data[i].listArticulosO.length; j++) {
                 this.ordenESService.formData.agregarOneArticulo(dato.data[i].listArticulosO[j], 1);
                 if (this.conexcionService.UserDataToken.role == "gpv-o") {
-                  if (this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length - 1].inventarioId != 0) {
+                  if (this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length - 1].inventarioId != null) {
                     let auxObservacion = dato.data[i].listArticulosO[j].observacion.split(':');
                     this.ordenESService.formData.listArticulosO[this.ordenESService.formData.listArticulosO.length - 1].inventario.SelectBodega = auxObservacion[1];
                   }

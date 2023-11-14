@@ -18,7 +18,7 @@ export class SearchPipe implements PipeTransform {
       case 'cPersonal':
         return list.filter(personal => personal.cedula.includes(inText) || personal.nombreP.toLowerCase().includes(inText.toLowerCase()) || personal.tipoPersona.toLowerCase().includes(inText.toLowerCase()) || personal.empresa.toLowerCase().includes(inText.toLowerCase()));
       case 'cProductoB':
-        return list.filter(productoB => productoB.codigo.includes(inText) || productoB.marca.includes(inText) || productoB.nombre.includes(inText) || productoB.categoria.includes(inText) || productoB.proveedor.toLowerCase().includes(inText.toLowerCase()));
+        return list.filter(productoB => productoB.codigo.includes(inText) || productoB.marca.includes(inText) || productoB.nombre.includes(inText) || productoB.categoria.includes(inText)|| (productoB.numParte!=null &&productoB.numParte.includes(inText)) || productoB.proveedor.toLowerCase().includes(inText.toLowerCase()));
       case 'cBalde':
         return list.filter(balde => balde.numBalde.toString().includes(inText) || balde.ubicacionActual.includes(inText) || balde.actividad.toLowerCase().includes(inText.toLowerCase()) || balde.estadoBalde.toLowerCase().includes(inText.toLowerCase()));
       case 'cReportGeneralMedic':

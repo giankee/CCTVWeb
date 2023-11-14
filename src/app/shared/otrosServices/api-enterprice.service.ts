@@ -34,10 +34,6 @@ export class ApiEnterpriceService {
   getContactosEnter(): Observable<cEnterpriceEmpleados[]> {
     return this.http.get<cEnterpriceEmpleados[]>(this.serverUrl + 'vec_contactos');
   }
-  
-  getProveedorSearch(strParametros:string): Observable<cEnterpriceProveedor[]> {
-    return this.http.get<cEnterpriceProveedor[]>(this.serverUrl+'vfe_proveedores/getProveedorSearch/'+strParametros);
-  }
 
   getDocumento(strParametros): Observable<cEnterpriceDocumento> {
     return this.http.get<cEnterpriceDocumento>(this.serverUrl + 'vfe_documentos' + '/getCompraAutomatica/' + strParametros);
@@ -62,4 +58,10 @@ export class ApiEnterpriceService {
   getProductoProveedor(proveedorIn:string): Observable<cProducto_B[]> {
     return this.http.get<cProducto_B[]>(this.serverUrl + 'vfe_idocumentos/getProductoProveedor/'+proveedorIn);
   }
+
+  /** Obsoleto
+   getProveedorSearch(strParametros:string): Observable<cEnterpriceProveedor[]> {
+    return this.http.get<cEnterpriceProveedor[]>(this.serverUrl+'vfe_proveedores/getProveedorSearch/'+strParametros);
+  }
+   */
 }

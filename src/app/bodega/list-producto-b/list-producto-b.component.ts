@@ -97,9 +97,9 @@ export class ListProductoBComponent implements OnInit {
   cargarData() {//Datos de los productos traidos desde db
     this.listProductosIn = [];
     var strParametro = "P MANACRIPEX@All";
-    if (this._conexcionService.UserDataToken.role == 'gpv-o' || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h" && this.conexcionService.UserDataToken.name == "SERGIO JARA")) {
-      if (this._conexcionService.UserDataToken.role == 'gpv-o')
-        strParametro = "OFICINAS@All";
+    if (this._conexcionService.UserDataToken.role == 'gpv-o' || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")) {
+      if (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")
+        strParametro = "OFICINAS-BARCOS@" + this.filtrarBodegas();
       else strParametro = "OFICINAS@" + this.filtrarBodegas();
     }
     if (this._conexcionService.UserDataToken.role == 'enfermeria')
@@ -108,7 +108,7 @@ export class ListProductoBComponent implements OnInit {
       this.selecBodegaFiltro = this.filtrarBodegas();
       strParametro = "ENFERMERIA@" + this.selecBodegaFiltro;
     }
-    if ((this._conexcionService.UserDataToken.role == 'verificador-bodeguero' && this.conexcionService.UserDataToken.name != "FERNANDA MORALES" && this.conexcionService.UserDataToken.name != "SERGIO JARA") || this._conexcionService.UserDataToken.role == "bodega_verificador-m") {
+    if ((this._conexcionService.UserDataToken.role == 'verificador-bodeguero' && this.conexcionService.UserDataToken.name != "FERNANDA MORALES") || this._conexcionService.UserDataToken.role == "bodega_verificador-m") {
       strParametro = "P MANACRIPEX@" + this.filtrarBodegas();
     }
     if (this._conexcionService.UserDataToken.role == "verificador-bodeguero-b") {
@@ -138,15 +138,16 @@ export class ListProductoBComponent implements OnInit {
 
   filtrarBodegas(): string {
     var strNombreBodegas: string = "";
-    if (this.conexcionService.UserDataToken.role == 'verificador-bodeguero-b') {
-      this.listBodega = this.listBodega.filter(x => (x.listAreas.find(y => y.encargadoArea == this.conexcionService.UserDataToken.name)) != undefined);
-    } else this.listBodega = this.listBodega.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name) || (this.conexcionService.UserDataToken.name == "FERNANDA MORALES" && x.tipoBodega == "PUERTO"));
-    this.listBodega.forEach(x => {
-      if (strNombreBodegas == "") {
-        strNombreBodegas = x.nombreBodega;
-      }
-      else strNombreBodegas = strNombreBodegas + "-" + x.nombreBodega;
-    });
+    this.listBodega = this.listBodega.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+    if (this.listBodega.length != 0) {
+      this.selecBodegaFiltro = this.listBodega[0].nombreBodega;
+      this.listBodega.forEach(x => {
+        if (strNombreBodegas == "") {
+          strNombreBodegas = x.nombreBodega;
+        }
+        else strNombreBodegas = strNombreBodegas + "-" + x.nombreBodega;
+      });
+    }
     return strNombreBodegas;
   }
 
@@ -158,7 +159,7 @@ export class ListProductoBComponent implements OnInit {
       });
     } else {
       if (this.conexcionService.UserDataToken.role == "gpv-o" || (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h")) {
-        this._variosService.getBodegasTipo("OFICINAS").subscribe(dato => {
+        this._variosService.getBodegasTipo("OFICINAS-PUERTO").subscribe(dato => {
           this.listBodega = dato;
           this.cargarData();
         });
@@ -184,13 +185,10 @@ export class ListProductoBComponent implements OnInit {
         }
       }
     }
-
   }
 
   resetForm() {//Para que los valores en el html esten vacios
     this.selectBodegaAux = "SIN ASIGNAR";
-    if (this._conexcionService.UserDataToken.role == 'gpv-o')
-      this._productoBService.formData = new cProducto_B("OFICINAS");
     if (this._conexcionService.UserDataToken.role == 'enfermeria' || this.conexcionService.UserDataToken.role == "verificador-medic")
       this._productoBService.formData = new cProducto_B("ENFERMERIA");
     if (this._conexcionService.UserDataToken.role == 'tinabg-m' || this._conexcionService.UserDataToken.role == 'bodega_verificador-m' || this.conexcionService.UserDataToken.role == "verificador-bodeguero") {
@@ -200,14 +198,14 @@ export class ListProductoBComponent implements OnInit {
         this.onNewBodega();
       }
       if (this._conexcionService.UserDataToken.role == "verificador-bodeguero") {
-        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
+        this.selectBodegaAux = this.listBodega.find(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name)).nombreBodega;
         this.onNewBodega();
       }
     }
     if (this._conexcionService.UserDataToken.role == 'gpv-o' || this._conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
       this._productoBService.formData = new cProducto_B("OFICINAS");
-      if (this.conexcionService.UserDataToken.name == "SERGIO JARA") {
-        this.selectBodegaAux = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
+      if (this._conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
+        this.selectBodegaAux = this.listBodega.find(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name)).nombreBodega;
         this.onNewBodega();
       }
     }
@@ -355,12 +353,11 @@ export class ListProductoBComponent implements OnInit {
       )
     }
     else {
-      if(this.conexcionService.UserDataToken.name=="FERNANDA MORALES"||this.conexcionService.UserDataToken.name=="SERGIO JARA"){
-        if(this.selecBodegaFiltro.includes("BP")||this.selecBodegaFiltro.includes("HELICOPTERO")){
-          this.productoBService.formData.planta="BARCOS";
-          this.productoBService.formData.listBodegaProducto[0].planta="BARCOS";
-          this.productoBService.formData.listBodegaProducto[0].nombreBodega=this.selecBodegaFiltro;
-          
+      if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES" || this._conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
+        if (this.selecBodegaFiltro.includes("BP") || this.selecBodegaFiltro.includes("HELICOPTERO")) {
+          this.productoBService.formData.planta = "BARCOS";
+          this.productoBService.formData.listBodegaProducto[0].planta = "BARCOS";
+          this.productoBService.formData.listBodegaProducto[0].nombreBodega = this.selecBodegaFiltro;
         }
       }
       this._productoBService.insertarProducto(this._productoBService.formData).subscribe(
@@ -385,7 +382,7 @@ export class ListProductoBComponent implements OnInit {
           }
         }
       );
-      
+
     }
   }
 
@@ -517,7 +514,7 @@ export class ListProductoBComponent implements OnInit {
     var valorP: number = 0;
     var valorB: number = 0;
     var valorG: number = 0;
-    var valorPrecio:number=0;
+    var valorPrecio: number = 0;
     var auxLinea: number;
     var lineaNombre;
     var lineaBodegaG;
@@ -528,19 +525,19 @@ export class ListProductoBComponent implements OnInit {
     for (var i = 0; i < data.length; i++) {
       lineaNombre = doc.splitTextToSize(data[i].nombre, (55));
       lineaProveedor = doc.splitTextToSize(data[i].proveedor, (60));
-      switch(this._showSelect2){
+      switch (this._showSelect2) {
         case 'Precio Standar':
-          valorPrecio=data[i].precioStandar;
-        break;
+          valorPrecio = data[i].precioStandar;
+          break;
         case 'Precio Nacional':
-          valorPrecio=data[i].precioNacional;
-        break;
+          valorPrecio = data[i].precioNacional;
+          break;
         case 'Precio Venta':
-          valorPrecio=data[i].precioVenta;
-        break;
+          valorPrecio = data[i].precioVenta;
+          break;
         case 'Precio Neto':
-          valorPrecio=data[i].precioNeto;
-        break;
+          valorPrecio = data[i].precioNeto;
+          break;
       }
       lineaStockG = [];
       lineaStockM = [];
@@ -648,7 +645,7 @@ export class ListProductoBComponent implements OnInit {
         auxLinea = Number((valorG - (3 * lineaProveedor.length + (3 * (lineaProveedor.length - 1)))) / 2.5) + (2 + lineaProveedor.length);
         doc.text(lineaProveedor, 98, (y - valorG + auxLinea));
         doc.line(160, (y - valorG), 160, y);//right
-        doc.text('$ '+valorPrecio, 169, (y - ((valorG - 3) / 2)));
+        doc.text('$ ' + valorPrecio, 169, (y - ((valorG - 3) / 2)));
         doc.line(190, (y - valorG), 190, y);//right
         auxLinea = Number((valorG - (3 * lineaBodegaG.length + (3 * (lineaBodegaG.length - 1)))) / 2.5) + (2 + lineaBodegaG.length);
         doc.text(lineaBodegaG, 195, (y - valorG + auxLinea));

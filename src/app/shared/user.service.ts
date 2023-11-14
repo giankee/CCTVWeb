@@ -33,11 +33,11 @@ export class UserService {
   }
 
   changePass(strUsername: string) {
-    return this.http.put(this.serverUrl + '/ChangePassword/', strUsername);
+    return this.http.get(this.serverUrl + '/ChangePassword/'+ strUsername);
   }
 
-  updatePass(formDataR: cRegisterU) {
-    return this.http.put(this.serverUrl + '/UpdateUserData/', formDataR);
+  updatePass(formDataL: cLoginU) {
+    return this.http.put(this.serverUrl + '/UpdateUserData/', formDataL);
   }
 
   //Listo

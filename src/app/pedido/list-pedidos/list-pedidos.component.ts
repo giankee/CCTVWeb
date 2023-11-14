@@ -3,7 +3,6 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { faAngleDown, faAngleLeft, faArrowAltCircleLeft, faArrowAltCircleRight, faExchangeAlt, faEye, faEyeSlash, faPencilAlt, faPrint, faSearch, faSort, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
-import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
 import { cFecha, cParemetosGeneral, cVario, cEnterpriceProveedor } from 'src/app/shared/otrosServices/varios';
@@ -76,20 +75,37 @@ export class ListPedidosComponent implements OnInit {
     this.parametrosBusqueda.strCampoC = "SIN ASIGNAR";
     this.parametrosBusqueda.strCampoD = "SIN ASIGNAR";
     this.parametrosBusqueda.strCampoE = "SIN ASIGNAR";
-    this.parametrosBusqueda.strCampoF = "SUPER";
 
-    this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
-      this.listVehiculos = dato;
-    });
-    this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato;
-      this.cargarData();
-    });
-
-    if (this.conexcionService.UserDataToken.role == "pedido-planta") {
-      this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
-        this.listAreas = dato;
+    switch (this.conexcionService.UserDataToken.role) {
+      case 'pedido-flota':
+        this.parametrosBusqueda.strCampoF = "FLOTA";
+        break;
+      case 'pedido-planta':
+        this.parametrosBusqueda.strCampoF = "P MANACRIPEX";
+        break;
+      case 'verificador-bodeguero-h':
+        this.parametrosBusqueda.strCampoF = "OMA";
+        break;
+      default: this.parametrosBusqueda.strCampoF = "SUPER";
+    }
+    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
+      this._variosService.getBodegasTipo("PUERTO-OFICINAS").subscribe(dato => {
+        this.listVehiculos = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+        this.cargarData();
       });
+    } else {
+      this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
+        this.listVehiculos = dato;
+      });
+      this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+        this.listBarcos = dato;
+        this.cargarData();
+      });
+      if (this.conexcionService.UserDataToken.role == "pedido-planta") {
+        this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
+          this.listAreas = dato;
+        });
+      }
     }
   }
 
@@ -100,6 +116,8 @@ export class ListPedidosComponent implements OnInit {
       parametro = "P MANACRIPEX@All";
     if (this.conexcionService.UserDataToken.role == "pedido-flota")
       parametro = "FLOTA@All";
+    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h")
+      parametro = "OMA@All";
     this.listPedidosMostrar$ = this.ordenPedidoService.getListPedido(parametro).pipe(
       map((x: cOrdenPedido[]) => {
         x.forEach(y => {
@@ -115,7 +133,7 @@ export class ListPedidosComponent implements OnInit {
           let auxSecuencial = y.numSecuencial.split("-");
           y.strNumSecuencial = auxSecuencial[1];
           y.boolProveedor = false;
-          this.proveedorService.getProveedorSearch(y.proveedor).subscribe(
+          this.proveedorService.getProveedorUnificadaSearch(y.proveedor).subscribe(
             res => {
               if (res.length > 0) {
                 if (res[0].proveedor == y.proveedor) {
@@ -183,7 +201,7 @@ export class ListPedidosComponent implements OnInit {
     this.parametrosBusqueda.showSearchSelectG = 'strA';
     this.parametrosBusqueda.strCampoA = value;
     if (value)
-      this.listProveedoresFiltros$ = this.proveedorService.getProveedorSearch(value).pipe(
+      this.listProveedoresFiltros$ = this.proveedorService.getProveedorUnificadaSearch(value).pipe(
         map((x: cEnterpriceProveedor[]) => {
           return x;
         }),
@@ -232,7 +250,7 @@ export class ListPedidosComponent implements OnInit {
           y.strNumSecuencial = auxSecuencial[1];
 
           y.boolProveedor = false;
-          this.proveedorService.getProveedorSearch(y.proveedor).subscribe(
+          this.proveedorService.getProveedorUnificadaSearch(y.proveedor).subscribe(
             res => {
               if (res.length > 0) {
                 if (res[0].proveedor == y.proveedor) {
@@ -343,14 +361,15 @@ export class ListPedidosComponent implements OnInit {
     doc.line(199, y, 199, (y + 6));//right
     doc.line(9, (y + 6), 199, (y + 6));//down
 
+    doc.text("#", 12, (y + 4));
+    doc.line(18, y, 18, (y + 6));//right
     doc.text("Código", 30, (y + 4));
-    doc.line(60, y, 60, (y + 6));//right
+    doc.line(65, y, 65, (y + 6));//right
     doc.text("Descripción", 80, (y + 4));
-    doc.line(120, y, 120, (y + 6));//right
-    doc.text("Cantidad", 122, (y + 4));
-    doc.line(140, y, 140, (y + 6));//right
-    doc.text("Observación", 160, (y + 4));
-
+    doc.line(125, y, 125, (y + 6));//right
+    doc.text("Cantidad", 127, (y + 4));
+    doc.line(145, y, 145, (y + 6));//right
+    doc.text("Observación", 165, (y + 4));
 
     doc.setFontSize(8);
     doc.setFont("arial", "normal");
@@ -393,13 +412,15 @@ export class ListPedidosComponent implements OnInit {
           doc.line(199, y, 199, (y + 6));//right
           doc.line(9, (y + 6), 199, (y + 6));//down
 
+          doc.text("#", 12, (y + 4));
+          doc.line(18, y, 18, (y + 6));//right
           doc.text("Código", 30, (y + 4));
-          doc.line(60, y, 60, (y + 6));//right
+          doc.line(65, y, 65, (y + 6));//right
           doc.text("Descripción", 80, (y + 4));
-          doc.line(120, y, 120, (y + 6));//right
-          doc.text("Cantidad", 122, (y + 4));
-          doc.line(140, y, 140, (y + 6));//right
-          doc.text("Observación", 160, (y + 4));
+          doc.line(125, y, 125, (y + 6));//right
+          doc.text("Cantidad", 127, (y + 4));
+          doc.line(145, y, 145, (y + 6));//right
+          doc.text("Observación", 165, (y + 4));
 
           y = y + 10 + valorG;
 
@@ -410,20 +431,22 @@ export class ListPedidosComponent implements OnInit {
           firmas = false;
 
         doc.line(9, (y - valorG), 9, y);//left
+        doc.text((i+1).toString(), 12, (y - ((valorG - 2) / 2)));
+        doc.line(18, (y - valorG), 18, y);//left
         auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
-        doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
-        doc.line(60, (y - valorG), 60, y);//right
+        doc.text(lineaCodigo, 20, (y - valorG + auxPrueba));
+        doc.line(65, (y - valorG), 65, y);//right
         auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
-        doc.text(lineaNombre, 65, (y - valorG + auxPrueba));
-        doc.line(120, (y - valorG), 120, y);//right
-        doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 2) / 2)));
-        doc.line(140, (y - valorG), 140, y);//right
+        doc.text(lineaNombre, 70, (y - valorG + auxPrueba));
+        doc.line(125, (y - valorG), 125, y);//right
+        doc.text(orden.listArticulosPedido[i].cantidad.toString(), 132, (y - ((valorG - 2) / 2)));
+        doc.line(145, (y - valorG), 145, y);//right
         auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
         if (orden.listArticulosPedido[i].aviso) {
           doc.setTextColor(255, 0, 0);
-          doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+          doc.text(lineaObservacion, 150, (y - valorG + auxPrueba));
           doc.setTextColor(0, 0, 0);
-        } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        } else doc.text(lineaObservacion, 150, (y - valorG + auxPrueba));
         doc.line(199, (y - valorG), 199, y);//right
         doc.line(9, y, 199, y);//down
       }
@@ -462,7 +485,7 @@ export class ListPedidosComponent implements OnInit {
       if (auxOrden.archivada || recursividad) {
         if (auxOrden.listFacturasPedido.length > 0)
           auxOrden.listFacturasPedido.forEach(x => {
-            x.estado=0;
+            x.estado = 0;
             if (srtFacturas == "")
               srtFacturas = x.factura.toString();
             else srtFacturas = srtFacturas + "-" + x.factura;
@@ -495,18 +518,19 @@ export class ListPedidosComponent implements OnInit {
             if (result.value.includes("-")) {
               var auxFacturas = result.value.split("-");
               auxFacturas.forEach(x => {
-                if((auxOrden.listFacturasPedido.find(y=>y.factura.toString()==x)==undefined))
-                auxOrden.agregarOneFactura(new cFacturasPedido(auxOrden.idOrdenPedido, Number(x)));
-                else auxOrden.listFacturasPedido.find(y=>y.factura.toString()==x).estado=1;
+                if ((auxOrden.listFacturasPedido.find(y => y.factura.toString() == x) == undefined))
+                  auxOrden.agregarOneFactura(new cFacturasPedido(auxOrden.idOrdenPedido, Number(x)));
+                else auxOrden.listFacturasPedido.find(y => y.factura.toString() == x).estado = 1;
               });
             } else auxOrden.agregarOneFactura(new cFacturasPedido(auxOrden.idOrdenPedido, Number(result.value)));
             auxOrden.corregirFechas();
             this.edicionArchivada(auxOrden);
-            orden.listFacturasPedido=auxOrden.listFacturasPedido;
+            orden.listFacturasPedido = auxOrden.listFacturasPedido;
           } else {
-            if(recursividad)
-              orden.archivada=true
-            else orden.archivada = false;}
+            if (recursividad)
+              orden.archivada = true
+            else orden.archivada = false;
+          }
         });
       } else {
         Swal.fire({
@@ -594,13 +618,15 @@ export class ListPedidosComponent implements OnInit {
     doc.line(199, y, 199, (y + 10));//right
     doc.line(9, (y + 10), 199, (y + 10));//down
 
+    doc.text("#", 12, (y + 7));
+    doc.line(18, y, 18, (y + 10));//right
     doc.text("Código", 30, (y + 7));
-    doc.line(60, y, 60, (y + 10));//right
+    doc.line(65, y, 65, (y + 10));//right
     doc.text("Descripción", 80, (y + 7));
-    doc.line(120, y, 120, (y + 10));//right
-    doc.text("Cantidad", 122, (y + 7));
-    doc.line(140, y, 140, (y + 10));//right
-    doc.text("Observación", 160, (y + 7));
+    doc.line(125, y, 125, (y + 10));//right
+    doc.text("Cantidad", 127, (y + 7));
+    doc.line(145, y, 145, (y + 10));//right
+    doc.text("Observación", 165, (y + 7));
 
 
     doc.setFontSize(8);
@@ -617,7 +643,7 @@ export class ListPedidosComponent implements OnInit {
     var auxPrueba: number;
 
     for (var i = 0; i < orden.listArticulosPedido.length; i++) {
-      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (45));
+      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (42));
       lineaNombre = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.nombre, (55));
       lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (55));
       valorC = (3 * lineaCodigo.length) + 4;
@@ -643,33 +669,37 @@ export class ListPedidosComponent implements OnInit {
         doc.line(199, y, 199, (y + 10));//right
         doc.line(9, (y + 10), 199, (y + 10));//down
 
+        doc.text("#", 12, (y + 7));
+        doc.line(18, y, 18, (y + 10));//right
         doc.text("Código", 30, (y + 7));
-        doc.line(60, y, 60, (y + 10));//right
+        doc.line(65, y, 65, (y + 10));//right
         doc.text("Descripción", 80, (y + 7));
-        doc.line(120, y, 120, (y + 10));//right
-        doc.text("Cantidad", 122, (y + 7));
-        doc.line(140, y, 140, (y + 10));//right
-        doc.text("Observación", 160, (y + 7));
+        doc.line(125, y, 125, (y + 10));//right
+        doc.text("Cantidad", 127, (y + 7));
+        doc.line(145, y, 145, (y + 10));//right
+        doc.text("Observación", 165, (y + 7));
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
         doc.setFont("arial", "normal");
       }
       doc.line(9, (y - valorG), 9, y);//left
+      doc.text((i + 1).toString(), 12, (y - ((valorG - 3) / 2)));
+      doc.line(18, (y - valorG), 18, y);//left
       auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
-      doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
-      doc.line(60, (y - valorG), 60, y);//right
+      doc.text(lineaCodigo, 20, (y - valorG + auxPrueba));
+      doc.line(65, (y - valorG), 65, y);//right
       auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
-      doc.text(lineaNombre, 65, (y - valorG + auxPrueba));
-      doc.line(120, (y - valorG), 120, y);//right
-      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 3) / 2)));
-      doc.line(140, (y - valorG), 140, y);//right
+      doc.text(lineaNombre, 68, (y - valorG + auxPrueba));
+      doc.line(125, (y - valorG), 125, y);//right
+      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 135, (y - ((valorG - 3) / 2)));
+      doc.line(145, (y - valorG), 145, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
       if (orden.listArticulosPedido[i].aviso) {
         doc.setTextColor(255, 0, 0);
-        doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        doc.text(lineaObservacion, 150, (y - valorG + auxPrueba));
         doc.setTextColor(0, 0, 0);
-      } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+      } else doc.text(lineaObservacion, 150, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -678,25 +708,37 @@ export class ListPedidosComponent implements OnInit {
       doc.setLineWidth(0.4);
       y = 40;
     } else y = 265;
-    var personaSubArea = null;
+
+    var personaSubArea: cBodega = null;
+    var strPersonaSubArea: string = "Encargado " + orden.listArticulosPedido[0].destinoArea;;
     if (orden.area == "P MANACRIPEX") {
-      personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
+      personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.area);
+      if (personaSubArea != null && personaSubArea.listEncargados != null && personaSubArea.listEncargados.length > 0)
+        strPersonaSubArea = personaSubArea.listEncargados[0].encargado;
     } else {
-      var auxArea: cBodega = this.listBarcos.find(x => x.nombreBodega == orden.area);
-      if (auxArea == undefined) {
-        auxArea = this.listVehiculos.find(x => x.nombreBodega == orden.area);
-      }
-      if (auxArea != undefined) {
-        personaSubArea = auxArea.listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+      if (orden.area != "P OFICINAS") {
+        personaSubArea = this.listVehiculos.find(x => x.nombreBodega == orden.area);
+        if (personaSubArea != null)
+          personaSubArea = this.listBarcos.find(x => x.nombreBodega == orden.area);
+        if (personaSubArea != null) {
+          if (personaSubArea.tipoBodega == "VEHICULO") {
+            if (personaSubArea.listEncargados != null && personaSubArea.listEncargados.length > 0)
+              strPersonaSubArea = personaSubArea.listEncargados[0].encargado;
+          } else {
+            if (personaSubArea.listAreas != null && personaSubArea.listAreas.length > 0) {
+              let indiceL = personaSubArea.listAreas.findIndex(x => x.nombreArea == orden.listArticulosPedido[0].destinoArea);
+              if (indiceL != -1)
+                strPersonaSubArea = personaSubArea.listAreas[indiceL].encargadoArea;
+            }
+          }
+        }
       }
     }
-    if (personaSubArea == null)
-      personaSubArea = "Encargado " + orden.listArticulosPedido[0].destinoArea;
 
     doc.line(18, y, 63, y);//Firma1
     doc.text("Firma " + orden.cargoUser, 25, y + 5);
     doc.line(144, y, 189, y);//Firma2
-    doc.text("Firma " + personaSubArea, 146, y + 5);
+    doc.text("Firma " + strPersonaSubArea, 146, y + 5);
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
   }
 

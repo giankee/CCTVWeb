@@ -41,7 +41,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-sm-4 col-md-2" *ngIf="conexcionService.UserDataToken.role!='pedido-flota'&&conexcionService.UserDataToken.role!='pedido-planta'">
+              <div class="col-12 col-sm-4 col-md-2" *ngIf="conexcionService.UserDataToken.role=='pedido-super'">
                 <div class="form-group inputForm" id="inputSearchP">
                   <div class="title"><strong>Origen:</strong></div>
                     <select class="form-control input-src" name="inSelectPlanta" #inSelectPlanta="ngModel"
@@ -50,6 +50,7 @@
                       <option value="P MANACRIPEX">MANACRIPEX</option>
                       <option value="FLOTA">FLOTA</option>
                       <option value="P OFICINAS">OFICINAS</option>
+                      <option value="OMA">OMA</option>
                     </select>
                 </div>
               </div>
@@ -59,7 +60,7 @@
                     <select class="form-control input-src" name="inSelectEmpresa" #inSelectEmpresa="ngModel"
                       [(ngModel)]="parametrosBusqueda.strCampoD" required>
                       <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                      <option value="B&B TUNE">B&B TUNE</option>
+                      <option value="B&B TUNE" *ngIf="conexcionService.UserDataToken.role!='verificador-bodeguero-h'">B&B TUNE</option>
                       <option value="DANIEL BUEHS">DANIEL BUEHS</option>
                       <option value="MANACRIPEX">MANACRIPEX</option>
                     </select>
@@ -72,13 +73,13 @@
                   <select class="form-control input-src" name="inSelectBarco" #inSelectBarco="ngModel"
                     [(ngModel)]="parametrosBusqueda.strCampoB">
                     <option selected value="SIN ASIGNAR">-Seleccionar-</option>
-                    <option *ngFor="let datoBarco of listBarcos |filtrarBarcosEmpresa:parametrosBusqueda.strCampoD"
+                    <option *ngFor="let datoBarco of listBarcos |filtrarEmpresaBodega:parametrosBusqueda.strCampoD"
                       value="{{datoBarco.nombreBodega}}">
                       {{datoBarco.nombreBodega}}</option>
                     <option
-                      *ngIf="conexcionService.UserDataToken.role!='pedido-flota'&& parametrosBusqueda.strCampoD=='MANACRIPEX'"
+                      *ngIf="conexcionService.UserDataToken.role!='pedido-flota'&&conexcionService.UserDataToken.role!='verificador-bodeguero-h' && parametrosBusqueda.strCampoD=='MANACRIPEX'"
                       value="P MANACRIPEX">P MANACRIPEX</option>
-                      <option *ngFor="let datoVehiculos of listVehiculos |filtrarBarcosEmpresa:parametrosBusqueda.strCampoD" value="{{datoVehiculos.nombreBodega}}">
+                      <option *ngFor="let datoVehiculos of listVehiculos |filtrarEmpresaBodega:parametrosBusqueda.strCampoD" value="{{datoVehiculos.nombreBodega}}">
                         {{datoVehiculos.nombreBodega}}</option>
                   </select>
                 </div>
@@ -111,6 +112,7 @@
                       <option value="Procesada">Procesada</option>
                       <option value="Anulada">Anulada</option>
                       <option value="Copia">Copia</option>
+                      <option value="Re Activada">Re Activada</option>
                       <option *ngIf="conexcionService.UserDataToken.role=='pedido-super'" value="Pendiente Verificación V">Pendiente Verificación Archivada</option>
                       <option *ngIf="conexcionService.UserDataToken.role=='pedido-super'" value="Procesada V">Procesada Archivada</option>
                     </select>
@@ -255,12 +257,12 @@
                       <a class="badge text-primario" (click)="onConvertPdf(dato)"
                         matTooltip="Te permite visualizar a detalladamente la orden" matTooltipPosition="left"
                         matTooltipClass="tooltipBlack">
-                        <fa-icon [icon]="faeye"></fa-icon>
+                        <fa-icon  class="fa-lg" [icon]="faeye"></fa-icon>
                       </a>
                       <a *ngIf="conexcionService.UserDataToken.sub!=dato.cargoUser && dato.estadoProceso!='Procesada'"
                         class="badge text-primario" matTooltip="Te permite editar los datos orden seleccionada"
                         matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onEdit(dato)">
-                        <fa-icon [icon]="fapencilAlt"></fa-icon>
+                        <fa-icon  class="fa-lg" [icon]="fapencilAlt"></fa-icon>
                       </a>
                     </td>
                   </tr>

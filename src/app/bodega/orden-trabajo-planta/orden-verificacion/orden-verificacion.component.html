@@ -1,0 +1,81 @@
+<div class="jumtron">
+  <div class="row justify-content-center">
+    <div class="col-10 col-sm-11">
+      <h1 class="display-4 text-center">
+        {{strTitulo}}</h1>
+    </div>
+  </div>
+</div>
+<section class="dashboard-header">
+  <div class="container-fluid  mt-3 mt-sm-4 px-1 px-md-5">
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card">
+          <div id="ordenarS" class="card-header d-flex justify-content-between">
+            <h5><a class="text-dark2"></a></h5>
+          </div>
+          <div class="text-center my-3" *ngIf="spinnerOnOff">
+            <div class="d-flex justify-content-center">
+              <mat-spinner color="accent"></mat-spinner>
+            </div>
+          </div>
+          <div *ngIf="listaOrdenesRecibida!=null">
+            <div class="table-responsive" style="border: 1px solid #dddddd; padding-top: 2px;">
+              <table class="table">
+                <thead>
+                  <tr class="text-center">
+                    <th>#</th>
+                    <th>Fecha Registro</th>
+                    <th>Tipo Orden</th>
+                    <th>Bodega Origen</th>
+                    <th>Área Destino</th>
+                    <th>Usuario creador</th>
+                    <th>Materiales</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="listaOrdenesRecibida.length==0">
+                    <td class="font-italic text-center" colspan="8">
+                      No existen ordenes disponibles para {{conexcionService.UserDataToken.name=="MARCO GARZON"?'aprobar':'cerrar'}}
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let dato of listaOrdenesRecibida; let indice=index"
+                    [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
+                    <td class="indice">{{dato.numOrdenSecuencial}}</td>
+                    <td>{{dato.fechaRegistro}}</td>
+                    <td>{{dato.tipoOrden=="Trabajo Interno"?'Consumo Interno':dato.tipoOrden}}</td>
+                    <td>{{dato.bodega}}</td>
+                    <td>{{dato.destinoLugar}}</td>
+                    <td>{{dato.guardiaCargoUser}}</td>
+                    <td>
+                      <div *ngFor="let datoMaterial of dato.listMaterialesO">
+                        <ul id="utilitarioI">
+                          <li *ngIf="datoMaterial.inventarioId!=null">
+                            {{datoMaterial.cantidad}} {{datoMaterial.inventario.nombre}}</li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario  mr-1"
+                        (click)="onModal(dato)" matTooltip="Te permite editar la orden" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon class="fa-lg" [icon]="faeraser"></fa-icon>
+                      </a>
+                      <a class="badge text-primario ml-1"
+                        (click)="onAprobar(dato)" matTooltip="Te permite {{conexcionService.UserDataToken.name=='MARCO GARZON'?'aprobar':'cerrar'}} la orden" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon class="fa-lg" [icon]="faclicheck"></fa-icon>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

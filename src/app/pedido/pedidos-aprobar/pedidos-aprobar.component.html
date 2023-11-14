@@ -32,8 +32,7 @@
                       No existen pedidos disponibles para aprobar
                     </td>
                   </tr>
-                  <tr
-                    *ngFor="let dato of listOrdenesMostrar; let indice=index"
+                  <tr *ngFor="let dato of listOrdenesMostrar; let indice=index"
                     [ngClass]="{'filaPar':(((indice+1)%2)==0)}">
                     <td class="indice">{{indice+1}}</td>
                     <td>{{dato.area}}</td>
@@ -52,13 +51,18 @@
                     </td>
                     <td>{{dato.cargoUser}}</td>
                     <td class="text-center" id="utilitarioI">
+                      <a class="badge text-primario" (click)="convertPdf(dato)"
+                        matTooltip="Te permite visualizar a detalladamente la orden" matTooltipPosition="left"
+                        matTooltipClass="tooltipBlack">
+                        <fa-icon class="fa-lg" [icon]="faeye"></fa-icon>
+                      </a>
                       <a class="badge text-primario" matTooltip="Te permite aprobar la orden seleccionada"
-                        matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onSave(dato,1)">
-                        <fa-icon [icon]="facheck" size="2x"></fa-icon>
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onSave(dato,'Aprobado')">
+                        <fa-icon class="fa-lg" [icon]="facheck"></fa-icon>
                       </a>
                       <a class="badge text-primario" matTooltip="Te permite rechazar la orden seleccionada"
-                        matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onSave(dato,2)">
-                        <fa-icon [icon]="fatimes" size="2x"></fa-icon>
+                        matTooltipPosition="left" matTooltipClass="tooltipBlack" (click)="onSave(dato,'Rechazado')">
+                        <fa-icon class="fa-lg" [icon]="fatimes"></fa-icon>
                       </a>
                     </td>
                   </tr>

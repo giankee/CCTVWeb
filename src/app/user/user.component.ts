@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { NgForm } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { cDataToken, cLoginU } from '../shared/user-info';
+import { cDataToken, cLoginU, cRegisterU } from '../shared/user-info';
 import { cWhatsapp } from '../shared/otrosServices/varios';
 import { WhatsappService } from '../shared/otrosServices/whatsapp.service';
 import { ConexionService } from '../shared/otrosServices/conexion.service';
@@ -46,12 +46,11 @@ export class UserComponent implements OnInit {
 
   onSubmit() {//Pasa los datos del formulario y llama al servicio login 
     if (this.modoActualizar) {//falta eliminar el token y generar uno nuevo
-      this._userService.updatePass(this.userService.formData).subscribe(//cambia el password anterior y te regresa un codigo temporal para poder iniciar sesion
+      this._userService.updatePass(this.userService.loginForm).subscribe(//cambia el password anterior y te regresa un codigo temporal para poder iniciar sesion
         (res: any) => {
-          if (res.message == "Ok") {
-            this.modoActualizar = false;
-            //this.cargarDataUser(); //obsoleto
-            this.toastr.success('La contraseña fue actualizada correctamente', 'Actualizar Contraseña.');
+          if (res.exito==1) {//existe un usuario con ese nombre y contrasenia
+            localStorage.setItem('token', res.data);
+            this.crearUserData(res.data);
           } else this.toastr.error(res.message, 'Error!');
         })
     } else
@@ -60,7 +59,6 @@ export class UserComponent implements OnInit {
           if (res.exito==1) {//existe un usuario con ese nombre y contrasenia
             localStorage.setItem('token', res.data);
             this.crearUserData(res.data);
-            //this.cargarDataUser();//Manda a cargar los datos del usuario para saber el rol /obsoleto
           }
           else
             this.toastr.error('Nombre de usuario o contraseña incorrecto.', 'Inicio de sessión fallido.');
@@ -71,27 +69,13 @@ export class UserComponent implements OnInit {
       );
   }
 
-  /*cargarDataUser() {//tengo que cambiar esto
-    this._userService.getUserData().subscribe(
-      (res: any) => {
-        if (res.temporalPassword) {
-          this.resetForm();
-          this.modoActualizar = true;
-          this._userService.formData.userName = res.userName;
-        } else {
-          
-          this.redirigirUsuario(this.conexcionService.UserDataToken.role);
-        }
-      },
-      err => {
-        console.log(err);
-      },
-    );
-  }*/
-
   crearUserData(tokeIn:string){
     this.conexcionService.UserDataToken=new cDataToken(tokeIn);
-    this.redirigirUsuario(this.conexcionService.UserDataToken.role);
+    if(this.conexcionService.UserDataToken.rboot=="True"){
+      this.resetForm();
+      this.modoActualizar = true;
+      this._userService.loginForm.UserName = this.conexcionService.UserDataToken.sub;
+    }else this.redirigirUsuario(this.conexcionService.UserDataToken.role);
   }
 
   redirigirUsuario(rolIn:string|string[]){
@@ -138,7 +122,6 @@ export class UserComponent implements OnInit {
     }
   }
 
-  //Tengo que arreglar
   onChangePass() {
     var auxNombreUsuario;
     Swal.fire({
@@ -165,7 +148,7 @@ export class UserComponent implements OnInit {
           (res: any) => {
             if (res.message) {
               this.toastr.error(res.message, 'Error!');
-            } else this.sendMessage(res.phoneUser, res.newPass)
+            } else this.sendMessage(res.phoneUser, res.newPass);
           })
       }
     })
@@ -195,11 +178,11 @@ export class UserComponent implements OnInit {
   }
 
   onConfirmarPass(form?: NgForm) {//Para saber si coinciden las contrasenias ojo se podria mejorar
-    if ((this.userService.formData.PasswordHash != "" && this.userService.formData.ConfirmPassword != "") && (this.userService.formData.PasswordHash != null && this.userService.formData.ConfirmPassword != null))
-      if (this.userService.formData.ConfirmPassword.length >= 4) {
-        if (this.userService.formData.ConfirmPassword.length >= this.userService.formData.PasswordHash.length) {
+    if ((this.userService.loginForm.PasswordHash != "" && this.userService.loginForm.ConfirmPassword != "") && (this.userService.loginForm.PasswordHash != null && this.userService.loginForm.ConfirmPassword != null))
+      if (this.userService.loginForm.ConfirmPassword.length >= 4) {
+        if (this.userService.loginForm.ConfirmPassword.length >= this.userService.loginForm.PasswordHash.length) {
           form.control.controls.ConfirmPassword.setErrors({ 'incompleta': false, 'incorrect': true });
-          if (this.userService.formData.ConfirmPassword == this.userService.formData.PasswordHash) {
+          if (this.userService.loginForm.ConfirmPassword == this.userService.loginForm.PasswordHash) {
             form.control.controls.ConfirmPassword.setErrors({ 'incompleta': false, 'incorrect': false });
             form.control.controls.ConfirmPassword.setErrors(null);
           }

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { faAngleDown, faAngleLeft, faEraser, faEye, faPencilAlt, faPlus, faPrint, faQuestion, faSave, faSearch, faSort, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faAngleLeft, faCheck, faEraser, faEye, faPencilAlt, faPlus, faPrint, faQuestion, faSave, faSearch, faSort, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { ToastrService } from 'ngx-toastr';
-import { cBodega } from 'src/app/shared/bodega/ordenEC';
+import { cBodega, cDataMultiples } from 'src/app/shared/bodega/ordenEC';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
+import cloneDeep from 'lodash/cloneDeep';
 
 @Component({
   selector: 'app-list-boodegas',
@@ -22,12 +23,13 @@ export class ListBoodegasComponent implements OnInit {
   listBodegas: cBodega[];
   selectBodega: cBodega;
   selectAreaAux = "";
+  selectEncargadoAux = "";
   ordenBy: string = "default";
-
+  selectDataMultiple:cDataMultiples;
   /**Icon */
   faquestion = faQuestion; sort = faSort; fapencilAlt = faPencilAlt; faeye = faEye; faprint = faPrint;
   faeraser = faEraser; fasave = faSave; fatimesCircle = faTimesCircle; fasearch = faSearch; faplus = faPlus;
-  faangledown = faAngleDown; faangleleft = faAngleLeft;
+  faangledown = faAngleDown; faangleleft = faAngleLeft; faCheack = faCheck;
   constructor(private _variosService: VariosService, private toastr: ToastrService) { }
 
   ngOnInit(): void {
@@ -38,17 +40,22 @@ export class ListBoodegasComponent implements OnInit {
   resetForm() {
     this.selectBodega = new cBodega();
     this.selectAreaAux = "";
+    this.selectEncargadoAux = "";
     this.modoEdicion = false;
+    this.resetMultiple();
+  }
+
+  resetMultiple(){
+    this.selectDataMultiple= new cDataMultiples("Empresas",[
+      ["B&B TUNE","1391736452001"],
+      ["DANIEL BUEHS","1302188618001"],
+      ["MANACRIPEX","1391700830001"]],false);
   }
 
   cargarData() {
     this._variosService.getBodegasTipo("All").subscribe(dato => {
       this.listBodegas = dato;
     });
-  }
-
-  onConvertPdfAll() {
-
   }
 
   onOrdenListBy(op: number) {// cambia el orden por medio de un pipe
@@ -69,20 +76,27 @@ export class ListBoodegasComponent implements OnInit {
 
   onCompletarForm(dataIn: cBodega) {
     this.modoEdicion = true;
+    this.resetMultiple();
     this.selectBodega = new cBodega();
     this.selectBodega.completarObject(dataIn);
+    if(this.selectBodega.empresaAfiliada!=null && this.selectBodega.empresaAfiliada!="")
+    this.selectDataMultiple.completarData(this.selectBodega.empresaAfiliada);
     if (this.selectBodega.listAreas.length > 0) {
       this.selectBodega.listAreas.forEach(x => x.ocultarObj = true);
+    }
+    if (this.selectBodega.listEncargados.length > 0) {
+      this.selectBodega.listEncargados.forEach(x => x.ocultarObj = true);
     }
   }
 
   onSubmit(form: NgForm) {
     if (this.modoEdicion) {
+      this.selectBodega.empresaAfiliada=this.selectDataMultiple.selectedChoise;
       this.variosService.actualizarBodega(this.selectBodega).subscribe(
         (res: any) => {
           if (res.message == "Ok") {
             this.toastr.success('Edición satisfactoria', 'Bodega');
-            this.listBodegas[this.listBodegas.findIndex(x => x.idBodega == this.selectBodega.idBodega)] = JSON.parse(JSON.stringify(this.selectBodega));
+            this.listBodegas[this.listBodegas.findIndex(x => x.idBodega == this.selectBodega.idBodega)] = cloneDeep(this.selectBodega);
             this.resetForm();
           }
         }
@@ -114,15 +128,33 @@ export class ListBoodegasComponent implements OnInit {
     }
   }
 
+  onMostrarEncargado(index: number) {
+    for (var i = 0; i < this.selectBodega.listEncargados.length; i++) {
+      if (i == index)
+        this.selectBodega.listEncargados[i].ocultarObj = !this.selectBodega.listEncargados[i].ocultarObj;
+      else this.selectBodega.listEncargados[i].ocultarObj = true;
+    }
+  }
   onNewBodega() {
     if (this.selectAreaAux != "") {
-      if (this.selectBodega.listAreas.find(x => x.nombreArea == this.selectAreaAux) == undefined){
+      if (this.selectBodega.listAreas.find(x => x.nombreArea == this.selectAreaAux) == undefined) {
         this.selectBodega.agregarOneArea(null, this.selectAreaAux);
-        if(this.selectBodega.idBodega!=undefined)
-          this.selectBodega.listAreas[this.selectBodega.listAreas.length-1].bodegaId=this.selectBodega.idBodega;
+        if (this.selectBodega.idBodega != undefined)
+          this.selectBodega.listAreas[this.selectBodega.listAreas.length - 1].bodegaId = this.selectBodega.idBodega;
         this.selectBodega.listAreas.forEach(x => x.ocultarObj = true);
       }
       this.selectAreaAux = "";
+    }
+  }
+  onNewEncargado() {
+    if (this.selectEncargadoAux != "") {
+      if (this.selectBodega.listEncargados.find(x => x.encargado == this.selectEncargadoAux) == undefined) {
+        this.selectBodega.agregarOneEncargado(null, this.selectEncargadoAux);
+        if (this.selectBodega.idBodega != undefined)
+          this.selectBodega.listEncargados[this.selectBodega.listEncargados.length - 1].bodegaId = this.selectBodega.idBodega;
+        this.selectBodega.listEncargados.forEach(x => x.ocultarObj = true);
+      }
+      this.selectEncargadoAux = "";
     }
   }
 }

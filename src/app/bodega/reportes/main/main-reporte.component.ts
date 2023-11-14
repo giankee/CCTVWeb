@@ -6,6 +6,7 @@ import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
 import { OrdenECService } from 'src/app/shared/orden-e-c.service';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
+import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
 import { cEnterpriceProveedor, cFecha, cParmtoReporte } from 'src/app/shared/otrosServices/varios';
 
 @Component({
@@ -26,12 +27,6 @@ export class MainReporteComponent implements OnInit {
   public set productoBServie(value: ProductoBService) {
     this._productoBServie = value;
   }
-  public get enterpriceServise(): ApiEnterpriceService {
-    return this._enterpriceServise;
-  }
-  public set enterpriceServise(value: ApiEnterpriceService) {
-    this._enterpriceServise = value;
-  }
   public get conexcionService(): ConexionService {
     return this._conexcionService;
   }
@@ -49,7 +44,7 @@ export class MainReporteComponent implements OnInit {
   listResultados: any[] = [];
 
   sort = faSort; faeye = faEye; fatimesCircle = faTimesCircle; fasearch = faSearch; faangledown = faAngleDown; faangleleft = faAngleLeft; faprint = faPrint; faArLeft = faArrowAltCircleLeft; faArRight = faArrowAltCircleRight;
-  constructor(private _conexcionService: ConexionService, private _enterpriceServise: ApiEnterpriceService, private _productoBServie: ProductoBService, private _ordenECSercie: OrdenECService) {
+  constructor(private _conexcionService: ConexionService, private proveedorService: ProveedorService, private _productoBServie: ProductoBService, private _ordenECSercie: OrdenECService) {
     this.parametrosBusqueda = new cParmtoReporte("P MANACRIPEX");
     if (this._conexcionService.UserDataToken.role == 'gpv-o')
       this.parametrosBusqueda = new cParmtoReporte("OFICINAS");
@@ -92,7 +87,7 @@ export class MainReporteComponent implements OnInit {
     var params = "" + value;
     if (value == "")
       params = "DatoNull";
-    this.listProveedoresFiltros$ = this._enterpriceServise.getProveedorSearch(params).pipe(
+    this.listProveedoresFiltros$ = this.proveedorService.getProveedorUnificadaSearch(params).pipe(
       map((x: cEnterpriceProveedor[]) => {
         return x;
       }),

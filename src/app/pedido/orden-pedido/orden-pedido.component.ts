@@ -81,16 +81,22 @@ export class OrdenPedidoComponent implements OnInit {
   }
 
   cargarData() {
-    this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato;
-    });
-    this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
-      this.listVehiculos = dato;
-    });
-    if (this.conexcionService.UserDataToken.role == "pedido-planta") {
-      this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
-        this.listAreas = dato;
+    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
+      this._variosService.getBodegasTipo("PUERTO-OFICINAS").subscribe(dato => {
+        this.listVehiculos = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
       });
+    } else {
+      this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+        this.listBarcos = dato;
+      });
+      this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
+        this.listVehiculos = dato;
+      });
+      if (this.conexcionService.UserDataToken.role == "pedido-planta") {
+        this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
+          this.listAreas = dato;
+        });
+      }
     }
   }
 
@@ -101,6 +107,8 @@ export class OrdenPedidoComponent implements OnInit {
       this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserDataToken.name, "P MANACRIPEX");
     if (this.conexcionService.UserDataToken.role == "pedido-super")
       this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserDataToken.name, "P OFICINAS");
+    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h")
+      this.ordenPedidoService.formData = new cOrdenPedido(this._conexcionService.UserDataToken.name, "OMA");
     this.spinnerOnOff = 0;
     this.okBttnSubmit = true;
   }
@@ -112,7 +120,7 @@ export class OrdenPedidoComponent implements OnInit {
     this.ordenPedidoService.formData.listArticulosPedido = [];
     this.listProductosIn = [];
     if (value)
-      this.listProveedoresFiltros$ = this.proveedorService.getProveedorSearch(value).pipe(
+      this.listProveedoresFiltros$ = this.proveedorService.getProveedorUnificadaSearch(value).pipe(
         map((x: cEnterpriceProveedor[]) => {
           return x;
         }),
@@ -146,7 +154,7 @@ export class OrdenPedidoComponent implements OnInit {
       var fechaHoy: cFecha = new cFecha();
 
       this.ordenPedidoService.formData.fechaAprobacion = fechaHoy.strFecha;
-      if (this.conexcionService.UserDataToken.name == "CARLOS CEBALLOS" || this.conexcionService.UserDataToken.name == "JORGE SALAME" || this.conexcionService.UserDataToken.name == "PRUEBAG") {
+      if (this.conexcionService.UserDataToken.name == "CARLOS CEBALLOS" || this.conexcionService.UserDataToken.name == "JORGE SALAME" || this.conexcionService.UserDataToken.name == "MARCO GARZON" || this.conexcionService.UserDataToken.name == "PRUEBAG") {
         this.ordenPedidoService.formData.responsableAprobacion = this.conexcionService.UserDataToken.name;
         this.ordenPedidoService.formData.estadoProceso = "Pendiente Verificación";
         this.ordenPedidoService.formData.fechaAprobacion = this.ordenPedidoService.formData.fechaAprobacion + "T" + fechaHoy.strHoraA;
@@ -397,11 +405,11 @@ export class OrdenPedidoComponent implements OnInit {
       doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 3) / 2)));
       doc.line(140, (y - valorG), 140, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
-      if(orden.listArticulosPedido[i].aviso){
-        doc.setTextColor(255,0,0);
+      if (orden.listArticulosPedido[i].aviso) {
+        doc.setTextColor(255, 0, 0);
         doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
-        doc.setTextColor(0,0,0);
-      }else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        doc.setTextColor(0, 0, 0);
+      } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -429,7 +437,7 @@ export class OrdenPedidoComponent implements OnInit {
       phone: "",
       chatname: "",
       message: "",
-      caption:"",
+      caption: "",
       title: "Pedido_" + orden.numSecuencial + ".pdf",
       media: auxBase[1],
       type: "application/pdf"
@@ -437,7 +445,7 @@ export class OrdenPedidoComponent implements OnInit {
     var encabezado: string = ':bell: *Notificación Pedido ' + orden.empresa + '* :bell:';
     var asunto: string = "pedido a *" + orden.proveedor + "* para el área *" + orden.listArticulosPedido[0].destinoArea + "*";
     var lineaAux: string = '\n*Área:* ' + orden.listArticulosPedido[0].destinoArea;
-    
+
     if (orden.planta == "P MANACRIPEX") {
       if (orden.estadoProceso == "Pendiente Aprobación")
         auxWhatsapp.phone = "593-999263188";
@@ -456,25 +464,35 @@ export class OrdenPedidoComponent implements OnInit {
     }
     if (orden.planta == "P OFICINAS")
       auxWhatsapp.phone = "593-999486327";
-    
+
+    if (orden.planta == "OMA") {
+      if (orden.estadoProceso == "Pendiente Aprobación")
+        auxWhatsapp.phone = "593-987148175";
+      else auxWhatsapp.chatname = "PEDIDOS, ORDENES OMA";
+      asunto = "pedido a *" + orden.proveedor + "* para el área *" + orden.area + "*";
+    }
+
     var auxNumSecuencial = orden.numSecuencial.split('-');
     auxWhatsapp.caption = encabezado
       + '\n'
       + '\n:wave: Saludos:'
       + '\nSe les informa que se ha generado un ' + asunto
-      + '\nLos datos del pedido son:'
       + '\n'
+      + '\nLos datos del pedido son:'
       + '\n*#' + auxNumSecuencial[1] + '*'
       + lineaAux
-      + '\n*Fecha:* ' + orden.fechaPedido
-      + '\n*Encargado del Pedido* ' + orden.cargoUser
-      + '\n----------------------------------'
-      + '\nAdicionalmente se adjunta la orden detalladamente :paperclip:'
-      + '\n----------------------------------';
+      + '\n*Fecha:* ' + orden.fechaPedido.substring(1,10)
+      + '\n'
+      + '\n_Para consultas escribir por interno al encargado del pedido  *'+ orden.cargoUser+'*_ ';
 
-    if (this.conexcionService.UserDataToken.name == "PRUEBAG") {
+      if(this.conexcionService.UserDataToken.whatsAppPhone!=null&&this.conexcionService.UserDataToken.whatsAppPhone!=""){
+        auxWhatsapp.caption+='\n:point_right: https://wa.me/'+this.conexcionService.UserDataToken.whatsAppPhone+ '/ :point_left: '
+        + '\n----------------------------------------';
+      }else auxWhatsapp.caption+='\n----------------------------------------';
+      
+    if (this.conexcionService.UserDataToken.name == "PRUEBAG" || this.conexcionService.UserDataToken.sub.includes("3")) {
       auxWhatsapp.phone = "593-999786121";
-      auxWhatsapp.chatname = "PEDIDOS OFICINAS PDF";
+      auxWhatsapp.chatname = "PEDIDOS PRUEBA";
     }
 
     if (orden.estadoProceso == "Pendiente Aprobación") {
@@ -497,13 +515,13 @@ export class OrdenPedidoComponent implements OnInit {
           if (res.status == "error")
             this.toastr.error('Error', 'Mensaje NO enviado');
           else this.toastr.success('Mensaje enviado Correctamente', 'Notificación enviada');
-          
+
           if (this.guardarDataProveedor != null) {
             if (this.guardarDataProveedor.telefono != null) {
               auxWhatsapp.chatname = "";
-              if (this.conexcionService.UserDataToken.name == "PRUEBAG") {
+              if (this.conexcionService.UserDataToken.name == "PRUEBAG" || this.conexcionService.UserDataToken.sub.includes("3")) {
                 auxWhatsapp.phone = "593-999786121";
-              }else auxWhatsapp.phone = this.guardarDataProveedor.telefono;
+              } else auxWhatsapp.phone = this.guardarDataProveedor.telefono;
               this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
                 res => {
                   if (res.status != "error")

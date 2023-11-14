@@ -7,6 +7,7 @@ import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { NgForm } from '@angular/forms';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { cEnterpriceEmpleados } from 'src/app/shared/otrosServices/varios';
+import { cRegisterU } from 'src/app/shared/user-info';
 
 @Component({
   selector: 'app-registro',
@@ -57,17 +58,7 @@ export class RegistroComponent implements OnInit, PuedeDesactivar {
   resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
     if (form != null)
       form.resetForm();
-    this._userService.formData = {
-      userName: "",
-      Email: null,
-      phoneNumber: "593-",
-      PasswordHash: "",
-      ConfirmPassword: "",
-      estado: 1,
-      rolAsignado: "supervisor",
-      nombreU: null,
-      temporalPassword: false
-    }
+    this._userService.formData = new cRegisterU();
   }
 
   onConfirmarPass(form?: NgForm) {//Para saber si coinciden las contrasenias ojo se podria mejorar
@@ -113,7 +104,7 @@ export class RegistroComponent implements OnInit, PuedeDesactivar {
   }
 
   salirDeRuta(): boolean | import("rxjs").Observable<boolean> | Promise<boolean> {//Para que pueda salir
-    if (this.userService.formData.userName == "" && this.userService.formData.Email == "") {
+    if (this.userService.formData.UserName == "" && this.userService.formData.Email == "") {
       return true;
     } else {
       if (this.internetStatus == "nline") {

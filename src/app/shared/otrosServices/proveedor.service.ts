@@ -19,7 +19,7 @@ export class ProveedorService {
     }
   }
 
-  getProveedorSearch(strParametros:string): Observable<cEnterpriceProveedor[]> {
+  getProveedorUnificadaSearch(strParametros:string): Observable<cEnterpriceProveedor[]> {
     return this.http.get<cEnterpriceProveedor[]>(environment.baseUrlCCTVP+'vcctv_proveedorUnificada/getProveedor2Search/'+strParametros);
   }
 

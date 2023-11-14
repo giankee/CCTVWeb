@@ -8,10 +8,13 @@ import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { VariosService } from 'src/app/shared/otrosServices/varios.service';
-import { cEnterpriceProveedor, cVario } from 'src/app/shared/otrosServices/varios';
+import { cEnterpriceProveedor, cVario, cWhatsapp } from 'src/app/shared/otrosServices/varios';
 import { cBodega, cProducto_B } from 'src/app/shared/bodega/ordenEC';
 import { finalize, map } from 'rxjs/operators';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
+import { WhatsappService } from 'src/app/shared/otrosServices/whatsapp.service';
+import cloneDeep from 'lodash/cloneDeep';
+import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
 
 @Component({
   selector: 'app-view-pedido-modal',
@@ -24,12 +27,6 @@ export class ViewPedidoModalComponent implements OnInit {
   }
   public set conexcionService(value: ConexionService) {
     this._conexcionService = value;
-  }
-  public get enterpriceServise(): ApiEnterpriceService {
-    return this._enterpriceServise;
-  }
-  public set enterpriceServise(value: ApiEnterpriceService) {
-    this._enterpriceServise = value;
   }
   public get variosService(): VariosService {
     return this._variosService;
@@ -47,36 +44,49 @@ export class ViewPedidoModalComponent implements OnInit {
   okFormChange: boolean = true;
   spinnerOnOff: number = 0;
 
-
-  listBarcos: cBodega[] = [];
+  listBodega: cBodega[] = [];
   listAreas: cBodega[] = [];
-  listVehiculos: cBodega[] = [];
+
   listProductosIn: cProducto_B[] = [];
   listProveedoresFiltros$: any;
   okAddNewBotton: boolean = true;
 
   faprint = faPrint; fatimes = faTimes; fasave = faSave; faplus = faPlus;
-  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewPedidoModalComponent>, private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService, private _enterpriceServise: ApiEnterpriceService, private toastr: ToastrService, private _variosService: VariosService) {
-    this.cargarData();
+  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewPedidoModalComponent>, private _conexcionService: ConexionService, private _ordenPedidoService: OrdenPedidoService, private proveedorService: ProveedorService, private toastr: ToastrService, private _variosService: VariosService, private whatsappService: WhatsappService, private enterpriceServise: ApiEnterpriceService) {
+
   }
 
   ngOnInit(): void {
-    this._enterpriceServise.getProveedorSearch(this.ordenPedidoService.formData.proveedor).subscribe( (dato:any)=>{
+    this.cargarData();
+    this.proveedorService.getProveedorUnificadaSearch(this.ordenPedidoService.formData.proveedor).subscribe((dato: any) => {
       this.cargarProductosProveedor(dato[0].cedrucpas);
     });
   }
 
   cargarData() {
-    this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato;
-    });
-    this._variosService.getBodegasTipo("VEHICULO").subscribe(dato => {
-      this.listVehiculos = dato;
-    });
-    if (this.ordenPedidoService.formData.planta == "P MANACRIPEX") {
-      this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
-        this.listAreas = dato;
-      });
+    switch (this.conexcionService.UserDataToken.role) {
+      case 'pedido-flota':
+        this._variosService.getBodegasTipo("PUERTO-VEHICULOS").subscribe(dato => {
+          this.listBodega = dato;
+        });
+        break;
+      case 'pedido-planta':
+        this._variosService.getBodegasTipo("PUERTO-A MANACRIPEX-VEHICULO").subscribe(dato => {
+          this.listBodega = dato.filter(x => x.tipoBodega != "A MANACRIPEX");
+          this.listAreas = dato.filter(x => x.tipoBodega == "A MANACRIPEX");
+        });
+        break;
+      case 'verificador-bodeguero-h':
+        this._variosService.getBodegasTipo("PUERTO-OFICINAS").subscribe(dato => {
+          this.listBodega = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+        });
+        break;
+      case 'pedido-super':
+        this._variosService.getBodegasTipo("PUERTO-OFICINAS-A MANACRIPEX-VEHICULO").subscribe(dato => {
+          this.listBodega = dato.filter(x => x.tipoBodega != "A MANACRIPEX");
+          this.listAreas = dato.filter(x => x.tipoBodega == "A MANACRIPEX");
+        });
+        break;
     }
   }
 
@@ -85,10 +95,9 @@ export class ViewPedidoModalComponent implements OnInit {
     this.ordenPedidoService.formData.spinnerLoadingP = true;
     this.ordenPedidoService.formData.showSearchSelect = true;
     this.ordenPedidoService.formData.proveedor = value;
-    this.ordenPedidoService.formData.listArticulosPedido = [];
     this.listProductosIn = [];
     if (value)
-      this.listProveedoresFiltros$ = this._enterpriceServise.getProveedorSearch(value).pipe(
+      this.listProveedoresFiltros$ = this.proveedorService.getProveedorUnificadaSearch(value).pipe(
         map((x: cEnterpriceProveedor[]) => {
           return x;
         }),
@@ -103,6 +112,11 @@ export class ViewPedidoModalComponent implements OnInit {
   onChooseProveedor(data: cEnterpriceProveedor) {
     this.ordenPedidoService.formData.showSearchSelect = false;
     this._ordenPedidoService.formData.proveedor = data.proveedor;
+    this.ordenPedidoService.formData.listArticulosPedido.forEach(x=>{
+      x.inventarioId=0;
+      x.inventario.idProductoStock=0;
+      x.inventario.proveedor=data.proveedor;
+    });
     this.cargarProductosProveedor(data.cedrucpas);
   }
 
@@ -176,14 +190,15 @@ export class ViewPedidoModalComponent implements OnInit {
     doc.line(9, y, 9, (y + 10));//left
     doc.line(199, y, 199, (y + 10));//right
     doc.line(9, (y + 10), 199, (y + 10));//down
-
+    doc.text("#", 12, (y + 7));
+    doc.line(18, y, 18, (y + 10));//right
     doc.text("Código", 30, (y + 7));
-    doc.line(60, y, 60, (y + 10));//right
+    doc.line(65, y, 65, (y + 10));//right
     doc.text("Descripción", 80, (y + 7));
-    doc.line(120, y, 120, (y + 10));//right
-    doc.text("Cantidad", 122, (y + 7));
-    doc.line(140, y, 140, (y + 10));//right
-    doc.text("Observación", 160, (y + 7));
+    doc.line(125, y, 125, (y + 10));//right
+    doc.text("Cantidad", 127, (y + 7));
+    doc.line(145, y, 145, (y + 10));//right
+    doc.text("Observación", 165, (y + 7));
 
     doc.setFontSize(8);
     doc.setFont("arial", "normal");
@@ -199,7 +214,7 @@ export class ViewPedidoModalComponent implements OnInit {
     var auxPrueba: number;
 
     for (var i = 0; i < orden.listArticulosPedido.length; i++) {
-      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (45));
+      lineaCodigo = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.codigo, (42));
       lineaNombre = doc.splitTextToSize(orden.listArticulosPedido[i].inventario.nombre, (55));
       lineaObservacion = doc.splitTextToSize(orden.listArticulosPedido[i].observacion, (55));
       valorC = (3 * lineaCodigo.length) + 4;
@@ -225,33 +240,38 @@ export class ViewPedidoModalComponent implements OnInit {
         doc.line(199, y, 199, (y + 10));//right
         doc.line(9, (y + 10), 199, (y + 10));//down
 
+        doc.text("#", 12, (y + 7));
+        doc.line(18, y, 18, (y + 10));//right
         doc.text("Código", 30, (y + 7));
-        doc.line(60, y, 60, (y + 10));//right
+        doc.line(65, y, 65, (y + 10));//right
         doc.text("Descripción", 80, (y + 7));
-        doc.line(120, y, 120, (y + 10));//right
-        doc.text("Cantidad", 122, (y + 7));
-        doc.line(140, y, 140, (y + 10));//right
-        doc.text("Observación", 160, (y + 7));
+        doc.line(125, y, 125, (y + 10));//right
+        doc.text("Cantidad", 127, (y + 7));
+        doc.line(145, y, 145, (y + 10));//right
+        doc.text("Observación", 165, (y + 7));
 
         y = y + 10 + valorG;
         doc.setFontSize(8);
         doc.setFont("arial", "normal");
       }
+
       doc.line(9, (y - valorG), 9, y);//left
+      doc.text((i + 1).toString(), 12, (y - ((valorG - 3) / 2)));
+      doc.line(18, (y - valorG), 18, y);//left
       auxPrueba = Number((valorG - (3 * lineaCodigo.length + (3 * (lineaCodigo.length - 1)))) / 2.5) + 3;
-      doc.text(lineaCodigo, 15, (y - valorG + auxPrueba));
-      doc.line(60, (y - valorG), 60, y);//right
+      doc.text(lineaCodigo, 20, (y - valorG + auxPrueba));
+      doc.line(65, (y - valorG), 65, y);//right
       auxPrueba = Number((valorG - (3 * lineaNombre.length + (3 * (lineaNombre.length - 1)))) / 2.5) + 3;
-      doc.text(lineaNombre, 65, (y - valorG + auxPrueba));
-      doc.line(120, (y - valorG), 120, y);//right
-      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 130, (y - ((valorG - 3) / 2)));
-      doc.line(140, (y - valorG), 140, y);//right
+      doc.text(lineaNombre, 68, (y - valorG + auxPrueba));
+      doc.line(125, (y - valorG), 125, y);//right
+      doc.text(orden.listArticulosPedido[i].cantidad.toString(), 135, (y - ((valorG - 3) / 2)));
+      doc.line(145, (y - valorG), 145, y);//right
       auxPrueba = Number((valorG - (3 * lineaObservacion.length + (3 * (lineaObservacion.length - 1)))) / 2.5) + 3;
       if (orden.listArticulosPedido[i].aviso) {
         doc.setTextColor(255, 0, 0);
-        doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+        doc.text(lineaObservacion, 150, (y - valorG + auxPrueba));
         doc.setTextColor(0, 0, 0);
-      } else doc.text(lineaObservacion, 145, (y - valorG + auxPrueba));
+      } else doc.text(lineaObservacion, 150, (y - valorG + auxPrueba));
       doc.line(199, (y - valorG), 199, y);//right
       doc.line(9, y, 199, y);//down
     }
@@ -260,26 +280,36 @@ export class ViewPedidoModalComponent implements OnInit {
       doc.setLineWidth(0.4);
       y = 40;
     } else y = 265;
-    var personaSubArea = null;
+    var personaSubArea: cBodega = null;
+    var strPersonaSubArea: string = "Encargado " + orden.listArticulosPedido[0].destinoArea;;
     if (orden.area == "P MANACRIPEX") {
-      personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.listArticulosPedido[0].destinoArea).encargadoBodega;
+      personaSubArea = this.listAreas.find(x => x.nombreBodega == orden.area);
+      if (personaSubArea != null && personaSubArea.listEncargados != null && personaSubArea.listEncargados.length > 0)
+        strPersonaSubArea = personaSubArea.listEncargados[0].encargado;
     } else {
-      var auxArea: cBodega = this.listBarcos.find(x => x.nombreBodega == orden.area);
-      if (auxArea == undefined) {
-        auxArea = this.listVehiculos.find(x => x.nombreBodega == orden.area);
-      }
-      if (auxArea != undefined) {
-        personaSubArea = auxArea.listAreas.find(y => y.nombreArea == orden.listArticulosPedido[0].destinoArea).encargadoArea;
+      if (orden.area != "P OFICINAS") {
+        personaSubArea = this.listBodega.find(x => x.nombreBodega == orden.area);
+        if (personaSubArea != null) {
+          if (personaSubArea.tipoBodega == "VEHICULO") {
+            if (personaSubArea.listEncargados != null && personaSubArea.listEncargados.length > 0)
+              strPersonaSubArea = personaSubArea.listEncargados[0].encargado;
+          } else {
+            if (personaSubArea.listAreas != null && personaSubArea.listAreas.length > 0) {
+              let indiceL = personaSubArea.listAreas.findIndex(x => x.nombreArea == orden.listArticulosPedido[0].destinoArea);
+              if (indiceL != -1)
+                strPersonaSubArea = personaSubArea.listAreas[indiceL].encargadoArea;
+            }
+          }
+        }
       }
     }
-    if (personaSubArea == null)
-      personaSubArea = "Encargado " + orden.listArticulosPedido[0].destinoArea;
 
     doc.line(18, y, 63, y);//Firma1
     doc.text("Firma " + orden.cargoUser, 25, y + 5);
     doc.line(144, y, 189, y);//Firma2
-    doc.text("Firma " + personaSubArea, 146, y + 5);
+    doc.text("Firma " + strPersonaSubArea, 146, y + 5);
     doc.save("Pedido_" + orden.numSecuencial + ".pdf");
+    return (doc.output('datauristring'));
   }
 
   onSubmit(form: NgForm) {
@@ -303,18 +333,23 @@ export class ViewPedidoModalComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  onEliminar() {
-    this.ordenPedidoService.formData.estadoProceso = "Anulada";
-    this.ordenPedidoService.formData.responsableAnulada = this.conexcionService.UserDataToken.name;
+  onEliminar(tipoIn: number) {
+    if (tipoIn == 1) {
+      this.ordenPedidoService.formData.estadoProceso = "Anulada";
+      this.ordenPedidoService.formData.responsableAnulada = this.conexcionService.UserDataToken.name;
+    } else {
+      this.ordenPedidoService.formData.estadoProceso = "Re Activada";
+      this.ordenPedidoService.formData.responsableAnulada = null;
+    }
     this.guardar();
   }
 
   onNewItem() {
     if (this.comprobarNewR()) {
       this.ordenPedidoService.formData.agregarOneMaterial();
-      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length-1].marcar=true;
-      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length-1].ordenPedidoId=this.ordenPedidoService.formData.idOrdenPedido;
-      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length-1].destinoArea=this.ordenPedidoService.formData.listArticulosPedido[0].destinoArea;
+      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length - 1].marcar = true;
+      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length - 1].ordenPedidoId = this.ordenPedidoService.formData.idOrdenPedido;
+      this.ordenPedidoService.formData.listArticulosPedido[this.ordenPedidoService.formData.listArticulosPedido.length - 1].destinoArea = this.ordenPedidoService.formData.listArticulosPedido[0].destinoArea;
     }
   }
 
@@ -363,7 +398,7 @@ export class ViewPedidoModalComponent implements OnInit {
 
   comprobarNewR() {
     var flag = true;
-    if (this.ordenPedidoService.formData.listArticulosPedido.find(x => (x.cantidad <= 0  || x.destinoArea == "SIN ASIGNAR")) != undefined) {
+    if (this.ordenPedidoService.formData.listArticulosPedido.find(x => (x.cantidad <= 0 || x.destinoArea == "SIN ASIGNAR")) != undefined) {
       flag = false;
     }
     this.okAddNewBotton = flag;
@@ -372,17 +407,65 @@ export class ViewPedidoModalComponent implements OnInit {
 
   guardar() {
     this.ordenPedidoService.formData.corregirFechas();
+    const deepOrdenCopy = cloneDeep(this.ordenPedidoService.formData);
     this.ordenPedidoService.actualizarPedido(this.ordenPedidoService.formData).subscribe(
       (res: any) => {
         if (res.message == "Ok") {
           this.toastr.success('Actualización satisfactoria', 'Orden Modificada');
-          this.dialogRef.close();
         }
         if (res.message == "Eliminar") {
           this.toastr.success('Eliminación satisfactoria', 'Orden Eliminada');
-          this.dialogRef.close();
+          this.sendMessageNotification(deepOrdenCopy);
         }
+        if (res.message == "Activada") {
+          this.toastr.success('Actualización satisfactoria', 'Orden Re Activada');
+        }
+        this.dialogRef.close();
       }
     );
+  }
+
+  sendMessageNotification(orden: cOrdenPedido) {
+    var auxBase = this.onConvertPdf(orden).split('base64,');
+    var auxWhatsapp: cWhatsapp = {
+      phone: "593-962566101",
+      chatname: "",
+      message: "",
+      caption: "",
+      title: "Pedido_" + orden.numSecuencial + ".pdf",
+      media: auxBase[1],
+      type: "application/pdf"
+    }
+    var encabezado: string = ':bell: *Notificación Anulación* :bell:';
+    var asunto: string = "anulación de pedido de *" + orden.proveedor + "*";
+    var auxNumSecuencial = orden.numSecuencial.split('-');
+
+    auxWhatsapp.caption = encabezado
+      + '\n'
+      + '\n:wave: Saludos Nico Nico Nee:'
+      + '\nSe te informa que se ha generado una ' + asunto
+      + '\n'
+      + '\nLos datos del pedido son:'
+      + '\n*#' + auxNumSecuencial[1] + '*'
+      + '\n*Empresa:* ' + orden.empresa
+      + '\n*Fecha Anulación:* ' + orden.fechaArchivada.substring(0, 10)
+      + '\n'
+      + '\n_Para cualquier consulta escribir por interno al encargado de anular el pedido  *' + orden.responsableAnulada + '*_ '
+      + '\n----------------------------------------';
+
+    if (this.conexcionService.UserDataToken.name == "PRUEBAG" || this.conexcionService.UserDataToken.sub.includes("3"))
+      auxWhatsapp.phone = "593-999786121";
+
+    this.whatsappService.sendMessageMedia(auxWhatsapp).subscribe(
+      res => {
+        if (res.status != "error")
+          this.toastr.success('Mensaje enviado Correctamente', 'Notificación enviada');
+        else this.toastr.error('Error', 'Mensaje NO enviado');
+      },
+      err => {
+        console.log(err);
+      }
+    );
+
   }
 }

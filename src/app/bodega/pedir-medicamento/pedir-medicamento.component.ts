@@ -46,7 +46,7 @@ export class PedirMedicamentoComponent implements OnInit {
     this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBarcos = dato;
       if (this.conexcionService.UserDataToken.role != "enfermeria")
-        this.selecBodegaFiltro = dato.find(x => x.encargadoBodega.includes(this._conexcionService.UserDataToken.name)).nombreBodega;
+        this.selecBodegaFiltro=dato.find(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name)).nombreBodega;
     });
   }
 
@@ -218,7 +218,7 @@ export class PedirMedicamentoComponent implements OnInit {
       doc.line(130, y, 130, (y + 15));//right
       doc.text("Und Disponibles", 133, (y + 10));
       doc.line(160, y, 160, (y + 15));//right
-      doc.text("Requiere", 163, (y + 10));
+      doc.text(this.selecTipoFiltro=="Sobrantes"?"Sobrantes":"Requiere", 163, (y + 10));
       doc.line(180, y, 180, (y + 15));//right
       doc.text("Justificación", 225, (y + 5));
       doc.line(180, (y + 7), 290, (y + 7));//down

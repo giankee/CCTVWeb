@@ -12,6 +12,8 @@ import { cNotificacion } from '../shared/ordenEs';
 import { NotificacionService } from '../shared/notificacion.service';
 import { faPlusSquare } from '@fortawesome/free-regular-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import { OrdenTrabajoService } from '../shared/bodega/orden-trabajo.service';
+import { cOrdenTrabajoI } from '../shared/bodega/ordenTrabajo';
 
 @Component({
   selector: 'app-menu',
@@ -44,12 +46,12 @@ export class MenuComponent implements OnInit, OnDestroy {
     this._tooglebtn = value;
   }
   /**Icon */
-  fabars = faBars; facircle = faCircle; fasignOut = faSignOutAlt; fabell = faBell; fatasks = faTasks; facar = faCar; fauserplus = faUserPlus;fausertag= faUserTag;
-  fatools = faTools; fausers = faUsers; faenvelope = faEnvelope; faexchangeAlt = faExchangeAlt; faclipboardCheck = faClipboardCheck;facartarrow=faCartArrowDown;
-  fashoppingCart = faShoppingCart; faboxes = faBoxes; fadolly = faDolly; fadollyflatbed = faDollyFlatbed; fasquareplus = faPlusSquare;fachartLine=faChartLine;
-  fafilemedical = faFileMedical; fakitmedical = faMedkit; fabookmedical = faBookMedical; falaptopmedic = faLaptopMedical; facarcrash = faCarCrash;fagarage=faWarehouse
-  faobjerctunicion = faObjectGroup; faidcardalt = faIdCardAlt; faprescription = faPrescriptionBottleAlt;faheartbeat=faHeartbeat; faclipboardList= faClipboardList;
-  fapills=faPills;faucet=faFaucet;fawater=faTint;faexchange=faExchangeAlt;fawhatsapp=faWhatsapp;
+  fabars = faBars; facircle = faCircle; fasignOut = faSignOutAlt; fabell = faBell; fatasks = faTasks; facar = faCar; fauserplus = faUserPlus; fausertag = faUserTag;
+  fatools = faTools; fausers = faUsers; faenvelope = faEnvelope; faexchangeAlt = faExchangeAlt; faclipboardCheck = faClipboardCheck; facartarrow = faCartArrowDown;
+  fashoppingCart = faShoppingCart; faboxes = faBoxes; fadolly = faDolly; fadollyflatbed = faDollyFlatbed; fasquareplus = faPlusSquare; fachartLine = faChartLine;
+  fafilemedical = faFileMedical; fakitmedical = faMedkit; fabookmedical = faBookMedical; falaptopmedic = faLaptopMedical; facarcrash = faCarCrash; fagarage = faWarehouse
+  faobjerctunicion = faObjectGroup; faidcardalt = faIdCardAlt; faprescription = faPrescriptionBottleAlt; faheartbeat = faHeartbeat; faclipboardList = faClipboardList;
+  fapills = faPills; faucet = faFaucet; fawater = faTint; faexchange = faExchangeAlt; fawhatsapp = faWhatsapp;
 
   /**Parte Online/OffLine */
   public onlineEvent: Observable<Event>;
@@ -59,12 +61,40 @@ export class MenuComponent implements OnInit, OnDestroy {
   /**Parte Navbar */
   _tooglebtn: boolean = true;
   listNotificacion: cNotificacion[] = [];
-  constructor(private _userService: UserService, private router: Router, private _conexcionService: ConexionService, private _notificacionService: NotificacionService) { }
+  numBaner1: number = 0;
+  numBaner2: number = 0;
+  constructor(private _userService: UserService, private router: Router, private _conexcionService: ConexionService, private _notificacionService: NotificacionService, private ordenTrabajoService: OrdenTrabajoService) {
+    this.ordenTrabajoService.listCompartidaTrabajo$.subscribe((res) => {
+      this.numBaner1 = res.length;
+    });
+    this.ordenTrabajoService.listCompartidaTraspaso$.subscribe((res) => {
+      this.numBaner2 = res.length;
+    });
+  }
 
   ngOnInit(): void {
     this.mIniciarConexion();
     if (!this._userService.estaLogueado())
       this._userService.logout();
+    else {
+      if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
+        var listOrdenesTrabajo: cOrdenTrabajoI[] = [];
+        var listOrdenesTraspaso: cOrdenTrabajoI[] = [];
+        var strParametros = "OMA@";
+        this.conexcionService.UserDataToken.name == "MARCO GARZON" ? strParametros += "Pendiente Aprobación@All" : strParametros += "Pendiente@All";
+        this.ordenTrabajoService.getListOrdenEstado(strParametros).subscribe(dato => {
+          dato.forEach(x => {
+            var fecha = x.fechaRegistro.split('T');
+            x.fechaRegistro = fecha[0];
+            if (x.tipoOrden == "Traspaso Bodega"||x.tipoOrden=="Prestamo")
+              listOrdenesTraspaso.push(x);
+            else listOrdenesTrabajo.push(x);
+          });
+          this.ordenTrabajoService.setListaCompartida(listOrdenesTrabajo, 1);
+          this.ordenTrabajoService.setListaCompartida(listOrdenesTraspaso, 2);
+        });
+      }
+    }
   }
 
   mIniciarConexion() {//Revisa si esta Online o Offline con sus respectivos mensajes

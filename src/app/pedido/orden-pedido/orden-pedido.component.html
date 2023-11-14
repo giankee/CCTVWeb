@@ -62,17 +62,22 @@
                           Marítima</option>
                         <option *ngIf="conexcionService.UserDataToken.role=='pedido-flota'" value="Bodega Muella">Bodega
                           Muelle</option>
-                        <option value="Veda">Veda</option>
+                        <option value="Veda" *ngIf="conexcionService.UserDataToken.role!='verificador-bodeguero-h'">Veda
+                        </option>
                         <option
                           *ngIf="conexcionService.UserDataToken.role=='pedido-flota'||conexcionService.UserDataToken.role=='pedido-super'"
                           value="Servicios Profesionales">Servicios Profesionales</option>
                         <option
-                          *ngIf="conexcionService.UserDataToken.role=='pedido-planta'||conexcionService.UserDataToken.role=='pedido-super'"
+                          *ngIf="conexcionService.UserDataToken.role=='pedido-planta'||conexcionService.UserDataToken.role=='pedido-super'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'"
                           value="Orden de Compra">Orden Compra</option>
                         <option
                           *ngIf="conexcionService.UserDataToken.role=='pedido-planta'||conexcionService.UserDataToken.role=='pedido-super'"
                           value="Orden de Trabajo">
                           Orden Trabajo</option>
+                        <option *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'"
+                          value="Orden de Consumo">Orden Consumo</option>
+                        <option *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'"
+                          value="Orden de Mantenimiento">Orden Mantenimiento</option>
                       </select>
                     </div>
                   </div>
@@ -90,7 +95,8 @@
                       <select class="form-control input-src" name="inSelectEmpresa" #inSelectEmpresa="ngModel"
                         [(ngModel)]="ordenPedidoService.formData.empresa" required>
                         <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                        <option value="B&B TUNE">B&B TUNE</option>
+                        <option *ngIf="conexcionService.UserDataToken.role!='verificador-bodeguero-h'" value="B&B TUNE">
+                          B&B TUNE</option>
                         <option value="DANIEL BUEHS">DANIEL BUEHS</option>
                         <option value="MANACRIPEX">MANACRIPEX</option>
                       </select>
@@ -112,7 +118,7 @@
                         [(ngModel)]="ordenPedidoService.formData.area" (ngModelChange)="onNewItem()" required>
                         <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
                         <option
-                          *ngFor="let datoBarco of listBarcos |filtrarBarcosEmpresa:ordenPedidoService.formData.empresa"
+                          *ngFor="let datoBarco of listBarcos |filtrarEmpresaBodega:ordenPedidoService.formData.empresa"
                           value="{{datoBarco.nombreBodega}}">
                           {{datoBarco.nombreBodega}}</option>
                         <option
@@ -121,10 +127,7 @@
                         <option *ngIf="conexcionService.UserDataToken.role=='pedido-super'" value="P OFICINAS">OFICINAS
                         </option>
                         <option
-                          *ngIf="conexcionService.UserDataToken.role=='pedido-super'&&(ordenPedidoService.formData.empresa=='MANACRIPEX'||ordenPedidoService.formData.empresa=='DANIEL BUEHS')"
-                          value="HANGAR">HANGAR</option>
-                        <option
-                          *ngFor="let datoVehiculos of listVehiculos |filtrarBarcosEmpresa:ordenPedidoService.formData.empresa"
+                          *ngFor="let datoVehiculos of listVehiculos |filtrarEmpresaBodega:ordenPedidoService.formData.empresa"
                           value="{{datoVehiculos.nombreBodega}}">
                           {{datoVehiculos.nombreBodega}}</option>
                       </select>
@@ -244,31 +247,30 @@
                         </td>
                         <td id="inputSearchP">
                           <div class="row">
-                          <div class="col-10" style="padding-left: 0.5px; padding-right:1px;">
-                            <div class="wrapper">
-                              <div class="limit-width">
-                                <textarea name="in{{indiceNewP}}observacion" #in{{indiceNewP}}observacion="ngModel"
-                                [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion"
-                                class="form-control input-src" maxlength="300"
-                                placeholder="Ingrese su observación"></textarea>
+                            <div class="col-10" style="padding-left: 0.5px; padding-right:1px;">
+                              <div class="wrapper">
+                                <div class="limit-width">
+                                  <textarea name="in{{indiceNewP}}observacion" #in{{indiceNewP}}observacion="ngModel"
+                                    [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion"
+                                    class="form-control input-src" maxlength="300"
+                                    placeholder="Ingrese su observación"></textarea>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-2" style="padding-left: 0.5px; padding-right:2px;">
+                              <div class="wrapper">
+                                <div class="limit-width">
+                                  <mat-checkbox class="ml-2" color="primary" id="in{{indiceNewP}}aviso"
+                                    [disabled]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion==''"
+                                    name="in{{indiceNewP}}aviso" #in{{indiceNewP}}aviso="ngModel"
+                                    [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].aviso">
+                                  </mat-checkbox>
+                                </div>
                               </div>
                             </div>
                           </div>
-                          <div class="col-2" style="padding-left: 0.5px; padding-right:2px;">
-                            <div class="wrapper">
-                              <div class="limit-width">
-                                <mat-checkbox class="ml-2" color="primary"
-                                id="in{{indiceNewP}}aviso" [disabled]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].observacion==''"
-                                name="in{{indiceNewP}}aviso"
-                                #in{{indiceNewP}}aviso="ngModel"
-                                [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].aviso">
-                              </mat-checkbox>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
 
-                          
+
                         </td>
                         <td id="inputSearchP" *ngIf="ordenPedidoService.formData.area!= 'P MANACRIPEX'">
                           <select class="form-control input-src" name="in{{indiceNewP}}area"
@@ -276,11 +278,12 @@
                             [(ngModel)]="ordenPedidoService.formData.listArticulosPedido[indiceNewP].destinoArea"
                             (ngModelChange)="comprobarNewR()" required>
                             <option selected disabled value="SIN ASIGNAR">-Seleccionar-</option>
-                            <option *ngFor="let datoArea of listBarcos |filtrarBodega:ordenPedidoService.formData.area"
+                            <option
+                              *ngFor="let datoArea of listBarcos |filtrarBodegaSubArea:ordenPedidoService.formData.area"
                               value="{{datoArea.nombreArea}}">
                               {{datoArea.nombreArea}}</option>
                             <option
-                              *ngFor="let datoArea of listVehiculos |filtrarBodega:ordenPedidoService.formData.area"
+                              *ngFor="let datoArea of listVehiculos |filtrarBodegaSubArea:ordenPedidoService.formData.area"
                               value="{{datoArea.nombreArea}}">
                               {{datoArea.nombreArea}}</option>
                             <option *ngIf="ordenPedidoService.formData.planta=='P OFICINAS'" value="GENERAL">General

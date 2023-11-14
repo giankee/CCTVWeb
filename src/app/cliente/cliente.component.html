@@ -410,20 +410,20 @@
                       [disabled]="ordenESService.formData.isTanqueAgua"></mat-checkbox>
                   </div>
                 </div>
-                <div class="col-12 col-md-3 px-3">
+                <div class="col-12 col-md-6 px-3" *ngIf="ordenESService.formData.isTanqueAgua ">
                   <div class="input-group mb-3">
                     <div class="input-group-prepend mr-2">
-                      <div class="title"><strong>AGUAHER:</strong></div>
+                      <div class="title"><strong>{{ordenESService.formData.tipoOrden}} desde AGUAHER?:</strong></div>
                     </div>
                     <mat-checkbox name="checkAguaHer" #checkAguaHer="ngModel" color="primary"
                       [(ngModel)]="ordenESService.formData.saleAGUAHER"
                       [disabled]="!ordenESService.formData.isTanqueAgua"></mat-checkbox>
                   </div>
                 </div>
-                <div class="col-12 col-md-3 px-3">
+                <div class="col-12 col-md-6 px-3" *ngIf="ordenESService.formData.isTanqueGasolina">
                   <div class="input-group mb-3">
                     <div class="input-group-prepend mr-2">
-                      <div class="title"><strong>PETROECUADOR:</strong></div>
+                      <div class="title"><strong>{{ordenESService.formData.tipoOrden}} desde  PETROECUADOR?:</strong></div>
                     </div>
                     <mat-checkbox name="checkPETROECUADOR" #checkPETROECUADOR="ngModel" color="primary"
                       [(ngModel)]="ordenESService.formData.salePETROECUADOR"

@@ -8,6 +8,7 @@ import { OrdenECService } from 'src/app/shared/orden-e-c.service';
 import { ApiEnterpriceService } from 'src/app/shared/otrosServices/api-enterprice.service';
 import { ConexionService } from 'src/app/shared/otrosServices/conexion.service';
 import { cPaginacion } from 'src/app/shared/otrosServices/paginacion';
+import { ProveedorService } from 'src/app/shared/otrosServices/proveedor.service';
 import { cEnterpriceProveedor, cFecha } from 'src/app/shared/otrosServices/varios';
 
 @Component({
@@ -16,13 +17,6 @@ import { cEnterpriceProveedor, cFecha } from 'src/app/shared/otrosServices/vario
   styles: [],
 })
 export class DevolucionCompraComponent implements OnInit {
-
-  public get enterpriceServise(): ApiEnterpriceService {
-    return this._enterpriceServise;
-  }
-  public set enterpriceServise(value: ApiEnterpriceService) {
-    this._enterpriceServise = value;
-  }
   public get ordenECService(): OrdenECService {
     return this._ordenECService;
   }
@@ -58,7 +52,7 @@ export class DevolucionCompraComponent implements OnInit {
   okBttnSubmit: number = 2;//1 disable, 2 Ok, 3 error
 
   fasave = faSave; fasearch = faSearch; fatimes = faTimes; faplus = faPlus;
-  constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private _enterpriceServise: ApiEnterpriceService, private toastr: ToastrService) {
+  constructor(private _conexcionService: ConexionService, private _ordenECService: OrdenECService, private proveedorService: ProveedorService, private toastr: ToastrService) {
     if (this._conexcionService.UserDataToken.role == 'gpv-o')
       this._ordenECService.formData = new cOrdenEC("OFICINAS", this._conexcionService.UserDataToken.name);
     else this._ordenECService.formData = new cOrdenEC("P MANACRIPEX", this._conexcionService.UserDataToken.name);
@@ -74,7 +68,7 @@ export class DevolucionCompraComponent implements OnInit {
     this.selectProveedor.fuente = "CCTV";
     this.selectProveedor.proveedor = value;
     if (value)
-      this.listProveedoresFiltros$ = this._enterpriceServise.getProveedorSearch(value).pipe(
+      this.listProveedoresFiltros$ = this.proveedorService.getProveedorUnificadaSearch(value).pipe(
         map((x: cEnterpriceProveedor[]) => {
           return x;
         }),

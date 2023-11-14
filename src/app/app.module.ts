@@ -37,10 +37,9 @@ import { SearchMaterialPipe } from './pipes/search-material.pipe';
 import { ReportEnfermedadesPipe } from './pipes/report-enfermedades.pipe';
 import { TablareportMedicPipe } from './pipes/tablareport-medic.pipe';
 import { SumartotalesPipe } from './pipes/sumartotales.pipe';
-import { FiltrarBodegaPipe } from './pipes/filtrar-bodega.pipe';
 import { FechaFormatPipe } from './pipes/fecha-format.pipe';
-import { FiltrarBarcosEmpresaPipe } from './pipes/filtrar-barcosEmpresa.pipe';
-
+import { FiltrarEmpresaBodegaPipe } from './pipes/filtrar-empresaBodega.pipe';
+import { FiltrarBodegaSubAreaPipe } from './pipes/filtrar-BodegaSubArea.pipe';
 /*Services*/
 import { CarroService } from './shared/carro.service';
 import { UserService } from './shared/user.service';
@@ -114,6 +113,8 @@ import { SubirExcelTanquesComponent } from './adminAux/subir-excel-tanques/subir
 import { ListTanquesComponent } from './adminAux/list-tanques/list-tanques.component';
 import { NewOrdenTrabajoComponent } from './bodega/orden-trabajo-planta/new-orden-trabajo/new-orden-trabajo.component';
 import { WhatsappTestComponent } from './whatsapp-test/whatsapp-test.component';
+import { OrdenVerificacionComponent } from './bodega/orden-trabajo-planta/orden-verificacion/orden-verificacion.component';
+
 
 
 @NgModule({
@@ -193,11 +194,9 @@ import { WhatsappTestComponent } from './whatsapp-test/whatsapp-test.component';
     PedidosVerificacionComponent,
     ListPedidosComponent,
     ViewPedidoModalComponent,
-    FiltrarBodegaPipe,
     ListBoodegasComponent,
     FechaFormatPipe,
     FormularioIeesComponent,
-    FiltrarBarcosEmpresaPipe,
     PedidosAprobarComponent,
     ListProveedorComponent,
     SumarTotalesAuxPipe,
@@ -205,7 +204,10 @@ import { WhatsappTestComponent } from './whatsapp-test/whatsapp-test.component';
     SubirExcelTanquesComponent,
     ListTanquesComponent,
     NewOrdenTrabajoComponent,
-    WhatsappTestComponent
+    WhatsappTestComponent,
+    FiltrarEmpresaBodegaPipe,
+    FiltrarBodegaSubAreaPipe,
+    OrdenVerificacionComponent
   ],
   imports: [
     BrowserModule,

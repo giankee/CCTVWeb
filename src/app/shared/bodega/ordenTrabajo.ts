@@ -9,7 +9,7 @@ export class cOrdenTrabajoI {
     tipoOrden: string = "";//trabajo, traspaso
     observacion: string = "";
     bodega: string = "GENERAL";
-    marea:string=null;
+    marea:string='0';
     horasServicio:number=0;
     destinoLugar: string = ""//a otra bodega o a areasBodega
     personaResponsable: string = "";
@@ -35,7 +35,7 @@ export class cOrdenTrabajoI {
         this.fechaRegistro = fechaHoy.strFecha;
         this.tipoOrden = "";
         this.observacion = "";
-        this.marea=null;
+        this.marea='0';
         this.horasServicio=0;
         this.bodega = "GENERAL";
         this.bodeguero = "";
@@ -93,6 +93,7 @@ export class cMaterialesO {
     /**Variables de control */
     spinnerLoading: boolean = false;
     showSearchSelect: number = 0;
+    marcar: boolean=false;
 
     constructor() {
     }

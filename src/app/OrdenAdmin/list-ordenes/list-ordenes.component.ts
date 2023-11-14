@@ -437,7 +437,8 @@ export class ListOrdenesComponent implements OnInit {
         case "PR_snfotos":
           auxTorden = "Procesadas Verificadas sin fotos";
           break;
-      }
+        default: auxTorden= this.parametrosBusqueda.tipoO
+        }
       doc.text("Tipo de Orden: " + auxTorden, 20, (y + 15));
       doc.text("Fecha desde: " + this.parametrosBusqueda.fechaA, 20, (y + 20));
       doc.text("Fecha hasta: " + this.parametrosBusqueda.fechaB, 105, (y + 20));
@@ -514,7 +515,9 @@ export class ListOrdenesComponent implements OnInit {
           auxTexto = this.dataOrdenesResult[index].tipoOrden + " desde " + this.dataOrdenesResult[index].planta + " a " + this.dataOrdenesResult[index].destinoProcedencia;
         if (this.dataOrdenesResult[index].tipoOrden == "Materia Prima")
           auxTexto = this.dataOrdenesResult[index].tipoOrden + " por " + this.dataOrdenesResult[index].destinoProcedencia;
-        lineaTipo = doc.splitTextToSize(auxTexto, (34));
+        if(this.dataOrdenesResult[index].tipoOrden =='Salida Tanque Agua'||this.dataOrdenesResult[index].tipoOrden =='Salida Tanque Combustible'||this.dataOrdenesResult[index].tipoOrden =='Entrada Tanque Agua'||this.dataOrdenesResult[index].tipoOrden =='Entrada Tanque Combustible')
+          auxTexto = this.dataOrdenesResult[index].tipoOrden + " de " + this.dataOrdenesResult[index].planta + " a " + this.dataOrdenesResult[index].destinoProcedencia;
+          lineaTipo = doc.splitTextToSize(auxTexto, (34));
 
         auxTexto = this.dataOrdenesResult[index].persona.nombreP;
         lineaNombre = doc.splitTextToSize(auxTexto, (23));

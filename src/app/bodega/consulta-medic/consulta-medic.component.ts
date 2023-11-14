@@ -64,7 +64,7 @@ export class ConsultaMedicComponent implements OnInit {
   faoutdent = faOutdent; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; fasave = faSave;
   constructor(private _conexcionService: ConexionService, private variosService: VariosService, private _consultaMedicService: ConsultaMedicService, private _productoBService: ProductoBService, private _enterpriceService: ApiEnterpriceService, private toastr: ToastrService) {
     this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato.filter(x => x.encargadoBodega.includes(this._conexcionService.UserDataToken.name));
+      this.listBarcos = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
       this.resetForm();
     });
   }

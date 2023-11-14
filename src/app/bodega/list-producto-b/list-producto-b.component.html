@@ -133,6 +133,7 @@
                       matTooltipClass="tooltipBlack">
                       <fa-icon [icon]="faeye"></fa-icon>
                     </a>
+                    <img *ngIf="conexcionService.UserDataToken.role == 'enfermeria' && resultBusqueda[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].estado==2" src="/assets/img/newIcon.png" alt="Imagen" class="image-overlay right">
                   </td>
                   <td class="text-center" id="utilitarioI"
                     *ngIf="conexcionService.UserDataToken.role == 'verificador-medic'">{{datoP.descripcion}}
@@ -169,7 +170,7 @@
         *ngIf="conexcionService.UserDataToken.role == 'enfermeria' || conexcionService.UserDataToken.role == 'gpv-o' || conexcionService.UserDataToken.role == 'bodega_verificador-m' || conexcionService.UserDataToken.role =='tinabg-m' || conexcionService.UserDataToken.role == 'verificador-bodeguero-h'||  (conexcionService.UserDataToken.role == 'verificador-bodeguero' && conexcionService.UserDataToken.name=='FERNANDA MORALES')">
         <div class="row">
           <!-- <div class="col-12 mb-3"
-            *ngIf="conexcionService.UserDataToken.role != 'gpv-o' && conexcionService.UserDataToken.role != 'enfermeria'">
+            *ngIf="conexcionService.UserDataToken.role != 'enfermeria'">
             <div class="card">
               <div class="card-header">
                 <h5>Ingresar Documento</h5>
@@ -385,8 +386,8 @@
                           <div class="row mt-1" *ngIf="productoBService.formData.listBodegaProducto.length>0">
                             <div class="col-12 mb-2"
                               *ngFor="let datoB of productoBService.formData.listBodegaProducto; let indice=index">
-                              <div class="card"
-                                *ngIf="selecBodegaFiltro=='SIN ASIGNAR'||selecBodegaFiltro==datoB.nombreBodega">
+                              <div class="card" *ngIf="selecBodegaFiltro=='SIN ASIGNAR'||selecBodegaFiltro==datoB.nombreBodega">
+                                <img *ngIf="conexcionService.UserDataToken.role == 'enfermeria' && productoBService.formData.listBodegaProducto[indice].estado==2" src="/assets/img/newIcon.png" alt="Imagen" class="image-overlay left">
                                 <div id="ordenarS" class="card-header d-flex justify-content-between">
                                   <h5><a class="text-dark2" data-toggle="collapse"
                                       href="#ListBodegaindex{{indice}}">{{datoB.nombreBodega}}</a></h5>
@@ -422,6 +423,16 @@
                                           [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantMinima"
                                           class="form-control" maxlength="10" required>
                                       </div>
+                                      <div class="form-group inputForm"
+                                        *ngIf="productoBService.formData?.planta=='ENFERMERIA' || productoBService.formData?.planta=='BARCOS'">
+                                        <div><strong>Cantidad Máxima:</strong></div>
+                                        <input type="number" name="in{{indice}}cantMmaxima"
+                                          #in{{indice}}cantMmaxima="ngModel" min="0"
+                                          pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
+                                          onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                                          [(ngModel)]="productoBService.formData.listBodegaProducto[indice].cantMaxima"
+                                          class="form-control" maxlength="10" required>
+                                      </div>
                                       <div>
                                         <div class="row">
                                           <div class="col-8">
@@ -451,7 +462,7 @@
                                                 pattern="^(([0-9]+)((.[0-9]{1,4}))?)$"
                                                 onkeydown="return (event.keyCode !== 107 && event.keyCode !== 69 && event.keyCode !==109  && event.keyCode !== 188 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
                                                 [(ngModel)]="productoBService.formData.listBodegaProducto[indice].disponibilidad"
-                                                class="form-control" maxlength="10" required
+                                                class="form-control" maxlength="10" required [disabled]="conexcionService.UserDataToken.name == 'VERONICA CHUMO' && modoEdicion"
                                                 (ngModelChange)="productoBService.formData.listBodegaProducto[indice].sumStockBodegas()">
                                             </div>
                                           </div>

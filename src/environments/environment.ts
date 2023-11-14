@@ -8,12 +8,12 @@ export const environment = {
   baseUrlCCTVP: 'http://192.168.2.105:5005/api/',//trabajo
   //baseUrlCCTVL: 'http://192.168.3.22:5005/api/',//oma work
   //baseUrlCCTVP: 'http://192.168.3.22:5005/api/',//oma work
-  //baseWhatsappP: 'http://appweb.manacripex.com:5010/',
-  baseWhatsappP: 'http://127.0.0.1:5010/',
+  baseWhatsappP: 'http://appweb.manacripex.com:5010/',
+  //baseWhatsappP: 'http://127.0.0.1:5010/',
   
   sharedFolder: "shared-test"
 };
- 
+  
 /*
  * For easier debugging in development mode, you can import the following file
  * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.

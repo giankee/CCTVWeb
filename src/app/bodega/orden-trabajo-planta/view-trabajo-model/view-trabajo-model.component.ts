@@ -1,10 +1,14 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPrint, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { OrdenTrabajoService } from 'src/app/shared/bodega/orden-trabajo.service';
-import { cOrdenTrabajoI } from 'src/app/shared/bodega/ordenTrabajo';
+import { cMaterialesO, cOrdenTrabajoI } from 'src/app/shared/bodega/ordenTrabajo';
 import { jsPDF } from "jspdf";
-
+import { finalize, map } from 'rxjs/operators';
+import { cProducto_B } from 'src/app/shared/bodega/ordenEC';
+import { ProductoBService } from 'src/app/shared/bodega/producto-b.service';
+import cloneDeep from 'lodash/cloneDeep';
+import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-view-trabajo-model',
   templateUrl: './view-trabajo-model.component.html',
@@ -18,15 +22,20 @@ export class ViewTrabajoModelComponent implements OnInit {
     this._ordenTrabajoInternoService = value;
   }
 
-  faprint = faPrint;
-
-  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewTrabajoModelComponent>, private _ordenTrabajoInternoService: OrdenTrabajoService) { }
+  faprint = faPrint; fatimes = faTimes; fasave = faSave; faplus = faPlus;
+  modoEdicion: boolean = false;
+  listProdFiltros$: any;
+  okAddNewBotton: boolean = true;
+  okFormChange: boolean = false;
+  constructor(@Inject(MAT_DIALOG_DATA) public dato, public dialogRef: MatDialogRef<ViewTrabajoModelComponent>, private _ordenTrabajoInternoService: OrdenTrabajoService, private productoBService: ProductoBService,private toastr: ToastrService) { }
 
   ngOnInit(): void {
     if (this.dato.auxId != null) {
       this._ordenTrabajoInternoService.formData = new cOrdenTrabajoI("new");
       this.cargarData();
     }
+    if (this.dato.modoEdicion != null)
+      this.modoEdicion = this.dato.modoEdicion;
   }
 
   cargarData() {
@@ -35,6 +44,10 @@ export class ViewTrabajoModelComponent implements OnInit {
         if (datoOne.exito == 1) {
           if (datoOne.message == "Ok") {
             this._ordenTrabajoInternoService.formData.completarObject(datoOne.data);
+            this.ordenTrabajoInternoService.formData.listMaterialesO.forEach(x => {
+              x.inventario.listBodegaProducto = x.inventario.listBodegaProducto.filter(y => y.nombreBodega == this.ordenTrabajoInternoService.formData.bodega);
+            });
+
           }
           else this.onExit();
         } else this.onExit();
@@ -43,7 +56,7 @@ export class ViewTrabajoModelComponent implements OnInit {
   }
 
   onExit() {
-    this.dialogRef.close();
+    this.dialogRef.close(null);
   }
 
   onConvertPdfOne(orden: cOrdenTrabajoI) {
@@ -68,7 +81,7 @@ export class ViewTrabajoModelComponent implements OnInit {
     doc.text("Planta: ", 20, (y + 10));
     doc.text("Fecha Registro: ", 105, (y + 10));
 
-    doc.text("Bodega de Salida: " , 20, (y + 15));
+    doc.text("Bodega de Salida: ", 20, (y + 15));
     if (orden.tipoOrden == "Trabajo Interno") {
       doc.text("Área de Destino: ", 105, (y + 15));
       doc.text("Responsable de la solicitud: ", 105, (y + 20));
@@ -88,7 +101,7 @@ export class ViewTrabajoModelComponent implements OnInit {
     doc.setFont("arial", "normal");
     doc.text(orden.planta, 32, (y + 10));
     doc.text(orden.fechaRegistro, 132, (y + 10));
-    doc.text(orden.bodega + (orden.marea!=null?'   '+orden.marea: ''), 53, (y + 15));
+    doc.text(orden.bodega + (orden.marea != null ? '   ' + orden.marea : ''), 53, (y + 15));
     doc.text(orden.destinoLugar, 137, (y + 15));
     doc.text(orden.bodeguero, 75, (y + 20));
     doc.text(orden.personaResponsable, 163, (y + 20));
@@ -190,5 +203,86 @@ export class ViewTrabajoModelComponent implements OnInit {
     doc.line(144, y, 189, y);//Firma2
     doc.text("Firma " + orden.personaResponsable, 146, y + 5);
     doc.save("Orden#" + orden.numOrdenSecuencial + "_" + orden.fechaRegistro + ".pdf");
+  }
+
+  onSubmit() {
+    if (this.comprobarNewR()) {
+      this.ordenTrabajoInternoService.putOrdenConsumo(this.ordenTrabajoInternoService.formData).subscribe(
+        (dato: any) => {
+          if(dato.exito==1){
+            this.toastr.success('Actualización satisfactoria', 'Exitoso');
+            this._ordenTrabajoInternoService.formData.listMaterialesO=dato.data;
+            this.dialogRef.close(this.ordenTrabajoInternoService.formData);
+          }else{
+            if(dato.message=="Bad Request")
+              this.toastr.warning('Actualización Fallida', 'Intentelo más tarde');
+            else this.toastr.warning('Actualización Fallida', dato.message);
+            this.onExit();
+          }
+        });
+    }
+  }
+
+  onRemoveNewR(indice) {
+    var auxLR: cMaterialesO[] = [];
+    if (this.ordenTrabajoInternoService.formData.listMaterialesO.length > 1) {
+      this.ordenTrabajoInternoService.formData.listMaterialesO.splice(indice, 1);
+      auxLR = cloneDeep(this.ordenTrabajoInternoService.formData.listMaterialesO);
+      this.ordenTrabajoInternoService.formData.listMaterialesO = [];
+      this.ordenTrabajoInternoService.formData.listMaterialesO = cloneDeep(auxLR);
+      this.okFormChange = true;
+    }
+  }
+
+  onNewItem() {
+    if (this.comprobarNewR()) {
+      this.ordenTrabajoInternoService.formData.agregarOneMaterial();
+      this.ordenTrabajoInternoService.formData.listMaterialesO[this.ordenTrabajoInternoService.formData.listMaterialesO.length - 1].marcar = true;
+      this.ordenTrabajoInternoService.formData.listMaterialesO[this.ordenTrabajoInternoService.formData.listMaterialesO.length - 1].ordenTrabInterId = this.ordenTrabajoInternoService.formData.idOrdenTraba;
+    }
+  }
+
+  comprobarNewR() {//tengo q arreglar con stock actual del item
+    var flag = true;
+    if (this.ordenTrabajoInternoService.formData.listMaterialesO.find(x => x.cantidad <= 0 || x.inventarioId == undefined || (x.inventario.listBodegaProducto.length > 0 && x.cantidad > x.inventario.listBodegaProducto[0].disponibilidad)) != undefined) {
+      flag = false;
+    }
+    this.okAddNewBotton = flag;
+    this.okFormChange = true;
+    return (flag);
+  }
+
+  onListProducto(index: number, op: number, value: string) {
+    if (value != null) {
+      this.ordenTrabajoInternoService.formData.listMaterialesO[index].spinnerLoading = true;
+      this.ordenTrabajoInternoService.formData.listMaterialesO.forEach(x => x.showSearchSelect = 0);
+      this.ordenTrabajoInternoService.formData.listMaterialesO[index].showSearchSelect = op;
+      this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventario.resetProducto();
+      if (op == 2)
+        this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventario.nombre = value.toUpperCase();
+      else this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventario.codigo = value.toUpperCase();
+
+      var strParametro = value;
+      var auxPlanta = this.ordenTrabajoInternoService.formData.planta;
+      if (value != "") {
+        if (this.ordenTrabajoInternoService.formData.planta == "OMA")
+          auxPlanta = "OFICINAS";
+        strParametro = strParametro + "@" + auxPlanta + "@" + op + "@" + this.ordenTrabajoInternoService.formData.bodega;
+        this.listProdFiltros$ = this.productoBService.getProductosSearch(strParametro).pipe(
+          map((x: cProducto_B[]) => {
+            return x.filter(y => y.listBodegaProducto.length > 0);
+          }),
+          finalize(() => this.ordenTrabajoInternoService.formData.listMaterialesO[index].spinnerLoading = false)
+        );
+      } else this.ordenTrabajoInternoService.formData.listMaterialesO[index].spinnerLoading = false;
+    }
+  }
+
+  onChooseElemente(index, op: number, data: any) {
+    this.ordenTrabajoInternoService.formData.listMaterialesO[index].showSearchSelect = 0;
+    this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventario.rellenarObjeto(data);
+    this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventarioId = this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventario.idProductoStock;
+    this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventario.disBttnInput = op;
+    this.ordenTrabajoInternoService.formData.listMaterialesO[index].inventario.listBodegaProducto[0].sumStockBodegas();
   }
 }

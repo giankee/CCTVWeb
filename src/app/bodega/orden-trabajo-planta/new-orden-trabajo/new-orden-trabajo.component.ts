@@ -32,7 +32,7 @@ export class NewOrdenTrabajoComponent implements OnInit {
     this._conexcionService = value;
   }
 
-  paginacion = new cPaginacion(5);
+  paginacion = new cPaginacion(10);
   fechaHoy = new cFecha();
   listBodega: cBodega[] = [];
   listAreas: cBodega[] = [];
@@ -49,37 +49,36 @@ export class NewOrdenTrabajoComponent implements OnInit {
   }
 
   cargarBodega() {
-    if (this.conexcionService.UserDataToken.role != "verificador-bodeguero-b") {
-      if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") {
-        this.variosService.getBodegasTipo("OFICINAS").subscribe(dato2 => {
-          this.listBodega = dato2.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
-          this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-            this.listAreas = dato.filter(x => x.nombreBodega.includes("HELICOPTERO"));
-            this.resetForm();
-          });
+    switch (this._conexcionService.UserDataToken.role) {
+      case "verificador-bodeguero-h":
+        this.variosService.getBodegasTipo("OFICINAS-PUERTO").subscribe(dato => {
+          this.listBodega = dato.filter(x =>!x.nombreBodega.includes("HELICOPTERO")&& x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+          this.listAreas = dato.filter(x =>x.nombreBodega.includes("HELICOPTERO")&& x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+          this.resetForm();
         });
-      } else {
+        break;
+      case "verificador-bodeguero-b":
+        this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
+          this.listBodega = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+          this.resetForm();
+        });
+        break;
+      default:
         this.variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
           this.listAreas = dato;
         });
-        this.variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
-          this.listBodega = dato;
-          this.listBodega = this.listBodega.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
-          if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
-            this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-              for (var i = 0; i < dato.length; i++) {
-                this.listBodega.push(dato[i]);
-              }
-            });
-          }
-          this.resetForm();
-        });
-      }
-    } else {
-      this.variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-        this.listBodega = dato.filter(x => (x.listAreas.find(y => y.encargadoArea == this.conexcionService.UserDataToken.name)));
-        this.resetForm();
-      });
+        if(this.conexcionService.UserDataToken.name=="FERNANDA MORALES"){
+          this.variosService.getBodegasTipo("P MANACRIPEX-PUERTO").subscribe(dato => {
+            this.listBodega = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+            this.resetForm();
+          });
+        }else{
+          this.variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+            this.listBodega = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+            this.resetForm();
+          });
+        }
+        break;
     }
   }
 
@@ -90,8 +89,11 @@ export class NewOrdenTrabajoComponent implements OnInit {
     this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "P MANACRIPEX", this.listBodega[0].nombreBodega);
     if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-b")
       this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "BARCOS", this.listBodega[0].nombreBodega);
-    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h")
+    if (this.conexcionService.UserDataToken.role == "verificador-bodeguero-h"){
       this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "OFICINAS", this.listBodega[0].nombreBodega);
+      this.ordenTrabajoService.formData.estadoProceso="Pendiente";
+    }
+      
     this.ordenTrabajoService.formData.bodeguero = this.ordenTrabajoService.formData.guardiaCargoUser;
     this._ordenTrabajoService.formData.tipoOrden = "Trabajo Interno";
     this._ordenTrabajoService.formData.agregarOneMaterial();
@@ -102,16 +104,19 @@ export class NewOrdenTrabajoComponent implements OnInit {
   }
 
   onChooseBarco() {
-    var auxBodega;
-    if (this.conexcionService.UserDataToken.role != 'verificador-bodeguero-b') {
-      auxBodega = this.listBodega.find(x => x.nombreBodega == this.ordenTrabajoService.formData.bodega);
-      this.listSubAreas = auxBodega.listAreas;
-      if (this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
+    if (this.conexcionService.UserDataToken.role == 'verificador-bodeguero'&&this.conexcionService.UserDataToken.name == "FERNANDA MORALES") {
         if (this.ordenTrabajoService.formData.bodega == "MECANICA NAVAL")
           this.ordenTrabajoService.formData.planta = "P MANACRIPEX";
         else this.ordenTrabajoService.formData.planta = "BARCOS";
-      }
-    } else this.listSubAreas = this.listBodega[0].listAreas.filter(x => x.encargadoArea == this.conexcionService.UserDataToken.name);
+    }
+  }
+
+  onChangeTipoOrden(){
+    if(this.ordenTrabajoService.formData.tipoOrden!="Trabajo Interno"){
+      this.ordenTrabajoService.formData.bodega="HANGAR (DANIEL BUEHS)"
+      this.ordenTrabajoService.formData.destinoLugar="HANGAR (MANACRIPEX)";
+    }
+      
   }
 
   onListProducto(index: number, op: number, value: string) {
@@ -185,14 +190,19 @@ export class NewOrdenTrabajoComponent implements OnInit {
     if (this._conexcionService.formData.connectionStatus == "nline") {
       this.okBttnSubmit = false;
       if (this.comprobarNewM()) {
-        this.ordenTrabajoService.formData.marea=this.ordenTrabajoService.formData.marea+"-" + this.fechaHoy.anio;
+        if(this.ordenTrabajoService.formData.marea!='0'&& this.ordenTrabajoService.formData.marea!='')
+        this.ordenTrabajoService.formData.marea = this.ordenTrabajoService.formData.marea + "-" + this.fechaHoy.anio;
+      else this.ordenTrabajoService.formData.marea=null;
+        if(this._conexcionService.UserDataToken.role=="verificador-bodeguero-h")
+          this.ordenTrabajoService.formData.planta="OMA";
+          
         this._ordenTrabajoService.insertarOrdenInterna(this._ordenTrabajoService.formData).subscribe(
           (res: any) => {
             if (res.exito == 1) {
               this.toastr.success('Registro satisfactorio', 'Orden Registrada');
               this.ordenTrabajoService.formData.numOrdenSecuencial = res.data.numOrdenSecuencial;
               this.convertPdf(this.ordenTrabajoService.formData);
-              this.resetForm(form);
+              this.resetForm();
             } else {
               this.okBttnSubmit = false;
               this.toastr.warning('Registro Fallido', 'Intentelo mas tarde');
@@ -207,7 +217,12 @@ export class NewOrdenTrabajoComponent implements OnInit {
     var doc = new jsPDF();
     doc.setFontSize(17);
     doc.setFont("arial", "bold");
-    doc.text("Orden de " + orden.tipoOrden + " #" + orden.numOrdenSecuencial, 70, 20);
+    var auxTipo=orden.tipoOrden;
+    if(orden.planta=="OMA"){
+      if(orden.tipoOrden=="Trabajo Interno")
+        auxTipo="Consumo Interno";
+    }
+    doc.text("Orden de " + auxTipo + " #" + orden.numOrdenSecuencial, 70, 20);
 
     y = 25;
     doc.line(9, y, 199, y);//up
@@ -227,18 +242,18 @@ export class NewOrdenTrabajoComponent implements OnInit {
       doc.text("Responsable de la Solicitud: ", 20, (y + 20));
     } else {
       doc.text("Bodega de Destino: ", 105, (y + 15));
-      doc.text("Responsable de la Transferencia: ", 20, (y + 20));
+      doc.text("Responsable: ", 20, (y + 20));
     }
     doc.text("Usuario Sistema: ", 20, (y + 25));
     doc.text("Estado de la Orden: ", 105, (y + 25));
     doc.text("Justificación: ", 20, (y + 30));
 
     doc.setFont("arial", "normal");
-    doc.text(orden.planta, 32, (y + 10));
+    doc.text(orden.planta, 35, (y + 10));
     doc.text(orden.fechaRegistro, 132, (y + 10));
     doc.text(orden.bodega, 53, (y + 15));
-    doc.text(orden.destinoLugar, 135, (y + 15));
-    doc.text(orden.personaResponsable, 67, (y + 20));
+    doc.text(orden.destinoLugar, 140, (y + 15));
+    doc.text(orden.personaResponsable, 45, (y + 20));
     doc.text(orden.guardiaCargoUser, 50, (y + 25));
     doc.text(orden.estadoProceso, 140, (y + 25));
     doc.text(orden.observacion, 20, (y + 35));

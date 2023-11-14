@@ -293,12 +293,8 @@
                     <td *ngIf="dato.tipoOrden =='Salida'">{{dato.tipoOrden}} desde {{dato.planta}} a
                       {{dato.destinoProcedencia}}</td>
                     <td *ngIf="dato.tipoOrden =='Materia Prima'">{{dato.tipoOrden}} por {{dato.destinoProcedencia}}</td>
-
-                    <td *ngIf="dato.tipoOrden =='Salida Tanque Agua'">{{dato.tipoOrden}} de {{dato.planta}} a
+                    <td *ngIf="dato.tipoOrden =='Salida Tanque Agua'||dato.tipoOrden =='Salida Tanque Combustible'||dato.tipoOrden =='Entrada Tanque Agua'||dato.tipoOrden =='Entrada Tanque Combustible'">{{dato.tipoOrden}} de {{dato.planta}} a
                       {{dato.destinoProcedencia}}</td>
-                    <td *ngIf="dato.tipoOrden =='Salida Tanque Combustible'">{{dato.tipoOrden}} de {{dato.planta}} a
-                      {{dato.destinoProcedencia}}</td>
-
                     <td>{{dato.numDocumentacion}}</td>
                     <td><strong>{{dato.persona.nombreP}}</strong></td>
                     <td>{{dato.fechaRegistro}} {{dato.horaRegistro}}</td>

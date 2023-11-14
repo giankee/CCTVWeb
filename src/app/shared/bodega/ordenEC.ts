@@ -80,7 +80,7 @@ export class cOrdenEC {
         this.idCompraAutomatica = dataIn.idCompraAutomatica;
         this.idDevolucionGuia = dataIn.idDevolucionGuia;
         this.planta = dataIn.planta;
-        this.fechaRegistroBodega = dataIn.fechaRegistroBodega;
+        this.fechaRegistroBodega = dataIn.fechaRegistroBodega.substring(0, 10);
         this.factura = dataIn.factura;
         this.guiaRemision = dataIn.guiaRemision;
         this.proveedor = dataIn.proveedor;
@@ -205,8 +205,8 @@ export class cProducto_B {
     proveedor: string = "SIN ASIGNAR";
     precioStandar: number = 0.00;
     precioUltima: number = 0.00;
-    precioNacional:number=0.00;
-    precioVenta:number=0.00;
+    precioNacional: number = 0.00;
+    precioVenta: number = 0.00;
     tipoUnidad: string = "UNIDAD";
     contenidoNeto: number = 1;
     precioNeto: number = 0;
@@ -240,8 +240,8 @@ export class cProducto_B {
         this.marca = "SIN ASIGNAR";
         this.precioStandar = 0.00;
         this.precioUltima = 0.00;
-        this.precioNacional=0.00;
-        this.precioVenta=0.00;
+        this.precioNacional = 0.00;
+        this.precioVenta = 0.00;
         this.tipoUnidad = "UNIDAD";
         this.contenidoNeto = 1;
         this.precioNeto = 0;
@@ -264,8 +264,8 @@ export class cProducto_B {
         this.marca = objIn.marca;
         this.precioStandar = objIn.precioStandar;
         this.precioUltima = objIn.precioUltima;
-        this.precioNacional=objIn.precioNacional;
-        this.precioVenta=objIn.precioVenta;
+        this.precioNacional = objIn.precioNacional;
+        this.precioVenta = objIn.precioVenta;
         this.rutaArchivo = objIn.rutaArchivo;
         this.tipoUnidad = objIn.tipoUnidad;
         this.contenidoNeto = objIn.contenidoNeto;
@@ -297,8 +297,8 @@ export class cProducto_B {
         this.categoria = "SIN ASIGNAR";
         this.marca = "SIN ASIGNAR";
         this.precioUltima = 0;
-        this.precioNacional=0;
-        this.precioVenta=0;
+        this.precioNacional = 0;
+        this.precioVenta = 0;
         this.tipoUnidad = "UNIDAD";
         this.estado = 1;
         this.rutaArchivo = "/assets/img/imgDefecto.png";
@@ -336,6 +336,7 @@ export class cBodegaProducto {
     cantInicial?: number = 0;
     disponibilidad?: number = 0;
     cantMinima?: number = 0;
+    cantMaxima?:number=0;
     percha?: number = 0;
     fila?: number = 0;
     numCasillero?: number = 0;
@@ -365,6 +366,7 @@ export class cBodegaProducto {
         this.cantInicial = objIn.cantInicial;
         this.disponibilidad = objIn.disponibilidad;
         this.cantMinima = objIn.cantMinima;
+        this.cantMaxima=objIn.cantMaxima;
         this.percha = objIn.percha;
         this.fila = objIn.fila;
         this.numCasillero = objIn.numCasillero;
@@ -390,7 +392,8 @@ export class cBodegaProducto {
         this.inventarioId = undefined;
         this.cantInicial = 0;
         this.disponibilidad = 0;
-        this.cantMinima = 1;
+        this.cantMinima = 0;
+        this.cantMaxima=0;
         this.percha = 0;
         this.fila = 0;
         this.numCasillero = 0;
@@ -617,9 +620,12 @@ export class cBodega {
     nombreBodega: string;
     encargadoBodega: string;
     telefonoEncargado: string;
+    
+    empresaAfiliada: string;
     estado: number;
 
     listAreas: cBodegaArea[];
+    listEncargados: cBodegaEncargado[];
 
     constructor() {
         this.idBodega = undefined;
@@ -627,9 +633,11 @@ export class cBodega {
         this.nombreBodega = "";
         this.encargadoBodega = "";
         this.telefonoEncargado = "";
+        this.empresaAfiliada = "MIXTO";
         this.estado = 1;
 
         this.listAreas = [];
+        this.listEncargados = [];
     }
 
     completarObject(dataIn: cBodega) {
@@ -638,6 +646,7 @@ export class cBodega {
         this.nombreBodega = dataIn.nombreBodega;
         this.encargadoBodega = dataIn.encargadoBodega;
         this.telefonoEncargado = dataIn.telefonoEncargado;
+        this.empresaAfiliada = dataIn.empresaAfiliada;
         this.estado = dataIn.estado;
 
         if (dataIn.listAreas != null) {
@@ -648,6 +657,14 @@ export class cBodega {
                 this.listAreas.push(auxArea);
             });
         }
+        if (dataIn.listEncargados != null) {
+            this.listEncargados = [];
+            dataIn.listEncargados.forEach(dataArea => {
+                var auxEncargado: cBodegaEncargado = new cBodegaEncargado();
+                auxEncargado.completarObject(dataArea);
+                this.listEncargados.push(auxEncargado);
+            });
+        }
     }
 
     agregarOneArea(dataIn?: cBodegaArea, AreaIn?: string) {
@@ -655,6 +672,12 @@ export class cBodega {
         if (dataIn != null)
             auxArea.completarObject(dataIn);
         this.listAreas.push(auxArea);
+    }
+    agregarOneEncargado(dataIn?: cBodegaEncargado, encargadoIn?: string) {
+        var auxEncargado = new cBodegaEncargado(encargadoIn);
+        if (dataIn != null)
+            auxEncargado.completarObject(dataIn);
+        this.listEncargados.push(auxEncargado);
     }
 }
 
@@ -687,5 +710,105 @@ export class cBodegaArea {
         this.nombreArea = dataIn.nombreArea;
         this.encargadoArea = dataIn.encargadoArea;
         this.telefonoEncargado = dataIn.telefonoEncargado;
+    }
+}
+
+export class cBodegaEncargado {
+    idBodegaEncargado: number;
+    bodegaId: number;
+    encargado: string;
+    telefono: string;
+    cargo:string;
+
+    /**varios */
+    ocultarObj: boolean;
+
+    constructor(nombreIn?: string) {
+        this.idBodegaEncargado = undefined;
+        this.bodegaId = undefined;
+        this.encargado = "";
+        this.telefono = "";
+        this.cargo="";
+
+        if (nombreIn != null)
+            this.encargado = nombreIn;
+
+        this.ocultarObj = false;
+    }
+
+    completarObject(dataIn: cBodegaEncargado) {
+        this.idBodegaEncargado = dataIn.idBodegaEncargado;
+        this.bodegaId = dataIn.bodegaId;
+        this.encargado = dataIn.encargado;
+        this.telefono = dataIn.telefono;
+        this.cargo=dataIn.cargo;
+    }
+}
+
+export class cEmpresas {
+    empresas: any[] = [
+        ["1391736452001", "B&B TUNE"],
+        ["1302188618001", "DANIEL BUEHS"],
+        ["1391700830001", "MANACRIPEX"]
+    ];
+}
+
+export class cDataMultiples {
+    arrayMultiple: any[] = [];
+    openCloseMSelect: boolean = false;
+    selectedChoise: string = "None";
+    numSelected: number = 0;
+    strSelectedChoise = "";
+    dafaultName = "";
+
+    constructor(nameIn: string, arrayIn: any[][], turOffOn: boolean) {
+        this.dafaultName = nameIn;
+        this.strSelectedChoise = this.dafaultName;
+        arrayIn.forEach(fila => {
+            var auxFila: any[] = [turOffOn];
+            fila.forEach(valor => {
+                auxFila.push(valor);
+            });
+            this.arrayMultiple.push(auxFila);
+        });
+    }
+
+    cambiarEstado(indice: number) {
+        if (this.arrayMultiple[indice][0])
+            this.arrayMultiple[indice][0] = false;
+        else this.arrayMultiple[indice][0] = true;
+        this.procesarData();
+    }
+
+    procesarData() {
+        var numCheck = 0;
+        this.selectedChoise = "";
+        this.arrayMultiple.forEach(x => {
+            if (x[0]) {
+                numCheck++;
+                if (this.selectedChoise == "")
+                    this.selectedChoise = x[1];
+                else this.selectedChoise += "-" + x[1];
+            }
+        });
+        if (numCheck == 0) {
+            this.selectedChoise = "None";
+            this.strSelectedChoise = "Empresas";
+        } else {
+            if (numCheck == 1)
+                this.strSelectedChoise = numCheck + " Seleccionada";
+            else this.strSelectedChoise = numCheck + " Seleccionadas";
+        }
+    }
+
+    completarData(checked:string){
+        var auxSeparar=checked.split('-');
+        auxSeparar.forEach(x=>{
+            let indice =this.arrayMultiple.findIndex(y=>y[1]==x);
+            if(indice!=-1){
+                this.arrayMultiple[indice][0]=true;
+            }
+        });
+        this.procesarData();
     }
 }

@@ -55,7 +55,7 @@ export class ComprasVerificacionComponent implements OnInit {
 
   constructor(private _conexcionService: ConexionService, private _variosService: VariosService, private _ordenECService: OrdenECService, private toastr: ToastrService, private whatsappService: WhatsappService, private _consultaMedicService: ConsultaMedicService) {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
-      this.listBarcos = dato.find(x => x.encargadoBodega.includes(this._conexcionService.UserDataToken.name));
+      this.listBarcos = dato.find(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
       this.restartListPendientes();
     });
   }
@@ -65,17 +65,24 @@ export class ComprasVerificacionComponent implements OnInit {
 
   onSave(datoIn: cOrdenEC) {
     if (datoIn.listPcomprasO.find(x => x.marcar) != undefined) {
-      var auxListComprasO:cCompraO[]=[];
+      var auxListComprasO: cCompraO[] = [];
       datoIn.listPcomprasO.forEach(x => {
-        if (x.marcar){
-          x.estadoCompra = "Procesada";
+        if (x.marcar) {
+          if (datoIn.estadoProceso == "Pendiente") {
+            if (x.estadoCompra == "Pendiente")
+              x.estadoCompra = "Pendiente Lote";
+            else x.estadoCompra = "Procesada";
+          } else x.estadoCompra = "Procesada";
           auxListComprasO.push(x);
         }
       });
-      if (datoIn.listPcomprasO.find(x => x.estadoCompra == "Pendiente") == undefined)
-        datoIn.estadoProceso = "Procesada";
-        datoIn.listPcomprasO=auxListComprasO;
-        this.ordenECService.verificacionOrdenCompra(datoIn).subscribe(
+      if (datoIn.listPcomprasO.find(x => x.estadoCompra == "Pendiente"||x.estadoCompra=="Pendiente Verificación") == undefined){
+        if(datoIn.estadoProceso=="Pendiente")
+          datoIn.estadoProceso="Pendiente Lote";
+        else datoIn.estadoProceso = "Procesada";
+      }
+      datoIn.listPcomprasO = auxListComprasO;
+      this.ordenECService.verificacionOrdenCompra(datoIn).subscribe(
         (res: any) => {
           if (res.message == "Ok") {
             if (this.openReporte) {
@@ -125,21 +132,21 @@ export class ComprasVerificacionComponent implements OnInit {
 
   restartListPendientes(valorPage?: number) {
     this.listOrdenesMostrar = [];
-    if(this._conexcionService.UserDataToken.role=="enfermeria")
-      this.listBarcos.nombreBodega="ENFERMERIA GENERAL";
-      this.ordenECService.getVerificarMedicamento("ENFERMERIA@DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A@" + this.listBarcos.nombreBodega).subscribe(dato => {
-        dato.forEach(x => {
-          x.fechaRegistroBodega = x.fechaRegistroBodega.substring(0, 10);
-          x.listPcomprasO.forEach(y => y.marcar = false);
-          this.listOrdenesMostrar.push(x);
-        });
-        this.spinnerOnOff = false;
-        this.paginacion.getNumberIndex(this.listOrdenesMostrar.length);
-        if (valorPage != null)
-          this.paginacion.updateIndex(valorPage);
-        else this.paginacion.updateIndex(0);
+    if (this._conexcionService.UserDataToken.role == "enfermeria")
+      this.listBarcos.nombreBodega = "ENFERMERIA GENERAL";
+    this.ordenECService.getVerificarMedicamento("ENFERMERIA@DISTRIBUIDORA FARMACEUTICA ECUATORIANA DIFARE S.A@" + this.listBarcos.nombreBodega).subscribe(dato => {
+      dato.forEach(x => {
+        x.fechaRegistroBodega = x.fechaRegistroBodega.substring(0, 10);
+        x.listPcomprasO.forEach(y => y.marcar = false);
+        this.listOrdenesMostrar.push(x);
       });
-    
+      this.spinnerOnOff = false;
+      this.paginacion.getNumberIndex(this.listOrdenesMostrar.length);
+      if (valorPage != null)
+        this.paginacion.updateIndex(valorPage);
+      else this.paginacion.updateIndex(0);
+    });
+
   }
 
   generarReporte(observacionIn) {
@@ -152,7 +159,7 @@ export class ComprasVerificacionComponent implements OnInit {
       auxWhatsapp = {
         phone: personas[i][1],
         message: "",
-        caption:"",
+        caption: "",
         title: this.ordenECService.formData.planta + "_" + this.ordenECService.formData.fechaRegistroBodega + "-" + this.ordenECService.formData.factura + ".pdf",
         media: auxBase[1],
         type: "application/pdf"
@@ -291,8 +298,8 @@ export class ComprasVerificacionComponent implements OnInit {
         auxReceta.inventarioId = this.ordenECService.formData.listPcomprasO[i].productoId;
         auxReceta.cantidad = this.ordenECService.formData.listPcomprasO[i].cantidad * this.ordenECService.formData.listPcomprasO[i].producto.contenidoNeto;
         auxReceta.inventario.rellenarObjeto(this.ordenECService.formData.listPcomprasO[i].producto);
-        if(this.ordenECService.formData.listPcomprasO[i].loteMedic!="SIN ASIGNAR")
-          auxReceta.loteId=this.ordenECService.formData.listPcomprasO[i].loteMedic;
+        if (this.ordenECService.formData.listPcomprasO[i].loteMedic != "SIN ASIGNAR")
+          auxReceta.loteId = this.ordenECService.formData.listPcomprasO[i].loteMedic;
         this.consultaMedicService.formData.agregarOneItem(auxReceta);
       }
     }
@@ -314,5 +321,5 @@ export class ComprasVerificacionComponent implements OnInit {
     this.paginacion.getNumberIndex(this.listOrdenesMostrar.length);
     this.paginacion.updateIndex(0);
   }
-  
+
 }

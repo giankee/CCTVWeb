@@ -1,5 +1,5 @@
 export class cRegisterU {
-        userName: string;
+        UserName: string;
         Email?: string;
         PasswordHash?: string;
         phoneNumber?: string;
@@ -10,11 +10,15 @@ export class cRegisterU {
         temporalPassword?: boolean;
 
         constructor() {
-                this.userName = "";
+                this.UserName = "";
+                this.nombreU = "";
+                this.Email = "";
+                this.phoneNumber = "593-";
                 this.PasswordHash = "";
                 this.ConfirmPassword = "";
-                this.temporalPassword=false;
-                this.estado=1;
+                this.rolAsignado = "supervisor";
+                this.temporalPassword = false;
+                this.estado = 1;
         }
 }
 
@@ -22,10 +26,11 @@ export class cLoginU {
         UserName: string;
         PasswordHash?: string;
 
-
+        ConfirmPassword?: string;
         constructor() {
                 this.UserName = "";
                 this.PasswordHash = "";
+                this.ConfirmPassword = "";
         }
 }
 
@@ -34,24 +39,32 @@ export class cDataToken {
         sub: string;
         name: string;
         whatsAppPhone: string;
-        reboot:string;
+        rboot: string;
         role: string | string[];
         nbf: number;
         exp: number;
 
         constructor(tokenIn?: string) {
                 if (tokenIn != null) {
-                        const payLoad = JSON.parse(window.atob(tokenIn.split('.')[1]));
-                        this.id = payLoad.id;
-                        this.sub = payLoad.sub;
-                        this.name = payLoad.name;
-                        this.whatsAppPhone = payLoad.whatsAppPhone;
-                        this.reboot=payLoad.reboot;
-                        this.role = payLoad.role;
-                        this.nbf = payLoad.nbf;
-                        this.exp = payLoad.exp;
+                        const parts = tokenIn.split('.');
+                        if (parts.length == 3) {
+                                const payload = parts[1];
+                                const decodedPayload = decodeURIComponent(
+                                        Array.prototype.map
+                                                .call(atob(payload), (char) => '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2))
+                                                .join('')
+                                );
+                                const parsedPayload = JSON.parse(decodedPayload);
+                                this.id = parsedPayload.id;
+                                this.sub = parsedPayload.sub;
+                                this.name = parsedPayload.name;
+                                this.whatsAppPhone = parsedPayload.whatsAppPhone;
+                                this.rboot = parsedPayload.rboot;
+                                this.role = parsedPayload.role;
+                                this.nbf = parsedPayload.nbf;
+                                this.exp = parsedPayload.exp;
+                        }
                 }
-
         }
 
         completarObj(data: cDataToken) {
@@ -59,7 +72,7 @@ export class cDataToken {
                 this.sub = data.sub;
                 this.name = data.name;
                 this.whatsAppPhone = data.whatsAppPhone;
-                this.reboot=data.reboot;
+                this.rboot = data.rboot;
                 this.role = data.role;
                 this.nbf = data.nbf;
                 this.exp = data.exp;

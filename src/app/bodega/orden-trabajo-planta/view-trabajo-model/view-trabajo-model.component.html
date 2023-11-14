@@ -6,34 +6,40 @@
       </div>
     </div>
   </div>
-  <form #formOrden="ngForm" autocomplete="off" *ngIf="ordenTrabajoInternoService.formData!=null">
+  <form #formOrden="ngForm" autocomplete="off" *ngIf="ordenTrabajoInternoService.formData!=null" (submit)="onSubmit()">
     <div class="container-fluid">
       <div id="content" #content class="row mInCajaPadre">
         <div class="col-12 mInCajaHijaOrden">
           <div class="row my-2">
             <div class="col-6">
-                <strong>Número de secuencial: {{ordenTrabajoInternoService.formData.numOrdenSecuencial}}</strong> 
+              <strong>Número de secuencial: {{ordenTrabajoInternoService.formData.numOrdenSecuencial}}</strong>
             </div>
             <div class="col-6">
-                <strong>Fecha Registro:</strong> {{ordenTrabajoInternoService.formData.fechaRegistro}}
+              <strong>Fecha Registro:</strong> {{ordenTrabajoInternoService.formData.fechaRegistro}}
             </div>
             <div class="col-6">
-                <strong>Bodega Salida:</strong> {{ordenTrabajoInternoService.formData.bodega}}  {{ordenTrabajoInternoService.formData.marea!=null? (' /'+ordenTrabajoInternoService.formData.marea):''}}
+              <strong>Bodega Salida:</strong> {{ordenTrabajoInternoService.formData.bodega}}
+              {{ordenTrabajoInternoService.formData.marea!=null? (' /'+ordenTrabajoInternoService.formData.marea):''}}
             </div>
             <div class="col-6">
-                <strong>{{ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno' ? 'Área' : 'Bodega'}} Destino:</strong> {{ordenTrabajoInternoService.formData.destinoLugar}}
+              <strong>{{ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno' ? 'Área' : 'Bodega'}}
+                Destino:</strong> {{ordenTrabajoInternoService.formData.destinoLugar}}
             </div>
             <div class="col-6">
-                <strong>Responsable de bodega saliente:</strong> {{ordenTrabajoInternoService.formData.bodeguero}}
+              <strong>Responsable de bodega saliente:</strong> {{ordenTrabajoInternoService.formData.bodeguero}}
             </div>
             <div class="col-6">
-                <strong>Responsable {{ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno' ? ' de retirar el material' : 'de bodega que recibe'}}:</strong> {{ordenTrabajoInternoService.formData.personaResponsable}}
+              <strong>Responsable
+                {{ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno' ? ' de retirar el material' : 'de bodega que recibe'}}:</strong>
+              {{ordenTrabajoInternoService.formData.personaResponsable}}
             </div>
-            <div class="col-12" *ngIf="ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno'||ordenTrabajoInternoService.formData.tipoOrden=='Traspaso Bodega'">
-                <strong>Justificación de la solicitud:</strong> {{ordenTrabajoInternoService.formData.observacion}} 
+            <div class="col-12"
+              *ngIf="ordenTrabajoInternoService.formData.tipoOrden=='Trabajo Interno'||ordenTrabajoInternoService.formData.tipoOrden=='Traspaso Bodega'">
+              <strong>Justificación de la solicitud:</strong> {{ordenTrabajoInternoService.formData.observacion}}
             </div>
             <div class="col-6">
-                <strong>Estado del {{ordenTrabajoInternoService.formData.tipoOrden}}:</strong> {{ordenTrabajoInternoService.formData.estadoProceso}}
+              <strong>Estado del {{ordenTrabajoInternoService.formData.tipoOrden}}:</strong>
+              {{ordenTrabajoInternoService.formData.estadoProceso}}
             </div>
           </div>
           <div class="row">
@@ -46,33 +52,131 @@
                   <table class="table">
                     <thead>
                       <tr class="text-center">
-                        <th scope="col">Código</th>
+                        <th scope="col">Material</th>
                         <th scope="col">Cantidad</th>
-                        <th scope="col">Descripción</th>
                         <th scope="col">Observación</th>
+                        <th scope="col" *ngIf="modoEdicion"></th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <tr *ngFor="let datoList of ordenTrabajoInternoService.formData.listMaterialesO; let indiceNew=index"
+                    <tbody *ngIf="ordenTrabajoInternoService.formData.listMaterialesO.length>0">
+                      <tr
+                        *ngFor="let datoList of ordenTrabajoInternoService.formData.listMaterialesO; let indiceNew=index"
                         [ngClass]="{'filaPar':(((indiceNew+1)%2)==0)}">
-                        <td>{{datoList.inventario.codigo}}</td>
-                        <td class="text-center">{{datoList.cantidad}}</td>
-                        <td>{{datoList.inventario.nombre}}</td>
-                        <td class="text-center">{{datoList.observacion}}</td>
+                        <td id="inputSearchP">
+                          <div class="row">
+                            <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                              <div class="wrapper">
+                                <div class="limit-width">
+                                  <input name="in{{indiceNew}}codigoProducto" #in{{indiceNew}}codigoProducto="ngModel"
+                                    [(ngModel)]="ordenTrabajoInternoService.formData.listMaterialesO[indiceNew].inventario.codigo"
+                                    (ngModelChange)="onListProducto(indiceNew,1,$event?.toUpperCase())"
+                                    placeholder="Código Material" class="form-control input-src"
+                                    [ngClass]="{'loading':datoList.spinnerLoading==1}"
+                                    [disabled]="datoList.inventario.disBttnInput==2 || !datoList.marcar" required>
+                                  <div class="results" style="position:relative;" *ngIf="datoList.showSearchSelect==1">
+                                    <ul>
+                                      <li *ngFor="let data of listProdFiltros$ | async">
+                                        <div (click)="onChooseElemente(indiceNew,1,data)">
+                                          <a class="name">{{data.codigo}}</a>
+                                        </div>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col" style="padding-left: 0.5px; padding-right:0.5px;">
+                              <div class="wrapper">
+                                <div class="limit-width">
+                                  <input name="in{{indiceNew}}nombreProducto" #in{{indiceNew}}nombreProducto="ngModel"
+                                    [(ngModel)]="ordenTrabajoInternoService.formData.listMaterialesO[indiceNew].inventario.nombre"
+                                    (ngModelChange)="onListProducto(indiceNew,2,$event?.toUpperCase())"
+                                    placeholder="Nombre Material" class="form-control input-src"
+                                    [ngClass]="{'loading':datoList.spinnerLoading==1}"
+                                    [disabled]="datoList.inventario.disBttnInput==1  || !datoList.marcar " required>
+                                  <div class="results" style="position:relative;" *ngIf="datoList.showSearchSelect==2">
+                                    <ul>
+                                      <li *ngFor="let data of listProdFiltros$ | async">
+                                        <div (click)="onChooseElemente(indiceNew,2,data)">
+                                          <a class="name">{{data.nombre}}</a>
+                                        </div>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td id="inputSearchP" *ngIf="modoEdicion">
+                          <div class="row">
+                            <div class="col-9" style="padding-left: 0.5rem; padding-right:1px;">
+                              <input name="in{{indiceNew}}cantidad" type="number" min="0" maxlength="5" placeholder="#"
+                              class="form-control input-src"
+                              onkeydown="return (event.keyCode !== 69 && event.keyCode !==109 && event.keyCode !==107 && (this.value.length<=9 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                              pattern="^[0-9]{0,12}([.][0-9]{1,3})?$" #in{{indiceNew}}cantidad="ngModel" required
+                              [(ngModel)]="ordenTrabajoInternoService.formData.listMaterialesO[indiceNew].cantidad"
+                              (ngModelChange)="comprobarNewR()">
+                            </div>
+                            <div class="col-3" style="padding-left: 1px; padding-right:0.5rem;">
+                              <strong> /
+                                {{ordenTrabajoInternoService.formData.listMaterialesO[indiceNew].inventario.listBodegaProducto[0]?.disponibilidad}}</strong>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="text-center" *ngIf="!modoEdicion">{{ordenTrabajoInternoService.formData.listMaterialesO[indiceNew].cantidad}}</td>
+                        <td id="inputSearchP" *ngIf="modoEdicion">
+                          <div class="wrapper">
+                            <div class="limit-width">
+                              <textarea name="in{{indiceNew}}observacion" #in{{indiceNew}}observacion="ngModel"
+                                (ngModelChange)="okFormChange=true"
+                                [(ngModel)]="ordenTrabajoInternoService.formData.listMaterialesO[indiceNew].observacion"
+                                class="form-control input-src" maxlength="300"
+                                placeholder="Ingrese su observación"></textarea>
+                            </div>
+                          </div>
+                        </td>
+                        <td  *ngIf="!modoEdicion">{{ordenTrabajoInternoService.formData.listMaterialesO[indiceNew].observacion}}</td>
+                        <td class="justify-content-center" id="utilitarioI" *ngIf="modoEdicion">
+                          <a class="badge text-primario d-block" matTooltip="Sacar de lista" matTooltipPosition="below"
+                            (click)="onRemoveNewR(indiceNew)">
+                            <fa-icon [icon]="fatimes" size="3x"></fa-icon>
+                          </a>
+                        </td>
                       </tr>
                     </tbody>
+                    <tfoot *ngIf="ordenTrabajoInternoService.formData.listMaterialesO.length>0&& modoEdicion">
+                      <tr>
+                        <td colspan="3"></td>
+                        <td>
+                          <a [routerLink] (click)="onNewItem()" class="btn btnNewRedondo"
+                            [ngClass]="{'bttn-Error':!okAddNewBotton }"
+                            matTooltip="No se puede añadir material si existen campos vacios" matTooltipPosition="left"
+                            matTooltipClass="tooltipRed" [matTooltipDisabled]="okAddNewBotton">
+                            <fa-icon [icon]="faplus"></fa-icon>
+                          </a>
+                        </td>
+                      </tr>
+                    </tfoot>
                   </table>
                 </div>
               </div>
             </div>
           </div>
           <div class="row boxForm justify-content-between mt-1 mt-sm-2 mb-1 mb-sm-2">
-            <div class="col-12 col-sm-6 col-md-6 col-lg-6 mb-2">
-              <a [routerLink] class="btn bttn-Primario btn-block" (click)="onConvertPdfOne(ordenTrabajoInternoService.formData)">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-4 mb-2">
+              <a [routerLink] class="btn bttn-Primario btn-block"
+                (click)="onConvertPdfOne(ordenTrabajoInternoService.formData)">
                 <fa-icon [icon]="faprint"></fa-icon> Descargar PDF
               </a>
+            </div> 
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4 mb-2 px-4" *ngIf="modoEdicion">
+              <button class="btn bttn-Primario btn-block " type="submit" [disabled]="formOrden.invalid|| !okFormChange ||!okAddNewBotton"
+                [ngClass]="{'bttn-Error':!okFormChange }">
+                <fa-icon [icon]="fasave"></fa-icon> Guardar
+              </button>
             </div>
-            <div class="col-12 col-sm-6 col-md-6 col-lg-6 mb-2">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-4 mb-2">
               <a [routerLink] class="btn bttn-Primario btn-block" (click)="onExit()"> Salir</a>
             </div>
           </div>

@@ -81,7 +81,7 @@ export class ListConsultaMedicComponent implements OnInit {
     this._variosService.getBodegasTipo("PUERTO").subscribe(dato => {
       this.listBodega = dato;
       if (this._conexcionService.UserDataToken.role == "verificador-medic")
-        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
+        this.selecBodegaFiltro = this.listBodega.find(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name)).nombreBodega;
       this.parametrosBusqueda.anio = this.fechaHoy.anio.toString();
       this.parametrosBusqueda.strBodegaOrigen = this.selecBodegaFiltro;
       this.cargarData();

@@ -1,20 +1,29 @@
-
 <section class="dashboard-header">
   <div class="container-fluid" style="height: auto;">
     <div class="boxCliente  pt-1">
-      <form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)" *ngIf="ordenTrabajoService.formData!=null">
+      <form #formOrden="ngForm" autocomplete="off" (submit)="onSubmit(formOrden)"
+        *ngIf="ordenTrabajoService.formData!=null">
         <div class="bodyCard">
           <div class="row mt-3">
-            <div class="col-12 col-md-8">
-              <h4 class="text-center">Recopilación datos para Trabajos Internos</h4>
+            <div class="col-12 col-md-7">
+              <h4 class="text-center">Recopilación datos
+                {{conexcionService.UserDataToken.role=='verificador-bodeguero-h'?'':'para Trabajos Internos'}} </h4>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-6 col-md-3" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
+              <select class="form-control" name="tipoOrden" #tipoOrden="ngModel"
+                [(ngModel)]="ordenTrabajoService.formData.tipoOrden"  (ngModelChange)="onChangeTipoOrden()">
+                <option value="Trabajo Interno">Consumo Interno</option>
+                <option value="Prestamo">Prestamo</option>
+                <option value="Venta Repuesto">Venta Repuesto</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
               <input class="form-control" type="date" name="fechaRegistro" #fechaRegistro="ngModel"
                 [(ngModel)]="ordenTrabajoService.formData.fechaRegistro" min="2020-01-01" max="{{fechaHoy.strFecha}}">
             </div>
           </div>
           <div class="row boxForm mt-2">
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.name=='FERNANDA MORALES'||conexcionService.UserDataToken.name=='SERGIO JARA'">
+            <div class="col-12 col-md-6 col-lg-3" *ngIf="listBodega!=null && listBodega.length>1">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Salida de Bodega: </strong>
@@ -24,35 +33,79 @@
                     <div class="limit-width">
                       <select class="form-control" name="origenBodega" #origenBodega="ngModel"
                         [(ngModel)]="ordenTrabajoService.formData.bodega" required (ngModelChange)="onChooseBarco()">
-                        <option
-                            *ngFor="let datobodega of listBodega"
-                            value="{{datobodega.nombreBodega}}">
-                            {{datobodega.nombreBodega}}
-                          </option>
+                        <option *ngFor="let datobodega of listBodega" value="{{datobodega.nombreBodega}}">
+                          {{datobodega.nombreBodega}}</option>
                       </select>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserDataToken.role=='verificador-bodeguero-b'">
+            <div class="col-12 col-md-6 col-lg-3"
+              *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero' && conexcionService.UserDataToken.name=='FERNANDA MORALES'  && (!ordenTrabajoService.formData.bodega.includes('BP'))">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
-                  <strong class="ml-3">Marea: </strong>
+                  <strong class="ml-3">Lugar de Destino:</strong>
                 </div>
                 <div id="inputSearchP">
                   <div class="wrapper">
                     <div class="limit-width">
-                      <input name="marea" #marea="ngModel" type="number"
-                        [(ngModel)]="ordenTrabajoService.formData.marea" required
-                        onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
-                        class="form-control" placeholder="Solo Número">
+                      <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
+                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
+                        <option selected disabled value="">-Seleccionar-</option>
+                        <option *ngFor="let datobodega of listAreas" value="{{datobodega.nombreBodega}}">
+                          {{datobodega.nombreBodega}}
+                        </option>
+                      </select>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL')||conexcionService.UserDataToken.role=='verificador-bodeguero-b'||conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
+            <div class="col-12 col-md-6 col-lg-2" *ngIf="ordenTrabajoService.formData.bodega!='MECANICA NAVAL'">
+              <div class="form-group" id="selectMaterial">
+                <div class="title ml-2">
+                  <strong class="ml-3">Lugar de Destino: </strong>
+                </div>
+                <div id="inputSearchP">
+                  <div class="wrapper">
+                    <div class="limit-width">
+                      <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
+                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
+                        <option selected disabled value="">-Seleccionar-</option>
+                        <option
+                          *ngFor="let datoSubArea of listBodega |filtrarBodegaSubArea:ordenTrabajoService.formData.bodega"
+                          value="{{datoSubArea.nombreArea}}">
+                          {{datoSubArea.nombreArea}}</option>
+                        <option *ngFor="let datobodega of listAreas " value="{{datobodega.nombreBodega}}">
+                          {{datobodega.nombreBodega}}</option>
+                          <option *ngIf="ordenTrabajoService.formData.tipoOrden!='Trabajo Interno'" value="HANGAR (MANACRIPEX)">HANGAR (MANACRIPEX)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-2" [ngClass]="{'col-lg-3':conexcionService.UserDataToken.role!='verificador-bodeguero'}"
+            *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero' && ordenTrabajoService.formData.bodega.includes('BP'))||conexcionService.UserDataToken.role=='verificador-bodeguero-b'">
+            <div class="form-group" id="selectMaterial">
+              <div class="title ml-2">
+                <strong class="ml-3">Marea: </strong>
+              </div>
+              <div id="inputSearchP">
+                <div class="wrapper">
+                  <div class="limit-width">
+                    <input name="marea" #marea="ngModel" type="number"
+                      [(ngModel)]="ordenTrabajoService.formData.marea" required
+                      onkeydown="return (event.keyCode !== 190 && event.keyCode !== 69 && event.keyCode!==107 && event.keyCode !==109 && event.keyCode !== 110 && event.keyCode !== 188 && (this.value.length<=20 || event.keyCode==8 || event.keyCode==37 || event.keyCode==39))"
+                      class="form-control" placeholder="Solo Número">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+            <div class="col-12 col-md-6 col-lg-2" [ngClass]="{'col-lg-3':conexcionService.UserDataToken.role!='verificador-bodeguero'}"
+              *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero' && ordenTrabajoService.formData.bodega.includes('BP'))||conexcionService.UserDataToken.role=='verificador-bodeguero-b'||(conexcionService.UserDataToken.role=='verificador-bodeguero-h' && ordenTrabajoService.formData.destinoLugar.includes('HELICOPTERO') )">
               <div class="form-group" id="selectMaterial">
                 <div class="title ml-2">
                   <strong class="ml-3">Horas Servicio: </strong>
@@ -69,79 +122,8 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero'&& ((conexcionService.UserDataToken.name == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega=='MECANICA NAVAL' )|| conexcionService.UserDataToken.name != 'FERNANDA MORALES' ))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
-              <div class="form-group" id="selectMaterial">
-                <div class="title ml-2">
-                  <strong class="ml-3">Lugar de Destino: </strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
-                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
-                        <option selected disabled value="">-Seleccionar-</option>
-                        <option
-                            *ngFor="let datobodega of listAreas"
-                            value="{{datobodega.nombreBodega}}">
-                            {{datobodega.nombreBodega}}
-                          </option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="conexcionService.UserDataToken.role=='verificador-bodeguero-h'">
-              <div class="form-group" id="selectMaterial">
-                <div class="title ml-2">
-                  <strong class="ml-3">Lugar de Destino: </strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
-                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
-                        <option selected disabled value="">-Seleccionar-</option>
-                        <option
-                            *ngFor="let datobodegaSub of listSubAreas"
-                            value="{{datobodegaSub.nombreArea}}">
-                            {{datobodegaSub.nombreArea}}
-                          </option>
-                        <option
-                            *ngFor="let datobodega of listAreas"
-                            value="{{datobodega.nombreBodega}}">
-                            {{datobodega.nombreBodega}}
-                          </option>
-                          
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3" *ngIf="(conexcionService.UserDataToken.role=='verificador-bodeguero-b'|| (conexcionService.UserDataToken.name == 'FERNANDA MORALES' && ordenTrabajoService.formData.bodega!='MECANICA NAVAL'))" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}" >
-              <div class="form-group" id="selectMaterial">
-                <div class="title ml-2">
-                  <strong class="ml-3">Lugar de Destino: </strong>
-                </div>
-                <div id="inputSearchP">
-                  <div class="wrapper">
-                    <div class="limit-width">
-                      <select class="form-control" name="destinoLugar" #destinoLugar="ngModel"
-                        [(ngModel)]="ordenTrabajoService.formData.destinoLugar" required>
-                        <option selected disabled value="">-Seleccionar-</option>
-                        <option
-                            *ngFor="let datobodegaSub of listSubAreas"
-                            value="{{datobodegaSub.nombreArea}}">
-                            {{datobodegaSub.nombreArea}}
-                          </option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3" [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}">
+            <div class="col-12 col-md-6 col-lg-3"
+              [ngClass]="{'col-lg-4':ordenTrabajoService.formData.bodega=='MECANICA NAVAL'}">
               <div class="form-group">
                 <div class="title ml-2">
                   <strong class="ml-3">Responsable de Solicitud: </strong>
@@ -262,14 +244,19 @@
                                 name="in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteId"
                                 #in{{indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)}}loteId="ngModel"
                                 [(ngModel)]="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].loteId">
-                                <option selected value="SIN ASIGNAR">Sin Lote: {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</option>
-                                <option *ngFor="let datoLote of ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas"
-                                  value="{{datoLote.nombreSub}}"> U: {{datoLote.disponibilidad}} / N.Lote:{{datoLote.nombreSub}}</option>
+                                <option selected value="SIN ASIGNAR">Sin Lote:
+                                  {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}
+                                </option>
+                                <option
+                                  *ngFor="let datoLote of ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas"
+                                  value="{{datoLote.nombreSub}}"> U: {{datoLote.disponibilidad}} /
+                                  N.Lote:{{datoLote.nombreSub}}</option>
                               </select>
                             </div>
                             <div class="col-2" style="padding-left: 1px; padding-right:0.5rem;"
                               *ngIf="ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.listAreas?.length==0">
-                              <strong> / {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</strong>
+                              <strong> /
+                                {{ordenTrabajoService.formData.listMaterialesO[indiceNewP+(paginacion.selectPagination*paginacion.pagActualIndex)].inventario.listBodegaProducto[0]?.disponibilidad}}</strong>
                             </div>
                           </div>
                         </td>

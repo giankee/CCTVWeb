@@ -307,7 +307,7 @@ export class KardexComponent implements OnInit {
       dialoConfig.data = { auxId };
       this.dialog.open(ViewCompraModelComponent, dialoConfig);
     }
-    if (tipo == 1 && dataIn.guia != '---' && (dataIn.tipoItem == "Orden Trabajo" || dataIn.tipoItem == "Traspaso Bodega")) {
+    if (tipo == 1 && dataIn.guia != '---' && (dataIn.tipoItem == "Trabajo Interno" || dataIn.tipoItem == "Traspaso Bodega")|| dataIn.tipoItem=="Prestamo"|| dataIn.tipoItem=="Venta Repuesto") {
       var auxId = dataIn.relacionGuiaId;
       dialoConfig.data = { auxId };
       this.dialog.open(ViewTrabajoModelComponent, dialoConfig);

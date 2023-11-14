@@ -47,7 +47,7 @@ export class ControlESComponent implements OnInit {
     this._conexcionService = value;
   }
 
-  paginacion = new cPaginacion(3);
+  paginacion = new cPaginacion(10);
   fechaHoy = new cFecha();
   strFases: string = "Inicio";
   proveedorIsOpened: boolean = false;
@@ -56,17 +56,15 @@ export class ControlESComponent implements OnInit {
   consultaIsOpened: number = 0;
   okAddNewBotton: boolean = true;
   okBttnSubmit: boolean = true;
-  //listBodega: cVario[] = [];
 
   listBodegaOrigen: cBodega[] = [];
   listBodegaDestino: cBodega[] = [];
-  listAreas:cBodega[]=[];
-  
+  listAreas: cBodega[] = [];
+
   listProdFiltros$: any;
 
   faoutdent = faOutdent; fatasks = faTasks; fausertag = faUserTag; fatimescircle = faTimesCircle; faplus = faPlus; fatimes = faTimes; faHandLeft = faHandPointLeft; fasave = faSave;
   constructor(private _userService: UserService, private router: Router, private _conexcionService: ConexionService, private _ordenTrabajoService: OrdenTrabajoService, private _variosService: VariosService, private _productoBService: ProductoBService, private toastr: ToastrService) {
-
   }
 
   ngOnInit(): void {
@@ -78,7 +76,7 @@ export class ControlESComponent implements OnInit {
     }
   }
 
-  recibirRes(salir:any, tipo: string) {
+  recibirRes(salir: any, tipo: string) {
     if (tipo == "proveedor")
       this.proveedorIsOpened = !salir;
     if (tipo == "traspaso") {
@@ -100,11 +98,11 @@ export class ControlESComponent implements OnInit {
         this._ordenTrabajoService.formData.agregarOneMaterial();
         this.paginacion.getNumberIndex(1);
         this.paginacion.updateIndex(0);
-        this.listBodegaDestino=JSON.parse(JSON.stringify(this.listAreas));
+        this.listBodegaDestino = JSON.parse(JSON.stringify(this.listAreas));
         break;
       case 'Traspaso':
         this._ordenTrabajoService.formData.tipoOrden = "Traspaso Bodega";
-        this.listBodegaDestino=JSON.parse(JSON.stringify(this.listBodegaOrigen));
+        this.listBodegaDestino = JSON.parse(JSON.stringify(this.listBodegaOrigen));
         if (this._conexcionService.UserDataToken.role == "enfermeria") {
           this._ordenTrabajoService.formData.bodega = "SIN ASIGNAR";
           this._ordenTrabajoService.formData.destinoLugar = "ENFERMERIA GENERAL";
@@ -130,10 +128,8 @@ export class ControlESComponent implements OnInit {
     }
     if (this._conexcionService.UserDataToken.role != "enfermeria") {
       this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "P MANACRIPEX");
-      if (this._conexcionService.UserDataToken.role == "bodega_verificador-m")
-        this._ordenTrabajoService.formData.bodega = "GENERAL";
-      this.ordenTrabajoService.formData.destinoLugar="SIN ASIGNAR";
-    } else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "ENFERMERIA");
+      this.ordenTrabajoService.formData.destinoLugar = "SIN ASIGNAR";
+    } else this._ordenTrabajoService.formData = new cOrdenTrabajoI(this._conexcionService.UserDataToken.name, "ENFERMERIA","ENFERMERIA GENERAL");
     this.strFases = "Inicio";
     this.okBttnSubmit = true;
   }
@@ -144,12 +140,14 @@ export class ControlESComponent implements OnInit {
   }
 
   cargarBodega() {
-    this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
-      this.listBodegaOrigen = dato;
-    });
-    this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
-      this.listAreas = dato;
-    });
+    if (this._conexcionService.UserDataToken.role != "enfermeria") {
+      this._variosService.getBodegasTipo("P MANACRIPEX").subscribe(dato => {
+        this.listBodegaOrigen = dato.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));;
+      });
+      this._variosService.getBodegasTipo("A MANACRIPEX").subscribe(dato => {
+        this.listAreas = dato;
+      });
+    }
   }
 
   comprobarNewM() {

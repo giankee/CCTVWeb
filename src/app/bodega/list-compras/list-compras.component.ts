@@ -86,11 +86,9 @@ export class ListComprasComponent implements OnInit {
     }
     this.variosService.getBodegasTipo(auxTipoBodega).subscribe(dato => {
       this.listBodega = dato;
-      if ((this.conexcionService.UserDataToken.role == "verificador-bodeguero" || this.conexcionService.UserDataToken.role == "verificador-bodeguero-h") && this.conexcionService.UserDataToken.name != "FERNANDA MORALES")
-        this.listBodega = this.listBodega.filter(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name));
-      if (this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)) != undefined)
-        this.selecBodegaFiltro = this.listBodega.find(x => x.encargadoBodega.includes(this.conexcionService.UserDataToken.name)).nombreBodega;
-      else this.selecBodegaFiltro = this.listBodega[0].nombreBodega;
+      if ((this.conexcionService.UserDataToken.role == "verificador-bodeguero" || this.conexcionService.UserDataToken.role == "verificador-bodeguero-h"))
+        this.listBodega = this.listBodega.filter(x => x.listEncargados.length > 0 && x.listEncargados.find(y => y.encargado == this.conexcionService.UserDataToken.name));
+      this.selecBodegaFiltro = this.listBodega[0].nombreBodega;
       this.cargarData();
     });
   }
