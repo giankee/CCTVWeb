@@ -41,7 +41,7 @@ export class UserComponent implements OnInit {
   resetForm(form?: NgForm) {//Para que los valores en el html esten vacios
     if (form != null)
       form.resetForm();
-    this._userService.loginForm = new cLoginU();
+    this._userService.loginForm = new cLoginU();  
   }
 
   onSubmit() {//Pasa los datos del formulario y llama al servicio login 

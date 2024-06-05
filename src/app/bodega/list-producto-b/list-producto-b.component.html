@@ -167,10 +167,10 @@
         </div>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12 col-12"
-        *ngIf="conexcionService.UserDataToken.role == 'enfermeria' || conexcionService.UserDataToken.role == 'gpv-o' || conexcionService.UserDataToken.role == 'bodega_verificador-m' || conexcionService.UserDataToken.role =='tinabg-m' || conexcionService.UserDataToken.role == 'verificador-bodeguero-h'||  (conexcionService.UserDataToken.role == 'verificador-bodeguero' && conexcionService.UserDataToken.name=='FERNANDA MORALES')">
+        *ngIf="conexcionService.UserDataToken.role == 'enfermeria' || conexcionService.UserDataToken.role == 'bodega_verificador-m' || conexcionService.UserDataToken.role =='tinabg-m' || conexcionService.UserDataToken.role == 'verificador-bodeguero-h'|| (conexcionService.UserDataToken.role == 'gpv-o' ) || (conexcionService.UserDataToken.role == 'verificador-bodeguero' && conexcionService.UserDataToken.name=='FERNANDA MORALES')">
         <div class="row">
-          <!-- <div class="col-12 mb-3"
-            *ngIf="conexcionService.UserDataToken.role != 'enfermeria'">
+          <div class="col-12 mb-3"
+            *ngIf="conexcionService.UserDataToken.role != 'enfermeria' && (conexcionService.UserDataToken.sub=='MARIAZABALU'||conexcionService.UserDataToken.sub=='FERNANDAMORALES')">
             <div class="card">
               <div class="card-header">
                 <h5>Ingresar Documento</h5>
@@ -184,7 +184,7 @@
                 </div>
               </div>
             </div>
-          </div> -->
+          </div>
           <div class="col-12">
             <div class="card">
               <div class="card-header">

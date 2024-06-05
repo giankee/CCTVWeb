@@ -161,7 +161,8 @@ export class CompraProveedorComponent implements OnInit {
       } else {
         this._ordenECService.formData.factura = 0;
         for (var i = 0; i < this._ordenECService.formData.listPcomprasO.length; i++) {
-          this._ordenECService.formData.listPcomprasO[i].cargaIva = false;
+          this._ordenECService.formData.listPcomprasO[i].cargaIva12 = false;
+          this._ordenECService.formData.listPcomprasO[i].cargaIva15 = false;
           this._ordenECService.formData.listPcomprasO[i].producto.estado = 3;
           if (this._ordenECService.formData.listPcomprasO[i].producto.idProductoStock == undefined) {
             this._ordenECService.formData.listPcomprasO[i].producto.contenidoNeto = 1;

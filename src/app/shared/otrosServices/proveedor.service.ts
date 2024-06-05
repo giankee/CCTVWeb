@@ -10,17 +10,19 @@ import { cEnterpriceProveedor } from './varios';
 export class ProveedorService {
 
   serverUrl = environment.baseUrlCCTVL + 'cctv_proveedor_B';
+  serverUrl2 = environment.baseUrlCCTVL + 'vcctv_proveedorUnificada';
   formData: cEnterpriceProveedor;
 
   constructor(private http: HttpClient) {
     var URLactual = window.location;
     if (URLactual.hostname != '192.168.2.97') {
       this.serverUrl = environment.baseUrlCCTVP + 'cctv_proveedor_B';
+      this.serverUrl2 = environment.baseUrlCCTVP + 'vcctv_proveedorUnificada';
     }
   }
 
   getProveedorUnificadaSearch(strParametros:string): Observable<cEnterpriceProveedor[]> {
-    return this.http.get<cEnterpriceProveedor[]>(environment.baseUrlCCTVP+'vcctv_proveedorUnificada/getProveedor2Search/'+strParametros);
+    return this.http.get<cEnterpriceProveedor[]>(this.serverUrl2+'/getProveedor2Search/'+strParametros);
   }
 
   actualizarDataProveedor(formData: cEnterpriceProveedor): Observable<cEnterpriceProveedor> {

@@ -45,8 +45,9 @@ export class ListProveedorComponent implements OnInit {
     this.filtroProveedor = value;
     if (value)
       this.listProveedoresMostrar$ = this.proveedorService.getProveedorUnificadaSearch(value).pipe(
-        map((x: cEnterpriceProveedor[]) => {
+        map((x: cEnterpriceProveedor[]) => {console.table(x);
           return x;
+        
         }),
         finalize(() => this.spinnerOnOff = false)
       );

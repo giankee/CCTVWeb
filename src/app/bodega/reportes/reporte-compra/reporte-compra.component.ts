@@ -48,8 +48,10 @@ export class ReporteCompraComponent implements OnInit {
           x.listPcomprasO.forEach(x1 => {
             x.subTotalLibre = x1.totalInd;
             x.totalImpuestos = 0;
-            if (x1.cargaIva)
+            if (x1.cargaIva12)
               x.totalImpuestos = Number((x1.totalInd * 0.12).toFixed(2));
+            if (x1.cargaIva15)
+              x.totalImpuestos = Number((x1.totalInd * 0.15).toFixed(2));
             x.totalOrden = x.subTotalLibre + x.totalImpuestos;
           });
         }

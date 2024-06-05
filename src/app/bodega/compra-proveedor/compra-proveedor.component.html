@@ -266,16 +266,30 @@
                       <td *ngIf="showSelect==3 && ordenECService.formData.planta!='ENFERMERIA'" id="inputSearchP" class="justify-content-center text-center">
                         <div class="form-check">
                           <mat-checkbox
-                            id="isCheckIVA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
-                            name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva"
-                            #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva="ngModel"
+                            id="isCheckIVA12{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
+                            name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva12"
+                            #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva12="ngModel"
                             color="primary"
-                            [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cargaIva"
+                            [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cargaIva12"
                             (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))">
                           </mat-checkbox>
                           <label class="form-check-label"
-                            for="isCheckIVA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}">
+                            for="isCheckIVA12{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}">
                             12%</label>
+                    
+                        </div>
+                        <div class="form-check">
+                            <mat-checkbox
+                            id="isCheckIVA15{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}"
+                            name="inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva15"
+                            #inNewA{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}cargaIva15="ngModel"
+                            color="primary"
+                            [(ngModel)]="ordenECService.formData.listPcomprasO[indice+(paginacion.selectPagination*paginacion.pagActualIndex)].cargaIva15"
+                            (ngModelChange)="onChangeEventMoney(indice+(paginacion.selectPagination*paginacion.pagActualIndex))">
+                          </mat-checkbox>
+                          <label class="form-check-label"
+                            for="isCheckIVA15{{indice+(paginacion.selectPagination*paginacion.pagActualIndex)}}">
+                            15%</label>
                         </div>
                       </td>
                       <td *ngIf="showSelect==4 && ordenECService.formData.planta!='ENFERMERIA'" class="text-center">{{datoList.producto.precioUltima| currency:4}}</td>

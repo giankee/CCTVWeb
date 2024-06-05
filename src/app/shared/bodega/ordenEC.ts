@@ -28,6 +28,7 @@ export class cOrdenEC {
     /**Auxiliares vizuales */
     auxTarifa12: number = 0;
     auxTarifa0: number = 0;
+    auxTarifa15: number = 0;
     listPtemporales?: cCompraO[] = [];
 
     constructor(planta?: string, guardia?: string) {
@@ -64,8 +65,13 @@ export class cOrdenEC {
             this.listPcomprasO.forEach(x => {
                 if (x.marcar) {
                     this.subTotalLibre = this.subTotalLibre + x.totalInd;
-                    if (x.cargaIva)
+                    if (x.cargaIva12){
                         this.totalImpuestos = this.totalImpuestos + (x.totalInd * 0.12);
+                    }
+                    if (x.cargaIva15){
+                        this.totalImpuestos = this.totalImpuestos + (x.totalInd * 0.15);
+                    }
+                        
                 }
 
             });
@@ -120,11 +126,15 @@ export class cOrdenEC {
 
     calcularTarificas() {
         this.listPcomprasO.forEach(x => {
-            if (x.cargaIva)
+            if (x.cargaIva12)
                 this.auxTarifa12 = this.auxTarifa12 + x.totalInd;
-            else this.auxTarifa0 = this.auxTarifa0 + x.totalInd;
+            if (x.cargaIva15)
+                this.auxTarifa15 = this.auxTarifa15 + x.totalInd;
+            if(!x.cargaIva12&&!x.cargaIva15)
+                this.auxTarifa0 = this.auxTarifa0 + x.totalInd;
         });
         this.auxTarifa12 = Number(this.auxTarifa12.toFixed(2));
+        this.auxTarifa15 = Number(this.auxTarifa12.toFixed(2));
     }
 
     agregarOneDevolucion(dataIn: cCompraO, cantidadIn?: number) {
@@ -134,7 +144,8 @@ export class cOrdenEC {
         auxDevolucion.precio = dataIn.precio;
         auxDevolucion.descuento = dataIn.descuento;
         auxDevolucion.destinoBodega = dataIn.destinoBodega;
-        auxDevolucion.cargaIva = dataIn.cargaIva;
+        auxDevolucion.cargaIva12 = dataIn.cargaIva12;
+        auxDevolucion.cargaIva15 = dataIn.cargaIva15;
         auxDevolucion.disBttnInput = dataIn.cantidad;
         auxDevolucion.cantidad = dataIn.cantidad;
         if (cantidadIn != null)
@@ -155,7 +166,8 @@ export class cCompraO {
     descuento: number = 0;
     totalInd: number = 0;
     destinoBodega: string = "SIN ASIGNAR";
-    cargaIva: boolean = true;
+    cargaIva12: boolean = false;
+    cargaIva15: boolean = true;
     estadoCompra: string = "Procesada";
     loteMedic: string = null;
     fechaVencimientoMedic: string;
